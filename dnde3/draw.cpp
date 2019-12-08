@@ -51,10 +51,10 @@ static const void*	drag_object;
 point				draw::dragmouse;
 // Metrics
 rect				metrics::edit = {4, 4, -4, -4};
-sprite*				metrics::font = (sprite*)loadb("art/fonts/font.pma");
-sprite*				metrics::h1 = (sprite*)loadb("art/fonts/h1.pma");
-sprite*				metrics::h2 = (sprite*)loadb("art/fonts/h2.pma");
-sprite*				metrics::h3 = (sprite*)loadb("art/fonts/h3.pma");
+sprite*				metrics::font = (sprite*)loadb("art/font.pma");
+sprite*				metrics::h1 = (sprite*)loadb("art/h1.pma");
+sprite*				metrics::h2 = (sprite*)loadb("art/h2.pma");
+sprite*				metrics::h3 = (sprite*)loadb("art/h3.pma");
 int					metrics::scroll = 16;
 int					metrics::padding = 4;
 

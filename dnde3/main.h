@@ -210,6 +210,7 @@ enum variant_s : unsigned char {
 };
 class creature;
 typedef short unsigned	indext;
+typedef void(*widgetproc)();
 struct variant {
 	variant_s			type;
 	unsigned char		value;
@@ -230,7 +231,7 @@ struct picture : point {
 	unsigned short		flags;
 	unsigned char		alpha;
 	unsigned char		level;
-	void				clear() { memset(this, 0, sizeof(*this)); }
+	void				clear() { memset(this, 0, sizeof(*this)); alpha = 0xFF; }
 	void				render(int x, int y) const;
 	void				set(indext i);
 	void				set(short x, short y);
@@ -270,6 +271,11 @@ struct speciali {
 	char				chance_broke;
 	char				bonus;
 	char				chance_side;
+};
+struct hotkey {
+	char				key[8];
+	const char*			name;
+	void(*proc)();
 };
 class item {
 	item_s				type;
@@ -370,7 +376,7 @@ class creature : public nameable {
 	unsigned			restore_hits, restore_mana;
 	unsigned char		skills[LastResist + 1];
 	unsigned char		spells[LastSpell + 1];
-	flagable<1 + LastState/8> states;
+	flagable<1 + LastState / 8> states;
 	unsigned			recoil;
 	short unsigned		charmer;
 	short unsigned		horror;
@@ -540,7 +546,8 @@ struct site : rect {
 	diety_s				diety;
 	short unsigned		owner;
 	constexpr site() : rect({0, 0, 0, 0}), type(EmpthyRoom), diety(NoGod), name(), owner(),
-		found(0), recoil(0) {}
+		found(0), recoil(0) {
+	}
 	operator bool() const { return x1 != x2; }
 	void				entering(creature& player);
 	int					getfoundchance() const;
@@ -568,7 +575,8 @@ struct areainfo : coordinate {
 	short unsigned		positions[8]; // Several positions
 	constexpr areainfo() : rooms(0), isdungeon(false),
 		artifacts(0), habbitants(),
-		positions{Blocked, Blocked, Blocked, Blocked, Blocked, Blocked, Blocked, Blocked} {}
+		positions{Blocked, Blocked, Blocked, Blocked, Blocked, Blocked, Blocked, Blocked} {
+	}
 };
 struct dungeon {
 	struct layer {
@@ -595,16 +603,16 @@ class location {
 	unsigned char		random[mmx*mmy];
 public:
 	void				clear();
-	void				choose() const;
+	void				editor();
 	indext				get(short x, short y) const { return y*mmx + x; }
 	static short		getx(indext i) { return i%mmx; }
-	static short		gety(indext i) { return i/mmx; }
+	static short		gety(indext i) { return i / mmx; }
 	int					getindex(indext i, tile_s e) const;
 	tile_s				gettile(indext i) const { return tiles[i]; }
 	int					getrand(indext i) const { return random[i]; }
 	void				set(indext i, tile_s v) { tiles[i] = v; }
 	static indext		to(indext index, direction_s id);
-	void				worldmap(point camera, bool show_fow = true, aref<picture> effects = aref<picture>()) const;
+	void				worldmap(point camera, bool show_fow = true) const;
 };
 class gamei {
 	unsigned			rounds;
@@ -612,18 +620,23 @@ public:
 	void				intialize();
 	void				pass(unsigned seconds);
 };
-class widget {
-public:
-	static void			close(int param);
-	int					choose();
-	int					detail(int x, int y, int width, const char* format) const;
-	int					detail(int x, int y, int width, const char* format, int width_right, const char* text_value) const;
-	int					detail(int x, int y, int width, const char* format, int width_right, int v1) const;
-	int					detail(int x, int y, int width, const char* format, int width_right, int v1, int v2) const;
-	virtual int			getwidth() const { return 600; }
-	virtual int			getheight() const { return 2; }
-	int					header(int x, int y, int width, const char* format) const;
-	int					headof(int& x, int y, int& width, const char* format) const;
-	virtual int			render(int x, int y, int width) const = 0;
-};
+namespace draw {
+const int				gui_border = 8;
+const int				gui_padding = 4;
+void					breakmodal(int param);
+int						detail(int x, int y, int width, const char* format);
+int						detail(int x, int y, int width, const char* format, int width_right, const char* text_value);
+int						detail(int x, int y, int width, const char* format, int width_right, int v1);
+int						detail(int x, int y, int width, const char* format, int width_right, int v1, int v2);
+point					getcamera();
+int						getheight();
+int						getwidth();
+int						header(int x, int y, int width, const char* format);
+int						headof(int& x, int y, int& width, const char* format);
+void					render(aref<picture> source);
+bool					shortcuts(const hotkey* ph);
+indext					translate(indext i);
+int						widget(widgetproc before, widgetproc after);
+void					window(rect rc, bool disabled = false, int border = 0);
+}
 extern gamei			game;

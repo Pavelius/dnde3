@@ -55,9 +55,6 @@
     <ClCompile Include="game.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="draw_widget.cpp">
-      <Filter>Графика</Filter>
-    </ClCompile>
     <ClCompile Include="location.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
@@ -69,6 +66,12 @@
     </ClCompile>
     <ClCompile Include="picture.cpp">
       <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="location_editor.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="draw_widget.cpp">
+      <Filter>Графика</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

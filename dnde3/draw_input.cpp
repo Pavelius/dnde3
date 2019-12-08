@@ -6,8 +6,6 @@ using namespace draw;
 static bool		break_modal;
 static int		break_result;
 eventproc		draw::domodal;
-const int		gui_border = 8;
-const int		gui_padding = 4;
 const int		elx = 64; // Map tile element width
 const int		ely = 48; // Map tile element height
 static point	viewport;
@@ -143,19 +141,17 @@ void gamei::intialize() {
 	draw::create(-1, -1, 800, 600, WFResize | WFMinmax, 32);
 }
 
-static areas window(rect rc, bool disabled = false, int border = 0) {
+void draw::window(rect rc, bool disabled, int border) {
 	if(border == 0)
 		border = gui_border;
 	rc.offset(-border, -border);
 	color c = colors::form;
 	color b = colors::form;
-	auto rs = draw::area(rc);
 	auto op = 192;
 	if(disabled)
 		op = op / 2;
 	draw::rectf(rc, c, op);
 	draw::rectb(rc, b);
-	return rs;
 }
 
 static int windowf(int x, int y, int width, const char* string) {
@@ -167,6 +163,29 @@ static int windowf(int x, int y, int width, const char* string) {
 	window(rc, false);
 	draw::textf(x, y, rc.width(), string);
 	return height + gui_border * 2 + gui_padding;
+}
+
+static bool mapkeys(char* key) {
+	auto p = key;
+	switch(hot.key) {
+	case 0: break;
+	case KeyEnter: *p++ = '#'; *p++ = 'E'; break;
+	case KeySpace: *p++ = '#'; *p++ = ' '; break;
+	case KeyUp: *p++ = '#'; *p++ = 'U'; break;
+	case KeyDown: *p++ = '#'; *p++ = 'D'; break;
+	case KeyLeft: *p++ = '#'; *p++ = 'L'; break;
+	case KeyRight: *p++ = '#'; *p++ = 'R'; break;
+	case KeyPageUp: *p++ = '#'; *p++ = 'R'; *p++ = 'U'; break;
+	case KeyPageDown: *p++ = '#'; *p++ = 'R';  *p++ = 'D'; break;
+	case KeyHome: *p++ = '#'; *p++ = 'L'; *p++ = 'U'; break;
+	case KeyEnd: *p++ = '#'; *p++ = 'L';  *p++ = 'D'; break;
+	default:
+		if(hot.key >= Alpha + 'A' && hot.key <= Alpha + 'Z')
+			*p++ = hot.key - (Alpha + 'A') + 'A';
+		break;
+	}
+	*p++ = 0;
+	return key[0] != 0;
 }
 
 static int getorder(item_s type) {
@@ -266,18 +285,11 @@ static void correct(point& camera) {
 		camera.y = my - viewport.y;
 }
 
-void location::worldmap(point camera, bool show_fow, aref<picture> effects) const {
-	auto plain = gres(ResPlains);
-	auto hills = gres(ResFoothills);
-	auto mount = gres(ResMountains);
-	auto tmount = gres(ResCloudPeaks);
-	auto sea = gres(ResSea);
+void location::worldmap(point camera, bool show_fow) const {
 	auto decals = gres(ResDecals);
 	viewport.x = draw::getwidth();
 	viewport.y = draw::getheight();
 	correct(camera);
-	camera.x -= elx / 2;
-	camera.y -= ely / 2;
 	rect rc;
 	rc.x1 = camera.x / elx;
 	rc.y1 = camera.y / ely;
@@ -304,14 +316,14 @@ void location::worldmap(point camera, bool show_fow, aref<picture> effects) cons
 			case Mountains:
 			case Forest:
 			case Swamp:
-				draw::image(x, y, plain, r, 0);
+				draw::image(x, y, gres(ResPlains), r, 0);
 				break;
 			case Sea:
-				draw::image(x, y, sea, getindex(i, Sea), 0);
+				draw::image(x, y, gres(ResSea), getindex(i, Sea), 0);
 				break;
 			case Foothills:
-				draw::image(x, y, plain, r, 0);
-				draw::image(x, y, hills, getindex(i, Foothills), 0);
+				draw::image(x, y, gres(ResPlains), r, 0);
+				draw::image(x, y, gres(ResFoothills), getindex(i, Foothills), 0);
 				break;
 			}
 		}
@@ -332,10 +344,10 @@ void location::worldmap(point camera, bool show_fow, aref<picture> effects) cons
 			auto r = getrand(i) % 4;
 			switch(t) {
 			case Mountains:
-				draw::image(x, y, mount, getindex(i, Mountains), 0);
+				draw::image(x, y, gres(ResMountains), getindex(i, Mountains), 0);
 				break;
 			case CloudPeaks:
-				draw::image(x, y, tmount, getindex(i, CloudPeaks), 0);
+				draw::image(x, y, gres(ResCloudPeaks), getindex(i, CloudPeaks), 0);
 				break;
 			case Forest:
 				draw::image(x, y, decals, 0 + (getrand(i) % 3), 0);
@@ -346,8 +358,6 @@ void location::worldmap(point camera, bool show_fow, aref<picture> effects) cons
 			}
 		}
 	}
-	for(auto& e : effects)
-		e.render(camera.x, camera.y);
 }
 
 static bool controlmap() {
@@ -366,14 +376,58 @@ static bool controlmap() {
 	return true;
 }
 
-void location::choose() const {
-	picture effects[1];
-	effects[0].setcursor(location::get(10, 10), 1);
-	while(ismodal()) {
-		worldmap(camera, true, effects);
-		domodal();
-		controlmap();
+static void correct(point& camera, indext i1) {
+	auto x = location::getx(i1);
+	auto y = location::gety(i1);
+	auto x1 = camera.x / elx;
+	auto x2 = x1 + viewport.x / elx;
+	auto y1 = camera.y / ely;
+	auto y2 = y1 + viewport.y / ely;
+	if(x < x1)
+		camera.x = x*elx;
+	if(x > x2 - 1)
+		camera.x = (x - viewport.x / elx)*elx;
+	if(y < y1)
+		camera.y = y*ely;
+	if(y > y2 - 1)
+		camera.y = (y - viewport.y / ely)*ely;
+	correct(camera);
+}
+
+indext draw::translate(indext i) {
+	indext i1 = Blocked;
+	switch(hot.key) {
+	case KeyLeft: i1 = location::to(i, Left); break;
+	case KeyRight: i1 = location::to(i, Right); break;
+	case KeyUp: i1 = location::to(i, Up); break;
+	case KeyDown: i1 = location::to(i, Down); break;
+	case KeyHome: i1 = location::to(i, LeftUp); break;
+	case KeyPageUp: i1 = location::to(i, RightUp); break;
+	case KeyEnd: i1 = location::to(i, LeftDown); break;
+	case KeyPageDown: i1 = location::to(i, RightDown); break;
+	default: return i;
 	}
+	if(i1 == Blocked)
+		return i;
+	correct(camera, i1);
+	return i1;
+}
+
+bool draw::shortcuts(const hotkey* ph) {
+	char keys[8];
+	if(!mapkeys(keys))
+		return false;
+	for(auto p = ph; p->proc; p++) {
+		if(strcmp(p->key, keys) != 0)
+			continue;
+		p->proc();
+		return true;
+	}
+	return false;
+}
+
+point draw::getcamera() {
+	return camera;
 }
 
 void picture::set(short x, short y) {
@@ -382,5 +436,10 @@ void picture::set(short x, short y) {
 }
 
 void picture::render(int x, int y) const {
-	image(x + this->x, y + this->y, gres(img), frame, flags, alpha);
+	image(this->x + x, this->y + y, gres(img), frame, flags, alpha);
+}
+
+void draw::render(aref<picture> source) {
+	for(auto& e : source)
+		e.render(-camera.x, -camera.y);
 }

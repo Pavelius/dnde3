@@ -2,6 +2,7 @@
 
 static void test_worldmap() {
 	location e;
+	indext position = e.get(10, 10);
 	auto i0 = e.get(5, 4);
 	auto i1 = e.get(5, 5);
 	auto i2 = e.get(5, 6);
@@ -12,7 +13,7 @@ static void test_worldmap() {
 	e.set(i1 + 1, Sea);
 	e.set(i1 - 1, Sea);
 	e.set(i2, Sea);
-	e.choose();
+	e.editor();
 }
 
 int main(int argc, char* argv[]) {
