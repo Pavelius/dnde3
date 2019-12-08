@@ -117,6 +117,7 @@
     <ClCompile Include="archive.cpp" />
     <ClCompile Include="bstream.cpp" />
     <ClCompile Include="color.cpp" />
+    <ClCompile Include="creature.cpp" />
     <ClCompile Include="crt.cpp" />
     <ClCompile Include="crt_strings.cpp" />
     <ClCompile Include="draw.cpp" />
@@ -128,9 +129,11 @@
     <ClCompile Include="io.cpp" />
     <ClCompile Include="location.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="picture.cpp" />
     <ClCompile Include="point.cpp" />
     <ClCompile Include="stringbuilder.cpp" />
     <ClCompile Include="szdup.cpp" />
+    <ClCompile Include="variant.cpp" />
     <ClCompile Include="win_draw.cpp" />
     <ClCompile Include="win_io_file.cpp" />
   </ItemGroup>

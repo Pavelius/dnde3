@@ -61,6 +61,15 @@
     <ClCompile Include="location.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="variant.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="creature.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="picture.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="answer.h">

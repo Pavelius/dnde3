@@ -253,15 +253,7 @@ static void avatar(int x, int y, const creature& player, short unsigned flags, u
 	draw::image(x, y, gres(ResPCmar), i2, flags, alpha);
 }
 
-void location::worldmap(point camera, bool show_fow) const {
-	auto plain = gres(ResPlains);
-	auto hills = gres(ResFoothills);
-	auto mount = gres(ResMountains);
-	auto tmount = gres(ResCloudPeaks);
-	auto sea = gres(ResSea);
-	auto decals = gres(ResDecals);
-	viewport.x = draw::getwidth();
-	viewport.y = draw::getheight();
+static void correct(point& camera) {
 	auto mx = mmx * elx;
 	auto my = mmy * ely;
 	if(camera.x < 0)
@@ -272,6 +264,18 @@ void location::worldmap(point camera, bool show_fow) const {
 		camera.x = mx - viewport.x;
 	if(camera.y > my - viewport.y)
 		camera.y = my - viewport.y;
+}
+
+void location::worldmap(point camera, bool show_fow, aref<picture> effects) const {
+	auto plain = gres(ResPlains);
+	auto hills = gres(ResFoothills);
+	auto mount = gres(ResMountains);
+	auto tmount = gres(ResCloudPeaks);
+	auto sea = gres(ResSea);
+	auto decals = gres(ResDecals);
+	viewport.x = draw::getwidth();
+	viewport.y = draw::getheight();
+	correct(camera);
 	camera.x -= elx / 2;
 	camera.y -= ely / 2;
 	rect rc;
@@ -342,11 +346,41 @@ void location::worldmap(point camera, bool show_fow) const {
 			}
 		}
 	}
+	for(auto& e : effects)
+		e.render(camera.x, camera.y);
+}
+
+static bool controlmap() {
+	switch(hot.key) {
+	case KeyLeft: camera.x -= mmx; break;
+	case KeyRight: camera.x += mmx; break;
+	case KeyUp: camera.y -= mmy; break;
+	case KeyDown: camera.y += mmy; break;
+	case KeyHome: camera.x -= mmx; camera.y -= mmy; break;
+	case KeyPageUp: camera.x += mmx; camera.y -= mmy; break;
+	case KeyEnd: camera.x -= mmx; camera.y += mmy; break;
+	case KeyPageDown: camera.x += mmx; camera.y += mmy; break;
+	default: return false;
+	}
+	correct(camera);
+	return true;
 }
 
 void location::choose() const {
+	picture effects[1];
+	effects[0].setcursor(location::get(10, 10), 1);
 	while(ismodal()) {
-		worldmap(camera, true);
+		worldmap(camera, true, effects);
 		domodal();
+		controlmap();
 	}
+}
+
+void picture::set(short x, short y) {
+	this->x = x*elx;
+	this->y = y*ely;
+}
+
+void picture::render(int x, int y) const {
+	image(x + this->x, y + this->y, gres(img), frame, flags, alpha);
 }

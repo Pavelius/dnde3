@@ -8,6 +8,8 @@ const int GP = 100;
 const int SP = 10;
 const int CP = 1;
 const int chance_to_hit = 40; // Dexterity add to this value. Mediaval dexterity is 10, so medium chance to hit is 50%.
+const short unsigned mmx = 96;
+const short unsigned mmy = 96;
 const unsigned short Blocked = 0xFFFF;
 const unsigned short BlockedCreature = Blocked - 1;
 
@@ -186,11 +188,6 @@ enum encumbrance_s : unsigned char {
 	NoEncumbered,
 	Encumbered, HeavilyEncumbered,
 };
-enum variant_s : unsigned char {
-	NoVariant,
-	Ability, Enchantment, God, Items, ItemObject, Skill, Spell, State,
-	String
-};
 enum speech_s : unsigned char {
 	NoTalking,
 	Answer, Action, Speech,
@@ -206,6 +203,13 @@ enum dungeon_area_s : unsigned char {
 	AreaPlain, AreaForest, AreaHills,
 	AreaCity,
 };
+enum variant_s : unsigned char {
+	NoVariant,
+	Ability, Creature, Enchantment, God, Items, ItemObject, Skill, Spell, State,
+	String
+};
+class creature;
+typedef short unsigned	indext;
 struct variant {
 	variant_s			type;
 	unsigned char		value;
@@ -217,7 +221,20 @@ struct variant {
 	constexpr variant(skill_s v) : type(Skill), value(v) {}
 	constexpr variant(spell_s v) : type(Spell), value(v) {}
 	constexpr variant(state_s v) : type(State), value(v) {}
+	variant(const creature* v);
 	explicit operator bool() const { return type != NoVariant; }
+};
+struct picture : point {
+	img_s				img;
+	unsigned short		frame;
+	unsigned short		flags;
+	unsigned char		alpha;
+	unsigned char		level;
+	void				clear() { memset(this, 0, sizeof(*this)); }
+	void				render(int x, int y) const;
+	void				set(indext i);
+	void				set(short x, short y);
+	void				setcursor(indext i, int size);
 };
 struct skillvalue {
 	skill_s				id;
@@ -573,22 +590,21 @@ struct manual {
 	aref<proc>			procs;
 	explicit operator bool() const { return value.type != 0; }
 };
-typedef short unsigned	indext;
 class location {
-	static const short unsigned mmx = 96;
-	static const short unsigned mmy = 96;
 	tile_s				tiles[mmx*mmy];
 	unsigned char		random[mmx*mmy];
 public:
 	void				clear();
 	void				choose() const;
 	indext				get(short x, short y) const { return y*mmx + x; }
+	static short		getx(indext i) { return i%mmx; }
+	static short		gety(indext i) { return i/mmx; }
 	int					getindex(indext i, tile_s e) const;
 	tile_s				gettile(indext i) const { return tiles[i]; }
 	int					getrand(indext i) const { return random[i]; }
 	void				set(indext i, tile_s v) { tiles[i] = v; }
 	static indext		to(indext index, direction_s id);
-	void				worldmap(point camera, bool show_fow = true) const;
+	void				worldmap(point camera, bool show_fow = true, aref<picture> effects = aref<picture>()) const;
 };
 class gamei {
 	unsigned			rounds;
@@ -604,6 +620,8 @@ public:
 	int					detail(int x, int y, int width, const char* format, int width_right, const char* text_value) const;
 	int					detail(int x, int y, int width, const char* format, int width_right, int v1) const;
 	int					detail(int x, int y, int width, const char* format, int width_right, int v1, int v2) const;
+	virtual int			getwidth() const { return 600; }
+	virtual int			getheight() const { return 2; }
 	int					header(int x, int y, int width, const char* format) const;
 	int					headof(int& x, int y, int& width, const char* format) const;
 	virtual int			render(int x, int y, int width) const = 0;
