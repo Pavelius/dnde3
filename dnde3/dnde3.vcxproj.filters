@@ -1,2 +1,114 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" />
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="answer.cpp">
+      <Filter>Поддержка</Filter>
+    </ClCompile>
+    <ClCompile Include="archive.cpp">
+      <Filter>Поддержка</Filter>
+    </ClCompile>
+    <ClCompile Include="bstream.cpp">
+      <Filter>Поддержка</Filter>
+    </ClCompile>
+    <ClCompile Include="color.cpp">
+      <Filter>Поддержка</Filter>
+    </ClCompile>
+    <ClCompile Include="crt.cpp">
+      <Filter>Поддержка</Filter>
+    </ClCompile>
+    <ClCompile Include="draw.cpp">
+      <Filter>Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="draw_text.cpp">
+      <Filter>Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="draw_textf.cpp">
+      <Filter>Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="io.cpp">
+      <Filter>Поддержка</Filter>
+    </ClCompile>
+    <ClCompile Include="point.cpp">
+      <Filter>Поддержка</Filter>
+    </ClCompile>
+    <ClCompile Include="stringbuilder.cpp">
+      <Filter>Поддержка</Filter>
+    </ClCompile>
+    <ClCompile Include="szdup.cpp">
+      <Filter>Поддержка</Filter>
+    </ClCompile>
+    <ClCompile Include="win_draw.cpp">
+      <Filter>Платформа</Filter>
+    </ClCompile>
+    <ClCompile Include="win_io_file.cpp">
+      <Filter>Платформа</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="crt_strings.cpp">
+      <Filter>Поддержка</Filter>
+    </ClCompile>
+    <ClCompile Include="draw_input.cpp">
+      <Filter>Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="game.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="draw_widget.cpp">
+      <Filter>Графика</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="answer.h">
+      <Filter>Поддержка</Filter>
+    </ClInclude>
+    <ClInclude Include="archive.h">
+      <Filter>Поддержка</Filter>
+    </ClInclude>
+    <ClInclude Include="bstream.h">
+      <Filter>Поддержка</Filter>
+    </ClInclude>
+    <ClInclude Include="color.h">
+      <Filter>Поддержка</Filter>
+    </ClInclude>
+    <ClInclude Include="crt.h">
+      <Filter>Поддержка</Filter>
+    </ClInclude>
+    <ClInclude Include="draw.h">
+      <Filter>Графика</Filter>
+    </ClInclude>
+    <ClInclude Include="io.h">
+      <Filter>Поддержка</Filter>
+    </ClInclude>
+    <ClInclude Include="point.h">
+      <Filter>Поддержка</Filter>
+    </ClInclude>
+    <ClInclude Include="rect.h">
+      <Filter>Поддержка</Filter>
+    </ClInclude>
+    <ClInclude Include="stringbuilder.h">
+      <Filter>Поддержка</Filter>
+    </ClInclude>
+    <ClInclude Include="win.h">
+      <Filter>Платформа</Filter>
+    </ClInclude>
+    <ClInclude Include="main.h">
+      <Filter>Логика</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Поддержка">
+      <UniqueIdentifier>{a41bd21a-8ac6-4071-9528-e6ea5b1df915}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Графика">
+      <UniqueIdentifier>{2fcced25-a904-488a-9491-4b3bc26614bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Платформа">
+      <UniqueIdentifier>{c2773d4e-99b8-459a-92fd-42fb075f2dd0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Логика">
+      <UniqueIdentifier>{bbdb4b2b-5110-4700-b1a8-f11c5cfe41a6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

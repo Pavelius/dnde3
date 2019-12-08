@@ -22,13 +22,13 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{50EC0A75-889F-4835-89BA-132CC20380E2}</ProjectGuid>
     <RootNamespace>dnde3</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -75,6 +75,9 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -110,6 +113,39 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="answer.cpp" />
+    <ClCompile Include="archive.cpp" />
+    <ClCompile Include="bstream.cpp" />
+    <ClCompile Include="color.cpp" />
+    <ClCompile Include="crt.cpp" />
+    <ClCompile Include="crt_strings.cpp" />
+    <ClCompile Include="draw.cpp" />
+    <ClCompile Include="draw_input.cpp" />
+    <ClCompile Include="draw_text.cpp" />
+    <ClCompile Include="draw_textf.cpp" />
+    <ClCompile Include="draw_widget.cpp" />
+    <ClCompile Include="game.cpp" />
+    <ClCompile Include="io.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="point.cpp" />
+    <ClCompile Include="stringbuilder.cpp" />
+    <ClCompile Include="szdup.cpp" />
+    <ClCompile Include="win_draw.cpp" />
+    <ClCompile Include="win_io_file.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="answer.h" />
+    <ClInclude Include="archive.h" />
+    <ClInclude Include="bstream.h" />
+    <ClInclude Include="color.h" />
+    <ClInclude Include="crt.h" />
+    <ClInclude Include="draw.h" />
+    <ClInclude Include="io.h" />
+    <ClInclude Include="main.h" />
+    <ClInclude Include="point.h" />
+    <ClInclude Include="rect.h" />
+    <ClInclude Include="stringbuilder.h" />
+    <ClInclude Include="win.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
