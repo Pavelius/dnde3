@@ -7,8 +7,6 @@
 const int GP = 100;
 const int SP = 10;
 const int CP = 1;
-const int max_map_x = 84;
-const int max_map_y = 84;
 const int chance_to_hit = 40; // Dexterity add to this value. Mediaval dexterity is 10, so medium chance to hit is 50%.
 const unsigned short Blocked = 0xFFFF;
 const unsigned short BlockedCreature = Blocked - 1;
@@ -411,6 +409,7 @@ public:
 	int					get(ability_s value) const;
 	int					get(spell_s value) const;
 	int					get(skill_s value) const;
+	const item&			get(slot_s v) const { return wears[v]; }
 	const creature&		getai() const;
 	int					getarmor() const;
 	attacki				getattack(slot_s slot) const;
@@ -573,6 +572,23 @@ struct manual {
 	manual*				child;
 	aref<proc>			procs;
 	explicit operator bool() const { return value.type != 0; }
+};
+typedef short unsigned	indext;
+class location {
+	static const short unsigned mmx = 96;
+	static const short unsigned mmy = 96;
+	tile_s				tiles[mmx*mmy];
+	unsigned char		random[mmx*mmy];
+public:
+	void				clear();
+	void				choose() const;
+	indext				get(short x, short y) const { return y*mmx + x; }
+	int					getindex(indext i, tile_s e) const;
+	tile_s				gettile(indext i) const { return tiles[i]; }
+	int					getrand(indext i) const { return random[i]; }
+	void				set(indext i, tile_s v) { tiles[i] = v; }
+	static indext		to(indext index, direction_s id);
+	void				worldmap(point camera, bool show_fow = true) const;
 };
 class gamei {
 	unsigned			rounds;

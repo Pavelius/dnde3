@@ -125,6 +125,7 @@ static const char* register_class(const char* class_name) {
 		wc.hInstance = GetModuleHandleA(0);	// Set The Instance
 		wc.hIcon = (void*)LoadIconA(wc.hInstance, (const char*)1); // WndProc Handles Messages
 		wc.lpszClassName = class_name; // Set The Class Name
+		wc.hCursor = LoadCursorA(0, (const char*)IDC_ARROW);
 		RegisterClassA(&wc); // Attempt To Register The Window Class
 	}
 	return class_name;

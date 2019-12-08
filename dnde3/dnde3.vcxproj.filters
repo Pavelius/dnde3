@@ -58,6 +58,9 @@
     <ClCompile Include="draw_widget.cpp">
       <Filter>Графика</Filter>
     </ClCompile>
+    <ClCompile Include="location.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="answer.h">
