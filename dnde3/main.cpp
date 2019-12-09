@@ -18,7 +18,8 @@ static void test_worldmap() {
 
 int main(int argc, char* argv[]) {
 	game.intialize();
-	test_worldmap();
+	draw::setnextlayer(test_worldmap);
+	draw::layer();
 }
 
 int __stdcall WinMain(void* ci, void* pi, char* cmd, int sw) {

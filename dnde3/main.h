@@ -210,7 +210,7 @@ enum variant_s : unsigned char {
 };
 class creature;
 typedef short unsigned	indext;
-typedef void(*widgetproc)();
+typedef void(*eventproc)(); 
 struct variant {
 	variant_s			type;
 	unsigned char		value;
@@ -633,10 +633,13 @@ int						getheight();
 int						getwidth();
 int						header(int x, int y, int width, const char* format);
 int						headof(int& x, int y, int& width, const char* format);
+void					layer();
 void					render(aref<picture> source);
+void					setbackground(eventproc proc);
+void					setnextlayer(eventproc proc);
 bool					shortcuts(const hotkey* ph);
 indext					translate(indext i);
-int						widget(widgetproc before, widgetproc after);
+int						widget(eventproc before, eventproc after);
 void					window(rect rc, bool disabled = false, int border = 0);
 }
 extern gamei			game;

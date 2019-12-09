@@ -1,6 +1,9 @@
 #include "main.h"
 #include "draw.h"
 
+static eventproc current_background;
+static eventproc current_layer;
+
 int draw::headof(int& x, int y, int& width, const char* format) {
 	auto dy = header(x, y, width, format);
 	x += metrics::padding;
@@ -41,11 +44,29 @@ int	draw::detail(int x, int y, int width, const char* format, int width_right, c
 	return d1;
 }
 
-int	draw::widget(widgetproc before, widgetproc after) {
+void draw::setbackground(eventproc proc) {
+	current_background = proc;
+}
+
+void draw::setnextlayer(eventproc proc) {
+	current_layer = proc;
+}
+
+int	draw::widget(eventproc before, eventproc after) {
 	while(ismodal()) {
+		if(current_background)
+			current_background();
 		before();
 		domodal();
 		after();
 	}
 	return getresult() != 0;
+}
+
+void draw::layer() {
+	while(current_layer) {
+		auto proc = current_layer;
+		current_layer = 0;
+		proc();
+	}
 }
