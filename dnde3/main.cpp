@@ -21,6 +21,7 @@ static void test_worldmap() {
 }
 
 int main(int argc, char* argv[]) {
+	auto s = sizeof(outdoor);
 	game.intialize();
 	draw::setnextlayer(test_worldmap);
 	draw::layer();

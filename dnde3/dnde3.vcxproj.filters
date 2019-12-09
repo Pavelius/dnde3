@@ -73,6 +73,18 @@
     <ClCompile Include="draw_widget.cpp">
       <Filter>Графика</Filter>
     </ClCompile>
+    <ClCompile Include="ability.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="boost.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="outdoor.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="serial.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="answer.h">

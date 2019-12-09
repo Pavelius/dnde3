@@ -113,8 +113,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ability.cpp" />
     <ClCompile Include="answer.cpp" />
     <ClCompile Include="archive.cpp" />
+    <ClCompile Include="boost.cpp" />
     <ClCompile Include="bstream.cpp" />
     <ClCompile Include="color.cpp" />
     <ClCompile Include="creature.cpp" />
@@ -129,8 +131,10 @@
     <ClCompile Include="location.cpp" />
     <ClCompile Include="location_editor.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="outdoor.cpp" />
     <ClCompile Include="picture.cpp" />
     <ClCompile Include="point.cpp" />
+    <ClCompile Include="serial.cpp" />
     <ClCompile Include="stringbuilder.cpp" />
     <ClCompile Include="szdup.cpp" />
     <ClCompile Include="variant.cpp" />

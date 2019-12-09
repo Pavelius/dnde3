@@ -13,6 +13,12 @@ const short unsigned mmy = 96;
 const unsigned short Blocked = 0xFFFF;
 const unsigned short BlockedCreature = Blocked - 1;
 
+enum dice_s : unsigned char {
+	NoDice,
+	D1n3, D1n6, D2n7, D3n8, D4n9, D5n10,
+	D2n12, D3n13, D4n14, D5n15,
+	D3n18, D4n19, D5n20,
+};
 enum item_s : unsigned char {
 	NoItem,
 	AxeBattle, Club, Dagger, HammerWar, Mace,
@@ -91,7 +97,7 @@ enum alignment_s : unsigned char {
 };
 enum ability_s : unsigned char {
 	Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
-	AttackMelee, AttackRanged, Pierce, Deflect, Armor, Speed, Visibility,
+	AttackMelee, AttackRanged, Pierce, Deflect, Armor, Damage, Speed, Visibility,
 	LifePoints, LifeRate, ManaPoints, ManaRate,
 };
 enum skill_s : unsigned char {
@@ -104,15 +110,8 @@ enum skill_s : unsigned char {
 	LastResist = ResistWater,
 };
 enum state_s : unsigned char {
-	Anger, Armored, Blessed, Charmed, Drunken, Hiding, Goodwill,
-	Lighted, Paralized, PoisonedWeak, Poisoned, PoisonedStrong,
-	Shielded, Sick, Scared, Sleeped, Slowed, Weaken,
-	// Ability boost effect
-	Strenghted, Dexterious, Healthy, Intellegenced, Wisdowed, Charismatic,
-	LastState = Charismatic,
-	// Instant effects
-	Experience, RestoreHits, RestoreMana, RemoveSick, RemovePoison,
-	LastEffectState = RemovePoison,
+	Anger, Blessed, Charmed, Drunken, Invisible, Paralized, Poisoned, Sick, Sleeped,
+	LastState = Sleeped,
 };
 enum tile_s : unsigned char {
 	Plain, Water, Floor, Wall, Road,
@@ -173,9 +172,6 @@ enum duration_s : unsigned {
 	Week = 7 * Day, Month = 30 * Day, Season = 3 * Month, Year = 4 * Season,
 	Permanent = 100 * Year
 };
-enum identify_s : unsigned char {
-	Unknown, KnowEffect
-};
 enum item_type_s : unsigned char {
 	Mundane, Cursed, BlessedItem, Artifact,
 };
@@ -208,10 +204,9 @@ enum dungeon_area_s : unsigned char {
 enum variant_s : unsigned char {
 	NoVariant,
 	Ability, Creature, Enchantment, God, Items, ItemObject, Skill, Spell, State,
-	String
 };
 class creature;
-typedef short unsigned	indext;
+typedef short unsigned indext;
 typedef void(*eventproc)(); 
 struct variant {
 	variant_s			type;
@@ -226,6 +221,19 @@ struct variant {
 	constexpr variant(state_s v) : type(State), value(v) {}
 	variant(const creature* v);
 	explicit operator bool() const { return type != NoVariant; }
+};
+struct boosti {
+	short unsigned		owner;
+	variant				id;
+	char				modifier;
+	unsigned			time;
+};
+struct abilityi {
+	const char*			id;
+	const char*			name;
+	const char*			name_short;
+	const char*			nameof;
+	const char*			cursedof;
 };
 struct picture : point {
 	img_s				img;
@@ -292,10 +300,10 @@ class item {
 	bool				identify : 1;
 	unsigned char		forsale : 1;
 public:
-	constexpr item() : type(NoItem), effect(NoEffect), count(0), magic(Mundane), quality(0), identify(Unknown), forsale(0), damaged(0) {}
-	constexpr item(spell_s spell) : type(Scroll1), effect((enchantment_s)spell), count(0), magic(), quality(0), identify(KnowEffect), forsale(0), damaged(0) {}
-	constexpr item(item_s type) : type(type), effect(NoEffect), count(0), magic(Mundane), quality(0), identify(Unknown), forsale(0), damaged(0) {}
-	constexpr item(item_s type, enchantment_s effect) : type(type), effect(effect), count(0), magic(Mundane), quality(0), identify(KnowEffect), forsale(0), damaged(0) {}
+	constexpr item() : type(NoItem), effect(NoEffect), count(0), magic(Mundane), quality(0), identify(0), forsale(0), damaged(0) {}
+	constexpr item(spell_s spell) : type(Scroll1), effect((enchantment_s)spell), count(0), magic(), quality(0), identify(1), forsale(0), damaged(0) {}
+	constexpr item(item_s type) : type(type), effect(NoEffect), count(0), magic(Mundane), quality(0), identify(0), forsale(0), damaged(0) {}
+	constexpr item(item_s type, enchantment_s effect) : type(type), effect(effect), count(0), magic(Mundane), quality(0), identify(1), forsale(0), damaged(0) {}
 	item(item_s type, int chance_artifact, int chance_magic, int chance_cursed, int chance_quality);
 	explicit operator bool() const { return type != NoItem; }
 	void				act(const char* format, ...) const;
@@ -361,6 +369,12 @@ public:
 	item&				setsold() { forsale = 0;  return *this; }
 	item&				setquality(unsigned char value) { quality = value; return *this; }
 };
+class posable {
+	indext				index;
+public:
+	constexpr indext	getposition() const { return index; }
+	constexpr void		setposition(indext v) { index = v; }
+};
 class nameable {
 	short unsigned		name;
 public:
@@ -370,18 +384,16 @@ public:
 	gender_s			getgender() const;
 	const char*			getname() const;
 };
-class creature : public nameable {
-	char				abilities[Charisma + 1];
+class creature : public nameable, public posable {
+	char				abilities[ManaRate + 1];
 	short				abilities_raise[Charisma + 1];
-	item				wears[LastBackpack + 1];
-	short				hp, mhp, mp, mmp;
-	unsigned			restore_hits, restore_mana;
 	unsigned char		skills[LastResist + 1];
 	unsigned char		spells[LastSpell + 1];
+	item				wears[LastBackpack + 1];
+	char				hp, mp;
+	unsigned			restore_hits, restore_mana, restore_action;
 	flagable<1 + LastState / 8> states;
-	unsigned			recoil;
-	short unsigned		charmer;
-	short unsigned		horror;
+	short unsigned		charmer, horror;
 	short unsigned		location;
 	encumbrance_s		encumbrance;
 	race_s				race;
@@ -389,15 +401,13 @@ class creature : public nameable {
 	role_s				role;
 	unsigned short		name;
 	unsigned char		level;
-	unsigned short		position, guard;
+	unsigned short		guard;
 	direction_s			direction;
 	int					experience;
 	unsigned			money;
 	//
-	bool				aiboost();
-	static bool			playturn();
 	bool				remove(item& it);
-	void				updateweight();
+	void				updateitems();
 public:
 	creature() = default;
 	creature(role_s value);
@@ -406,6 +416,7 @@ public:
 	//
 	static creature*	add(short unsigned index, role_s role);
 	static creature*	add(short unsigned index, race_s race, gender_s gender, class_s type);
+	void				add(variant id, int v, unsigned time);
 	void				addexp(int count);
 	static void			addexp(int value, short unsigned position, int range, const creature* exclude, const creature* enemies);
 	static creature*	addplayer();
@@ -454,7 +465,7 @@ public:
 	char*				getfullname(stringbuilder& sb, bool show_level, bool show_alignment) const;
 	short unsigned		getguard() const { return guard; }
 	int					gethits() const { return hp; }
-	creature*			gethorror() const;
+	creature*			gethorror() const { return getobject(horror); }
 	short unsigned		getid() const;
 	creature*			getleader() const;
 	int					getlos() const;
@@ -465,13 +476,12 @@ public:
 	int					getmoney() const { return money; }
 	const char*			getmonstername() const;
 	int					getmoverecoil() const;
+	static creature*	getobject(short unsigned v);
 	static creature*	getplayer();
 	static creature*	getplayer(int index);
-	short unsigned		getposition() const { return position; }
 	race_s				getrace() const { return race; }
 	damagei				getraise(skill_s id) const;
 	role_s				getrole() const { return role; }
-	//site*				getsite() const;
 	int					getweight() const;
 	int					getweight(encumbrance_s id) const;
 	bool				give(creature& opponent, item& it, bool interactive);
@@ -500,6 +510,7 @@ public:
 	bool				moveaway(short unsigned index);
 	static void			play();
 	void				pickup(item& value, bool interactive = true);
+	void				post(ability_s i, int value, unsigned rounds);
 	void				raise(skill_s value);
 	void				raiseskills(int number);
 	void				rangeattack(creature* enemy);
@@ -520,7 +531,6 @@ public:
 	static void			setblocks(short unsigned* movements, short unsigned value);
 	void				setguard(short unsigned value) { guard = value; }
 	void				sethorror(const creature* p) { horror = p->getid(); }
-	void				setindex(short unsigned value) { position = value; }
 	void				setlos();
 	void				setplayer();
 	void				setmoney(int value) { money = value; }
@@ -613,9 +623,20 @@ public:
 	int					getindex(indext i, tile_s e) const;
 	tile_s				gettile(indext i) const { return tiles[i]; }
 	int					getrand(indext i) const { return random[i]; }
+	bool				read(const char* url);
 	void				set(indext i, tile_s v) { tiles[i] = v; }
 	static indext		to(indext index, direction_s id);
 	void				worldmap(point camera, bool show_fow = true) const;
+	bool				write(const char* url) const;
+};
+struct outdoor : public posable {
+	struct leveli {
+		char			count;
+		race_s			habbitants[5];
+		constexpr operator bool() const { return count != 0; }
+	};
+	char				name[32];
+	leveli				levels[8];
 };
 class gamei {
 	unsigned			rounds;
