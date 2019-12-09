@@ -72,3 +72,22 @@ void location::clear() {
 	for(auto& e : random)
 		e = rand() % 256;
 }
+
+static void correct(rect& rc) {
+	if(rc.x1 < 0)
+		rc.x1 = 0;
+	if(rc.y1 < 0)
+		rc.y1 = 0;
+	if(rc.x2 > mmx - 1)
+		rc.x2 = mmx - 1;
+	if(rc.y2 > mmy - 1)
+		rc.y2 = mmy - 1;
+}
+
+void location::fill(rect rc, tile_s v) {
+	correct(rc);
+	for(auto y = rc.y1; y <= rc.y2; y++) {
+		for(auto x = rc.x1; x <= rc.x2; x++)
+			set(get(x, y), v);
+	}
+}

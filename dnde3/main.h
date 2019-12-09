@@ -604,6 +604,7 @@ class location {
 public:
 	void				clear();
 	void				editor();
+	void				fill(rect rc, tile_s v);
 	indext				get(short x, short y) const { return y*mmx + x; }
 	static short		getx(indext i) { return i%mmx; }
 	static short		gety(indext i) { return i / mmx; }
