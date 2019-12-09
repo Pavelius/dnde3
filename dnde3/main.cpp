@@ -17,6 +17,7 @@ static void test_worldmap() {
 	e.set(i1 + 1, Sea);
 	e.set(i1 - 1, Sea);
 	e.set(i2, Sea);
+	e.write("test.loc");
 	e.editor();
 }
 

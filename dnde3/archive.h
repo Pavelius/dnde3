@@ -75,5 +75,16 @@ struct archive {
 		else
 			source.read(&value, sizeof(value));
 	}
-
+	// Full specialization for strings
+	template<> void set<array&>(array& e) {
+		if(writemode) {
+			source.write(&e.count, sizeof(e.count));
+			if(e.count)
+				source.write(e.data, e.size*e.count);
+		} else {
+			source.read(&e.count, sizeof(e.count));
+			if(e.count > 0)
+				source.read(e.data, e.size*e.count);
+		}
+	}
 };

@@ -148,6 +148,7 @@ class array {
 	unsigned				count;
 	unsigned				count_maximum;
 	bool					growable;
+	friend struct archive;
 public:
 	constexpr array(const array& e) = default;
 	constexpr array() : data(0), size(0), count(0), count_maximum(0), growable(false) {}

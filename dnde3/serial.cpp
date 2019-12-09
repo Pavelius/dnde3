@@ -7,13 +7,14 @@ static bool serial(location& e, const char* url, bool write_mode) {
 		return false;
 	archive a(file, write_mode);
 	a.set(e);
+	a.set(bsmeta<outdoor>::source);
 	return true;
 }
 
 bool location::write(const char* url) const {
-	return serial(*const_cast<location*>(this), url, false);
+	return serial(*const_cast<location*>(this), url, true);
 }
 
 bool location::read(const char* url) {
-	return serial(*const_cast<location*>(this), url, true);
+	return serial(*const_cast<location*>(this), url, false);
 }
