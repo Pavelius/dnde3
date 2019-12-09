@@ -137,6 +137,7 @@
     <ClCompile Include="serial.cpp" />
     <ClCompile Include="stringbuilder.cpp" />
     <ClCompile Include="szdup.cpp" />
+    <ClCompile Include="tile.cpp" />
     <ClCompile Include="variant.cpp" />
     <ClCompile Include="draw_widget.cpp" />
     <ClCompile Include="win_draw.cpp" />

@@ -85,6 +85,9 @@
     <ClCompile Include="serial.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="tile.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="answer.h">

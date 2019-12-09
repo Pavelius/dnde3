@@ -235,6 +235,10 @@ struct abilityi {
 	const char*			nameof;
 	const char*			cursedof;
 };
+struct tilei {
+	const char*			id;
+	const char*			name;
+};
 struct picture : point {
 	img_s				img;
 	unsigned short		frame;
@@ -662,8 +666,10 @@ void					render(aref<picture> source);
 void					setbackground(eventproc proc);
 void					setnextlayer(eventproc proc);
 bool					shortcuts(const hotkey* ph);
+int						texth();
 indext					translate(indext i);
 int						widget(eventproc before, eventproc after);
 void					window(rect rc, bool disabled = false, int border = 0);
 }
 extern gamei			game;
+DECLENUM(tile);

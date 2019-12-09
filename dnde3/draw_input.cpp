@@ -182,6 +182,8 @@ static bool mapkeys(char* key) {
 	default:
 		if(hot.key >= Alpha + 'A' && hot.key <= Alpha + 'Z')
 			*p++ = hot.key - (Alpha + 'A') + 'A';
+		if(hot.key >= Alpha + '1' && hot.key <= Alpha + '9')
+			*p++ = hot.key - (Alpha + '1') + '1';
 		break;
 	}
 	*p++ = 0;
