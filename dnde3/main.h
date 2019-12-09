@@ -90,7 +90,9 @@ enum alignment_s : unsigned char {
 	Lawfull, Neutral, Chaotic
 };
 enum ability_s : unsigned char {
-	Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma
+	Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
+	AttackMelee, AttackRanged, Pierce, Deflect, Armor, Speed, Visibility,
+	LifePoints, LifeRate, ManaPoints, ManaRate,
 };
 enum skill_s : unsigned char {
 	Bargaining, Bluff, Diplomacy,
@@ -155,7 +157,7 @@ enum img_s : unsigned char {
 };
 enum spell_s : unsigned char {
 	NoSpell,
-	Armor, Bless, BlessItem, CharmPerson, DetectEvil, DetectMagic, Fear, HealingSpell,
+	ArmorSpell, Bless, BlessItem, CharmPerson, DetectEvil, DetectMagic, Fear, HealingSpell,
 	Identify, Invisibility, LightSpell, MagicMissile,
 	Repair, RemovePoisonSpell, RemoveSickSpell,
 	ShieldSpell, ShokingGrasp, Sleep, SlowMonster,
