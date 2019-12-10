@@ -44,6 +44,20 @@ int	draw::detail(int x, int y, int width, const char* format, int width_right, c
 	return d1;
 }
 
+int	draw::button(int x, int y, const char* format, const char* key, eventproc proc) {
+	auto x0 = x;
+	auto w = textw(key) + 1;
+	rectb({x - 2, y - 2, x + w + 2, y + texth() + 1}, colors::yellow);
+	text(x, y, key);
+	x += w + 4;
+	if(format) {
+		int max_width = 0;
+		textf(x, y, 200, format, &max_width);
+		x += max_width + metrics::padding*2;
+	}
+	return x - x0;
+}
+
 void draw::setbackground(eventproc proc) {
 	current_background = proc;
 }
@@ -56,9 +70,11 @@ int	draw::widget(eventproc before, eventproc after) {
 	while(ismodal()) {
 		if(current_background)
 			current_background();
-		before();
+		if(before)
+			before();
 		domodal();
-		after();
+		if(after)
+			after();
 	}
 	return getresult() != 0;
 }
