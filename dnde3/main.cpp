@@ -25,7 +25,7 @@ static void test_answers() {
 	answeri an;
 	an.add(1, "Тестовый выбор для строки");
 	an.add(1, "Тестовый выбор для второй строки");
-	an.choosev(true, false, true, "У вас есть преимущество при выборе данных этого элемента.");
+	an.choosev(true, false, true, "##Создание персонажа\nУ вас есть преимущество при выборе данных этого элемента.");
 }
 
 int main(int argc, char* argv[]) {

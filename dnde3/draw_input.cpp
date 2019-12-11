@@ -8,6 +8,7 @@ struct hotkey {
 	int				key;
 	const char*		name;
 	void(*proc)();
+	int				param;
 	explicit operator bool() const { return proc != 0; }
 };
 }
@@ -506,7 +507,7 @@ static int buttonr(int x, int y, int w1, int key) {
 	return w1 + 5;
 }
 
-static int button(int x, int y, const char* format, int key, eventproc proc) {
+static bool button(int x, int y, const char* format, int key, int* width) {
 	auto x0 = x;
 	x += buttonr(x, y, -1, key);
 	if(format) {
@@ -514,17 +515,22 @@ static int button(int x, int y, const char* format, int key, eventproc proc) {
 		textf(x, y, 200, format, &max_width);
 		x += max_width + metrics::padding * 2;
 	}
-	if(proc) {
-		if(hot.key==key)
-			execute(proc, 0);
-	}
-	return x - x0;
+	auto result = false;
+	if(hot.key == key)
+		result = true;
+	if(width)
+		*width = x - x0;
+	return result;
 }
 
 static int detaih(int x, int y, int width, const hotkey* pk) {
 	auto x0 = x;
-	for(auto p = pk; *p; p++)
-		x += button(x, y, p->name, p->key, p->proc);
+	for(auto p = pk; *p; p++) {
+		auto w = 0;
+		if(button(x, y, p->name, p->key, &w))
+			execute(p->proc, p->param);
+		x += w;
+	}
 	return x - x0;
 }
 
@@ -612,7 +618,7 @@ static int render_keys(int x, int y, int width) {
 	auto x0 = x;
 	char temp[260]; stringbuilder sb(temp);
 	sb.add("Вывести [%1]", getstr(current_tile));
-	x += button(x, y, temp, KeySpace, put_tile);
+	//x += button(x, y, temp, KeySpace, put_tile);
 	x += detaih(x, y, width, hotkeys);
 	return x - x0;
 }
@@ -653,13 +659,34 @@ void location::editor() {
 	widget(0, controls);
 }
 
+static void breakparam() {
+	breakmodal(hot.param);
+}
+
+int	answeri::paint(int x, int y, int width, int i, int& maximum_width) const {
+	auto k = Alpha + '1' + i;
+	auto z = 22;
+	char temp[2] = {(char)(k - Alpha), 0};
+	buttonr(x, y, z - 6, k);
+	auto& e = elements[i];
+	auto h = texth();
+	if(e.text) {
+		auto h1 = textf(x + z, y, width - z, e.text, 0);
+		if(h1 > h)
+			h = h1;
+	}
+	if(hot.key == k)
+		execute(breakparam, i);
+	return h;
+}
+
 int	answeri::paint(int x, int y, int width, const char* format, int& maximum_width) const {
 	auto i = 0;
 	auto z = y;
 	if(format)
-		y += textf(x, y, width, format, &maximum_width);
+		y += textf(x, y, width, format, &maximum_width) + 4;
 	for(auto& e : elements)
-		y += paint(x, y, width, i++, maximum_width);
+		y += paint(x, y, width, i++, maximum_width) + 2;
 	return y - z;
 }
 
@@ -668,15 +695,9 @@ int	answeri::choosev(bool interactive, bool clear_text, bool return_single, cons
 	auto h = 0;
 	if(true) {
 		auto mw = 0;
-		rect rc = {0, 0, 400, 0};
+		draw::state push;
+		setclip({0, 0, 0, 0});
 		h = paint(0, 0, 400, format, mw);
-	}
-	rect r1 = rc;
-	auto h = textf(r1, format, 0);
-	for(auto& e : elements) {
-		rect r1 = {20, 0, 400, 0};
-		auto h1 = textf(r1, e.text);
-		h += h1 + 2;
 	}
 	while(ismodal()) {
 		if(current_background)
@@ -685,6 +706,8 @@ int	answeri::choosev(bool interactive, bool clear_text, bool return_single, cons
 			rectf({0, 0, getwidth(), getheight()}, colors::window);
 		rect rc = {(getwidth() - w) / 2, 32, (getwidth() + w) / 2, 32 + h};
 		window(rc, false, 0);
+		auto maximum_width = 0;
+		paint(rc.x1, rc.y1, rc.width(), format, maximum_width);
 		domodal();
 	}
 	return getresult() != 0;
