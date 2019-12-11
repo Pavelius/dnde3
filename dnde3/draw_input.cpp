@@ -88,6 +88,7 @@ static void standart_domodal() {
 	hot.key = draw::rawinput();
 	switch(hot.key) {
 	case 0:
+		draw::closing();
 		exit(0);
 		break;
 	}
@@ -126,10 +127,6 @@ void draw::initialize() {
 	draw::font = metrics::font;
 	draw::fore = colors::text;
 	draw::fore_stroke = colors::blue;
-}
-
-static void breakparam() {
-	breakmodal(hot.param);
 }
 
 int answeri::choosev(bool interactive, bool clear_text, bool return_single, const char* format) const {
@@ -188,6 +185,13 @@ static bool mapkeys(char* key) {
 	}
 	*p++ = 0;
 	return key[0] != 0;
+}
+
+bool draw::presskey(const char* key) {
+	char keys[8];
+	if(!mapkeys(keys))
+		return false;
+	return strcmp(keys, key) == 0;
 }
 
 static int getorder(item_s type) {

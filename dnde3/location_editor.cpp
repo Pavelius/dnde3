@@ -62,7 +62,7 @@ static int render_keys(int x, int y, int width) {
 	auto x0 = x;
 	char temp[260]; stringbuilder sb(temp);
 	sb.add("Вывести [%1]", getstr(current_tile));
-	x += button(x, y, temp, "# ", 0);
+	x += button(x, y, temp, "# ", put_tile);
 	x += detaih(x, y, width, hotkeys);
 	return x - x0;
 }
@@ -94,11 +94,18 @@ static void render() {
 
 static void controls() {
 	current_index = translate(current_index);
-	shortcuts(hotkeys);
+	//shortcuts(hotkeys);
+}
+
+void draw::closingeditor() {
+	if(current_location)
+		current_location->write("current.map");
 }
 
 void location::editor() {
 	current_location = this;
+	if(current_location)
+		current_location->read("current.map");
 	setbackground(render);
 	widget(0, controls);
 }

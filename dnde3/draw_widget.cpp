@@ -52,13 +52,15 @@ int	draw::detaih(int x, int y, int width, const hotkey* pk) {
 }
 
 static int buttonr(int x, int y, int w1, const char* key) {
-	auto w = draw::textw(key);
+	char temp[32]; stringbuilder sb(temp);
+	draw::getkeyname(sb, key);
+	auto w = draw::textw(temp);
 	if(w1 == -1)
 		w1 = w;
 	rect rc = {x - 2, y - 1, x + w1 + 2, y + draw::texth()};
 	draw::rectf(rc, colors::button);
 	draw::rectb(rc, colors::border.mix(colors::form));
-	draw::text(x + (w1 - w)/2, y, key);
+	draw::text(x + (w1 - w)/2, y, temp);
 	return w1 + 5;
 }
 
@@ -69,6 +71,10 @@ int	draw::button(int x, int y, const char* format, const char* key, eventproc pr
 		int max_width = 0;
 		textf(x, y, 200, format, &max_width);
 		x += max_width + metrics::padding*2;
+	}
+	if(proc) {
+		if(presskey(key))
+			execute(proc, 0);
 	}
 	return x - x0;
 }
@@ -100,4 +106,25 @@ void draw::layer() {
 		current_layer = 0;
 		proc();
 	}
+}
+
+void draw::getkeyname(stringbuilder& sb, const char* key) {
+	*sb.get() = 0;
+	switch(key[0]) {
+	case '#':
+		key++;
+		switch(key[0]) {
+		case ' ': sb.add("Space"); break;
+		case 'd': sb.add("¬низ"); break;
+		case 'u': sb.add("¬верх"); break;
+		default: break;
+		}
+	default:
+		sb.add(key);
+		break;
+	}
+}
+
+void draw::closing() {
+	closingeditor();
 }
