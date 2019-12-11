@@ -21,11 +21,19 @@ static void test_worldmap() {
 	e.editor();
 }
 
+static void test_answers() {
+	answeri an;
+	an.add(1, "Тестовый выбор для строки");
+	an.add(1, "Тестовый выбор для второй строки");
+	an.choosev(true, false, true, "У вас есть преимущество при выборе данных этого элемента.");
+}
+
 int main(int argc, char* argv[]) {
 	auto s = sizeof(outdoor);
 	game.intialize();
-	draw::setnextlayer(test_worldmap);
-	draw::layer();
+	//game.setnextlayer(test_worldmap);
+	//game.layer();
+	test_answers();
 }
 
 int __stdcall WinMain(void* ci, void* pi, char* cmd, int sw) {

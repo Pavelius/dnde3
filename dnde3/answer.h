@@ -12,6 +12,7 @@ class answeri : stringbuilder {
 	char						buffer[4096];
 	adat<element, 32>			elements;
 	int							paint(int x, int y, int width, int i, int& maximum_width) const;
+	int							paint(int x, int y, int width, const char* format, int& maximum_width) const;
 public:
 	typedef void(*tipspr)(stringbuilder& sb, int param);
 	typedef void(*callpr)();
@@ -25,6 +26,5 @@ public:
 	int							choosev(bool interactive, bool clear_text, bool return_single, const char* format) const;
 	void						clear() { stringbuilder::clear(); elements.clear(); }
 	static int					compare(const void* p1, const void* p2);
-	int							paint(int x, int y, int width) const;
 	void						sort();
 };

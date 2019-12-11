@@ -3,13 +3,29 @@
 
 using namespace draw;
 
-static bool		break_modal;
-static int		break_result;
-eventproc		draw::domodal;
-const int		elx = 64; // Map tile element width
-const int		ely = 48; // Map tile element height
-static point	viewport;
-static point	camera;
+namespace draw {
+struct hotkey {
+	int				key;
+	const char*		name;
+	void(*proc)();
+	explicit operator bool() const { return proc != 0; }
+};
+}
+
+const int			gui_border = 8;
+const int			gui_padding = 4;
+static eventproc	current_background;
+static eventproc	current_layer;
+static location*	current_location;
+static indext		current_index;
+static tile_s		current_tile = Sea;
+static bool			break_modal;
+static int			break_result;
+eventproc			draw::domodal;
+const int			elx = 64; // Map tile element width
+const int			ely = 48; // Map tile element height
+static point		viewport;
+static point		camera;
 
 struct imgi {
 	const char*		name;
@@ -88,7 +104,8 @@ static void standart_domodal() {
 	hot.key = draw::rawinput();
 	switch(hot.key) {
 	case 0:
-		draw::closing();
+		if(current_location)
+			current_location->write("overland.map");
 		exit(0);
 		break;
 	}
@@ -129,16 +146,12 @@ void draw::initialize() {
 	draw::fore_stroke = colors::blue;
 }
 
-int answeri::choosev(bool interactive, bool clear_text, bool return_single, const char* format) const {
-	return 0;
-}
-
 void gamei::intialize() {
 	draw::initialize();
 	draw::create(-1, -1, 800, 600, WFResize | WFMinmax, 32);
 }
 
-void draw::window(rect rc, bool disabled, int border) {
+static void window(rect rc, bool disabled, int border) {
 	if(border == 0)
 		border = gui_border;
 	rc.offset(-border, -border);
@@ -157,41 +170,9 @@ static int windowf(int x, int y, int width, const char* string) {
 	draw::font = metrics::font;
 	auto height = draw::textf(rc, string);
 	rc.x2 = rc.x1 + width;
-	window(rc, false);
+	window(rc, false, 0);
 	draw::textf(x, y, rc.width(), string);
 	return height + gui_border * 2 + gui_padding;
-}
-
-static bool mapkeys(char* key) {
-	auto p = key;
-	switch(hot.key) {
-	case 0: break;
-	case KeyEnter: *p++ = '#'; *p++ = 'E'; break;
-	case KeySpace: *p++ = '#'; *p++ = ' '; break;
-	case KeyUp: *p++ = '#'; *p++ = 'U'; break;
-	case KeyDown: *p++ = '#'; *p++ = 'D'; break;
-	case KeyLeft: *p++ = '#'; *p++ = 'L'; break;
-	case KeyRight: *p++ = '#'; *p++ = 'R'; break;
-	case KeyPageUp: *p++ = '#'; *p++ = 'R'; *p++ = 'U'; break;
-	case KeyPageDown: *p++ = '#'; *p++ = 'R';  *p++ = 'D'; break;
-	case KeyHome: *p++ = '#'; *p++ = 'L'; *p++ = 'U'; break;
-	case KeyEnd: *p++ = '#'; *p++ = 'L';  *p++ = 'D'; break;
-	default:
-		if(hot.key >= Alpha + 'A' && hot.key <= Alpha + 'Z')
-			*p++ = hot.key - (Alpha + 'A') + 'A';
-		if(hot.key >= Alpha + '0' && hot.key <= Alpha + '9')
-			*p++ = hot.key - (Alpha + '0') + '0';
-		break;
-	}
-	*p++ = 0;
-	return key[0] != 0;
-}
-
-bool draw::presskey(const char* key) {
-	char keys[8];
-	if(!mapkeys(keys))
-		return false;
-	return strcmp(keys, key) == 0;
 }
 
 static int getorder(item_s type) {
@@ -400,7 +381,7 @@ static void correct(point& camera, indext i1) {
 	correct(camera);
 }
 
-indext draw::translate(indext i) {
+static indext translate(indext i) {
 	indext i1 = Blocked;
 	switch(hot.key) {
 	case KeyLeft: i1 = location::to(i, Left); break;
@@ -419,21 +400,14 @@ indext draw::translate(indext i) {
 	return i1;
 }
 
-bool draw::shortcuts(const hotkey* ph) {
-	char keys[8];
-	if(!mapkeys(keys))
-		return false;
+static bool shortcuts(const hotkey* ph) {
 	for(auto p = ph; p->proc; p++) {
-		if(strcmp(p->key, keys) != 0)
+		if(hot.key != p->key || hot.pressed)
 			continue;
 		p->proc();
 		return true;
 	}
 	return false;
-}
-
-point draw::getcamera() {
-	return camera;
 }
 
 void picture::set(short x, short y) {
@@ -445,7 +419,273 @@ void picture::render(int x, int y) const {
 	image(this->x + x, this->y + y, gres(img), frame, flags, alpha);
 }
 
-void draw::render(aref<picture> source) {
+static void render(aref<picture> source) {
 	for(auto& e : source)
 		e.render(-camera.x, -camera.y);
+}
+
+static int header(int x, int y, int width, const char* format) {
+	auto pf = font; font = metrics::h3;
+	auto pc = fore; fore = colors::white;
+	rect rc = {x, y, x + width, y + texth() + metrics::padding * 2};
+	gradv(rc, colors::black, colors::black.mix(colors::window, 192));
+	text(x + metrics::padding + (width - textw(format)) / 2, y + metrics::padding, format);
+	font = pf;
+	fore = pc;
+	return rc.height();
+}
+
+static int headof(int& x, int y, int& width, const char* format) {
+	auto dy = header(x, y, width, format);
+	x += metrics::padding;
+	width -= metrics::padding * 2;
+	return dy;
+}
+
+static int detail(int x, int y, int width, const char* format, int width_right, const char* text_value) {
+	auto d1 = textf(x, y, width - width_right - metrics::padding, format);
+	auto pc = fore; fore = fore.mix(colors::window, 192);
+	text(x + width - width_right + (width_right - textw(text_value)) / 2, y, text_value);
+	fore = pc;
+	return d1;
+}
+
+static int detail(int x, int y, int width, const char* format) {
+	return textf(x, y, width, format);
+}
+
+static int detail(int x, int y, int width, const char* format, int width_right, int v1) {
+	char temp[16]; stringbuilder sb(temp); sb.add("%1i", v1);
+	return detail(x, y, width, format, width_right, temp);
+}
+
+static int detail(int x, int y, int width, const char* format, int width_right, int v1, int v2) {
+	char temp[16]; stringbuilder sb(temp); sb.add("%1i/%2i", v1, v2);
+	return detail(x, y, width, format, width_right, temp);
+}
+
+static void getkeyname(stringbuilder& sb, int key) {
+	*sb.get() = 0;
+	if(key&Ctrl) {
+		sb.add("Ctrl+");
+		key &= ~Ctrl;
+	}
+	if(key&Alt) {
+		sb.add("Alt+");
+		key &= ~Alt;
+	}
+	if(key&Shift) {
+		sb.add("Shift+");
+		key &= ~Shift;
+	}
+	char temp[2];
+	switch(key) {
+	case KeySpace: sb.add("Space"); break;
+	case KeyDown: sb.add("Вниз"); break;
+	case KeyUp: sb.add("Вверх"); break;
+	case KeyLeft: sb.add("Лево"); break;
+	case KeyRight: sb.add("Право"); break;
+	default:
+		temp[0] = key - Alpha;
+		temp[1] = 0;
+		sb.add(temp);
+		break;
+	}
+}
+
+static int buttonr(int x, int y, int w1, int key) {
+	char temp[32]; stringbuilder sb(temp);
+	getkeyname(sb, key);
+	auto w = textw(temp);
+	if(w1 == -1)
+		w1 = w;
+	rect rc = {x - 2, y - 1, x + w1 + 2, y + texth()};
+	rectf(rc, colors::button);
+	rectb(rc, colors::border.mix(colors::form));
+	text(x + (w1 - w) / 2, y, temp);
+	return w1 + 5;
+}
+
+static int button(int x, int y, const char* format, int key, eventproc proc) {
+	auto x0 = x;
+	x += buttonr(x, y, -1, key);
+	if(format) {
+		int max_width = 0;
+		textf(x, y, 200, format, &max_width);
+		x += max_width + metrics::padding * 2;
+	}
+	if(proc) {
+		if(hot.key==key)
+			execute(proc, 0);
+	}
+	return x - x0;
+}
+
+static int detaih(int x, int y, int width, const hotkey* pk) {
+	auto x0 = x;
+	for(auto p = pk; *p; p++)
+		x += button(x, y, p->name, p->key, p->proc);
+	return x - x0;
+}
+
+static void setbackground(eventproc proc) {
+	current_background = proc;
+}
+
+void gamei::setnextlayer(void(*proc)()) {
+	current_layer = proc;
+}
+
+void gamei::layer() {
+	while(current_layer) {
+		auto proc = current_layer;
+		current_layer = 0;
+		proc();
+	}
+}
+
+int	widget(eventproc before, eventproc after) {
+	while(ismodal()) {
+		if(current_background)
+			current_background();
+		if(before)
+			before();
+		domodal();
+		if(after)
+			after();
+	}
+	return getresult() != 0;
+}
+
+static int render_info(int x, int y, int width) {
+	auto y0 = y;
+	char temp[512]; stringbuilder sb(temp);
+	auto tile = current_location->gettile(current_index);
+	sb.adds("Это %1.", getstr(tile));
+	sb.adds("Кординаты %1i,%2i (индекс %3i).",
+		current_location->getx(current_index), current_location->gety(current_index), current_index);
+	y += detail(x, y, width, sb);
+	return y - y0;
+}
+
+static void help() {
+
+}
+
+static void put_tile() {
+	current_location->set(current_index, current_tile);
+}
+
+static void choose_tile_1() {
+	current_tile = Plain;
+}
+
+static void choose_tile_2() {
+	current_tile = Sea;
+}
+
+static void choose_tile_3() {
+	current_tile = Foothills;
+}
+
+static void choose_tile_4() {
+	current_tile = Mountains;
+}
+
+static void choose_tile_5() {
+	current_tile = CloudPeaks;
+}
+
+static void choose_tile_6() {
+	current_tile = Forest;
+}
+
+static hotkey hotkeys[] = {{Alpha + '1', getstr(Plain), choose_tile_1},
+{Alpha + '2', getstr(Sea), choose_tile_2},
+{Alpha + '3', getstr(Foothills), choose_tile_3},
+{Alpha + '4', getstr(Mountains), choose_tile_4},
+{Alpha + '5', getstr(CloudPeaks), choose_tile_5},
+{Alpha + '6', getstr(Forest), choose_tile_6},
+{}};
+
+static int render_keys(int x, int y, int width) {
+	auto x0 = x;
+	char temp[260]; stringbuilder sb(temp);
+	sb.add("Вывести [%1]", getstr(current_tile));
+	x += button(x, y, temp, KeySpace, put_tile);
+	x += detaih(x, y, width, hotkeys);
+	return x - x0;
+}
+
+static void render_bottom(int x, int y, int width) {
+	y += render_info(x, y, width);
+	render_keys(x, y, width - 168); y += texth() + 2;
+}
+
+static void render_bottom() {
+	auto w = 700;
+	auto h = texth() * 2;
+	rect r1;
+	r1.x1 = (getwidth() - w - gui_border * 2) / 2;
+	r1.x2 = r1.x1 + w;
+	r1.y1 = getheight() - h - gui_border * 2;
+	r1.y2 = r1.y1 + h;
+	window(r1, false, 0);
+	render_bottom(r1.x1, r1.y1, r1.width());
+}
+
+static void render_editor() {
+	picture effects[1]; effects[0].setcursor(current_index, 1);
+	current_location->worldmap(camera, true);
+	render(effects);
+	render_bottom();
+}
+
+static void controls() {
+	current_index = translate(current_index);
+}
+
+void location::editor() {
+	current_location = this;
+	if(current_location)
+		current_location->read("overland.map");
+	setbackground(render_editor);
+	widget(0, controls);
+}
+
+int	answeri::paint(int x, int y, int width, const char* format, int& maximum_width) const {
+	auto i = 0;
+	auto z = y;
+	if(format)
+		y += textf(x, y, width, format, &maximum_width);
+	for(auto& e : elements)
+		y += paint(x, y, width, i++, maximum_width);
+	return y - z;
+}
+
+int	answeri::choosev(bool interactive, bool clear_text, bool return_single, const char* format) const {
+	auto w = 400;
+	auto h = 0;
+	if(true) {
+		auto mw = 0;
+		rect rc = {0, 0, 400, 0};
+		h = paint(0, 0, 400, format, mw);
+	}
+	rect r1 = rc;
+	auto h = textf(r1, format, 0);
+	for(auto& e : elements) {
+		rect r1 = {20, 0, 400, 0};
+		auto h1 = textf(r1, e.text);
+		h += h1 + 2;
+	}
+	while(ismodal()) {
+		if(current_background)
+			current_background();
+		else
+			rectf({0, 0, getwidth(), getheight()}, colors::window);
+		rect rc = {(getwidth() - w) / 2, 32, (getwidth() + w) / 2, 32 + h};
+		window(rc, false, 0);
+		domodal();
+	}
+	return getresult() != 0;
 }

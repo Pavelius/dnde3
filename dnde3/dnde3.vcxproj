@@ -129,7 +129,6 @@
     <ClCompile Include="game.cpp" />
     <ClCompile Include="io.cpp" />
     <ClCompile Include="location.cpp" />
-    <ClCompile Include="location_editor.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="outdoor.cpp" />
     <ClCompile Include="picture.cpp" />
@@ -139,7 +138,6 @@
     <ClCompile Include="szdup.cpp" />
     <ClCompile Include="tile.cpp" />
     <ClCompile Include="variant.cpp" />
-    <ClCompile Include="draw_widget.cpp" />
     <ClCompile Include="win_draw.cpp" />
     <ClCompile Include="win_io_file.cpp" />
   </ItemGroup>

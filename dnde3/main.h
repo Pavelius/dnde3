@@ -286,12 +286,6 @@ struct speciali {
 	char				bonus;
 	char				chance_side;
 };
-struct hotkey {
-	char				key[8];
-	const char*			name;
-	void(*proc)();
-	explicit operator bool() const { return proc != 0; }
-};
 class item {
 	item_s				type;
 	//
@@ -647,36 +641,9 @@ class gamei {
 	unsigned			rounds;
 public:
 	void				intialize();
+	static void			layer();
 	void				pass(unsigned seconds);
+	static void			setnextlayer(void(*proc)());
 };
-namespace draw {
-const int				gui_border = 8;
-const int				gui_padding = 4;
-void					breakmodal(int param);
-int						button(int x, int y, const char* format, const char* key, eventproc proc);
-void					closing();
-void					closingeditor();
-int						detaih(int x, int y, int width, const hotkey* pk);
-int						detail(int x, int y, int width, const char* format);
-int						detail(int x, int y, int width, const char* format, int width_right, const char* text_value);
-int						detail(int x, int y, int width, const char* format, int width_right, int v1);
-int						detail(int x, int y, int width, const char* format, int width_right, int v1, int v2);
-point					getcamera();
-void					getkeyname(stringbuilder& sb, const char* key);
-int						getheight();
-int						getwidth();
-int						header(int x, int y, int width, const char* format);
-int						headof(int& x, int y, int& width, const char* format);
-void					layer();
-bool					presskey(const char* key);
-void					render(aref<picture> source);
-void					setbackground(eventproc proc);
-void					setnextlayer(eventproc proc);
-bool					shortcuts(const hotkey* ph);
-int						texth();
-indext					translate(indext i);
-int						widget(eventproc before, eventproc after);
-void					window(rect rc, bool disabled = false, int border = 0);
-}
 extern gamei			game;
 DECLENUM(tile);
