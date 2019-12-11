@@ -49,8 +49,7 @@ static void choose_tile_6() {
 	current_tile = Forest;
 }
 
-static hotkey hotkeys[] = {/*{"# ", "Вывести текущий тайл", put_tile},*/
-{"1", getstr(Plain), choose_tile_1},
+static hotkey hotkeys[] = {{"1", getstr(Plain), choose_tile_1},
 {"2", getstr(Sea), choose_tile_2},
 {"3", getstr(Foothills), choose_tile_3},
 {"4", getstr(Mountains), choose_tile_4},
