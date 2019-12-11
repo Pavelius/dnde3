@@ -44,12 +44,27 @@ int	draw::detail(int x, int y, int width, const char* format, int width_right, c
 	return d1;
 }
 
+int	draw::detaih(int x, int y, int width, const hotkey* pk) {
+	auto x0 = x;
+	for(auto p = pk; *p; p++)
+		x += button(x, y, p->name, p->key, p->proc);
+	return x - x0;
+}
+
+static int buttonr(int x, int y, int w1, const char* key) {
+	auto w = draw::textw(key);
+	if(w1 == -1)
+		w1 = w;
+	rect rc = {x - 2, y - 1, x + w1 + 2, y + draw::texth()};
+	draw::rectf(rc, colors::button);
+	draw::rectb(rc, colors::border.mix(colors::form));
+	draw::text(x + (w1 - w)/2, y, key);
+	return w1 + 5;
+}
+
 int	draw::button(int x, int y, const char* format, const char* key, eventproc proc) {
 	auto x0 = x;
-	auto w = textw(key) + 1;
-	rectb({x - 2, y - 2, x + w + 2, y + texth() + 1}, colors::yellow);
-	text(x, y, key);
-	x += w + 4;
+	x += buttonr(x, y, -1, key);
 	if(format) {
 		int max_width = 0;
 		textf(x, y, 200, format, &max_width);

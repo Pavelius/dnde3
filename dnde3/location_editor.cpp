@@ -49,7 +49,7 @@ static void choose_tile_6() {
 	current_tile = Forest;
 }
 
-static hotkey hotkeys[] = {{"# ", "Вывести текущий тайл", put_tile},
+static hotkey hotkeys[] = {/*{"# ", "Вывести текущий тайл", put_tile},*/
 {"1", getstr(Plain), choose_tile_1},
 {"2", getstr(Sea), choose_tile_2},
 {"3", getstr(Foothills), choose_tile_3},
@@ -60,8 +60,10 @@ static hotkey hotkeys[] = {{"# ", "Вывести текущий тайл", put_tile},
 
 static int render_keys(int x, int y, int width) {
 	auto x0 = x;
-	for(auto p = hotkeys; *p; p++)
-		x += button(x, y, p->name, p->key, help);
+	char temp[260]; stringbuilder sb(temp);
+	sb.add("Вывести [%1]", getstr(current_tile));
+	x += button(x, y, temp, "# ", 0);
+	x += detaih(x, y, width, hotkeys);
 	return x - x0;
 }
 

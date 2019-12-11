@@ -654,6 +654,7 @@ const int				gui_border = 8;
 const int				gui_padding = 4;
 void					breakmodal(int param);
 int						button(int x, int y, const char* format, const char* key, eventproc proc);
+int						detaih(int x, int y, int width, const hotkey* pk);
 int						detail(int x, int y, int width, const char* format);
 int						detail(int x, int y, int width, const char* format, int width_right, const char* text_value);
 int						detail(int x, int y, int width, const char* format, int width_right, int v1);

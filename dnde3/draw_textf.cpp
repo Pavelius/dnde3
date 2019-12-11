@@ -326,12 +326,6 @@ int draw::textf(int x, int y, int width, const char* string, int* max_width,
 		} else {
 			y += textfln(x, y, width, &p, color_text, &mw2, tab_width);
 			y += 2;
-			//if(p[0]) {
-			//	if(p[0] == ':' && p[1] == ':' && p[2] == ':')
-			//		p += 3;
-			//	else
-			//		y += draw::texth() / 4;
-			//}
 		}
 		// Возвратим стандартные настройки блока
 		font = metrics::font;
