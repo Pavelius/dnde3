@@ -42,12 +42,12 @@ void creature::isolate() {
 	}
 }
 
-void creature::wearoff() {
+void creature::dress(int m) {
 	if(!this)
 		return;
-}
-
-void creature::wearon() {
-	if(!this)
-		return;
+	abilities[AttackMelee] += m * (wears[Melee].getitem().weapon.attack + wears[Melee].getmagic() * 3);
+	abilities[AttackRanged] += m * (wears[Ranged].getitem().weapon.attack + wears[Ranged].getmagic() * 4);
+	for(auto i = Head; i <= Legs; i = (slot_s)(i + 1)) {
+		abilities[Deflect] += m * wears[i].getitem().armor.armor[0] + wears[i].getmagic()*wears[i].getitem().armor.armor_magic_bonus;
+	}
 }

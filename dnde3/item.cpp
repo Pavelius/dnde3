@@ -1,5 +1,13 @@
 #include "main.h"
 
+itemi bsmeta<itemi>::elements[] = {{""},
+{"Боевой топор", 850, 5 * GP, Male, Iron},
+{"Дубина"},
+{"Кинжал"},
+{"Молото"},
+{"Булава"},
+};
+
 creature* item::getwearer() const {
 	auto i = bsmeta<creature>::source.indexof((creature*)(this));
 	if(i == -1)

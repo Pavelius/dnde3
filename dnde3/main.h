@@ -202,6 +202,9 @@ enum range_s : unsigned char {
 enum target_s : unsigned char {
 	SingleTarget, RandomTarget, AllTargets,
 };
+enum item_flag_s : unsigned char {
+	TwoHanded,
+};
 enum variant_s : unsigned char {
 	NoVariant,
 	Ability, Alignment, Creature, Enchantment, God, Item,
@@ -273,13 +276,17 @@ struct damagei {
 	int					roll() const;
 };
 struct attacki {
+	char				attack; // Percent bonus to hit
+	dice_s				damage;
 	char				speed;
-	damagei				damage;
-	char				bonus; // Percent bonus to hit
 	char				critical;
 	char				multiplier;
 	enchantment_s		effect;
 	char				quality;
+};
+struct armori {
+	char				armor[2]; // Bonus to hit and damage reduction
+	char				armor_magic_bonus;
 };
 struct foodi {
 	char				hits;
@@ -295,6 +302,23 @@ struct speciali {
 	char				chance_broke;
 	char				bonus;
 	char				chance_side;
+};
+struct itemi {
+	const char*			name;
+	int					weight;
+	int					cost;
+	gender_s			gender;
+	material_s			material;
+	attacki				weapon;
+	armori				armor;
+	speciali			special;
+	cflags<item_flag_s>	flags;
+	cflags<slot_s>		slots;
+	skill_s				focus;
+	item_s				ammunition;
+	unsigned char		count;
+	unsigned char		charges;
+	foodi				food;
 };
 class item {
 	item_s				type;
@@ -331,6 +355,7 @@ public:
 	char				getenchantcost() const;
 	skill_s				getfocus() const;
 	const foodi&		getfood() const;
+	const itemi&		getitem() const { return bsmeta<itemi>::elements[type]; }
 	static aref<item_s>	getitems(aref<item_s> result, aref<slot_s> source);
 	gender_s			getgender() const;
 	item_type_s			getmagic() const { return magic; }
@@ -339,7 +364,6 @@ public:
 	static const char*	getname(state_s value);
 	char*				getname(char* result, const char* result_maximum, bool show_info = true) const;
 	int					getquality() const;
-	int					getqualityraw() const { return quality; }
 	int					getsalecost() const;
 	skill_s				getskill() const;
 	spell_s				getspell() const;
@@ -447,6 +471,7 @@ public:
 	void				damage(int count, attack_s type, bool interactive);
 	void				damagewears(int count, attack_s type);
 	void				drink(item& it, bool interactive);
+	void				dress(int m);
 	void				dropdown(item& value);
 	bool				equip(item_s value);
 	bool				equip(item value);
@@ -547,15 +572,14 @@ public:
 	void				update();
 	bool				use(short unsigned index);
 	void				wait(int segments = 0);
-	void				wearoff();
-	void				wearon();
 };
 class creaturea : adat<creature*> {
 public:
 	void				add(const creature* e);
 	creature*			choose(bool interactive, const char* title);
 	void				match(state_s i);
-	void				match(const racea& e);
+	void				match(const alignmenta& v);
+	void				match(const racea& v);
 	void				remove(state_s v);
 };
 class itema : adat<item*> {
