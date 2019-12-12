@@ -91,6 +91,9 @@
     <ClCompile Include="spell.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="item.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="answer.h">

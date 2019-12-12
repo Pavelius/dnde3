@@ -41,3 +41,13 @@ void creature::isolate() {
 			e.horror = 0;
 	}
 }
+
+void creature::wearoff() {
+	if(!this)
+		return;
+}
+
+void creature::wearon() {
+	if(!this)
+		return;
+}

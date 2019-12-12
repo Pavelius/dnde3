@@ -129,6 +129,7 @@
     <ClCompile Include="draw_textf.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="io.cpp" />
+    <ClCompile Include="item.cpp" />
     <ClCompile Include="location.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="outdoor.cpp" />

@@ -346,6 +346,7 @@ public:
 	const speciali&		getspecial() const;
 	state_s				getstate() const;
 	item_s				gettype() const { return type; }
+	creature*			getwearer() const;
 	int					getweight() const;
 	int					getweightsingle() const;
 	bool				is(slot_s value) const;
@@ -384,7 +385,7 @@ public:
 	constexpr indext	getposition() const { return index; }
 	constexpr void		setposition(indext v) { index = v; }
 };
-class nameable {
+class nameable : public variant {
 	short unsigned		name;
 public:
 	void				act(const char* format, ...) const;
@@ -416,7 +417,6 @@ class creature : public nameable, public posable {
 	unsigned			money;
 	//
 	bool				remove(item& it);
-	void				updateitems();
 public:
 	creature() = default;
 	creature(role_s value);
@@ -496,7 +496,6 @@ public:
 	bool				give(creature& opponent, item& it, bool interactive);
 	void				heal(int value, bool interactive) { damage(-value, Magic, interactive); }
 	void				hint(const char* format, ...) const;
-	static void			initialize();
 	bool				interact(short unsigned index);
 	bool				is(state_s v) const { return states.is(v); }
 	bool				is(encumbrance_s value) const { return encumbrance == value; }
@@ -548,6 +547,8 @@ public:
 	void				update();
 	bool				use(short unsigned index);
 	void				wait(int segments = 0);
+	void				wearoff();
+	void				wearon();
 };
 class creaturea : adat<creature*> {
 public:
