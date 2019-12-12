@@ -29,3 +29,15 @@ creature* creature::getobject(short unsigned v) {
 		return 0;
 	return bsmeta<creature>::elements + v;
 }
+
+void creature::isolate() {
+	auto id = getid();
+	for(auto& e : bsmeta<creature>()) {
+		if(!e)
+			continue;
+		if(e.charmer == id)
+			e.charmer = 0;
+		if(e.horror == id)
+			e.horror = 0;
+	}
+}

@@ -21,6 +21,11 @@ static void test_worldmap() {
 	e.editor();
 }
 
+static bool test_spells() {
+	auto& e = bsmeta<spelli>::elements[0];
+	return e.target.type != Creature;
+}
+
 static void test_answers() {
 	answeri an;
 	an.add(1, "Тестовый выбор для строки");
@@ -33,6 +38,7 @@ int main(int argc, char* argv[]) {
 	game.intialize();
 	//game.setnextlayer(test_worldmap);
 	//game.layer();
+	test_spells();
 	test_answers();
 }
 

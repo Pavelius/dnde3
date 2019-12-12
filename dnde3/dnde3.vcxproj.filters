@@ -82,6 +82,15 @@
     <ClCompile Include="tile.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="creaturea.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="target.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="spell.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="answer.h">

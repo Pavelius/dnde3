@@ -15,7 +15,7 @@ const unsigned short BlockedCreature = Blocked - 1;
 
 enum dice_s : unsigned char {
 	NoDice,
-	D1n3, D1n6, D2n7, D3n8, D4n9, D5n10,
+	D1n3, D1n6, D2n7, D3n8, D4n9, D5n10, D6n11,
 	D2n12, D3n13, D4n14, D5n15,
 	D3n18, D4n19, D5n20,
 };
@@ -72,7 +72,8 @@ enum race_s : unsigned char {
 	Animal,
 	Human, Dwarf, Elf, Halfling,
 	Goblin, Kobold, Orc, Gnoll,
-	Insect, Undead
+	Insect, Undead,
+	LastRace = Undead
 };
 enum class_s : unsigned char {
 	Commoner,
@@ -110,8 +111,10 @@ enum skill_s : unsigned char {
 	LastResist = ResistWater,
 };
 enum state_s : unsigned char {
-	Anger, Blessed, Charmed, Drunken, Invisible, Paralized, Poisoned, Sick, Sleeped,
-	LastState = Sleeped,
+	Anger, Charmed, Drunken, Friendly, Hostile,
+	Invisible, Paralized, Poisoned, Sick, Sleeped,
+	Wounded,
+	LastState = Wounded,
 };
 enum tile_s : unsigned char {
 	Plain, Water, Floor, Wall, Road,
@@ -173,7 +176,7 @@ enum duration_s : unsigned {
 	Permanent = 100 * Year
 };
 enum item_type_s : unsigned char {
-	Mundane, Cursed, BlessedItem, Artifact,
+	Mundane, Cursed, Blessed, Artifact,
 };
 enum attack_s : unsigned char {
 	Bludgeon, Slashing, Piercing,
@@ -194,31 +197,38 @@ enum manual_s : unsigned char {
 	Element, Header
 };
 enum range_s : unsigned char {
-	You, Close, Reach, Near,
+	You, Close, Reach, Near, Far
 };
-enum dungeon_area_s : unsigned char {
-	AreaMaze, AreaDungeon,
-	AreaPlain, AreaForest, AreaHills,
-	AreaCity,
+enum target_s : unsigned char {
+	SingleTarget, RandomTarget, AllTargets,
 };
 enum variant_s : unsigned char {
 	NoVariant,
-	Ability, Creature, Enchantment, God, Items, ItemObject, Skill, Spell, State,
+	Ability, Alignment, Creature, Enchantment, God, Item,
+	Race, Range, Skill, Spell, State, Target,
+	Variant,
 };
-class creature;
 typedef short unsigned indext;
-typedef void(*eventproc)(); 
+typedef flagable<1 + Chaotic / 8> alignmenta;
+typedef flagable<1 + LastState / 8> statea;
+typedef flagable<1 + LastRace / 8> racea;
+class creature;
 struct variant {
 	variant_s			type;
 	unsigned char		value;
 	constexpr variant() : type(NoVariant), value(0) {}
 	constexpr variant(ability_s v) : type(Ability), value(v) {}
+	constexpr variant(alignment_s v) : type(Alignment), value(v) {}
 	constexpr variant(diety_s v) : type(God), value(v) {}
+	constexpr variant(range_s v) : type(Range), value(v) {}
+	constexpr variant(race_s v) : type(Race), value(v) {}
 	constexpr variant(enchantment_s v) : type(Enchantment), value(v) {}
-	constexpr variant(item_s v) : type(Items), value(v) {}
+	constexpr variant(item_s v) : type(Item), value(v) {}
 	constexpr variant(skill_s v) : type(Skill), value(v) {}
 	constexpr variant(spell_s v) : type(Spell), value(v) {}
 	constexpr variant(state_s v) : type(State), value(v) {}
+	constexpr variant(target_s v) : type(Target), value(v) {}
+	constexpr variant(variant_s v) : type(Variant), value(v) {}
 	variant(const creature* v);
 	explicit operator bool() const { return type != NoVariant; }
 };
@@ -391,7 +401,7 @@ class creature : public nameable, public posable {
 	item				wears[LastBackpack + 1];
 	char				hp, mp;
 	unsigned			restore_hits, restore_mana, restore_action;
-	flagable<1 + LastState / 8> states;
+	statea				states;
 	short unsigned		charmer, horror;
 	short unsigned		location;
 	encumbrance_s		encumbrance;
@@ -488,7 +498,7 @@ public:
 	void				hint(const char* format, ...) const;
 	static void			initialize();
 	bool				interact(short unsigned index);
-	bool				is(state_s value) const;
+	bool				is(state_s v) const { return states.is(v); }
 	bool				is(encumbrance_s value) const { return encumbrance == value; }
 	bool				isagressive() const;
 	bool				ischaracter() const { return role == Character; }
@@ -496,6 +506,7 @@ public:
 	bool				isfriend(const creature* target) const;
 	bool				isguard() const { return guard != 0xFFFF; }
 	bool				isinteractive() const;
+	void				isolate();
 	bool				isparty(const creature* target) const;
 	bool				isplayer() const;
 	bool				isranged(bool interactive) const;
@@ -542,6 +553,9 @@ class creaturea : adat<creature*> {
 public:
 	void				add(const creature* e);
 	creature*			choose(bool interactive, const char* title);
+	void				match(state_s i);
+	void				match(const racea& e);
+	void				remove(state_s v);
 };
 class itema : adat<item*> {
 public:
@@ -550,6 +564,21 @@ public:
 class indexa : adat<short unsigned> {
 public:
 	short unsigned		choose(bool interactive, const char* title);
+};
+struct targeti {
+	variant_s			type;
+	range_s				range;
+	target_s			target;
+	alignmenta			alignments;
+	statea				states;
+	racea				races;
+	constexpr targeti() : type(Creature), range(You), target(SingleTarget) {}
+	targeti(const targeti& e) = default;
+	targeti(const std::initializer_list<variant>& source);
+};
+struct spelli {
+	const char*			name;
+	const targeti		target;
 };
 struct site : rect {
 	site_s				type;
@@ -591,7 +620,7 @@ struct areainfo : coordinate {
 };
 struct dungeon {
 	struct layer {
-		dungeon_area_s	type;
+		tile_s			type;
 		unsigned char	count;
 	};
 	const char*			name; // name of area location

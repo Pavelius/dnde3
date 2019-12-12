@@ -120,6 +120,7 @@
     <ClCompile Include="bstream.cpp" />
     <ClCompile Include="color.cpp" />
     <ClCompile Include="creature.cpp" />
+    <ClCompile Include="creaturea.cpp" />
     <ClCompile Include="crt.cpp" />
     <ClCompile Include="crt_strings.cpp" />
     <ClCompile Include="draw.cpp" />
@@ -134,8 +135,10 @@
     <ClCompile Include="picture.cpp" />
     <ClCompile Include="point.cpp" />
     <ClCompile Include="serial.cpp" />
+    <ClCompile Include="spell.cpp" />
     <ClCompile Include="stringbuilder.cpp" />
     <ClCompile Include="szdup.cpp" />
+    <ClCompile Include="target.cpp" />
     <ClCompile Include="tile.cpp" />
     <ClCompile Include="variant.cpp" />
     <ClCompile Include="win_draw.cpp" />
