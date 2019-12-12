@@ -285,8 +285,9 @@ struct attacki {
 	char				quality;
 };
 struct armori {
-	char				armor[2]; // Bonus to hit and damage reduction
-	char				armor_magic_bonus;
+	char				deflect;
+	char				armor;
+	char				multiplier;
 };
 struct foodi {
 	char				hits;
@@ -299,9 +300,9 @@ struct foodi {
 	int					get(int value) const { return value * 50; }
 };
 struct speciali {
-	char				chance_broke;
+	char				broke;
 	char				bonus;
-	char				chance_side;
+	char				side;
 };
 struct itemi {
 	const char*			name;
@@ -313,7 +314,7 @@ struct itemi {
 	armori				armor;
 	speciali			special;
 	cflags<item_flag_s>	flags;
-	cflags<slot_s>		slots;
+	slot_s				slot;
 	skill_s				focus;
 	item_s				ammunition;
 	unsigned char		count;
@@ -440,6 +441,7 @@ class creature : public nameable, public posable {
 	int					experience;
 	unsigned			money;
 	//
+	void				equip(item it, slot_s id);
 	bool				remove(item& it);
 public:
 	creature() = default;
