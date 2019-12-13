@@ -15,7 +15,7 @@ const unsigned short BlockedCreature = Blocked - 1;
 
 enum dice_s : unsigned char {
 	NoDice,
-	D1n3, D1n6, D2n7, D3n8, D4n9, D5n10, D6n11,
+	D1n3, D1n4, D1n6, D2n7, D3n8, D4n9, D5n10, D6n11,
 	D2n12, D3n13, D4n14, D5n15,
 	D3n18, D4n19, D5n20,
 };
@@ -278,6 +278,7 @@ struct damagei {
 struct attacki {
 	char				attack; // Percent bonus to hit
 	dice_s				damage;
+	attack_s			type;
 	char				speed;
 	char				critical;
 	char				multiplier;
