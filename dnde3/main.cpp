@@ -33,13 +33,20 @@ static void test_answers() {
 	an.choosev(true, false, true, "##Создание персонажа\nУ вас есть преимущество при выборе данных этого элемента.");
 }
 
+static void test_indoor() {
+	location e;
+	e.clear();
+	e.adventure();
+}
+
 int main(int argc, char* argv[]) {
 	auto s = sizeof(outdoor);
 	game.intialize();
 	//game.setnextlayer(test_worldmap);
 	//game.layer();
 	test_spells();
-	test_answers();
+	//test_answers();
+	test_indoor();
 }
 
 int __stdcall WinMain(void* ci, void* pi, char* cmd, int sw) {

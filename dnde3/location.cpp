@@ -91,3 +91,9 @@ void location::fill(rect rc, tile_s v) {
 			set(get(x, y), v);
 	}
 }
+
+tile_s location::gettile(indext i) const {
+	if(i == Blocked)
+		return Wall;
+	return tiles[i];
+}

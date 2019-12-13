@@ -1,8 +1,8 @@
 #include "main.h"
 
 itemi bsmeta<itemi>::elements[] = {{""},
-{"Боевой топор", 850, 5 * GP, Male, Iron, {0, D4n9, -2}, {}, {}, {}, Melee, WeaponFocusAxes},
-{"Дубина", 1000, 5 * CP, Female, Wood, {-6, D1n4}, {}, {}, {}, Melee},
+{"Боевой топор", 850, 5 * GP, Male, Iron, {0, D4n9, Slashing}, {}, {}, {}, Melee, WeaponFocusAxes},
+{"Дубина", 1000, 5 * CP, Female, Wood, {-6, D1n4, Bludgeon}, {}, {}, {}, Melee},
 {"Кинжал", 50, 2 * GP, Male, Iron, {-3, D1n3}, {}, {}, {}, Melee, WeaponFocusBlades},
 {"Молото", 800, 2 * GP, Male, Wood, {}, {}, {}, {}, Melee},
 {"Булава", 700, 8 * GP, Female, Iron, {}, {}, {}, {}, Melee},

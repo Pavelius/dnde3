@@ -211,6 +211,10 @@ enum variant_s : unsigned char {
 	Race, Range, Skill, Spell, State, Target,
 	Variant,
 };
+enum background_s : unsigned char {
+	NoBackground,
+	Outdoor, Indoor,
+};
 typedef short unsigned indext;
 typedef flagable<1 + Chaotic / 8> alignmenta;
 typedef flagable<1 + LastState / 8> statea;
@@ -391,7 +395,7 @@ public:
 	bool				isreadable() const;
 	bool				istome() const;
 	bool				isthrown() const;
-	bool				istwohanded() const;
+	bool				istwohanded() const { return getitem().flags.is(TwoHanded); }
 	bool				isversatile() const;
 	bool				isunbreakable() const;
 	void				loot();
@@ -668,8 +672,13 @@ struct manual {
 };
 class location {
 	tile_s				tiles[mmx*mmy];
+	map_object_s		objects[mmx*mmy];
 	unsigned char		random[mmx*mmy];
+	bool				wget(short unsigned i, direction_s direction, tile_s value) const;
+	bool				wget(short unsigned i, direction_s direction, tile_s value, bool default_result) const;
+	bool				xget(short unsigned i, direction_s direction) const;
 public:
+	void				adventure();
 	void				clear();
 	void				editor();
 	void				fill(rect rc, tile_s v);
@@ -677,8 +686,12 @@ public:
 	static short		getx(indext i) { return i%mmx; }
 	static short		gety(indext i) { return i / mmx; }
 	int					getindex(indext i, tile_s e) const;
-	tile_s				gettile(indext i) const { return tiles[i]; }
+	map_object_s		getobject(indext i) const { return objects[i]; }
+	tile_s				gettile(indext i) const;
+	trap_s				gettrap(indext i) const { return NoTrap; }
 	int					getrand(indext i) const { return random[i]; }
+	void				indoor(point camera, bool show_fow = true, const picture* effects = 0);
+	bool				is(indext i, map_flag_s v) const { return false; }
 	bool				read(const char* url);
 	void				set(indext i, tile_s v) { tiles[i] = v; }
 	static indext		to(indext index, direction_s id);
@@ -701,6 +714,7 @@ public:
 	static void			layer();
 	void				pass(unsigned seconds);
 	static void			setnextlayer(void(*proc)());
+	static void			set(background_s v);
 };
 extern gamei			game;
 DECLENUM(tile);
