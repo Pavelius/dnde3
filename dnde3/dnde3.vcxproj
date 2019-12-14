@@ -130,6 +130,7 @@
     <ClCompile Include="game.cpp" />
     <ClCompile Include="io.cpp" />
     <ClCompile Include="item.cpp" />
+    <ClCompile Include="itemground.cpp" />
     <ClCompile Include="location.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="nameable.cpp" />

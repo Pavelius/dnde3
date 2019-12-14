@@ -708,7 +708,6 @@ bool location::wget(short unsigned i, direction_s direction, tile_s value, bool 
 
 void location::indoor(point camera, bool show_fow, const picture* effects) {
 	creature* units[scrx*scry];
-	item_s stuff[scrx*scry];
 	auto night_percent = 0;
 	auto is_dungeon = false;
 	const sprite *floor, *walls;
@@ -753,19 +752,6 @@ void location::indoor(point camera, bool show_fow, const picture* effects) {
 			continue;
 		units[i] = &e;
 	}
-	// Инициализируем видимые предметы
-	memset(stuff, 0, sizeof(stuff));
-	//for(auto& e : grounditems) {
-	//	if(!e)
-	//		continue;
-	//	auto i = mget(rc.x1, rc.y1, game::getx(e.index), game::gety(e.index));
-	//	if(i == -1)
-	//		continue;
-	//	if(stuff[i] == NoItem)
-	//		stuff[i] = e.gettype();
-	//	else
-	//		stuff[i] = ManyItems;
-	//}
 	// Нижний уровень
 	for(auto my = rc.y1; my <= rc.y2; my++) {
 		if(my >= mmy)
@@ -853,20 +839,6 @@ void location::indoor(point camera, bool show_fow, const picture* effects) {
 					image(x, y, gres(ResFeature), 59 + gettrap(i) - TrapAnimal, 0);
 				break;
 			}
-			// Предметы на земле
-			auto pi = mget(rc.x1, rc.y1, mx, my);
-			if(pi != -1) {
-				switch(stuff[pi]) {
-				case NoItem:
-					break;
-				case ManyItems:
-					draw::image(x, y - 8, gres(ResItems), 0, 0);
-					break;
-				default:
-					draw::image(x, y - 8, gres(ResItems), stuff[pi], 0);
-					break;
-				}
-			}
 			// Тени
 			if(can_be_shadow) {
 				bool uw = gettile(to(i, Up)) == Wall;
@@ -892,6 +864,27 @@ void location::indoor(point camera, bool show_fow, const picture* effects) {
 			}
 		}
 	}
+	// Предметы на земле
+	for(auto& e : bsmeta<itemground>()) {
+		if(!e)
+			continue;
+		point pt;
+		pt.x = getx(e.index);
+		pt.y = gety(e.index);
+		if(!pt.in(rc))
+			continue;
+		auto x = x0 + pt.x * elx - camera.x;
+		auto y = y0 + pt.y * ely - camera.y;
+		draw::image(x, y - 8, gres(ResItems), e.gettype(), 0);
+	}
+	//for(auto my = rc.y1; my <= rc.y2; my++) {
+	//	if(my >= mmy)
+	//		break;
+	//	for(auto mx = rc.x1; mx <= rc.x2; mx++) {
+	//		if(mx >= mmx)
+	//			continue;
+	//	}
+	//}
 	// Нижний уровень эффектов
 	if(effects) {
 		for(auto p = effects; *p; p++)

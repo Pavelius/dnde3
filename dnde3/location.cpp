@@ -97,3 +97,16 @@ tile_s location::gettile(indext i) const {
 		return Wall;
 	return tiles[i];
 }
+
+void location::drop(indext i, item v) {
+	itemground* pi = 0;
+	for(auto& e : bsmeta<itemground>()) {
+		if(e)
+			continue;
+		pi = &e;
+	}
+	if(!pi)
+		pi = bsmeta<itemground>::add();
+	*static_cast<item*>(pi) = v;
+	pi->index = i;
+}

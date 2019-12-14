@@ -628,8 +628,10 @@ private:
 	unsigned			recoil;
 	void				wait(unsigned count);
 };
-struct grounditem : item {
+struct itemground : item {
 	short unsigned		index;
+	constexpr explicit operator bool() const { return index != Blocked; }
+	void				clear() { index = Blocked; }
 };
 struct coordinate {
 	constexpr coordinate() : index(Blocked), level(1) {}
@@ -678,6 +680,7 @@ public:
 	void				adventure();
 	void				clear();
 	void				editor();
+	void				drop(indext i, item v);
 	void				fill(rect rc, tile_s v);
 	indext				get(short x, short y) const { return y*mmx + x; }
 	static short		getx(indext i) { return i%mmx; }

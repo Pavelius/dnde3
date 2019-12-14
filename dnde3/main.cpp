@@ -36,6 +36,10 @@ static void test_answers() {
 static void test_indoor() {
 	location e;
 	e.clear();
+	e.fill({5, 5, 10, 8}, Wall);
+	e.drop(e.get(4, 3), SwordShort);
+	e.drop(e.get(3, 3), Staff);
+	e.drop(e.get(3, 3), LeatherArmour);
 	e.adventure();
 }
 
