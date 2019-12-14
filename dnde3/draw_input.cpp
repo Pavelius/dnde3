@@ -477,18 +477,6 @@ void gamei::layer() {
 	}
 }
 
-int	widget(eventproc before, eventproc after) {
-	while(ismodal()) {
-		current_background();
-		if(before)
-			before();
-		domodal();
-		if(after)
-			after();
-	}
-	return getresult() != 0;
-}
-
 static int render_info(int x, int y, int width) {
 	auto y0 = y;
 	char temp[512]; stringbuilder sb(temp);
@@ -575,7 +563,6 @@ static void render_editor() {
 
 static void render_indoor() {
 	current_location->indoor(camera, false, 0);
-	current_index = translate(current_index);
 }
 
 static void controls() {
@@ -587,7 +574,10 @@ void location::editor() {
 	if(current_location)
 		current_location->read("overland.map");
 	setbackground(render_editor);
-	widget(0, controls);
+	while(ismodal()) {
+		current_background();
+		domodal();
+	}
 }
 
 static void breakparam() {
@@ -716,7 +706,7 @@ void location::indoor(point camera, bool show_fow, const picture* effects) {
 		floor = gres(ResDungeon);
 		walls = gres(ResDungeonW);
 	} else {
-		night_percent = (128 * /*game::getnight()*/0) / 100;
+		night_percent = (128 * 0) / 100;
 		floor = gres(ResGrass);
 		walls = gres(ResGrassW);
 	}
@@ -1064,5 +1054,9 @@ int	answeri::choosev(bool interactive, bool clear_text, bool return_single, cons
 void location::adventure() {
 	current_location = this;
 	setbackground(render_indoor);
-	widget(0, controls);
+	while(ismodal()) {
+		current_background();
+		domodal();
+		controls();
+	}
 }
