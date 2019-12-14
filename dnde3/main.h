@@ -451,16 +451,14 @@ class creature : public nameable, public posable {
 	unsigned			experience;
 	unsigned			money;
 	//
+	void				delayed(variant id, int v, unsigned time);
 	void				equip(item it, slot_s id);
 	bool				remove(item& it);
 public:
 	creature() = default;
-	creature(role_s value);
-	creature(race_s race, gender_s gender, class_s type) { create(race, gender, type); }
 	explicit operator bool() const { return hp > 0; }
 	//
-	static creature*	add(short unsigned index, role_s role);
-	static creature*	add(short unsigned index, race_s race, gender_s gender, class_s type);
+	void				add(variant id, int v);
 	void				add(variant id, int v, unsigned time);
 	void				addexp(int count);
 	static void			addexp(int value, short unsigned position, int range, const creature* exclude, const creature* enemies);
@@ -483,9 +481,7 @@ public:
 	void				drink(item& it, bool interactive);
 	void				dress(int m);
 	void				dropdown(item& value);
-	bool				equip(item_s value);
 	bool				equip(item value);
-	void				equip(slot_s slot, item value);
 	int					get(ability_s value) const;
 	int					get(spell_s value) const;
 	int					get(skill_s value) const;
@@ -563,8 +559,6 @@ public:
 	void				remove(state_s value);
 	bool				roll(skill_s skill, int bonus = 0) const;
 	int					roll(skill_s skill, int bonus, const creature& opponent, skill_s opponent_skill, int opponent_bonus) const;
-	void				say(const char* format, ...);
-	bool				sayv(const char* format, const char* param, creature* opponent);
 	void				sayvs(creature& opponent, const char* format, ...);
 	bool				saving(bool interactive, skill_s save, int bonus) const;
 	static void			select(creature** result, rect rc);

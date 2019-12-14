@@ -12,16 +12,23 @@ short unsigned creature::getid() const {
 	return this - bsmeta<creature>::elements;
 }
 
-void creature::post(ability_s i, int modifier, unsigned rounds) {
+void creature::add(variant id, int v) {
+	switch(id.type) {
+	case Ability: abilities[id.value] += v; break;
+	}
+}
+
+void creature::delayed(variant id, int modifier, unsigned rounds) {
 	auto p = bsmeta<boosti>::add();
-	p->id = i;
+	p->id = id;
 	p->modifier = modifier;
 	p->time = rounds;
 	p->owner = getid();
 }
 
 void creature::add(variant id, int v, unsigned time) {
-
+	add(id, v);
+	delayed(id, -v, time);
 }
 
 creature* creature::getobject(short unsigned v) {
