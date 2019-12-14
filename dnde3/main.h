@@ -143,6 +143,7 @@ enum direction_s : unsigned char {
 };
 enum img_s : unsigned char {
 	ResNone,
+	ResBlood,
 	ResGrass, ResGrassW,
 	ResDungeon, ResDungeonW,
 	ResShadow,
@@ -166,7 +167,7 @@ enum spell_s : unsigned char {
 	FirstSpell = Armor, LastSpell = SlowMonster
 };
 enum map_flag_s : unsigned char {
-	Visible, Hidden, Opened, Sealed, Explored,
+	Visible, Hidden, Opened, Sealed, Explored, Webbed, Blooded,
 };
 enum duration_s : unsigned {
 	Instant = 0,
@@ -673,6 +674,7 @@ class location {
 	tile_s				tiles[mmx*mmy];
 	map_object_s		objects[mmx*mmy];
 	unsigned char		random[mmx*mmy];
+	flagable<1>			flags[mmx*mmy];
 	bool				wget(short unsigned i, direction_s direction, tile_s value) const;
 	bool				wget(short unsigned i, direction_s direction, tile_s value, bool default_result) const;
 	bool				xget(short unsigned i, direction_s direction) const;
@@ -682,8 +684,8 @@ public:
 	void				editor();
 	void				drop(indext i, item v);
 	void				fill(rect rc, tile_s v);
-	indext				get(short x, short y) const { return y*mmx + x; }
-	static short		getx(indext i) { return i%mmx; }
+	indext				get(short x, short y) const { return y * mmx + x; }
+	static short		getx(indext i) { return i % mmx; }
 	static short		gety(indext i) { return i / mmx; }
 	int					getindex(indext i, tile_s e) const;
 	map_object_s		getobject(indext i) const { return objects[i]; }
@@ -691,9 +693,11 @@ public:
 	trap_s				gettrap(indext i) const { return NoTrap; }
 	int					getrand(indext i) const { return random[i]; }
 	void				indoor(point camera, bool show_fow = true, const picture* effects = 0);
-	bool				is(indext i, map_flag_s v) const { return false; }
+	bool				is(indext i, map_flag_s v) const { return flags[i].is(v); }
 	bool				read(const char* url);
+	void				set(indext i, map_flag_s v) { flags[i].set(v); }
 	void				set(indext i, tile_s v) { tiles[i] = v; }
+	void				set(indext i, map_object_s v) { objects[i] = v; }
 	static indext		to(indext index, direction_s id);
 	void				worldmap(point camera, bool show_fow = true) const;
 	bool				write(const char* url) const;

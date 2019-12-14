@@ -40,6 +40,7 @@ struct imgi {
 	bool			notfound;
 };
 imgi bsmeta<imgi>::elements[] = {{""},
+{"blood", "art"},
 {"grass", "art"},
 {"grass_w", "art"},
 {"dungeon", "art"},
@@ -765,29 +766,24 @@ void location::indoor(point camera, bool show_fow, const picture* effects) {
 			auto t = gettile(i);
 			auto o = getobject(i);
 			auto r = getrand(i) % 4;
-			auto can_be_shadow = false;
 			// Тайлы
 			switch(t) {
 			case Hill:
 				image(x, y, floor, r, 0);
 				image(x, y, gres(ResFeature), 2, 0);
-				can_be_shadow = true;
 				break;
 			case Swamp:
 				image(x, y, floor, r, 0);
 				image(x, y, gres(ResFeature), 3, 0);
-				can_be_shadow = true;
 				break;
 			case Floor:
 				if(is_dungeon)
 					image(x, y, floor, r, 0);
 				else
 					image(x, y, floor, 4, 0);
-				can_be_shadow = true;
 				break;
 			case Plain:
 				image(x, y, floor, r, 0);
-				can_be_shadow = true;
 				break;
 			case Wall:
 				image(x, y, walls, 0, 0);
@@ -823,7 +819,6 @@ void location::indoor(point camera, bool show_fow, const picture* effects) {
 				break;
 			case Water:
 				image(x, y, gres(ResWater), getindex(i, Water), 0);
-				can_be_shadow = true;
 				break;
 			case Road:
 				image(x, y, gres(ResRoad), getindex(i, Road), 0);
@@ -839,29 +834,9 @@ void location::indoor(point camera, bool show_fow, const picture* effects) {
 					image(x, y, gres(ResFeature), 59 + gettrap(i) - TrapAnimal, 0);
 				break;
 			}
-			// Тени
-			if(can_be_shadow) {
-				bool uw = gettile(to(i, Up)) == Wall;
-				bool rw = gettile(to(i, Right)) == Wall;
-				bool dw = gettile(to(i, Down)) == Wall;
-				bool lw = gettile(to(i, Left)) == Wall;
-				if(uw)
-					image(x, y, shadow, 0, 0);
-				if(lw)
-					image(x, y, shadow, 1, 0);
-				if(dw)
-					image(x, y, shadow, 2, 0);
-				if(rw)
-					image(x, y, shadow, 3, 0);
-				if(!uw && !rw && gettile(to(i, RightUp)) == Wall)
-					image(x, y, shadow, 4, 0);
-				if(!uw && !lw && gettile(to(i, LeftUp)) == Wall)
-					image(x, y, shadow, 5, 0);
-				if(!dw && !rw && gettile(to(i, RightDown)) == Wall)
-					image(x, y, shadow, 6, 0);
-				if(!dw && !lw && gettile(to(i, LeftDown)) == Wall)
-					image(x, y, shadow, 7, 0);
-			}
+			// Кровь
+			if(is(i, Blooded))
+				image(x, y, gres(ResBlood), 12 + r, 0, 192);
 		}
 	}
 	// Предметы на земле
@@ -877,14 +852,51 @@ void location::indoor(point camera, bool show_fow, const picture* effects) {
 		auto y = y0 + pt.y * ely - camera.y;
 		draw::image(x, y - 8, gres(ResItems), e.gettype(), 0);
 	}
-	//for(auto my = rc.y1; my <= rc.y2; my++) {
-	//	if(my >= mmy)
-	//		break;
-	//	for(auto mx = rc.x1; mx <= rc.x2; mx++) {
-	//		if(mx >= mmx)
-	//			continue;
-	//	}
-	//}
+	// Тени
+	for(auto my = rc.y1; my <= rc.y2; my++) {
+		if(my >= mmy)
+			break;
+		for(auto mx = rc.x1; mx <= rc.x2; mx++) {
+			if(mx >= mmx)
+				continue;
+			auto x = x0 + mx * elx - camera.x;
+			auto y = y0 + my * ely - camera.y;
+			auto i = get(mx, my);
+			auto t = gettile(i);
+			switch(t) {
+			case Hill:
+			case Swamp:
+			case Floor:
+			case Plain:
+				if(true) {
+					bool uw = gettile(to(i, Up)) == Wall;
+					bool rw = gettile(to(i, Right)) == Wall;
+					bool dw = gettile(to(i, Down)) == Wall;
+					bool lw = gettile(to(i, Left)) == Wall;
+					if(uw)
+						image(x, y, shadow, 0, 0);
+					if(lw)
+						image(x, y, shadow, 1, 0);
+					if(dw)
+						image(x, y, shadow, 2, 0);
+					if(rw)
+						image(x, y, shadow, 3, 0);
+					if(!uw && !rw && gettile(to(i, RightUp)) == Wall)
+						image(x, y, shadow, 4, 0);
+					if(!uw && !lw && gettile(to(i, LeftUp)) == Wall)
+						image(x, y, shadow, 5, 0);
+					if(!dw && !rw && gettile(to(i, RightDown)) == Wall)
+						image(x, y, shadow, 6, 0);
+					if(!dw && !lw && gettile(to(i, LeftDown)) == Wall)
+						image(x, y, shadow, 7, 0);
+				}
+				break;
+			}
+			// Паутина
+			if(is(i, Webbed))
+				image(x, y, gres(ResFeature), 74 + getrand(i)%3, 0);
+		}
+	}
 	// Нижний уровень эффектов
 	if(effects) {
 		for(auto p = effects; *p; p++)
