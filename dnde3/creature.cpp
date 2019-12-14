@@ -48,8 +48,17 @@ void creature::dress(int m) {
 	abilities[AttackMelee] += m * (wears[Melee].getitem().weapon.attack + wears[Melee].getmagic() * 3);
 	abilities[AttackRanged] += m * (wears[Ranged].getitem().weapon.attack + wears[Ranged].getmagic() * 4);
 	for(auto i = Head; i <= Legs; i = (slot_s)(i + 1)) {
-		abilities[Deflect] += m * wears[i].getitem().armor.deflect + wears[i].getmagic()*wears[i].getitem().armor.multiplier;
-		abilities[Armor] += m * wears[i].getitem().armor.armor + wears[i].getmagic() / 2;
+		if(!wears[i])
+			continue;
+		auto mi = wears[i].getmagic();
+		auto& ei = wears[i].getitem();
+		if(i != Melee && i != Ranged) {
+			auto a = m * ei.weapon.attack;
+			abilities[AttackMelee] += a;
+			abilities[AttackRanged] += a;
+		}
+		abilities[Deflect] += m * (ei.armor.deflect + mi*ei.armor.multiplier);
+		abilities[Armor] += m * ei.armor.armor;
 	}
 }
 

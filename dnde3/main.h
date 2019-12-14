@@ -439,11 +439,10 @@ class creature : public nameable, public posable {
 	race_s				race;
 	class_s				type;
 	role_s				role;
-	unsigned short		name;
 	unsigned char		level;
 	unsigned short		guard;
 	direction_s			direction;
-	int					experience;
+	unsigned			experience;
 	unsigned			money;
 	//
 	void				equip(item it, slot_s id);
@@ -459,9 +458,7 @@ public:
 	void				add(variant id, int v, unsigned time);
 	void				addexp(int count);
 	static void			addexp(int value, short unsigned position, int range, const creature* exclude, const creature* enemies);
-	static creature*	addplayer();
 	bool				alertness();
-	void				apply(aref<variant> features);
 	void				apply(state_s state, item_type_s magic, int quality, unsigned duration, bool interactive);
 	bool				askyn(creature* opponent, const char* format, ...);
 	void				athletics(bool interactive);

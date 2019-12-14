@@ -331,7 +331,7 @@ static bool shortcuts(const hotkey* ph) {
 	for(auto p = ph; p->proc; p++) {
 		if(hot.key != p->key || hot.pressed)
 			continue;
-		p->proc();
+		execute(p->proc, p->param);
 		return true;
 	}
 	return false;
@@ -573,7 +573,8 @@ static void render_editor() {
 }
 
 static void render_indoor() {
-	current_location->indoor(camera, true, 0);
+	current_location->indoor(camera, false, 0);
+	current_index = translate(current_index);
 }
 
 static void controls() {
