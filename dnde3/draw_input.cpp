@@ -299,11 +299,11 @@ static void correct(point& camera, indext i1) {
 	auto y1 = camera.y / ely;
 	auto y2 = y1 + viewport.y / ely;
 	if(x < x1)
-		camera.x = x*elx;
+		camera.x = x * elx;
 	if(x > x2 - 1)
 		camera.x = (x - viewport.x / elx)*elx;
 	if(y < y1)
-		camera.y = y*ely;
+		camera.y = y * ely;
 	if(y > y2 - 1)
 		camera.y = (y - viewport.y / ely)*ely;
 	correct(camera);
@@ -339,8 +339,8 @@ static bool shortcuts(const hotkey* ph) {
 }
 
 void picture::set(short x, short y) {
-	this->x = x*elx;
-	this->y = y*ely;
+	this->x = x * elx;
+	this->y = y * ely;
 }
 
 void picture::render(int x, int y) const {
@@ -823,6 +823,9 @@ void location::indoor(point camera, bool show_fow, const picture* effects) {
 				if(!is(i, Hidden))
 					image(x, y, gres(ResFeature), 59 + gettrap(i) - TrapAnimal, 0);
 				break;
+			case Plants:
+				image(x, y, gres(ResFeature), 36 + (getrand(i)/60) % 3, 0);
+				break;
 			}
 			// Кровь
 			if(is(i, Blooded))
@@ -884,7 +887,7 @@ void location::indoor(point camera, bool show_fow, const picture* effects) {
 			}
 			// Паутина
 			if(is(i, Webbed))
-				image(x, y, gres(ResFeature), 74 + getrand(i)%3, 0);
+				image(x, y, gres(ResFeature), 74 + getrand(i) % 3, 0);
 		}
 	}
 	// Нижний уровень эффектов
@@ -905,21 +908,21 @@ void location::indoor(point camera, bool show_fow, const picture* effects) {
 			auto t = getobject(i);
 			auto r = getrand(i);
 			switch(t) {
-			case Tree:
-				image(x, y, gres(ResFeature), 4 + r % 3, 0);
-				break;
-			case StairsDown:
-				image(x, y, gres(ResFeature), 56, 0);
-				break;
-			case StairsUp:
-				image(x, y, gres(ResFeature), 57, 0);
-				break;
 			case Door:
 				r = is(i, Opened) ? 0 : 1;
 				if(gettile(to(i, Left)) == Wall && gettile(to(i, Right)) == Wall)
 					draw::image(x, y + 16, gres(ResDoors), r, 0);
 				else if(gettile(to(i, Up)) == Wall && gettile(to(i, Down)) == Wall)
 					draw::image(x, y, gres(ResDoors), 2 + r, 0);
+				break;
+			default:
+				if(bsmeta<map_objecti>::elements[t].start) {
+					auto c = bsmeta<map_objecti>::elements[t].count;
+					if(c)
+						image(x, y, gres(ResFeature), bsmeta<map_objecti>::elements[t].start + getrand(i) % c, 0);
+					else
+						image(x, y, gres(ResFeature), bsmeta<map_objecti>::elements[t].start, 0);
+				}
 				break;
 			}
 			// Вывод юнитов

@@ -130,7 +130,7 @@ enum site_s : unsigned char {
 };
 enum map_object_s : unsigned char {
 	NoTileObject,
-	Door, Tree, Altar, Statue, Trap, StairsUp, StairsDown
+	Door, Tree, Altar, Statue, Trap, Plants, StairsUp, StairsDown
 };
 enum trap_s : unsigned char {
 	NoTrap,
@@ -256,6 +256,11 @@ struct abilityi {
 struct tilei {
 	const char*			id;
 	const char*			name;
+};
+struct map_objecti {
+	const char*			id;
+	const char*			name;
+	short unsigned		start, count;
 };
 struct picture : point {
 	img_s				img;

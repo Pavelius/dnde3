@@ -50,6 +50,8 @@ static void test_indoor() {
 	e.set(e.get(5, 8), Water);
 	e.set(e.get(5, 9), Water);
 	e.set(e.get(3, 7), Hill);
+	e.set(e.get(3, 8), Altar);
+	e.set(e.get(3, 5), Plants);
 	e.set(e.get(2, 6), Blooded); e.set(e.get(3, 6), Blooded); e.set(e.get(4, 6), Blooded);
 	e.set(e.get(3, 6), Webbed); e.set(e.get(4, 6), Webbed); e.set(e.get(4, 7), Webbed);
 	e.adventure();

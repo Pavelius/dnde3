@@ -1,9 +1,5 @@
 #include "main.h"
 
-//Plain, Water, Floor, Wall, Road,
-//Swamp, Hill,
-//Sea, Foothills, Mountains, CloudPeaks, Forest,
-//City,
 tilei bsmeta<tilei>::elements[] = {{"Plain", "Равнина"},
 {"Water", "Вода"},
 {"Floor", "Пол"},
@@ -18,3 +14,4 @@ tilei bsmeta<tilei>::elements[] = {{"Plain", "Равнина"},
 {"Forest", "Лес"},
 {"City", "Город"},
 };
+assert_enum(tile, City);

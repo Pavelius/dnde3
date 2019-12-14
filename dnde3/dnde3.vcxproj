@@ -133,6 +133,7 @@
     <ClCompile Include="itemground.cpp" />
     <ClCompile Include="location.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="map_object.cpp" />
     <ClCompile Include="nameable.cpp" />
     <ClCompile Include="outdoor.cpp" />
     <ClCompile Include="picture.cpp" />
