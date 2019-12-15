@@ -62,6 +62,7 @@ static void test_indoor() {
 	e.set(e.get(2, 6), Blooded); e.set(e.get(3, 6), Blooded); e.set(e.get(4, 6), Blooded);
 	e.set(e.get(3, 6), Webbed); e.set(e.get(4, 6), Webbed); e.set(e.get(4, 7), Webbed);
 	create(e.get(3, 3), Human, Male, Theif);
+	create(e.get(4, 4), Dwarf, Male, Cleric);
 	e.adventure();
 }
 

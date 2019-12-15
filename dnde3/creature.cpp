@@ -117,6 +117,7 @@ int	creature::getmaxmana() const {
 }
 
 bool creature::equip(item v) {
+	// First try to dress this item
 	for(auto i = Head; i <= Amunitions; i = (slot_s)(i + 1)) {
 		if(!v.is(i))
 			continue;
@@ -125,8 +126,12 @@ bool creature::equip(item v) {
 		equip(v, i);
 		return true;
 	}
-	for(auto i = Head; i <= Amunitions; i = (slot_s)(i + 1)) {
-
+	// Second place item to backpack
+	for(auto i = FirstBackpack; i <= LastBackpack; i = (slot_s)(i + 1)) {
+		if(wears[i])
+			continue;
+		equip(v, i);
+		return true;
 	}
 	return false;
 }
@@ -202,7 +207,6 @@ void creature::applyabilities() {
 
 void creature::create(race_s race, gender_s gender, class_s type) {
 	clear();
-	this->race = race;
 	this->type = type;
 	applyabilities();
 	if(abilities[Intellegence] >= 9)
@@ -216,9 +220,8 @@ void creature::create(race_s race, gender_s gender, class_s type) {
 	// Восполним хиты
 	abilities[LifePoints] = getclass().hp;
 	abilities[ManaPoints] = getclass().mp;
-	// Имя
+	// Generate name
 	setname(race, gender);
-	//updateweight();
 	role = Character;
 	hp = getmaxhits();
 	mp = getmaxmana();

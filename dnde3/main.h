@@ -447,6 +447,7 @@ public:
 	gender_s			getgender() const;
 	const char*			getname() const;
 	void				setname(race_s race, gender_s gender);
+	race_s				getrace() const;
 };
 class creature : public nameable, public posable {
 	char				abilities[ManaRate + 1];
@@ -460,7 +461,6 @@ class creature : public nameable, public posable {
 	short unsigned		charmer, horror;
 	short unsigned		location;
 	encumbrance_s		encumbrance;
-	race_s				race;
 	class_s				type;
 	role_s				role;
 	unsigned short		guard;
@@ -538,7 +538,6 @@ public:
 	static creature*	getobject(short unsigned v);
 	static creature*	getplayer();
 	static creature*	getplayer(int index);
-	race_s				getrace() const { return race; }
 	dice_s				getraise(skill_s id) const;
 	role_s				getrole() const { return role; }
 	int					getweight() const;

@@ -62,11 +62,21 @@ void nameable::setname(race_s race, gender_s gender) {
 }
 
 gender_s nameable::getgender() const {
-	return Male;
+	if(name == Blocked)
+		return Male;
+	return bsmeta<nameablei>::elements[name].gender;
+}
+
+race_s nameable::getrace() const {
+	if(name == Blocked)
+		return Human;
+	return bsmeta<nameablei>::elements[name].race;
 }
 
 const char* nameable::getname() const {
-	return "Павел";
+	if(name == Blocked)
+		return "Павел";
+	return bsmeta<nameablei>::elements[name].name;
 }
 
 void nameable::actv(stringbuilder& sb, const char* format, const char* param) const {
