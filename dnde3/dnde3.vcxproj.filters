@@ -124,6 +124,12 @@
     <ClCompile Include="string.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="manual.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="skill.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="answer.h">

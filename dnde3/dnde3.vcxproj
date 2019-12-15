@@ -136,6 +136,7 @@
     <ClCompile Include="itemground.cpp" />
     <ClCompile Include="location.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="manual.cpp" />
     <ClCompile Include="map_object.cpp" />
     <ClCompile Include="nameable.cpp" />
     <ClCompile Include="outdoor.cpp" />
@@ -144,6 +145,7 @@
     <ClCompile Include="race.cpp" />
     <ClCompile Include="serial.cpp" />
     <ClCompile Include="site.cpp" />
+    <ClCompile Include="skill.cpp" />
     <ClCompile Include="spell.cpp" />
     <ClCompile Include="state.cpp" />
     <ClCompile Include="string.cpp" />

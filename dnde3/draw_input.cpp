@@ -1175,7 +1175,7 @@ int	answeri::paint(int x, int y, int width, int i, int& maximum_width) const {
 			h = h1;
 	}
 	if(hot.key == k)
-		execute(breakparam, i);
+		execute(breakparam, elements[i].param);
 	return h;
 }
 
@@ -1229,7 +1229,7 @@ int	answeri::dialogv(bool allow_cancel, const char* title, const char* format) c
 		paint(x, y, width, format, maximum_width);
 		domodal();
 		if(allow_cancel && hot.key == KeyEscape)
-			breakmodal(-1);
+			breakmodal(0);
 	}
 	return getresult();
 }
@@ -1257,12 +1257,7 @@ indext location::choose(bool allow_cancel) const {
 			breakmodal(current_index);
 			break;
 		case Ctrl + Alpha + 'M':
-			if(true) {
-				answeri an;
-				an.add(Strenght, "Сила или ловкость");
-				an.add(Dexterity, "Ловкость или другая способность");
-				an.dialogv(true, "Мануал", "Укажите основной раздел в котором вы хотите посмотреть данные");
-			}
+			game.help();
 			break;
 		default:
 			current_index = translate(current_index);

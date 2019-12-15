@@ -193,9 +193,6 @@ enum speech_s : unsigned char {
 	NoTalking,
 	Answer, Action, Speech,
 };
-enum manual_s : unsigned char {
-	Element, Header
-};
 enum range_s : unsigned char {
 	You, Close, Reach, Near, Far
 };
@@ -245,6 +242,8 @@ struct variant {
 	constexpr variant(int v) : type(Number), value(v) {}
 	variant(const creature* v);
 	explicit operator bool() const { return type != NoVariant; }
+	bool operator==(const variant& e) const { return type==e.type && value==e.value; }
+	const char*			getname() const;
 };
 struct string : stringbuilder {
 	const char			*name, *opponent_name;
@@ -277,6 +276,12 @@ struct abilityi {
 	const char*			nameof;
 	const char*			cursedof;
 	variant				formula[8];
+};
+struct skilli {
+	const char*			name;
+	const char*			name_tome;
+	ability_s			abilities[2];
+	skill_s				getid() const;
 };
 struct equipmenti {
 	race_s				race;
@@ -697,13 +702,14 @@ struct dungeon {
 	adat<layer, 8>		layers;
 };
 struct manual {
-	typedef void(*proc)(stringbuilder& sc, manual& e);
-	manual_s			type;
+	typedef void(*proc)(stringbuilder& sb, manual& e, answeri& an);
+	variant				parent;
 	variant				value;
+	const char*			name;
 	const char*			text;
-	manual*				child;
 	aref<proc>			procs;
-	explicit operator bool() const { return value.type != 0; }
+	explicit operator bool() const { return (bool)value; }
+	const char*			getname() const;
 };
 class location {
 	tile_s				tiles[mmx*mmy];
@@ -753,6 +759,7 @@ class gamei {
 public:
 	void				intialize();
 	static void			layer();
+	static void			help();
 	void				pass(unsigned seconds);
 	static void			setnextlayer(void(*proc)());
 	static void			set(background_s v);
