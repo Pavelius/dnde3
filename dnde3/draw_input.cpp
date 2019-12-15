@@ -164,6 +164,10 @@ void gamei::intialize() {
 	current_background = no_background;
 }
 
+static indext gets2i(const point& camera) {
+	return location::get(camera.x / elx, camera.y / ely);
+}
+
 static void window(rect rc, bool disabled, int border) {
 	if(border == 0)
 		border = gui_border;
@@ -177,15 +181,17 @@ static void window(rect rc, bool disabled, int border) {
 	draw::rectb(rc, b);
 }
 
-static int windowf(int x, int y, int width, const char* string) {
-	rect rc = {x, y, x + width, y};
-	draw::state push;
-	draw::font = metrics::font;
-	auto height = draw::textf(rc, string);
-	rc.x2 = rc.x1 + width;
+static void windowf(const char* string) {
+	rect rc = {0, 0, 400, 0};
+	draw::textf(rc, string);
+	auto w = rc.width();
+	auto h = rc.height();
+	rc.x1 = (getwidth() - w)/2;
+	rc.y1 = gui_padding*3;
+	rc.x2 = rc.x1 + w;
+	rc.y2 = rc.y1 + h;
 	window(rc, false, 0);
-	draw::textf(x, y, rc.width(), string);
-	return height + gui_border * 2 + gui_padding;
+	draw::textf(rc.x1, rc.y1, w, string);
 }
 
 static void correct(point& camera) {
@@ -325,6 +331,7 @@ static indext translate(indext i) {
 	}
 	if(i1 == Blocked)
 		return i;
+	hot.key = 0;
 	correct(camera, i1);
 	return i1;
 }
@@ -585,7 +592,9 @@ static int fiela(int x, int y, int w, const char* name, int value, int basic_val
 static int fielp(int x, int y, int w, const char* name, int p1, int p2) {
 	header(x, y, name);
 	char temp[128]; stringbuilder sb(temp);
-	sb.add("%1i%% и %2i%%", chance_to_hit + p1, chance_to_hit + p2);
+	sb.add("%1i%%", p1);
+	if(p2)
+		sb.adds("и %2i%%", p2);
 	draw::text(x + w, y, sb);
 	return draw::texth();
 }
@@ -629,10 +638,10 @@ static void render_info(const creature& e) {
 	char temp[512]; stringbuilder sb(temp);
 	const int tw = 26;
 	const int dx = 52;
-	const int width = 500;
-	const int height = draw::texth() * 4;
+	const int width = 560;
+	const int height = draw::texth() * 4 + 2;
 	auto x = (draw::getwidth() - width) / 2;
-	auto y = draw::getheight() - height - gui_padding * 2;
+	auto y = draw::getheight() - height - gui_padding * 3;
 	auto y2 = y;
 	draw::state push;
 	fore = colors::white;
@@ -644,7 +653,7 @@ static void render_info(const creature& e) {
 		sb.clear(); loc->getname(sb);
 		draw::text(x + width - draw::textw(sb), y, sb);
 	}
-	y += draw::texth();
+	y += draw::texth() + 2;
 	int y1 = y;
 	int x1 = x;
 	y += fiela(x, y, tw, "СЛ", e.get(Strenght), e.getbasic(Strenght));
@@ -663,8 +672,8 @@ static void render_info(const creature& e) {
 	y += fielr(x, y, tw, "БР", e.get(Deflect), e.get(Armor));
 	x += dx + 50;
 	y = y1;
-	y += field(x, y, 40, "Хиты", e.gethits(), e.getmaxhits());
-	y += field(x, y, 40, "Мана", e.getmana(), e.getmaxmana());
+	y += field(x, y, 40, "Хиты", e.gethits(), e.get(LifePoints));
+	y += field(x, y, 40, "Мана", e.getmana(), e.get(ManaPoints));
 	x += dx + 40 + 20 - tw;
 	y = y1;
 	y += field(x, y, 52, "Опыт", e.getexperience());
@@ -689,7 +698,10 @@ static void render_info(const creature& e) {
 }
 
 static void render_indoor() {
-	current_location->indoor(camera, false, 0);
+	picture effects[2] = {};
+	if(current_index!=Blocked)
+		effects[0].setcursor(current_index, 1);
+	current_location->indoor(camera, false, effects);
 	auto player = creature::getplayer();
 	if(player)
 		render_info(*player);
@@ -751,7 +763,7 @@ static void avatar(int x, int y, const creature& player, short unsigned flags, u
 	auto ranged = player.get(Ranged);
 	auto body = player.get(Torso);
 	auto back = player.get(TorsoBack);
-	if(melee.istwohanded()) {
+	if(melee.is(TwoHanded)) {
 		i1 = 2;
 		i2 = 3 + melee.gettype() - FirstWeapon;
 	} else {
@@ -972,6 +984,11 @@ void location::indoor(point camera, bool show_fow, const picture* effects) {
 		auto y = y0 + pt.y * ely - camera.y;
 		draw::image(x, y - 8, gres(ResItems), e.gettype(), 0);
 	}
+	// Нижний уровень эффектов
+	if(effects) {
+		for(auto p = effects; *p; p++)
+			p->render(-camera.x, -camera.y);
+	}
 	// Тени
 	for(auto my = rc.y1; my <= rc.y2; my++) {
 		if(my >= mmy)
@@ -1016,11 +1033,6 @@ void location::indoor(point camera, bool show_fow, const picture* effects) {
 			if(is(i, Webbed))
 				image(x, y, gres(ResFeature), 74 + getrand(i) % 3, 0);
 		}
-	}
-	// Нижний уровень эффектов
-	if(effects) {
-		for(auto p = effects; *p; p++)
-			p->render(camera.x, camera.y);
 	}
 	// Верхний уровень
 	for(auto my = rc.y1; my <= rc.y2; my++) {
@@ -1183,10 +1195,40 @@ int	answeri::choosev(bool interactive, bool clear_text, bool return_single, cons
 
 void location::adventure() {
 	current_location = this;
+	current_index = Blocked;
 	setbackground(render_indoor);
 	while(ismodal()) {
 		current_background();
 		domodal();
-		controls();
 	}
+}
+
+indext location::choose(bool allow_cancel) const {
+	current_location = const_cast<location*>(this);
+	current_index = gets2i(camera);
+	setbackground(render_indoor);
+	while(ismodal()) {
+		current_background();
+		if(true) {
+			char temp[512]; stringbuilder sb(temp);
+			addinfo(current_index, sb);
+			if(sb)
+				windowf(sb);
+		}
+		domodal();
+		switch(hot.key) {
+		case KeyEscape:
+			if(allow_cancel)
+				breakmodal(Blocked);
+			break;
+		case KeyEnter:
+		case KeySpace:
+			breakmodal(current_index);
+			break;
+		default:
+			current_index = translate(current_index);
+			break;
+		}
+	}
+	return getresult();
 }

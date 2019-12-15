@@ -1,16 +1,16 @@
 #include "main.h"
 
 itemi bsmeta<itemi>::elements[] = {{""},
-{"Боевой топор", 850, 5 * GP, Male, Iron, {0, D4n9, Slashing}, {}, {}, {}, Melee, WeaponFocusAxes},
+{"Боевой топор", 850, 5 * GP, Male, Iron, {-3, D4n9, Slashing}, {}, {}, {}, Melee, WeaponFocusAxes},
 {"Дубина", 1000, 5 * CP, Female, Wood, {-6, D1n4, Bludgeon}, {}, {}, {}, Melee},
-{"Кинжал", 50, 2 * GP, Male, Iron, {-3, D1n3}, {}, {}, {}, Melee, WeaponFocusBlades},
-{"Молото", 800, 2 * GP, Male, Wood, {}, {}, {}, {}, Melee},
-{"Булава", 700, 8 * GP, Female, Iron, {}, {}, {}, {}, Melee},
-{"Копье", 700, 8 * GP, NoGender, Iron, {}, {}, {}, {}, Melee},
-{"Посох", 700, 8 * GP, Female, Iron, {}, {}, {}, {}, Melee},
-{"Меч", 700, 8 * GP, Female, Iron, {}, {}, {}, {}, Melee, WeaponFocusBlades},
-{"Короткий меч", 700, 8 * GP, Female, Iron, {}, {}, {}, {}, Melee, WeaponFocusBlades},
-{"Двуручный меч", 700, 8 * GP, Female, Iron, {}, {}, {}, {}, Melee, WeaponFocusBlades},
+{"Кинжал", 50, 2 * GP, Male, Iron, {-6, D1n3, Piercing}, {}, {}, {}, Melee, WeaponFocusBlades},
+{"Молот", 800, 2 * GP, Male, Wood, {-3, D3n8, Bludgeon}, {}, {}, {}, Melee},
+{"Булава", 700, 8 * GP, Female, Iron, {-3, D2n7, Bludgeon}, {}, {}, {}, Melee},
+{"Копье", 700, 8 * GP, NoGender, Iron, {-3, D3n8, Piercing}, {}, {}, {}, Melee},
+{"Посох", 700, 8 * GP, Female, Iron, {-3, D1n6, Bludgeon}, {}, {}, {}, Melee},
+{"Меч", 700, 8 * GP, Female, Iron, {-4, D5n10, Slashing}, {}, {}, {}, Melee, WeaponFocusBlades},
+{"Короткий меч", 700, 8 * GP, Female, Iron, {-3, D3n8, Slashing}, {}, {}, {}, Melee, WeaponFocusBlades},
+{"Двуручный меч", 700, 8 * GP, Female, Iron, {-9, D4n14, Slashing}, {}, {}, {}, Melee, WeaponFocusBlades},
 //
 {"Арбалет", 700, 40 * GP, Male, Wood, {}, {}, {}, {}, Melee},
 {"Тяжелый арбалет", 1200, 80 * GP, Male, Wood, {}, {}, {}, {}, Melee},
@@ -47,6 +47,10 @@ bool item::is(slot_s v) const {
 	default:
 		return bsmeta<itemi>::elements[type].slot == v;
 	}
+}
+
+void item::get(attacki& result) const {
+	result = getitem().weapon;
 }
 
 //{"Боевой топор", 850, 5 * GP, Male, Iron, {1, {1, 8, Slashing}}, {5}, {Versatile}, {Melee}, WeaponFocusAxes, axe_effect},

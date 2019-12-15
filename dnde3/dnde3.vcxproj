@@ -143,6 +143,7 @@
     <ClCompile Include="point.cpp" />
     <ClCompile Include="race.cpp" />
     <ClCompile Include="serial.cpp" />
+    <ClCompile Include="site.cpp" />
     <ClCompile Include="spell.cpp" />
     <ClCompile Include="state.cpp" />
     <ClCompile Include="stringbuilder.cpp" />

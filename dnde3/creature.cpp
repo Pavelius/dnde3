@@ -83,6 +83,12 @@ void creature::dress(int m) {
 		abilities[Deflect] += m * (ei.armor.deflect + mi*ei.armor.multiplier);
 		abilities[Armor] += m * ei.armor.armor;
 	}
+	// Apply calculating values
+	abilities[AttackMelee] += m * (get(Strenght));
+	abilities[AttackRanged] += m * (get(Dexterity));
+	abilities[Deflect] += m * (get(Acrobatics)/2);
+	abilities[LifePoints] += m * (get(Constitution));
+	abilities[ManaPoints] += m * (get(Intellegence) + get(Concetration)/4);
 }
 
 dice_s creature::getraise(skill_s id) const {
@@ -104,22 +110,6 @@ void creature::equip(item it, slot_s id) {
 	dress(-1);
 	wears[id] = it;
 	dress(1);
-}
-
-int	creature::getmaxhits() const {
-	auto result = abilities[LifePoints];
-	if(role == Character)
-		result += get(Constitution);
-	else
-		result += get(Constitution) / 2;
-	return result;
-}
-
-int	creature::getmaxmana() const {
-	auto result = abilities[ManaPoints];
-	result += get(Intellegence);
-	result += get(Concetration) / 4;
-	return result;
 }
 
 bool creature::equip(item v) {
@@ -195,12 +185,12 @@ void creature::applyabilities() {
 	const auto& ci = getclass();
 	// Generate abilities
 	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1))
-		abilities[i] = xrand(ri.ability_minimum[i], ri.ability_maximum[i]);
+		abilities[i] = ri.abilities[i] + (rand()%5) - 3;
 	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1))
 		abilities[i] += ci.ability[i];
 	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1)) {
-		if(abilities[i] < 1)
-			abilities[i] = 1;
+		if(abilities[i] < 0)
+			abilities[i] = 0;
 	}
 	// Generate skills
 	for(auto e : ri.skillvs)
@@ -209,11 +199,14 @@ void creature::applyabilities() {
 		raise(e);
 	for(auto e : ci.skills)
 		raise(e);
+	dresson();
 }
 
 void creature::create(race_s race, gender_s gender, class_s type) {
 	clear();
 	this->type = type;
+	role = Character;
+	abilities[Level] = 1;
 	applyabilities();
 	if(abilities[Intellegence] >= 9)
 		raise(Literacy);
@@ -224,16 +217,62 @@ void creature::create(race_s race, gender_s gender, class_s type) {
 	auto skill_checks = maptbl(int_checks, get(Intellegence));
 	raiseskills(skill_checks);
 	// Восполним хиты
-	abilities[LifePoints] = getclass().hp;
-	abilities[ManaPoints] = getclass().mp;
+	add(LifePoints, getclass().hp);
+	add(ManaPoints, getclass().mp);
 	// Generate name
 	setname(race, gender);
-	role = Character;
-	hp = getmaxhits();
-	mp = getmaxmana();
+	hp = get(LifePoints);
+	mp = get(ManaPoints);
 }
 
 void creature::getfullname(stringbuilder& sb) const {
 	sb.add(getname());
-	sb.adds("%1-%3 %2i уровня", getstr(type), get(Level), getstr(getrace()));
+	sb.adds("%-3-%-1 %2i уровня", getstr(type), get(Level), getstr(getrace()));
+}
+
+attacki creature::getattack(slot_s id) const {
+	attacki result = {0};
+	auto& weapon = wears[id];
+	if(weapon) {
+		weapon.get(result);
+		result.dice = bsmeta<dicei>::elements[result.damage];
+		auto focus = weapon.getfocus();
+		// RULE: Weapon focus add bonus to attack and damage
+		if(focus && getbasic(focus)) {
+			auto fs = get(focus);
+			result.attack += fs / 5;
+			result.dice.max += fs / 40;
+		}
+		// RULE: Versatile weapon if used two-handed made more damage.
+		if(id == Melee && weapon.is(Versatile) && !wears[OffHand]) {
+			result.dice.min += 1;
+			result.dice.max += 1;
+		}
+	} else if(id==Melee) {
+		result.type = Bludgeon;
+		result.dice.min = 0;
+		result.dice.max = 4;
+	}
+	if(!result.dice.max)
+		return result;
+	result.attack += 40; // Basic chance to hit
+	switch(id) {
+	case Melee:
+	case OffHand:
+		result.attack += get(Strenght);
+		result.dice.max += (get(Strenght) - 10) / 2;
+		break;
+	case Ranged:
+		result.attack += get(Dexterity);
+		break;
+	}
+	return result;
+}
+
+int creature::getbasic(ability_s id) const {
+	return abilities[id];
+}
+
+void creature::setplayer() {
+	current_player = this;
 }

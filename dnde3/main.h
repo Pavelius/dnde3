@@ -7,7 +7,6 @@
 const int GP = 100;
 const int SP = 10;
 const int CP = 1;
-const int chance_to_hit = 40; // Dexterity add to this value. Mediaval dexterity is 10, so medium chance to hit is 50%.
 const short unsigned mmx = 96;
 const short unsigned mmy = 96;
 const unsigned short Blocked = 0xFFFF;
@@ -97,7 +96,8 @@ enum alignment_s : unsigned char {
 };
 enum ability_s : unsigned char {
 	Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
-	AttackMelee, AttackRanged, Pierce, Deflect, Armor, Damage, Speed, Visibility,
+	AttackMelee, AttackRanged,
+	Pierce, Deflect, Armor, Damage, Speed, Visibility,
 	Level, LifePoints, LifeRate, ManaPoints, ManaRate,
 };
 enum skill_s : unsigned char {
@@ -203,7 +203,7 @@ enum target_s : unsigned char {
 	SingleTarget, RandomTarget, AllTargets,
 };
 enum item_flag_s : unsigned char {
-	TwoHanded,
+	TwoHanded, Versatile
 };
 enum variant_s : unsigned char {
 	NoVariant,
@@ -268,6 +268,7 @@ struct equipmenti {
 struct tilei {
 	const char*			id;
 	const char*			name;
+	gender_s			gender;
 };
 struct map_objecti {
 	const char*			id;
@@ -280,6 +281,7 @@ struct picture : point {
 	unsigned short		flags;
 	unsigned char		alpha;
 	unsigned char		level;
+	constexpr explicit operator bool() const { return img != ResNone; }
 	void				clear() { memset(this, 0, sizeof(*this)); alpha = 0xFF; }
 	void				render(int x, int y) const;
 	void				set(indext i);
@@ -296,8 +298,7 @@ struct skillv {
 };
 struct racei {
 	const char*			name;
-	char				ability_minimum[6];
-	char				ability_maximum[6];
+	char				abilities[6];
 	adat<skill_s, 4>	skills;
 	adat<skillv, 8>		skillvs;
 };
@@ -315,6 +316,7 @@ struct attacki {
 	char				multiplier;
 	enchantment_s		effect;
 	char				quality;
+	dicei				dice;
 };
 struct armori {
 	char				deflect;
@@ -378,35 +380,32 @@ public:
 	void				damage();
 	void				get(attacki& e) const;
 	item_s				getammo() const;
-	int					getarmor() const;
 	int					getbonus(enchantment_s type) const;
 	int					getcharges() const;
 	unsigned			getcost() const;
 	int					getcount() const;
-	int					getdefence() const;
 	enchantment_s		geteffect() const;
 	char				getenchantcost() const;
-	skill_s				getfocus() const;
-	const foodi&		getfood() const;
+	skill_s				getfocus() const { return getitem().focus; }
+	const foodi&		getfood() const { return getitem().food; }
 	const itemi&		getitem() const { return bsmeta<itemi>::elements[type]; }
-	static aref<item_s>	getitems(aref<item_s> result, aref<slot_s> source);
-	gender_s			getgender() const;
+	gender_s			getgender() const { return getitem().gender; }
 	item_type_s			getmagic() const { return magic; }
 	material_s			getmaterial() const;
-	static const char*	getname(spell_s value);
-	static const char*	getname(state_s value);
-	char*				getname(char* result, const char* result_maximum, bool show_info = true) const;
+	const char*			getname() const { return getitem().name; }
+	void				getname(stringbuilder& sb, bool identified) const;
 	int					getquality() const;
 	int					getsalecost() const;
 	skill_s				getskill() const;
 	spell_s				getspell() const;
-	const speciali&		getspecial() const;
+	const speciali&		getspecial() const { return getitem().special; }
 	state_s				getstate() const;
 	item_s				gettype() const { return type; }
 	creature*			getwearer() const;
 	int					getweight() const;
 	int					getweightsingle() const;
-	bool				is(slot_s value) const;
+	bool				is(slot_s v) const;
+	bool				is(item_flag_s v) const { return getitem().flags.is(v); }
 	bool				isarmor() const;
 	bool				isartifact() const { return magic == Artifact; }
 	bool				ischargeable() const;
@@ -422,8 +421,6 @@ public:
 	bool				isreadable() const;
 	bool				istome() const;
 	bool				isthrown() const;
-	bool				istwohanded() const { return getitem().flags.is(TwoHanded); }
-	bool				isversatile() const;
 	bool				isunbreakable() const;
 	void				loot();
 	void				repair(int level);
@@ -532,7 +529,7 @@ public:
 	attacki				getattack(slot_s slot) const;
 	int					getattacktime(slot_s slot) const;
 	int					getbasic(ability_s value) const;
-	int					getbasic(skill_s value) const;
+	int					getbasic(skill_s v) const { return skills[v]; }
 	int					getbonus(enchantment_s value) const;
 	const classi&		getclass() const { return bsmeta<classi>::elements[type]; }
 	int					getcost(spell_s value) const;
@@ -551,8 +548,6 @@ public:
 	int					getlos() const;
 	int					getlos(unsigned flags) const;
 	int					getmana() const { return mp; }
-	int					getmaxhits() const;
-	int					getmaxmana() const;
 	int					getmoney() const { return money; }
 	const char*			getmonstername() const;
 	int					getmoverecoil() const;
@@ -699,12 +694,14 @@ class location {
 	bool				wget(short unsigned i, direction_s direction, tile_s value, bool default_result) const;
 	bool				xget(short unsigned i, direction_s direction) const;
 public:
+	void				addinfo(indext i, stringbuilder& sb) const;
 	void				adventure();
+	indext				choose(bool allow_cancel) const;
 	void				clear();
 	void				editor();
 	void				drop(indext i, item v);
 	void				fill(rect rc, tile_s v);
-	indext				get(short x, short y) const { return y * mmx + x; }
+	static indext		get(short x, short y) { return y * mmx + x; }
 	static short		getx(indext i) { return i % mmx; }
 	static short		gety(indext i) { return i / mmx; }
 	int					getindex(indext i, tile_s e) const;
@@ -742,6 +739,7 @@ public:
 };
 extern gamei			game;
 DECLENUM(class);
+DECLENUM(map_object);
 DECLENUM(tile);
 DECLENUM(race);
 DECLENUM(state);

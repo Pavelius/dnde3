@@ -118,6 +118,9 @@
     <ClCompile Include="state.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="site.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="answer.h">

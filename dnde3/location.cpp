@@ -110,3 +110,27 @@ void location::drop(indext i, item v) {
 	*static_cast<item*>(pi) = v;
 	pi->index = i;
 }
+
+void location::addinfo(indext i, stringbuilder& sb) const {
+	static const char* blooded[] = {"запачконое", "запачканный", "запачканная", "запачканные"};
+	static const char* webbed[] = {"покрытое", "покрытый", "покрытая", "покрытые"};
+	if(i == Blocked)
+		return;
+	auto t = gettile(i);
+	sb.add("Это");
+	if(true) {
+		auto count = 0;
+		if(is(i, Blooded)) {
+			sb.adds("%1 кровью", blooded[bsmeta<tilei>::elements[t].gender]);
+			count++;
+		}
+		if(is(i, Webbed)) {
+			sb.adds("%1 паутиной", webbed[bsmeta<tilei>::elements[t].gender]);
+			count++;
+		}
+		sb.adds("%-1.", getstr(t));
+	}
+	auto o = getobject(i);
+	if(o)
+		sb.adds("Здесь находится %1.", getstr(o));
+}
