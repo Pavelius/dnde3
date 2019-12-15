@@ -207,13 +207,18 @@ enum item_flag_s : unsigned char {
 };
 enum variant_s : unsigned char {
 	NoVariant,
-	Ability, Alignment, Creature, Enchantment, God, Item,
-	Race, Range, Skill, Spell, State, Target,
+	Ability, Alignment, Creature, Enchantment, Formula,
+	God, Item,
+	Number, Race, Range, Skill, Spell, State, Target,
 	Variant,
 };
 enum background_s : unsigned char {
 	NoBackground,
 	Outdoor, Indoor,
+};
+enum formula_s : unsigned char {
+	Negative,
+	Divide2, Divide3, Divide4,	
 };
 typedef short unsigned indext;
 typedef flagable<1 + Chaotic / 8> alignmenta;
@@ -230,14 +235,26 @@ struct variant {
 	constexpr variant(range_s v) : type(Range), value(v) {}
 	constexpr variant(race_s v) : type(Race), value(v) {}
 	constexpr variant(enchantment_s v) : type(Enchantment), value(v) {}
+	constexpr variant(formula_s v) : type(Formula), value(v) {}
 	constexpr variant(item_s v) : type(Item), value(v) {}
 	constexpr variant(skill_s v) : type(Skill), value(v) {}
 	constexpr variant(spell_s v) : type(Spell), value(v) {}
 	constexpr variant(state_s v) : type(State), value(v) {}
 	constexpr variant(target_s v) : type(Target), value(v) {}
 	constexpr variant(variant_s v) : type(Variant), value(v) {}
+	constexpr variant(int v) : type(Number), value(v) {}
 	variant(const creature* v);
 	explicit operator bool() const { return type != NoVariant; }
+};
+struct string : stringbuilder {
+	const char			*name, *opponent_name;
+	gender_s			gender, opponent_gender;
+	constexpr string(const stringbuilder& source) : stringbuilder(source),
+		name(0), opponent_name(0),
+		gender(Male), opponent_gender(Male) {}
+	template<unsigned N> constexpr string(char(&result)[N]) : stringbuilder(result, result + N - 1), name(0), gender(Female) {}
+	void				addformula(const variant* p);
+	void				addidentifier(const char* identifier) override;
 };
 struct boosti {
 	short unsigned		owner;
@@ -259,6 +276,7 @@ struct abilityi {
 	const char*			name_short;
 	const char*			nameof;
 	const char*			cursedof;
+	variant				formula[8];
 };
 struct equipmenti {
 	race_s				race;
@@ -489,6 +507,7 @@ class creature : public nameable, public posable {
 	unsigned			money;
 	//
 	void				applyabilities();
+	const variant*		calculate(const variant* formula, int& result) const;
 	void				delayed(variant id, int v, unsigned time);
 	void				dress(int m);
 	void				equip(item it, slot_s id);
@@ -506,6 +525,7 @@ public:
 	bool				askyn(creature* opponent, const char* format, ...);
 	void				athletics(bool interactive);
 	void				attack(creature* defender, slot_s slot, int bonus = 0, int multiplier = 0);
+	int					calculate(const variant* formule) const;
 	bool				canhear(short unsigned index) const;
 	void				chat(creature* opponent);
 	item*				choose(aref<item*> source, bool interactive, const char* title = 0) const;

@@ -79,10 +79,20 @@ const char* nameable::getname() const {
 	return bsmeta<nameablei>::elements[name].name;
 }
 
-void nameable::actv(stringbuilder& sb, const char* format, const char* param) const {
-
+void nameable::actv(stringbuilder& st, const char* format, const char* param) const {
+	string sb = st;
+	sb.name = getname();
+	sb.gender = getgender();
+	sb.addv(format, param);
+	st = sb;
 }
 
-void nameable::actv(stringbuilder& sb, nameable& e, const char* format, const char* param) const {
-
+void nameable::actv(stringbuilder& st, nameable& e, const char* format, const char* param) const {
+	string sb = st;
+	sb.name = getname();
+	sb.gender = getgender();
+	sb.opponent_name = e.getname();
+	sb.opponent_gender = e.getgender();
+	sb.addv(format, param);
+	st = sb;
 }

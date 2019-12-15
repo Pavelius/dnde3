@@ -276,3 +276,32 @@ int creature::getbasic(ability_s id) const {
 void creature::setplayer() {
 	current_player = this;
 }
+
+const variant* creature::calculate(const variant* p, int& result) const {
+	switch(p->type) {
+	case Ability: result = get((ability_s)p->value); p++; break;
+	case Skill: result = get((ability_s)p->value); p++; break;
+	default: return 0;
+	}
+	while(p->type == Formula) {
+		switch(p->value) {
+		case Negative: result = -result; break;
+		case Divide2: result = result/2; break;
+		case Divide3: result = result/3; break;
+		case Divide4: result = result/4; break;
+		default: return 0;
+		}
+		p++;
+	}
+	return p;
+}
+
+int	creature::calculate(const variant* formula) const {
+	int result = 0;
+	while(formula) {
+		int a = 0;
+		formula = calculate(formula, a);
+		result += a;
+	}
+	return result;
+}

@@ -194,6 +194,22 @@ static void windowf(const char* string) {
 	draw::textf(rc.x1, rc.y1, w, string);
 }
 
+static void dialogw(int& x, int& y, int width, int height, const char* title) {
+	rect rc;
+	rc.x1 = (getwidth() - width) / 2;
+	rc.y1 = 30;
+	rc.x2 = rc.x1 + width;
+	rc.y2 = rc.y1 + height;
+	window(rc, false, 0);
+	draw::state push;
+	font = metrics::h1;
+	fore = colors::special;
+	auto tw = textw(title);
+	x = rc.x1; y = rc.y1;
+	text((getwidth() - tw)/2, y, title);
+	y += texth() + 2;
+}
+
 static void correct(point& camera) {
 	auto mx = mmx * elx;
 	auto my = mmy * ely;
@@ -635,7 +651,7 @@ static int texth(int x, int y, const char* text, char level) {
 static void render_info(const creature& e) {
 	if(!show_gui_panel)
 		return;
-	char temp[512]; stringbuilder sb(temp);
+	char temp[512]; string sb(temp);
 	const int tw = 26;
 	const int dx = 52;
 	const int width = 560;
@@ -1154,7 +1170,7 @@ int	answeri::paint(int x, int y, int width, int i, int& maximum_width) const {
 	auto& e = elements[i];
 	auto h = texth();
 	if(e.text) {
-		auto h1 = textf(x + z, y, width - z, e.text, 0);
+		auto h1 = textf(x + z, y, width - z, e.text, &maximum_width);
 		if(h1 > h)
 			h = h1;
 	}
@@ -1203,6 +1219,21 @@ void location::adventure() {
 	}
 }
 
+int	answeri::dialogv(bool allow_cancel, const char* title, const char* format) const {
+	int x, y;
+	const int width = 600;
+	while(ismodal()) {
+		current_background();
+		dialogw(x, y, width, 440, title);
+		auto maximum_width = 0;
+		paint(x, y, width, format, maximum_width);
+		domodal();
+		if(allow_cancel && hot.key == KeyEscape)
+			breakmodal(-1);
+	}
+	return getresult();
+}
+
 indext location::choose(bool allow_cancel) const {
 	current_location = const_cast<location*>(this);
 	current_index = gets2i(camera);
@@ -1210,7 +1241,7 @@ indext location::choose(bool allow_cancel) const {
 	while(ismodal()) {
 		current_background();
 		if(true) {
-			char temp[512]; stringbuilder sb(temp);
+			char temp[512]; string sb(temp);
 			addinfo(current_index, sb);
 			if(sb)
 				windowf(sb);
@@ -1224,6 +1255,14 @@ indext location::choose(bool allow_cancel) const {
 		case KeyEnter:
 		case KeySpace:
 			breakmodal(current_index);
+			break;
+		case Ctrl + Alpha + 'M':
+			if(true) {
+				answeri an;
+				an.add(Strenght, "Сила или ловкость");
+				an.add(Dexterity, "Ловкость или другая способность");
+				an.dialogv(true, "Мануал", "Укажите основной раздел в котором вы хотите посмотреть данные");
+			}
 			break;
 		default:
 			current_index = translate(current_index);
