@@ -286,6 +286,10 @@ struct picture : point {
 	void				set(short x, short y);
 	void				setcursor(indext i, int size);
 };
+struct statei {
+	const char*			id;
+	const char*			name;
+};
 struct skillv {
 	skill_s				id;
 	char				value;
@@ -432,6 +436,25 @@ public:
 	item&				setsold() { forsale = 0;  return *this; }
 	item&				setquality(unsigned char value) { quality = value; return *this; }
 };
+class site : rect {
+	site_s				type;
+	unsigned char		name[2];
+	diety_s				diety;
+	short unsigned		owner_id;
+	unsigned char		found;
+	unsigned			recoil;
+	void				wait(unsigned count);
+public:
+	constexpr site() : rect({0, 0, 0, 0}), type(EmpthyRoom), diety(NoGod), name(), owner_id(Blocked),
+		found(0), recoil(0) {
+	}
+	operator bool() const { return x1 != x2; }
+	void				entering(creature& player);
+	int					getfoundchance() const;
+	void				getname(stringbuilder& sb) const;
+	short unsigned		getposition() const;
+	void				update();
+};
 class posable {
 	indext				index;
 public:
@@ -459,7 +482,7 @@ class creature : public nameable, public posable {
 	char				hp, mp;
 	statea				states;
 	short unsigned		charmer, horror;
-	short unsigned		location;
+	short unsigned		location_id, site_id;
 	encumbrance_s		encumbrance;
 	class_s				type;
 	role_s				role;
@@ -506,7 +529,6 @@ public:
 	int					get(skill_s v) const { return skills[v]; }
 	const item&			get(slot_s v) const { return wears[v]; }
 	const creature&		getai() const;
-	int					getarmor() const;
 	attacki				getattack(slot_s slot) const;
 	int					getattacktime(slot_s slot) const;
 	int					getbasic(ability_s value) const;
@@ -515,13 +537,12 @@ public:
 	const classi&		getclass() const { return bsmeta<classi>::elements[type]; }
 	int					getcost(spell_s value) const;
 	unsigned			getcostexp() const;
-	int					getdefence() const;
 	int					getdiscount(creature* customer) const;
 	direction_s			getdirection() const { return direction; }
 	creature*			getenemy(aref<creature*> source) const;
 	encumbrance_s		getencumbrance() const { return encumbrance; }
 	int					getexperience() const { return experience; }
-	char*				getfullname(stringbuilder& sb, bool show_level, bool show_alignment) const;
+	void				getfullname(stringbuilder& sb) const;
 	short unsigned		getguard() const { return guard; }
 	int					gethits() const { return hp; }
 	creature*			gethorror() const { return getobject(horror); }
@@ -540,6 +561,7 @@ public:
 	static creature*	getplayer(int index);
 	dice_s				getraise(skill_s id) const;
 	role_s				getrole() const { return role; }
+	site*				getsite() const { return 0; }
 	int					getweight() const;
 	int					getweight(encumbrance_s id) const;
 	bool				give(creature& opponent, item& it, bool interactive);
@@ -626,25 +648,6 @@ struct targeti {
 struct spelli {
 	const char*			name;
 	const targeti		target;
-};
-struct site : rect {
-	site_s				type;
-	unsigned char		name[2];
-	diety_s				diety;
-	short unsigned		owner;
-	constexpr site() : rect({0, 0, 0, 0}), type(EmpthyRoom), diety(NoGod), name(), owner(),
-		found(0), recoil(0) {
-	}
-	operator bool() const { return x1 != x2; }
-	void				entering(creature& player);
-	int					getfoundchance() const;
-	char*				getname(char* result) const;
-	short unsigned		getposition() const;
-	void				update();
-private:
-	unsigned char		found;
-	unsigned			recoil;
-	void				wait(unsigned count);
 };
 struct itemground : item {
 	short unsigned		index;
@@ -738,4 +741,7 @@ public:
 	static void			set(background_s v);
 };
 extern gamei			game;
+DECLENUM(class);
 DECLENUM(tile);
+DECLENUM(race);
+DECLENUM(state);

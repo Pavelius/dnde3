@@ -18,6 +18,7 @@ color				fow;
 }
 const int			gui_border = 8;
 const int			gui_padding = 4;
+static bool			show_gui_panel = true;
 static eventproc	current_background;
 static eventproc	current_layer;
 static location*	current_location;
@@ -561,8 +562,137 @@ static void render_editor() {
 	render_bottom();
 }
 
+static void header(int x, int y, const char* name) {
+	char temp[128]; stringbuilder sb(temp);
+	draw::state push;
+	sb.add("%1:", name);
+	draw::text(x, y, sb);
+}
+
+static int fiela(int x, int y, int w, const char* name, int value, int basic_value) {
+	header(x, y, name);
+	draw::state push;
+	if(value < basic_value)
+		draw::fore = colors::text.mix(colors::red, 96);
+	else if(value > basic_value)
+		draw::fore = colors::text.mix(colors::green, 64);
+	char temp[128]; stringbuilder sb(temp);
+	sb.add("%1i", value);
+	draw::text(x + w, y, sb);
+	return draw::texth();
+}
+
+static int fielp(int x, int y, int w, const char* name, int p1, int p2) {
+	header(x, y, name);
+	char temp[128]; stringbuilder sb(temp);
+	sb.add("%1i%% и %2i%%", chance_to_hit + p1, chance_to_hit + p2);
+	draw::text(x + w, y, sb);
+	return draw::texth();
+}
+
+static int fielr(int x, int y, int w, const char* name, int p1, int p2) {
+	header(x, y, name);
+	char temp[128]; stringbuilder sb(temp);
+	sb.add("%1i%%", p1);
+	if(p2)
+		sb.add(" и %1i", p2);
+	draw::text(x + w, y, temp);
+	return draw::texth();
+}
+
+static int field(int x, int y, int w, const char* name, int value) {
+	header(x, y, name);
+	char temp[128]; stringbuilder sb(temp); sb.add("%1i", value);
+	draw::text(x + w, y, sb);
+	return draw::texth();
+}
+
+static int field(int x, int y, int w, const char* name, int v1, int v2) {
+	header(x, y, name);
+	char temp[128]; stringbuilder sb(temp); sb.add("%1i/%2i", v1, v2);
+	draw::text(x + w, y, sb);
+	return draw::texth();
+}
+
+static int texth(int x, int y, const char* text, char level) {
+	static color color_level[] = {colors::text, colors::yellow, colors::red};
+	draw::state push;
+	if(level > 0)
+		draw::fore = color_level[level];
+	draw::text(x, y, text);
+	return draw::textw(text) + 4;
+}
+
+static void render_info(const creature& e) {
+	if(!show_gui_panel)
+		return;
+	char temp[512]; stringbuilder sb(temp);
+	const int tw = 26;
+	const int dx = 52;
+	const int width = 500;
+	const int height = draw::texth() * 4;
+	auto x = (draw::getwidth() - width) / 2;
+	auto y = draw::getheight() - height - gui_padding * 2;
+	auto y2 = y;
+	draw::state push;
+	fore = colors::white;
+	window({x, y, x + width, y + height}, false, 0);
+	sb.clear(); e.getfullname(sb);
+	textf(x, y, width, sb);
+	auto loc = e.getsite();
+	if(loc) {
+		sb.clear(); loc->getname(sb);
+		draw::text(x + width - draw::textw(sb), y, sb);
+	}
+	y += draw::texth();
+	int y1 = y;
+	int x1 = x;
+	y += fiela(x, y, tw, "СЛ", e.get(Strenght), e.getbasic(Strenght));
+	y += fiela(x, y, tw, "ИН", e.get(Intellegence), e.getbasic(Intellegence));
+	x += dx;
+	y = y1;
+	y += fiela(x, y, tw, "ЛВ", e.get(Dexterity), e.getbasic(Dexterity));
+	y += fiela(x, y, tw, "МД", e.get(Wisdow), e.getbasic(Wisdow));
+	x += dx;
+	y = y1;
+	y += fiela(x, y, tw, "ТЛ", e.get(Constitution), e.getbasic(Constitution));
+	y += fiela(x, y, tw, "ХР", e.get(Charisma), e.getbasic(Charisma));
+	x += dx + 6;
+	y = y1;
+	y += fielp(x, y, tw, "АТ", e.getattack(Melee).attack, e.getattack(Ranged).attack);
+	y += fielr(x, y, tw, "БР", e.get(Deflect), e.get(Armor));
+	x += dx + 50;
+	y = y1;
+	y += field(x, y, 40, "Хиты", e.gethits(), e.getmaxhits());
+	y += field(x, y, 40, "Мана", e.getmana(), e.getmaxmana());
+	x += dx + 40 + 20 - tw;
+	y = y1;
+	y += field(x, y, 52, "Опыт", e.getexperience());
+	//y += field(x, y, 52, "Время", getstrfdat(temp, segments));
+	y += field(x, y, 52, "Деньги", e.getmoney());
+	x += dx + 58;
+	x = x1;
+	y = y1 + draw::texth() * 2;
+	// Draw encumbrance
+	switch(e.getencumbrance()) {
+	case Encumbered: x += texth(x, y, "Нагружен", 0); break;
+	case HeavilyEncumbered: x += texth(x, y, "Нагружен", 1); break;
+	}
+	// Draw status
+	for(auto i = Anger; i <= LastState; i = (state_s)(i + 1)) {
+		if(!e.is(i))
+			continue;
+		auto pt = getstr(i);
+		draw::text(x, y, pt);
+		x += draw::textw(pt) + 4;
+	}
+}
+
 static void render_indoor() {
 	current_location->indoor(camera, false, 0);
+	auto player = creature::getplayer();
+	if(player)
+		render_info(*player);
 }
 
 static void controls() {

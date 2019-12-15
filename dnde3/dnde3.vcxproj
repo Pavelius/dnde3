@@ -144,6 +144,7 @@
     <ClCompile Include="race.cpp" />
     <ClCompile Include="serial.cpp" />
     <ClCompile Include="spell.cpp" />
+    <ClCompile Include="state.cpp" />
     <ClCompile Include="stringbuilder.cpp" />
     <ClCompile Include="szdup.cpp" />
     <ClCompile Include="target.cpp" />

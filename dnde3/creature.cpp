@@ -2,6 +2,7 @@
 
 DECLDATA(creature, 256);
 
+static creature*	current_player;
 static char	int_checks[] = {2,
 2, 2, 2, 2, 3, 3, 3, 3, 4,
 4, 4, 5, 5, 6, 6, 6, 7, 7, 7,
@@ -12,7 +13,12 @@ void creature::clear() {
 	memset(this, 0, sizeof(*this));
 	charmer = horror = Blocked;
 	guard = Blocked;
-	location = Blocked;
+	location_id = Blocked;
+	site_id = Blocked;
+}
+
+creature* creature::getplayer() {
+	return current_player;
 }
 
 short unsigned creature::getid() const {
@@ -225,4 +231,9 @@ void creature::create(race_s race, gender_s gender, class_s type) {
 	role = Character;
 	hp = getmaxhits();
 	mp = getmaxmana();
+}
+
+void creature::getfullname(stringbuilder& sb) const {
+	sb.add(getname());
+	sb.adds("%1-%3 %2i уровня", getstr(type), get(Level), getstr(getrace()));
 }
