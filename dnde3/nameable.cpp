@@ -1,5 +1,66 @@
 #include "main.h"
 
+struct nameablei {
+	race_s			race;
+	gender_s		gender;
+	const char*		name;
+};
+nameablei bsmeta<nameablei>::elements[] = {{Human, Male, "Хавки"},
+{Human, Male, "Рудигер"},
+{Human, Male, "Грегор"},
+{Human, Female, "Бриан"},
+{Human, Male, "Вальтон"},
+{Human, Male, "Кастор"},
+{Human, Female, "Шанна"},
+{Human, Female, "Соня"},
+{Human, Female, "Солнце"},
+{Human, Male, "Айакс"},
+{Human, Male, "Хоб"},
+{Halfling, Male, "Финганн"},
+{Halfling, Female, "Оливия"},
+{Halfling, Male, "Рэндольф"},
+{Halfling, Male, "Батлбай"},
+{Halfling, Male, "Аурбей"},
+{Halfling, Male, "Балдвин"},
+{Halfling, Female, "Бэкки"},
+{Elf, Male, "Эйлохир"},
+{Elf, Female, "Харасез"},
+{Elf, Male, "Хазрич"},
+{Elf, Male, "Шеварал"},
+{Elf, Male, "Кадиус"},
+{Elf, Male, "Эльдар"},
+{Elf, Female, "Котораса"},
+{Elf, Female, "Фелианна"},
+{Dwarf, Male, "Озрук"},
+{Dwarf, Male, "Суртур"},
+{Dwarf, Female, "Брундилла"},
+{Dwarf, Female, "Анника"},
+{Dwarf, Male, "Джанос"},
+{Dwarf, Female, "Гретта"},
+{Dwarf, Male, "Дим"},
+{Dwarf, Male, "Рундриг"},
+{Dwarf, Male, "Жарл"},
+{Dwarf, Male, "Ксоток"},
+};
+
+static unsigned short getrandomname(race_s race, gender_s gender) {
+	const auto max_count = sizeof(bsmeta<nameablei>::elements) / sizeof(bsmeta<nameablei>::elements[0]);
+	unsigned short data[max_count];
+	auto p = data;
+	for(unsigned i = 0; i < max_count; i++) {
+		if(bsmeta<nameablei>::elements[i].race == race && bsmeta<nameablei>::elements[i].gender == gender)
+			*p++ = i;
+	}
+	unsigned count = p - data;
+	if(!count)
+		return Blocked;
+	return data[rand() % count];
+}
+
+void nameable::setname(race_s race, gender_s gender) {
+	name = getrandomname(race, gender);
+}
+
 gender_s nameable::getgender() const {
 	return Male;
 }

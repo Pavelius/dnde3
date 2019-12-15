@@ -61,7 +61,7 @@ struct adat {
 	T						data[count_max];
 	unsigned				count;
 	constexpr adat() : count(0) {}
-	constexpr adat(std::initializer_list<T> list) : count(0) { for(auto& e : list) *add() = e; }
+	constexpr adat(const std::initializer_list<T>& list) : count(0) { for(auto& e : list) *add() = e; }
 	constexpr const T& operator[](unsigned index) const { return data[index]; }
 	constexpr T& operator[](unsigned index) { return data[index]; }
 	explicit operator bool() const { return count != 0; }
@@ -187,6 +187,7 @@ template<typename T> struct bsmeta {
 	static array			source;
 	static constexpr array*	source_ptr = &source;
 	//
+	static T*				addz() { for(auto& e : bsmeta()) if(!e) return &e; return add(); }
 	static T*				add() { return (T*)source.add(); }
 	static T*				begin() { return (T*)source.begin(); }
 	static T*				end() { return (T*)source.end(); }

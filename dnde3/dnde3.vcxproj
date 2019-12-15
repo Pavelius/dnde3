@@ -118,15 +118,18 @@
     <ClCompile Include="archive.cpp" />
     <ClCompile Include="boost.cpp" />
     <ClCompile Include="bstream.cpp" />
+    <ClCompile Include="class.cpp" />
     <ClCompile Include="color.cpp" />
     <ClCompile Include="creature.cpp" />
     <ClCompile Include="creaturea.cpp" />
     <ClCompile Include="crt.cpp" />
     <ClCompile Include="crt_strings.cpp" />
+    <ClCompile Include="dice.cpp" />
     <ClCompile Include="draw.cpp" />
     <ClCompile Include="draw_input.cpp" />
     <ClCompile Include="draw_text.cpp" />
     <ClCompile Include="draw_textf.cpp" />
+    <ClCompile Include="equipment.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="io.cpp" />
     <ClCompile Include="item.cpp" />
@@ -138,6 +141,7 @@
     <ClCompile Include="outdoor.cpp" />
     <ClCompile Include="picture.cpp" />
     <ClCompile Include="point.cpp" />
+    <ClCompile Include="race.cpp" />
     <ClCompile Include="serial.cpp" />
     <ClCompile Include="spell.cpp" />
     <ClCompile Include="stringbuilder.cpp" />

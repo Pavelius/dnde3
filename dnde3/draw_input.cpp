@@ -613,7 +613,7 @@ static void avatar(int x, int y, const creature& player, short unsigned flags, u
 	const int FirstWeapon = AxeBattle;
 	int i1 = 0;
 	int i2 = 1;
-	auto type = player.getclass();
+	const auto& ci = player.getclass();
 	auto race = player.getrace();
 	auto gender = player.getgender();
 	auto melee = player.get(Melee);
@@ -635,10 +635,7 @@ static void avatar(int x, int y, const creature& player, short unsigned flags, u
 	auto at = 2;
 	switch(body.gettype()) {
 	case NoItem:
-		if(type == Fighter || type == Theif)
-			at = 1;
-		else
-			at = 0;
+		at = ci.naked_avatar;
 		break;
 	case LeatherArmour:
 	case StuddedLeatherArmour:

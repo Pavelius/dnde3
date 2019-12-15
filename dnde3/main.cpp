@@ -1,5 +1,12 @@
 #include "main.h"
 
+static creature* create(indext pos, race_s race, gender_s gender, class_s cls) {
+	auto p = bsmeta<creature>::addz();
+	p->create(race, gender, cls);
+	p->setposition(pos);
+	return p;
+}
+
 static void test_worldmap() {
 	location e;
 	e.clear();
@@ -54,6 +61,7 @@ static void test_indoor() {
 	e.set(e.get(3, 5), Plants);
 	e.set(e.get(2, 6), Blooded); e.set(e.get(3, 6), Blooded); e.set(e.get(4, 6), Blooded);
 	e.set(e.get(3, 6), Webbed); e.set(e.get(4, 6), Webbed); e.set(e.get(4, 7), Webbed);
+	create(e.get(3, 3), Human, Male, Theif);
 	e.adventure();
 }
 

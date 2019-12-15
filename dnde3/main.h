@@ -69,10 +69,9 @@ enum enchantment_s : unsigned char {
 	LastEnchantment = OfWaterproof,
 };
 enum race_s : unsigned char {
-	Animal,
 	Human, Dwarf, Elf, Halfling,
 	Goblin, Kobold, Orc, Gnoll,
-	Insect, Undead,
+	Animal, Insect, Undead,
 	LastRace = Undead
 };
 enum class_s : unsigned char {
@@ -99,7 +98,7 @@ enum alignment_s : unsigned char {
 enum ability_s : unsigned char {
 	Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
 	AttackMelee, AttackRanged, Pierce, Deflect, Armor, Damage, Speed, Visibility,
-	LifePoints, LifeRate, ManaPoints, ManaRate,
+	Level, LifePoints, LifeRate, ManaPoints, ManaRate,
 };
 enum skill_s : unsigned char {
 	Bargaining, Bluff, Diplomacy,
@@ -160,7 +159,7 @@ enum img_s : unsigned char {
 };
 enum spell_s : unsigned char {
 	NoSpell,
-	ArmorSpell, Bless, BlessItem, CharmPerson, DetectEvil, DetectMagic, Fear, HealingSpell,
+	ArmorSpell, BlessSpell, BlessItem, CharmPerson, DetectEvil, DetectMagic, Fear, HealingSpell,
 	Identify, Invisibility, LightSpell, MagicMissile,
 	Repair, RemovePoisonSpell, RemoveSickSpell,
 	ShieldSpell, ShokingGrasp, Sleep, SlowMonster,
@@ -246,12 +245,25 @@ struct boosti {
 	char				modifier;
 	unsigned			time;
 };
+struct classi {
+	const char*			name;
+	unsigned char		hp, mp;
+	unsigned char		naked_avatar;
+	char				ability[6];
+	adat<skill_s, 8>	skills;
+	adat<spell_s, 6>	spells;
+};
 struct abilityi {
 	const char*			id;
 	const char*			name;
 	const char*			name_short;
 	const char*			nameof;
 	const char*			cursedof;
+};
+struct equipmenti {
+	race_s				race;
+	class_s				type;
+	adat<variant, 16>	features;;
 };
 struct tilei {
 	const char*			id;
@@ -274,15 +286,20 @@ struct picture : point {
 	void				set(short x, short y);
 	void				setcursor(indext i, int size);
 };
-struct skillvalue {
+struct skillv {
 	skill_s				id;
 	char				value;
 };
-struct damagei {
+struct racei {
+	const char*			name;
+	char				ability_minimum[6];
+	char				ability_maximum[6];
+	adat<skill_s, 4>	skills;
+	adat<skillv, 8>		skillvs;
+};
+struct dicei {
 	char				min;
 	char				max;
-	attack_s			type;
-	explicit operator bool() const { return max != 0; }
 	int					roll() const;
 };
 struct attacki {
@@ -429,6 +446,7 @@ public:
 	void				actv(stringbuilder& sb, nameable& e, const char* format, const char* param) const;
 	gender_s			getgender() const;
 	const char*			getname() const;
+	void				setname(race_s race, gender_s gender);
 };
 class creature : public nameable, public posable {
 	char				abilities[ManaRate + 1];
@@ -436,8 +454,8 @@ class creature : public nameable, public posable {
 	unsigned char		skills[LastResist + 1];
 	unsigned char		spells[LastSpell + 1];
 	item				wears[LastBackpack + 1];
-	char				hp, mp;
 	unsigned			restore_hits, restore_mana, restore_action;
+	char				hp, mp;
 	statea				states;
 	short unsigned		charmer, horror;
 	short unsigned		location;
@@ -445,13 +463,14 @@ class creature : public nameable, public posable {
 	race_s				race;
 	class_s				type;
 	role_s				role;
-	unsigned char		level;
 	unsigned short		guard;
 	direction_s			direction;
 	unsigned			experience;
 	unsigned			money;
 	//
+	void				applyabilities();
 	void				delayed(variant id, int v, unsigned time);
+	void				dress(int m);
 	void				equip(item it, slot_s id);
 	bool				remove(item& it);
 public:
@@ -473,18 +492,18 @@ public:
 	creature*			choose(aref<creature*> source, bool interactive) const;
 	short unsigned		choose(aref<short unsigned> source, bool interactive) const;
 	void				create(race_s race, gender_s gender, class_s type);
-	void				applyability();
 	void				clear();
 	void				consume(int value, bool interactive);
 	void				damage(int count, attack_s type, bool interactive);
 	void				damagewears(int count, attack_s type);
+	void				dressoff() { dress(-1); }
+	void				dresson() { dress(1); }
 	void				drink(item& it, bool interactive);
-	void				dress(int m);
 	void				dropdown(item& value);
 	bool				equip(item value);
-	int					get(ability_s value) const;
-	int					get(spell_s value) const;
-	int					get(skill_s value) const;
+	int					get(ability_s v) const { return abilities[v]; }
+	int					get(spell_s v) const { return spells[v]; }
+	int					get(skill_s v) const { return skills[v]; }
 	const item&			get(slot_s v) const { return wears[v]; }
 	const creature&		getai() const;
 	int					getarmor() const;
@@ -493,7 +512,7 @@ public:
 	int					getbasic(ability_s value) const;
 	int					getbasic(skill_s value) const;
 	int					getbonus(enchantment_s value) const;
-	class_s				getclass() const { return type; }
+	const classi&		getclass() const { return bsmeta<classi>::elements[type]; }
 	int					getcost(spell_s value) const;
 	unsigned			getcostexp() const;
 	int					getdefence() const;
@@ -520,7 +539,7 @@ public:
 	static creature*	getplayer();
 	static creature*	getplayer(int index);
 	race_s				getrace() const { return race; }
-	damagei				getraise(skill_s id) const;
+	dice_s				getraise(skill_s id) const;
 	role_s				getrole() const { return role; }
 	int					getweight() const;
 	int					getweight(encumbrance_s id) const;
@@ -528,6 +547,7 @@ public:
 	void				heal(int value, bool interactive) { damage(-value, Magic, interactive); }
 	void				hint(const char* format, ...) const;
 	bool				interact(short unsigned index);
+	bool				is(class_s v) const { return type == v; }
 	bool				is(state_s v) const { return states.is(v); }
 	bool				is(encumbrance_s value) const { return encumbrance == value; }
 	bool				isagressive() const;
@@ -555,7 +575,6 @@ public:
 	void				raiseskills(int number);
 	void				rangeattack(creature* enemy);
 	void				readbook(item& it);
-	void				release() const;
 	void				remove(state_s value);
 	bool				roll(skill_s skill, int bonus = 0) const;
 	int					roll(skill_s skill, int bonus, const creature& opponent, skill_s opponent_skill, int opponent_bonus) const;
@@ -563,8 +582,8 @@ public:
 	bool				saving(bool interactive, skill_s save, int bonus) const;
 	static void			select(creature** result, rect rc);
 	static aref<role_s>	select(aref<role_s> result, int min_level, int max_level, alignment_s alignment, const race_s races[4]);
-	void				set(state_s value, unsigned segments);
-	void				set(spell_s value, int level);
+	void				set(state_s id, unsigned segments);
+	void				set(spell_s id, int v) { spells[id] = v; }
 	void				setcharmer(const creature* p) { charmer = p->getid(); }
 	static void			setblocks(short unsigned* movements, short unsigned value);
 	void				setguard(short unsigned value) { guard = value; }
@@ -630,7 +649,7 @@ private:
 };
 struct itemground : item {
 	short unsigned		index;
-	constexpr explicit operator bool() const { return index != Blocked; }
+	explicit operator bool() const { return index != Blocked; }
 	void				clear() { index = Blocked; }
 };
 struct coordinate {
