@@ -456,7 +456,7 @@ public:
 	item&				setsold() { forsale = 0;  return *this; }
 	item&				setquality(unsigned char value) { quality = value; return *this; }
 };
-class itema : adat<item*> {
+class itema : public adat<item*> {
 public:
 	item*				choose(bool interactive, const char* title, const char* format);
 	void				select(creature& e);

@@ -1240,6 +1240,19 @@ int	answeri::dialogv(bool allow_cancel, const char* title, const char* format) c
 	return getresult();
 }
 
+static void render_item(int x, int y, int width, const item& e) {
+	auto ps_fore = fore;
+	if(e.isidentified()) {
+		switch(e.getmagic()) {
+		case Cursed: fore = colors::red; break;
+		case Blessed: fore = colors::green; break;
+		case Artifact: fore = colors::yellow; break;
+		}
+	}
+	text(x, y, e.getname());
+	fore = ps_fore;
+}
+
 item* itema::choose(bool interactive, const char* title, const char* format) {
 	int x, y, x1, y1;
 	const int width = 600;
@@ -1255,7 +1268,7 @@ item* itema::choose(bool interactive, const char* title, const char* format) {
 					continue;
 				if(button(x, y, 0, Alpha + '1' + index, 0))
 					execute(breakparam, (int)&e);
-				text(x + 22, y, e->getname());
+				render_item(x + 22, y, 600 - 22, *e);
 				index++;
 				y += texth() + 4;
 			}

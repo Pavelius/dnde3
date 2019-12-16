@@ -72,6 +72,8 @@ static void item_choose() {
 	p1->create(Human, Male, Theif);
 	itema source;
 	source.select(*p1);
+	source[1]->set(Blessed);
+	source[1]->setidentify(true);
 	source.choose(true, "Предметы в рюкзаке", "");
 }
 
