@@ -432,6 +432,7 @@ static void getkeyname(stringbuilder& sb, int key) {
 	}
 	char temp[2];
 	switch(key) {
+	case KeyEscape: sb.add("Esc"); break;
 	case KeySpace: sb.add("Space"); break;
 	case KeyDown: sb.add("Вниз"); break;
 	case KeyUp: sb.add("Вверх"); break;
@@ -472,6 +473,11 @@ static bool button(int x, int y, const char* format, int key, int* width) {
 	if(width)
 		*width = x - x0;
 	return result;
+}
+
+static void button(int& x, int y, const char* format, int key, eventproc proc, int param) {
+	if(button(x, y, format, key, &x))
+		execute(proc, param);
 }
 
 static int detaih(int x, int y, int width, const hotkey* pk) {
@@ -1232,6 +1238,32 @@ int	answeri::dialogv(bool allow_cancel, const char* title, const char* format) c
 			breakmodal(0);
 	}
 	return getresult();
+}
+
+item* itema::choose(bool interactive, const char* title, const char* format) {
+	int x, y, x1, y1;
+	const int width = 600;
+	while(ismodal()) {
+		current_background();
+		dialogw(x, y, width, 440, title);
+		x1 = x; y1 = y + 403;
+		button(x1, y1, "Отмена", KeyEscape, breakparam, 0);
+		if(count>0) {
+			auto index = 0;
+			for(auto& e : *this) {
+				if(e->gettype() >= PlateMail)
+					continue;
+				if(button(x, y, 0, Alpha + '1' + index, 0))
+					execute(breakparam, (int)&e);
+				text(x + 22, y, e->getname());
+				index++;
+				y += texth() + 4;
+			}
+		} else if(format)
+			textf(x, y, width, format);
+		domodal();
+	}
+	return (item*)getresult();
 }
 
 indext location::choose(bool allow_cancel) const {

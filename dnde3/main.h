@@ -456,6 +456,11 @@ public:
 	item&				setsold() { forsale = 0;  return *this; }
 	item&				setquality(unsigned char value) { quality = value; return *this; }
 };
+class itema : adat<item*> {
+public:
+	item*				choose(bool interactive, const char* title, const char* format);
+	void				select(creature& e);
+};
 class site : rect {
 	site_s				type;
 	unsigned char		name[2];
@@ -517,6 +522,7 @@ class creature : public nameable, public posable {
 	void				dress(int m);
 	void				equip(item it, slot_s id);
 	bool				remove(item& it);
+	friend itema;
 public:
 	creature() = default;
 	explicit operator bool() const { return hp > 0; }
@@ -645,10 +651,6 @@ public:
 	void				match(const alignmenta& v);
 	void				match(const racea& v);
 	void				remove(state_s v);
-};
-class itema : adat<item*> {
-public:
-	item*				choose(bool interactive, const char* title);
 };
 class indexa : adat<short unsigned> {
 public:

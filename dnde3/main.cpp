@@ -67,6 +67,14 @@ static void test_indoor() {
 	e.choose(true);
 }
 
+static void item_choose() {
+	auto p1 = bsmeta<creature>::addz();
+	p1->create(Human, Male, Theif);
+	itema source;
+	source.select(*p1);
+	source.choose(true, "Предметы в рюкзаке", "");
+}
+
 int main(int argc, char* argv[]) {
 	auto s = sizeof(outdoor);
 	game.intialize();
@@ -74,7 +82,8 @@ int main(int argc, char* argv[]) {
 	//game.layer();
 	test_spells();
 	//test_answers();
-	test_indoor();
+	item_choose();
+	//test_indoor();
 }
 
 int __stdcall WinMain(void* ci, void* pi, char* cmd, int sw) {
