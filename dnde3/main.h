@@ -217,6 +217,9 @@ enum formula_s : unsigned char {
 	Negative,
 	Divide2, Divide3, Divide4,	
 };
+enum slot_mode_s : unsigned char {
+	NoSlotName, SlotName, SlotWhere
+};
 typedef short unsigned indext;
 typedef flagable<1 + Chaotic / 8> alignmenta;
 typedef flagable<1 + LastState / 8> statea;
@@ -258,6 +261,7 @@ struct string : stringbuilder {
 struct sloti {
 	const char*			id;
 	const char*			name;
+	const char*			name_where;
 };
 struct boosti {
 	short unsigned		owner;
@@ -410,7 +414,7 @@ public:
 	int					getbonus(enchantment_s type) const;
 	int					getcharges() const;
 	unsigned			getcost() const;
-	int					getcount() const;
+	int					getcount() const { return 1; }
 	enchantment_s		geteffect() const;
 	char				getenchantcost() const;
 	skill_s				getfocus() const { return getitem().focus; }
@@ -430,8 +434,8 @@ public:
 	state_s				getstate() const;
 	item_s				gettype() const { return type; }
 	creature*			getwearer() const;
-	int					getweight() const;
-	int					getweightsingle() const;
+	int					getweightsingle() const { return getitem().weight; }
+	int					getweight() const { return getweightsingle()*getcount(); }
 	bool				is(slot_s v) const;
 	bool				is(item_flag_s v) const { return getitem().flags.is(v); }
 	bool				isarmor() const;
@@ -463,8 +467,10 @@ public:
 };
 class itema : public adat<item*> {
 public:
-	item*				choose(bool interactive, const char* title, const char* format, bool show_slot);
-	void				select(creature& e, bool only_wears);
+	item*				choose(bool interactive, const char* title, const char* format, slot_mode_s mode);
+	void				match(slot_s v);
+	void				select(creature& e);
+	void				selectb(creature& e);
 };
 class site : rect {
 	site_s				type;
@@ -526,8 +532,7 @@ class creature : public nameable, public posable {
 	void				delayed(variant id, int v, unsigned time);
 	void				dress(int m);
 	void				equip(item it, slot_s id);
-	bool				remove(item& it);
-	friend itema;
+	bool				remove(const item& it) const;
 public:
 	creature() = default;
 	explicit operator bool() const { return hp > 0; }
@@ -600,6 +605,7 @@ public:
 	void				heal(int value, bool interactive) { damage(-value, Magic, interactive); }
 	void				hint(const char* format, ...) const;
 	bool				interact(short unsigned index);
+	void				inventory();
 	bool				is(class_s v) const { return type == v; }
 	bool				is(state_s v) const { return states.is(v); }
 	bool				is(encumbrance_s value) const { return encumbrance == value; }
@@ -633,8 +639,7 @@ public:
 	int					roll(skill_s skill, int bonus, const creature& opponent, skill_s opponent_skill, int opponent_bonus) const;
 	void				sayvs(creature& opponent, const char* format, ...);
 	bool				saving(bool interactive, skill_s save, int bonus) const;
-	static void			select(creature** result, rect rc);
-	static aref<role_s>	select(aref<role_s> result, int min_level, int max_level, alignment_s alignment, const race_s races[4]);
+	void				select(itema& a, slot_s i1, slot_s i2, bool filled_only);
 	void				set(state_s id, unsigned segments);
 	void				set(spell_s id, int v) { spells[id] = v; }
 	void				setcharmer(const creature* p) { charmer = p->getid(); }

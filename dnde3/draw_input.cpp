@@ -1241,6 +1241,8 @@ int	answeri::dialogv(bool allow_cancel, const char* title, const char* format) c
 }
 
 static void render_item(int x, int y, int width, const item& e) {
+	if(!e)
+		return;
 	auto ps_fore = fore;
 	if(e.isidentified()) {
 		switch(e.getmagic()) {
@@ -1253,14 +1255,37 @@ static void render_item(int x, int y, int width, const item& e) {
 	fore = ps_fore;
 }
 
-static void render_slot(int x, int y, int width, const item& e) {
-	auto slot = e.getslot();
-	if(slot >= FirstBackpack)
+static void render_weight(int x, int y, int width, const item& e) {
+	if(!e)
 		return;
-	text(x, y, getstr(slot));
+	char temp[64]; stringbuilder sb(temp);
+	auto v = e.getweight();
+	sb.add("%1i.%2.2i Í„", v / 100, v % 100);
+	auto w = textw(temp);
+	text(x + width - w, y, temp);
 }
 
-item* itema::choose(bool interactive, const char* title, const char* format, bool show_slot) {
+static void render_slot(int& x, int y, int width, const item& e, slot_mode_s mode) {
+	if(mode == NoSlotName)
+		return;
+	auto p_fore = fore;
+	fore = colors::h3.mix(colors::text);// colors::text.mix(colors::special, 212);
+	auto slot = e.getslot();
+	const char* name = 0;
+	if(slot < FirstBackpack) {
+		if(mode == SlotWhere)
+			name = bsmeta<sloti>::elements[slot].name_where;
+		else
+			name = bsmeta<sloti>::elements[slot].name;
+	}
+	if(name)
+		text(x, y, name);
+	if(slot != NoSlotName)
+		x += width;
+	fore = p_fore;
+}
+
+item* itema::choose(bool interactive, const char* title, const char* format, slot_mode_s mode) {
 	int x, y, x1, y1;
 	const int width = 600;
 	while(ismodal()) {
@@ -1276,13 +1301,11 @@ item* itema::choose(bool interactive, const char* title, const char* format, boo
 					continue;
 				auto x0 = x;
 				if(button(x0, y, 0, Alpha + '1' + index, 0))
-					execute(breakparam, (int)&e);
+					execute(breakparam, (int)e);
 				x0 += 22;
-				if(show_slot) {
-					render_slot(x0, y, x2 - x0, *e);
-					x0 += 100;
-				}
+				render_slot(x0, y, 110, *e, mode);
 				render_item(x0, y, x2 - x0, *e);
+				render_weight(x0, y, x2 - x0, *e);
 				index++;
 				y += texth() + 4;
 			}

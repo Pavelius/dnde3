@@ -313,3 +313,43 @@ slot_s creature::getslot(const item* p) const {
 		return slot_s(p - wears);
 	return FirstBackpack;
 }
+
+void creature::select(itema& a, slot_s i1, slot_s i2, bool filled_only) {
+	auto ps = a.data;
+	for(auto i = i1; i <= i2; i = (slot_s)(i + 1)) {
+		if(filled_only && !wears[i])
+			continue;
+		*ps++ = &wears[i];
+	}
+	a.count = ps - a.data;
+}
+
+void creature::inventory() {
+	while(true) {
+		itema items; items.select(*this);
+		auto pi = items.choose(true, "Инвенторий", 0, SlotName);
+		if(!pi)
+			break;
+		auto slot = pi->getslot();
+		if(*pi && !remove(*pi)) {
+			//say("Я не могу это снять.");
+			continue;
+		}
+		if(slot < FirstBackpack) {
+			items.clear();
+			items.selectb(*this);
+			auto p2 = items.choose(true, "Рюкзак", 0, NoSlotName);
+			if(p2) {
+				auto pc = *pi;
+				*pi = *p2;
+				*p2 = pc;
+			}
+		}
+	}
+}
+
+bool creature::remove(const item& e) const {
+	if(!e)
+		return false;
+	return true;
+}

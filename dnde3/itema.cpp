@@ -1,16 +1,19 @@
 #include "main.h"
 
-void itema::select(creature& player, bool only_wear) {
+void itema::select(creature& e) {
+	e.select(*this, Head, Amunitions, false);
+}
+
+void itema::selectb(creature& e) {
+	e.select(*this, FirstBackpack, LastBackpack, true);
+}
+
+void itema::match(slot_s v) {
 	auto ps = data;
-	if(only_wear) {
-		for(auto i = Head; i <= Amunitions; i = (slot_s)(i+1))
-			*ps++ = &player.wears[i];
-	} else {
-		for(auto& e : player.wears) {
-			if(!e)
-				continue;
-			*ps++ = &e;
-		}
+	for(auto p : *this) {
+		if(!p->is(v))
+			continue;
+		*ps++ = p;
 	}
 	count = ps - data;
 }

@@ -67,14 +67,18 @@ static void test_indoor() {
 	e.choose(true);
 }
 
+static void random_bless(creature* p1) {
+	itema source;
+	source.select(*p1);
+	source[1]->set(Blessed);
+	source[1]->setidentify(true);
+}
+
 static void item_choose() {
 	auto p1 = bsmeta<creature>::addz();
 	p1->create(Human, Male, Theif);
-	itema source;
-	source.select(*p1, true);
-	source[1]->set(Blessed);
-	source[1]->setidentify(true);
-	source.choose(true, "Предметы в рюкзаке", 0, true);
+	random_bless(p1);
+	p1->inventory();
 }
 
 int main(int argc, char* argv[]) {
