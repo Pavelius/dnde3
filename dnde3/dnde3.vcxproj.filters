@@ -133,6 +133,9 @@
     <ClCompile Include="itema.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="slot.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="answer.h">

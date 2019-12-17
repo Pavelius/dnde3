@@ -38,6 +38,10 @@ creature* item::getwearer() const {
 	return (creature*)bsmeta<creature>::source.ptr(i);
 }
 
+slot_s item::getslot() const {
+	return getwearer()->getslot(this);
+}
+
 bool item::is(slot_s v) const {
 	switch(v) {
 	case LeftFinger:

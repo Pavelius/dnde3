@@ -1253,22 +1253,36 @@ static void render_item(int x, int y, int width, const item& e) {
 	fore = ps_fore;
 }
 
-item* itema::choose(bool interactive, const char* title, const char* format) {
+static void render_slot(int x, int y, int width, const item& e) {
+	auto slot = e.getslot();
+	if(slot >= FirstBackpack)
+		return;
+	text(x, y, getstr(slot));
+}
+
+item* itema::choose(bool interactive, const char* title, const char* format, bool show_slot) {
 	int x, y, x1, y1;
 	const int width = 600;
 	while(ismodal()) {
 		current_background();
 		dialogw(x, y, width, 440, title);
 		x1 = x; y1 = y + 403;
+		auto x2 = x + width;
 		button(x1, y1, "Отмена", KeyEscape, breakparam, 0);
 		if(count>0) {
 			auto index = 0;
 			for(auto& e : *this) {
 				if(e->gettype() >= PlateMail)
 					continue;
-				if(button(x, y, 0, Alpha + '1' + index, 0))
+				auto x0 = x;
+				if(button(x0, y, 0, Alpha + '1' + index, 0))
 					execute(breakparam, (int)&e);
-				render_item(x + 22, y, 600 - 22, *e);
+				x0 += 22;
+				if(show_slot) {
+					render_slot(x0, y, x2 - x0, *e);
+					x0 += 100;
+				}
+				render_item(x0, y, x2 - x0, *e);
 				index++;
 				y += texth() + 4;
 			}

@@ -305,3 +305,11 @@ int	creature::calculate(const variant* formula) const {
 	}
 	return result;
 }
+
+slot_s creature::getslot(const item* p) const {
+	if(this
+		&& p >= wears
+		&& p <= (wears + sizeof(wears)/ sizeof(wears[0])))
+		return slot_s(p - wears);
+	return FirstBackpack;
+}

@@ -71,10 +71,10 @@ static void item_choose() {
 	auto p1 = bsmeta<creature>::addz();
 	p1->create(Human, Male, Theif);
 	itema source;
-	source.select(*p1);
+	source.select(*p1, true);
 	source[1]->set(Blessed);
 	source[1]->setidentify(true);
-	source.choose(true, "Предметы в рюкзаке", "");
+	source.choose(true, "Предметы в рюкзаке", 0, true);
 }
 
 int main(int argc, char* argv[]) {

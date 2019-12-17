@@ -255,6 +255,10 @@ struct string : stringbuilder {
 	void				addformula(const variant* p);
 	void				addidentifier(const char* identifier) override;
 };
+struct sloti {
+	const char*			id;
+	const char*			name;
+};
 struct boosti {
 	short unsigned		owner;
 	variant				id;
@@ -420,6 +424,7 @@ public:
 	int					getquality() const;
 	int					getsalecost() const;
 	skill_s				getskill() const;
+	slot_s				getslot() const;
 	spell_s				getspell() const;
 	const speciali&		getspecial() const { return getitem().special; }
 	state_s				getstate() const;
@@ -458,8 +463,8 @@ public:
 };
 class itema : public adat<item*> {
 public:
-	item*				choose(bool interactive, const char* title, const char* format);
-	void				select(creature& e);
+	item*				choose(bool interactive, const char* title, const char* format, bool show_slot);
+	void				select(creature& e, bool only_wears);
 };
 class site : rect {
 	site_s				type;
@@ -588,6 +593,7 @@ public:
 	dice_s				getraise(skill_s id) const;
 	role_s				getrole() const { return role; }
 	site*				getsite() const { return 0; }
+	slot_s				getslot(const item* p) const;
 	int					getweight() const;
 	int					getweight(encumbrance_s id) const;
 	bool				give(creature& opponent, item& it, bool interactive);
@@ -771,4 +777,5 @@ DECLENUM(class);
 DECLENUM(map_object);
 DECLENUM(tile);
 DECLENUM(race);
+DECLENUM(slot);
 DECLENUM(state);
