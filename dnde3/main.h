@@ -406,7 +406,7 @@ public:
 	item(item_s type, int chance_artifact, int chance_magic, int chance_cursed, int chance_quality);
 	explicit operator bool() const { return type != NoItem; }
 	void				act(const char* format, ...) const;
-	void				clear();
+	void				clear() { memset(this, 0, sizeof(*this)); }
 	bool				damageb();
 	void				damage();
 	void				get(attacki& e) const;
@@ -532,13 +532,14 @@ class creature : public nameable, public posable {
 	void				delayed(variant id, int v, unsigned time);
 	void				dress(int m);
 	void				equip(item it, slot_s id);
-	bool				remove(const item& it) const;
+	bool				remove(item& it, bool run);
 public:
 	creature() = default;
 	explicit operator bool() const { return hp > 0; }
 	//
 	void				add(variant id, int v);
 	void				add(variant id, int v, unsigned time);
+	bool				add(item v, bool run);
 	void				addexp(int count);
 	static void			addexp(int value, short unsigned position, int range, const creature* exclude, const creature* enemies);
 	bool				alertness();

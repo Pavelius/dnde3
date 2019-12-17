@@ -112,6 +112,18 @@ void creature::equip(item it, slot_s id) {
 	dress(1);
 }
 
+bool creature::add(item v, bool run) {
+	// Second place item to backpack
+	for(auto i = FirstBackpack; i <= LastBackpack; i = (slot_s)(i + 1)) {
+		if(wears[i])
+			continue;
+		if(run)
+			equip(v, i);
+		return true;
+	}
+	return false;
+}
+
 bool creature::equip(item v) {
 	// First try to dress this item
 	for(auto i = Head; i <= Amunitions; i = (slot_s)(i + 1)) {
@@ -122,14 +134,7 @@ bool creature::equip(item v) {
 		equip(v, i);
 		return true;
 	}
-	// Second place item to backpack
-	for(auto i = FirstBackpack; i <= LastBackpack; i = (slot_s)(i + 1)) {
-		if(wears[i])
-			continue;
-		equip(v, i);
-		return true;
-	}
-	return false;
+	return add(v, true);
 }
 
 void creature::raiseskills(int number) {
@@ -331,25 +336,40 @@ void creature::inventory() {
 		if(!pi)
 			break;
 		auto slot = pi->getslot();
-		if(*pi && !remove(*pi)) {
-			//say("Я не могу это снять.");
-			continue;
-		}
-		if(slot < FirstBackpack) {
-			items.clear();
-			items.selectb(*this);
-			auto p2 = items.choose(true, "Рюкзак", 0, NoSlotName);
-			if(p2) {
-				auto pc = *pi;
-				*pi = *p2;
-				*p2 = pc;
+		if(*pi) {
+			if(!remove(*pi, false)) {
+				//say("Я не могу это снять.");
+				continue;
+			}
+			if(!add(*pi, false)) {
+				//say("У меня уже нету места.");
+				continue;
+			}
+			add(*pi, true);
+			remove(*pi, true);
+		} else {
+			if(slot < FirstBackpack) {
+				items.clear();
+				items.selectb(*this);
+				items.match(slot);
+				auto p2 = items.choose(true, "Рюкзак", 0, NoSlotName);
+				if(p2) {
+					auto pc = *pi;
+					*pi = *p2;
+					*p2 = pc;
+				}
 			}
 		}
 	}
 }
 
-bool creature::remove(const item& e) const {
+bool creature::remove(item& e, bool run) {
 	if(!e)
 		return false;
+	if(run) {
+		dress(-1);
+		e.clear();
+		dress(1);
+	}
 	return true;
 }
