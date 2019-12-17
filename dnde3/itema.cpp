@@ -4,6 +4,10 @@ void itema::select(creature& e) {
 	e.select(*this, Head, Amunitions, false);
 }
 
+void itema::selecta(creature& e) {
+	e.select(*this, FirstBackpack, Amunitions, true);
+}
+
 void itema::selectb(creature& e) {
 	e.select(*this, FirstBackpack, LastBackpack, true);
 }

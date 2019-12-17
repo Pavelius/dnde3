@@ -31,6 +31,8 @@ itemi bsmeta<itemi>::elements[] = {{""},
 {"Латы", 3500, 800 * GP, Female, Iron, {}, {40, 5}, {}, {}, Torso},
 };
 
+static_assert(sizeof(item) == sizeof(int), "Struct 'item' must be sizeof(int)");
+
 creature* item::getwearer() const {
 	auto i = bsmeta<creature>::source.indexof((creature*)(this));
 	if(i == -1)

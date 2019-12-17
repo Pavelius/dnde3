@@ -186,8 +186,8 @@ static void windowf(const char* string) {
 	draw::textf(rc, string);
 	auto w = rc.width();
 	auto h = rc.height();
-	rc.x1 = (getwidth() - w)/2;
-	rc.y1 = gui_padding*3;
+	rc.x1 = (getwidth() - w) / 2;
+	rc.y1 = gui_padding * 3;
 	rc.x2 = rc.x1 + w;
 	rc.y2 = rc.y1 + h;
 	window(rc, false, 0);
@@ -206,7 +206,7 @@ static void dialogw(int& x, int& y, int width, int height, const char* title) {
 	fore = colors::special;
 	auto tw = textw(title);
 	x = rc.x1; y = rc.y1;
-	text((getwidth() - tw)/2, y, title);
+	text((getwidth() - tw) / 2, y, title);
 	y += texth() + 2;
 }
 
@@ -721,7 +721,7 @@ static void render_info(const creature& e) {
 
 static void render_indoor() {
 	picture effects[2] = {};
-	if(current_index!=Blocked)
+	if(current_index != Blocked)
 		effects[0].setcursor(current_index, 1);
 	current_location->indoor(camera, false, effects);
 	auto player = creature::getplayer();
@@ -985,7 +985,7 @@ void location::indoor(point camera, bool show_fow, const picture* effects) {
 					image(x, y, gres(ResFeature), 59 + gettrap(i) - TrapAnimal, 0);
 				break;
 			case Plants:
-				image(x, y, gres(ResFeature), 36 + (getrand(i)/60) % 3, 0);
+				image(x, y, gres(ResFeature), 36 + (getrand(i) / 60) % 3, 0);
 				break;
 			}
 			// Кровь
@@ -1260,7 +1260,7 @@ static void render_weight(int x, int y, int width, const item& e) {
 		return;
 	char temp[64]; stringbuilder sb(temp);
 	auto v = e.getweight();
-	sb.add("%1i.%2.2i кг", v / 100, v % 100);
+	sb.add("%1i.%2i кг", v / 100, (v/10) % 10);
 	auto w = textw(temp);
 	text(x + width - w, y, temp);
 }
@@ -1272,7 +1272,7 @@ static void render_slot(int& x, int y, int width, const item& e, slot_mode_s mod
 	fore = colors::h3.mix(colors::text);// colors::text.mix(colors::special, 212);
 	auto slot = e.getslot();
 	const char* name = 0;
-	if(slot < FirstBackpack) {
+	if(slot >= Head && slot <= Amunitions) {
 		if(mode == SlotWhere)
 			name = bsmeta<sloti>::elements[slot].name_where;
 		else
@@ -1280,37 +1280,52 @@ static void render_slot(int& x, int y, int width, const item& e, slot_mode_s mod
 	}
 	if(name)
 		text(x, y, name);
-	if(slot != NoSlotName)
+	if(mode != NoSlotName)
 		x += width;
 	fore = p_fore;
 }
 
-item* itema::choose(bool interactive, const char* title, const char* format, slot_mode_s mode) {
-	int x, y, x1, y1;
+static int render(int x, int y, int width, itema::proc proc, itema& e) {
+	if(!proc)
+		return 0;
+	char temp[512]; stringbuilder sb(temp);
+	proc(sb, e);
+	if(sb)
+		return textf(x, y, width, sb);
+	return 0;
+}
+
+item* itema::choose(bool interactive, const char* title, const char* format, slot_mode_s mode, itema::proc footer) {
 	const int width = 600;
 	while(ismodal()) {
 		current_background();
+		int x, y;
 		dialogw(x, y, width, 440, title);
-		x1 = x; y1 = y + 403;
+		auto x1 = x, y1 = y + 403;
 		auto x2 = x + width;
+		if(format)
+			y += textf(x, y, width, format);
 		button(x1, y1, "Отмена", KeyEscape, breakparam, 0);
-		if(count>0) {
+		if(count > 0) {
 			auto index = 0;
-			for(auto& e : *this) {
+			for(auto e : *this) {
 				if(e->gettype() >= PlateMail)
 					continue;
 				auto x0 = x;
-				if(button(x0, y, 0, Alpha + '1' + index, 0))
+				if(button(x0, y, 0, Alpha + answeri::getkey(index), 0))
 					execute(breakparam, (int)e);
 				x0 += 22;
+				if((index+1)%2)
+					rectf({x, y, x + width, y + texth() + 1}, colors::white, 4);
 				render_slot(x0, y, 110, *e, mode);
 				render_item(x0, y, x2 - x0, *e);
 				render_weight(x0, y, x2 - x0, *e);
 				index++;
 				y += texth() + 4;
 			}
-		} else if(format)
-			textf(x, y, width, format);
+			y += texth();
+		}
+		render(x, y, width, footer, *this);
 		domodal();
 	}
 	return (item*)getresult();
@@ -1340,6 +1355,9 @@ indext location::choose(bool allow_cancel) const {
 			break;
 		case Ctrl + Alpha + 'M':
 			game.help();
+			break;
+		case Alpha + 'I':
+			creature::getplayer()->inventory();
 			break;
 		default:
 			current_index = translate(current_index);

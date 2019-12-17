@@ -45,8 +45,8 @@ enum diety_s : unsigned char {
 	GodBane, GodBhaal, GodGruumsh, GodHelm, GodMistra, GodTempus, GodTyr
 };
 enum slot_s : unsigned char {
+	FirstBackpack, LastBackpack = FirstBackpack + 31,
 	Head, Neck, Melee, OffHand, TorsoBack, Torso, RightFinger, LeftFinger, Elbows, Legs, Ranged, Amunitions,
-	FirstBackpack, LastBackpack = FirstBackpack + 19,
 };
 enum enchantment_s : unsigned char {
 	NoEffect,
@@ -467,9 +467,11 @@ public:
 };
 class itema : public adat<item*> {
 public:
-	item*				choose(bool interactive, const char* title, const char* format, slot_mode_s mode);
+	typedef void(*proc)(stringbuilder& sb, itema& e);
+	item*				choose(bool interactive, const char* title, const char* format, slot_mode_s mode, proc footer);
 	void				match(slot_s v);
 	void				select(creature& e);
+	void				selecta(creature& e);
 	void				selectb(creature& e);
 };
 class site : rect {
@@ -513,7 +515,7 @@ class creature : public nameable, public posable {
 	short				abilities_raise[Charisma + 1];
 	unsigned char		skills[LastResist + 1];
 	unsigned char		spells[LastSpell + 1];
-	item				wears[LastBackpack + 1];
+	item				wears[Amunitions + 1];
 	unsigned			restore_hits, restore_mana, restore_action;
 	char				hp, mp;
 	statea				states;
@@ -751,6 +753,8 @@ public:
 	int					getrand(indext i) const { return random[i]; }
 	void				indoor(point camera, bool show_fow = true, const picture* effects = 0);
 	bool				is(indext i, map_flag_s v) const { return flags[i].is(v); }
+	bool				ispassable(tile_s v) const;
+	bool				ispassable(map_object_s v) const;
 	bool				read(const char* url);
 	void				set(indext i, map_flag_s v) { flags[i].set(v); }
 	void				set(indext i, tile_s v) { tiles[i] = v; }

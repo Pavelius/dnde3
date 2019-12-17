@@ -42,3 +42,15 @@ int	answeri::choose(bool interactive, bool clear_text, const char* format, ...) 
 int	answeri::choose() const {
 	return choosev(true, true, false, 0);
 }
+
+int	answeri::getindex(char v) {
+	if(v >= '1' && v <= '9')
+		return v - '1';
+	return v - 'A';
+}
+
+char answeri::getkey(int v) {
+	if(v < 9)
+		return '1' + v;
+	return 'A' + (v - 9);
+}

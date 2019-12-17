@@ -24,8 +24,10 @@ public:
 	int							choose() const;
 	int							choose(bool interactive, bool clear_text, const char* format, ...) const;
 	int							choosev(bool interactive, bool clear_text, bool return_single, const char* format) const;
-	int							dialogv(bool allow_cancel, const char* title, const char* format) const;
 	void						clear() { stringbuilder::clear(); elements.clear(); }
 	static int					compare(const void* p1, const void* p2);
+	int							dialogv(bool allow_cancel, const char* title, const char* format) const;
+	static int					getindex(char v);
+	static char					getkey(int v);
 	void						sort();
 };

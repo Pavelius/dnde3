@@ -40,6 +40,13 @@ static void test_answers() {
 	an.choosev(true, false, true, "##Создание персонажа\nУ вас есть преимущество при выборе данных этого элемента.");
 }
 
+static void random_bless(creature* p1) {
+	itema source;
+	source.selecta(*p1);
+	source[1]->set(Blessed);
+	source[1]->setidentify(true);
+}
+
 static void test_indoor() {
 	location e;
 	e.clear();
@@ -63,15 +70,9 @@ static void test_indoor() {
 	e.set(e.get(3, 6), Webbed); e.set(e.get(4, 6), Webbed); e.set(e.get(4, 7), Webbed);
 	auto p1 = create(e.get(3, 3), Human, Male, Ranger);
 	auto p2 = create(e.get(4, 4), Dwarf, Male, Cleric);
+	random_bless(p1);
 	p1->setplayer();
 	e.choose(true);
-}
-
-static void random_bless(creature* p1) {
-	itema source;
-	source.select(*p1);
-	source[1]->set(Blessed);
-	source[1]->setidentify(true);
 }
 
 static void item_choose() {
@@ -82,14 +83,16 @@ static void item_choose() {
 }
 
 int main(int argc, char* argv[]) {
-	auto s = sizeof(outdoor);
+	auto s1 = sizeof(outdoor);
+	auto s2 = sizeof(creature);
+	auto s3 = sizeof(item);
 	game.intialize();
 	//game.setnextlayer(test_worldmap);
 	//game.layer();
 	test_spells();
 	//test_answers();
-	item_choose();
-	//test_indoor();
+	//item_choose();
+	test_indoor();
 }
 
 int __stdcall WinMain(void* ci, void* pi, char* cmd, int sw) {

@@ -86,9 +86,9 @@ void creature::dress(int m) {
 	// Apply calculating values
 	abilities[AttackMelee] += m * (get(Strenght));
 	abilities[AttackRanged] += m * (get(Dexterity));
-	abilities[Deflect] += m * (get(Acrobatics)/2);
+	abilities[Deflect] += m * (get(Acrobatics) / 2);
 	abilities[LifePoints] += m * (get(Constitution));
-	abilities[ManaPoints] += m * (get(Intellegence) + get(Concetration)/4);
+	abilities[ManaPoints] += m * (get(Intellegence) + get(Concetration) / 4);
 }
 
 dice_s creature::getraise(skill_s id) const {
@@ -190,7 +190,7 @@ void creature::applyabilities() {
 	const auto& ci = getclass();
 	// Generate abilities
 	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1))
-		abilities[i] = ri.abilities[i] + (rand()%5) - 3;
+		abilities[i] = ri.abilities[i] + (rand() % 5) - 3;
 	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1))
 		abilities[i] += ci.ability[i];
 	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1)) {
@@ -253,7 +253,7 @@ attacki creature::getattack(slot_s id) const {
 			result.dice.min += 1;
 			result.dice.max += 1;
 		}
-	} else if(id==Melee) {
+	} else if(id == Melee) {
 		result.type = Bludgeon;
 		result.dice.min = 0;
 		result.dice.max = 4;
@@ -291,9 +291,9 @@ const variant* creature::calculate(const variant* p, int& result) const {
 	while(p->type == Formula) {
 		switch(p->value) {
 		case Negative: result = -result; break;
-		case Divide2: result = result/2; break;
-		case Divide3: result = result/3; break;
-		case Divide4: result = result/4; break;
+		case Divide2: result = result / 2; break;
+		case Divide3: result = result / 3; break;
+		case Divide4: result = result / 4; break;
 		default: return 0;
 		}
 		p++;
@@ -314,7 +314,7 @@ int	creature::calculate(const variant* formula) const {
 slot_s creature::getslot(const item* p) const {
 	if(this
 		&& p >= wears
-		&& p <= (wears + sizeof(wears)/ sizeof(wears[0])))
+		&& p < (wears + sizeof(wears) / sizeof(wears[0])))
 		return slot_s(p - wears);
 	return FirstBackpack;
 }
@@ -329,10 +329,24 @@ void creature::select(itema& a, slot_s i1, slot_s i2, bool filled_only) {
 	a.count = ps - a.data;
 }
 
+static const char* addweight(stringbuilder& sb, int v) {
+	sb.clear();
+	sb.add("%1i.%2i", v / 100, (v / 10) % 10);
+	return sb;
+}
+
+static void inventory_footer(stringbuilder& sb, itema& e) {
+	char temp[64]; stringbuilder s1(temp);
+	auto player = creature::getplayer();
+	if(!player)
+		return;
+	sb.add("Общий вес ваших преметов [%1] кг.", addweight(s1, player->getweight()));
+}
+
 void creature::inventory() {
 	while(true) {
 		itema items; items.select(*this);
-		auto pi = items.choose(true, "Инвенторий", 0, SlotName);
+		auto pi = items.choose(true, "Инвенторий", 0, SlotName, inventory_footer);
 		if(!pi)
 			break;
 		auto slot = pi->getslot();
@@ -348,11 +362,11 @@ void creature::inventory() {
 			add(*pi, true);
 			remove(*pi, true);
 		} else {
-			if(slot < FirstBackpack) {
+			if(slot >= Head && slot <= Amunitions) {
 				items.clear();
 				items.selectb(*this);
 				items.match(slot);
-				auto p2 = items.choose(true, "Рюкзак", 0, NoSlotName);
+				auto p2 = items.choose(true, "Рюкзак", 0, NoSlotName, inventory_footer);
 				if(p2) {
 					auto pc = *pi;
 					*pi = *p2;
@@ -372,4 +386,11 @@ bool creature::remove(item& e, bool run) {
 		dress(1);
 	}
 	return true;
+}
+
+int	creature::getweight() const {
+	auto r = 0;
+	for(auto& e : wears)
+		r += e.getweight();
+	return r;
 }
