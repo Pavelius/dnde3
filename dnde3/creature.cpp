@@ -212,6 +212,7 @@ void creature::create(race_s race, gender_s gender, class_s type) {
 	this->type = type;
 	role = Character;
 	abilities[Level] = 1;
+	setname(race, gender);
 	applyabilities();
 	if(abilities[Intellegence] >= 9)
 		raise(Literacy);
@@ -225,7 +226,6 @@ void creature::create(race_s race, gender_s gender, class_s type) {
 	add(LifePoints, getclass().hp);
 	add(ManaPoints, getclass().mp);
 	// Generate name
-	setname(race, gender);
 	hp = get(LifePoints);
 	mp = get(ManaPoints);
 }
@@ -278,8 +278,15 @@ int creature::getbasic(ability_s id) const {
 	return abilities[id];
 }
 
-void creature::setplayer() {
+void creature::activate() {
 	current_player = this;
+}
+
+creature* creature::getplayer(int n) {
+	auto p = bsmeta<creature>::elements + n;
+	if(!(*p))
+		return 0;
+	return p;
 }
 
 const variant* creature::calculate(const variant* p, int& result) const {
@@ -368,9 +375,11 @@ void creature::inventory() {
 				items.match(slot);
 				auto p2 = items.choose(true, "аўъчръ", 0, NoSlotName, inventory_footer);
 				if(p2) {
+					dressoff();
 					auto pc = *pi;
 					*pi = *p2;
 					*p2 = pc;
+					dresson();
 				}
 			}
 		}

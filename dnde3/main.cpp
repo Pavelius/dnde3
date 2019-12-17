@@ -71,7 +71,7 @@ static void test_indoor() {
 	auto p1 = create(e.get(3, 3), Human, Male, Ranger);
 	auto p2 = create(e.get(4, 4), Dwarf, Male, Cleric);
 	random_bless(p1);
-	p1->setplayer();
+	p1->activate();
 	e.choose(true);
 }
 

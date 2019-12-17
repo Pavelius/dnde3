@@ -539,6 +539,7 @@ public:
 	creature() = default;
 	explicit operator bool() const { return hp > 0; }
 	//
+	void				activate();
 	void				add(variant id, int v);
 	void				add(variant id, int v, unsigned time);
 	bool				add(item v, bool run);
@@ -650,7 +651,6 @@ public:
 	void				setguard(short unsigned value) { guard = value; }
 	void				sethorror(const creature* p) { horror = p->getid(); }
 	void				setlos();
-	void				setplayer();
 	void				setmoney(int value) { money = value; }
 	void				trapeffect();
 	void				update();

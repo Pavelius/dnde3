@@ -1331,6 +1331,12 @@ item* itema::choose(bool interactive, const char* title, const char* format, slo
 	return (item*)getresult();
 }
 
+static void change_player(int n) {
+	auto p = creature::getplayer(n);
+	if(p)
+		p->activate();
+}
+
 indext location::choose(bool allow_cancel) const {
 	current_location = const_cast<location*>(this);
 	current_index = gets2i(camera);
@@ -1352,6 +1358,9 @@ indext location::choose(bool allow_cancel) const {
 		case KeyEnter:
 		case KeySpace:
 			breakmodal(current_index);
+			break;
+		case F1: case F2: case F3:
+			change_player(hot.key - F1);
 			break;
 		case Ctrl + Alpha + 'M':
 			game.help();
