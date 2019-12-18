@@ -396,3 +396,13 @@ int	creature::get(skill_s v) const {
 	r += get(bsmeta<skilli>::elements[v].abilities[1]);
 	return r;
 }
+
+void creature::select(skilla& a) const {
+	auto ps = a.data;
+	for(auto i = FirstSkill; i <= LastSkill; i = (skill_s)(i + 1)) {
+		if(!skills[i])
+			continue;
+		*ps++ = i;
+	}
+	a.count = ps - a.data;
+}

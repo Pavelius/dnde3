@@ -105,7 +105,7 @@ enum skill_s : unsigned char {
 	Acrobatics, Alertness, Athletics, Backstabbing, Concetration, DisarmTraps, HearNoises, HideInShadow, Lockpicking, PickPockets,
 	Alchemy, Dancing, Engineering, Gambling, History, Healing, Literacy, Mining, Smithing, Survival, Swimming,
 	WeaponFocusBows, WeaponFocusBlades, WeaponFocusAxes, TwoWeaponFighting,
-	LastSkill = TwoWeaponFighting,
+	FirstSkill = Bargaining, LastSkill = TwoWeaponFighting,
 	ResistAcid, ResistCharm, ResistCold, ResistElectricity, ResistFire, ResistParalize, ResistPoison, ResistWater,
 	LastResist = ResistWater,
 };
@@ -474,6 +474,12 @@ public:
 	void				selecta(creature& e);
 	void				selectb(creature& e);
 };
+class skilla :public adat<skill_s, 64> {
+public:
+	bool				choose(skill_s& result) const;
+	void				select(const creature& e);
+	void				sort();
+};
 class site : rect {
 	site_s				type;
 	unsigned char		name[2];
@@ -644,6 +650,7 @@ public:
 	void				sayvs(creature& opponent, const char* format, ...);
 	bool				saving(bool interactive, skill_s save, int bonus) const;
 	void				select(itema& a, slot_s i1, slot_s i2, bool filled_only);
+	void				select(skilla& e) const;
 	void				set(state_s id, unsigned segments);
 	void				set(spell_s id, int v) { spells[id] = v; }
 	void				setcharmer(const creature* p) { charmer = p->getid(); }
