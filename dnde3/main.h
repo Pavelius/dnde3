@@ -476,7 +476,7 @@ public:
 };
 class skilla :public adat<skill_s, 64> {
 public:
-	bool				choose(skill_s& result) const;
+	bool				choose(bool interactive, const char* title, const char* format, skill_s& result) const;
 	void				select(const creature& e);
 	void				sort();
 };

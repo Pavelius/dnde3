@@ -1269,7 +1269,7 @@ static void render_weight(int x, int y, int width, const item& e) {
 	text(x + width - w, y, temp);
 }
 
-static void render_slot(int& x, int y, int width, const item& e, slot_mode_s mode) {
+static void render(int& x, int y, int width, const item& e, slot_mode_s mode) {
 	if(mode == NoSlotName)
 		return;
 	auto p_fore = fore;
@@ -1297,6 +1297,36 @@ static int render(int x, int y, int width, itema& e) {
 	return 0;
 }
 
+bool skilla::choose(bool interactive, const char* title, const char* format, skill_s& result) const {
+	int x, y;
+	const int width = 400;
+	while(ismodal()) {
+		current_background();
+		dialogw(x, y, width, 440, title);
+		auto x1 = x, y1 = y + 403;
+		auto x2 = x + width;
+		if(format)
+			y += textf(x, y, width, format);
+		button(x1, y1, "Отмена", KeyEscape, breakparam, 0);
+		if(count > 0) {
+			auto index = 0;
+			for(auto e : *this) {
+				auto x0 = x;
+				if(button(x0, y, 0, Alpha + answeri::getkey(index), 0))
+					execute(breakparam, (int)e);
+				x0 += 22;
+				//if((index + 1) % 2)
+				//	rectf({x, y, x + width, y + texth() + 1}, colors::white, 4);
+				index++;
+				y += texth() + 4;
+			}
+			y += texth();
+		}
+		domodal();
+	}
+	return (item*)getresult();
+}
+
 item* itema::choose(bool interactive, const char* title, const char* format, slot_mode_s mode) {
 	const int width = 600;
 	while(ismodal()) {
@@ -1319,7 +1349,7 @@ item* itema::choose(bool interactive, const char* title, const char* format, slo
 				x0 += 22;
 				if((index + 1) % 2)
 					rectf({x, y, x + width, y + texth() + 1}, colors::white, 4);
-				render_slot(x0, y, 110, *e, mode);
+				render(x0, y, 110, *e, mode);
 				render_item(x0, y, x2 - x0, *e);
 				render_weight(x0, y, x2 - x0, *e);
 				index++;
