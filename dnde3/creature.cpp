@@ -336,24 +336,10 @@ void creature::select(itema& a, slot_s i1, slot_s i2, bool filled_only) {
 	a.count = ps - a.data;
 }
 
-static const char* addweight(stringbuilder& sb, int v) {
-	sb.clear();
-	sb.add("%1i.%2i", v / 100, (v / 10) % 10);
-	return sb;
-}
-
-static void inventory_footer(stringbuilder& sb, itema& e) {
-	char temp[64]; stringbuilder s1(temp);
-	auto player = creature::getplayer();
-	if(!player)
-		return;
-	sb.add("Общий вес ваших преметов [%1] кг.", addweight(s1, player->getweight()));
-}
-
 void creature::inventory() {
 	while(true) {
 		itema items; items.select(*this);
-		auto pi = items.choose(true, "Инвенторий", 0, SlotName, inventory_footer);
+		auto pi = items.choose(true, "Инвенторий", 0, SlotName);
 		if(!pi)
 			break;
 		auto slot = pi->getslot();
@@ -373,7 +359,7 @@ void creature::inventory() {
 				items.clear();
 				items.selectb(*this);
 				items.match(slot);
-				auto p2 = items.choose(true, "Рюкзак", 0, NoSlotName, inventory_footer);
+				auto p2 = items.choose(true, "Рюкзак", 0, NoSlotName);
 				if(p2) {
 					dressoff();
 					auto pc = *pi;
@@ -401,5 +387,12 @@ int	creature::getweight() const {
 	auto r = 0;
 	for(auto& e : wears)
 		r += e.getweight();
+	return r;
+}
+
+int	creature::get(skill_s v) const {
+	auto r = skills[v];
+	r += get(bsmeta<skilli>::elements[v].abilities[0]);
+	r += get(bsmeta<skilli>::elements[v].abilities[1]);
 	return r;
 }

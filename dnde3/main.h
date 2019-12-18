@@ -467,8 +467,8 @@ public:
 };
 class itema : public adat<item*> {
 public:
-	typedef void(*proc)(stringbuilder& sb, itema& e);
-	item*				choose(bool interactive, const char* title, const char* format, slot_mode_s mode, proc footer);
+	item*				choose(bool interactive, const char* title, const char* format, slot_mode_s mode);
+	void				footer(stringbuilder& sb) const;
 	void				match(slot_s v);
 	void				select(creature& e);
 	void				selecta(creature& e);
@@ -568,7 +568,7 @@ public:
 	bool				equip(item value);
 	int					get(ability_s v) const { return abilities[v]; }
 	int					get(spell_s v) const { return spells[v]; }
-	int					get(skill_s v) const { return skills[v]; }
+	int					get(skill_s v) const;
 	const item&			get(slot_s v) const { return wears[v]; }
 	const creature&		getai() const;
 	attacki				getattack(slot_s slot) const;

@@ -21,3 +21,17 @@ void itema::match(slot_s v) {
 	}
 	count = ps - data;
 }
+
+static const char* addweight(stringbuilder& sb, int v) {
+	sb.clear();
+	sb.add("%1i.%2i", v / 100, (v / 10) % 10);
+	return sb;
+}
+
+void itema::footer(stringbuilder& sb) const {
+	auto player = creature::getplayer();
+	if(!player)
+		return;
+	char temp[24]; stringbuilder s1(temp);
+	sb.add("Общий вес ваших преметов [%1] кг.", addweight(s1, player->getweight()));
+}

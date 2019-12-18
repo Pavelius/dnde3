@@ -352,11 +352,15 @@ static indext translate(indext i) {
 	return i1;
 }
 
-static bool shortcuts(const hotkey* ph) {
+static bool shortcuts(const hotkey* ph, bool instant) {
 	for(auto p = ph; p->proc; p++) {
 		if(hot.key != p->key || hot.pressed)
 			continue;
-		execute(p->proc, p->param);
+		if(instant) {
+			hot.param = p->param;
+			p->proc();
+		} else
+			execute(p->proc, p->param);
 		return true;
 	}
 	return false;
@@ -1260,7 +1264,7 @@ static void render_weight(int x, int y, int width, const item& e) {
 		return;
 	char temp[64]; stringbuilder sb(temp);
 	auto v = e.getweight();
-	sb.add("%1i.%2i кг", v / 100, (v/10) % 10);
+	sb.add("%1i.%2i кг", v / 100, (v / 10) % 10);
 	auto w = textw(temp);
 	text(x + width - w, y, temp);
 }
@@ -1285,17 +1289,15 @@ static void render_slot(int& x, int y, int width, const item& e, slot_mode_s mod
 	fore = p_fore;
 }
 
-static int render(int x, int y, int width, itema::proc proc, itema& e) {
-	if(!proc)
-		return 0;
+static int render(int x, int y, int width, itema& e) {
 	char temp[512]; stringbuilder sb(temp);
-	proc(sb, e);
+	e.footer(sb);
 	if(sb)
 		return textf(x, y, width, sb);
 	return 0;
 }
 
-item* itema::choose(bool interactive, const char* title, const char* format, slot_mode_s mode, itema::proc footer) {
+item* itema::choose(bool interactive, const char* title, const char* format, slot_mode_s mode) {
 	const int width = 600;
 	while(ismodal()) {
 		current_background();
@@ -1315,7 +1317,7 @@ item* itema::choose(bool interactive, const char* title, const char* format, slo
 				if(button(x0, y, 0, Alpha + answeri::getkey(index), 0))
 					execute(breakparam, (int)e);
 				x0 += 22;
-				if((index+1)%2)
+				if((index + 1) % 2)
 					rectf({x, y, x + width, y + texth() + 1}, colors::white, 4);
 				render_slot(x0, y, 110, *e, mode);
 				render_item(x0, y, x2 - x0, *e);
@@ -1325,17 +1327,31 @@ item* itema::choose(bool interactive, const char* title, const char* format, slo
 			}
 			y += texth();
 		}
-		render(x, y, width, footer, *this);
+		render(x, y, width, *this);
 		domodal();
 	}
 	return (item*)getresult();
 }
 
-static void change_player(int n) {
+static void change_player() {
+	auto n = hot.key;
 	auto p = creature::getplayer(n);
 	if(p)
 		p->activate();
 }
+
+static void character_invertory() {
+	auto p = creature::getplayer();
+	if(p)
+		p->inventory();
+}
+
+static hotkey adventure_keys[] = {{F1, "Выбрать первого героя", change_player, 0},
+{F2, "Выбрать второго героя", change_player, 1},
+{F3, "Выбрать третьего героя", change_player, 2},
+{Ctrl + Alpha + 'M', "Открыть мануал", gamei::help},
+{Alpha + 'I', "Открыть инвентярь", character_invertory},
+{}};
 
 indext location::choose(bool allow_cancel) const {
 	current_location = const_cast<location*>(this);
@@ -1350,6 +1366,8 @@ indext location::choose(bool allow_cancel) const {
 				windowf(sb);
 		}
 		domodal();
+		if(shortcuts(adventure_keys, true))
+			continue;
 		switch(hot.key) {
 		case KeyEscape:
 			if(allow_cancel)
@@ -1358,15 +1376,6 @@ indext location::choose(bool allow_cancel) const {
 		case KeyEnter:
 		case KeySpace:
 			breakmodal(current_index);
-			break;
-		case F1: case F2: case F3:
-			change_player(hot.key - F1);
-			break;
-		case Ctrl + Alpha + 'M':
-			game.help();
-			break;
-		case Alpha + 'I':
-			creature::getplayer()->inventory();
 			break;
 		default:
 			current_index = translate(current_index);
