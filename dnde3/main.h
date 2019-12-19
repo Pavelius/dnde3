@@ -215,7 +215,7 @@ enum background_s : unsigned char {
 };
 enum formula_s : unsigned char {
 	Negative,
-	Divide2, Divide3, Divide4,	
+	Divide2, Divide3, Divide4,
 };
 enum slot_mode_s : unsigned char {
 	NoSlotName, SlotName, SlotWhere
@@ -245,7 +245,7 @@ struct variant {
 	constexpr variant(int v) : type(Number), value(v) {}
 	variant(const creature* v);
 	explicit operator bool() const { return type != NoVariant; }
-	bool operator==(const variant& e) const { return type==e.type && value==e.value; }
+	bool operator==(const variant& e) const { return type == e.type && value == e.value; }
 	const char*			getname() const;
 };
 struct string : stringbuilder {
@@ -253,7 +253,8 @@ struct string : stringbuilder {
 	gender_s			gender, opponent_gender;
 	constexpr string(const stringbuilder& source) : stringbuilder(source),
 		name(0), opponent_name(0),
-		gender(Male), opponent_gender(Male) {}
+		gender(Male), opponent_gender(Male) {
+	}
 	template<unsigned N> constexpr string(char(&result)[N]) : stringbuilder(result, result + N - 1), name(0), gender(Female) {}
 	void				addformula(const variant* p);
 	void				addidentifier(const char* identifier) override;
@@ -479,6 +480,16 @@ public:
 	bool				choose(bool interactive, const char* title, const char* format, skill_s& result) const;
 	void				select(const creature& e);
 	void				sort();
+};
+class skillu : public skilla {
+	creature*			player;
+	unsigned char		cap[LastSkill + 1];
+public:
+	skillu(creature* player);
+	skill_s				change(bool interactive, const char* title) const;
+	int					getcap(skill_s i) const { return cap[i]; }
+	void				setcap(skill_s i, int v) { cap[i] = v; }
+	void				setcaps();
 };
 class site : rect {
 	site_s				type;
@@ -792,6 +803,7 @@ public:
 extern gamei			game;
 DECLENUM(class);
 DECLENUM(map_object);
+DECLENUM(skill);
 DECLENUM(tile);
 DECLENUM(race);
 DECLENUM(slot);

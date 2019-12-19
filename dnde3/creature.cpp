@@ -94,11 +94,11 @@ void creature::dress(int m) {
 dice_s creature::getraise(skill_s id) const {
 	auto value = skills[id];
 	if(value < 20)
-		return D6n11;
+		return D5n20;
 	else if(value < 50)
-		return D4n9;
+		return D3n13;
 	else
-		return D2n7;
+		return D1n6;
 }
 
 void creature::raise(skill_s value) {

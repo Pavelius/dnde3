@@ -1297,17 +1297,27 @@ static int render(int x, int y, int width, itema& e) {
 	return 0;
 }
 
-bool skilla::choose(bool interactive, const char* title, const char* format, skill_s& result) const {
+static int text(int x, int y, int width, int value, const char* format = "%1i") {
+	char temp[32]; stringbuilder sb(temp);
+	sb.add(format, value);
+	text(x + width - textw(temp), y, temp);
+	return width + 8;
+}
+
+static int text(int x, int y, int width, dice_s v, const char* format = "+ %1i-%2i") {
+	char temp[32]; stringbuilder sb(temp);
+	sb.add(format, bsmeta<dicei>::elements[v].min, bsmeta<dicei>::elements[v].max);
+	text(x + width - textw(temp), y, temp);
+	return width + 8;
+}
+
+skill_s skillu::change(bool interactive, const char* title) const {
 	int x, y;
-	const int width = 400;
+	const int width = 300;
 	while(ismodal()) {
 		current_background();
 		dialogw(x, y, width, 440, title);
-		auto x1 = x, y1 = y + 403;
 		auto x2 = x + width;
-		if(format)
-			y += textf(x, y, width, format);
-		button(x1, y1, "Отмена", KeyEscape, breakparam, 0);
 		if(count > 0) {
 			auto index = 0;
 			for(auto e : *this) {
@@ -1315,8 +1325,12 @@ bool skilla::choose(bool interactive, const char* title, const char* format, ski
 				if(button(x0, y, 0, Alpha + answeri::getkey(index), 0))
 					execute(breakparam, (int)e);
 				x0 += 22;
-				//if((index + 1) % 2)
-				//	rectf({x, y, x + width, y + texth() + 1}, colors::white, 4);
+				if((index + 1) % 2)
+					rectf({x, y, x + width, y + texth() + 1}, colors::white, 4);
+				text(x0, y, getstr(e)); x0 += 120;
+				x0 += text(x0, y, 36, player->get(e), "%1i%%");
+				x0 += text(x0, y, 36, player->getraise(e));
+				x0 += text(x0, y, 64, getcap(e), " макс. %1i%%");
 				index++;
 				y += texth() + 4;
 			}
@@ -1324,7 +1338,7 @@ bool skilla::choose(bool interactive, const char* title, const char* format, ski
 		}
 		domodal();
 	}
-	return (item*)getresult();
+	return (skill_s)getresult();
 }
 
 item* itema::choose(bool interactive, const char* title, const char* format, slot_mode_s mode) {
@@ -1364,7 +1378,7 @@ item* itema::choose(bool interactive, const char* title, const char* format, slo
 }
 
 static void change_player() {
-	auto n = hot.key;
+	auto n = hot.param;
 	auto p = creature::getplayer(n);
 	if(p)
 		p->activate();
@@ -1376,11 +1390,24 @@ static void character_invertory() {
 		p->inventory();
 }
 
+static void character_skills() {
+	skillu skills(creature::getplayer());
+	auto p = creature::getplayer();
+	if(p) {
+		skillu source(p);
+		source.select(*p);
+		source.sort();
+		source.setcaps();
+		source.change(true, "Выбирайте навык");
+	}
+}
+
 static hotkey adventure_keys[] = {{F1, "Выбрать первого героя", change_player, 0},
 {F2, "Выбрать второго героя", change_player, 1},
 {F3, "Выбрать третьего героя", change_player, 2},
 {Ctrl + Alpha + 'M', "Открыть мануал", gamei::help},
 {Alpha + 'I', "Открыть инвентярь", character_invertory},
+{Alpha + 'A', "Выбрать навык", character_skills},
 {}};
 
 indext location::choose(bool allow_cancel) const {
