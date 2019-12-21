@@ -72,7 +72,7 @@ static void test_indoor() {
 	auto p2 = create(e.get(4, 4), Dwarf, Male, Cleric);
 	random_bless(p1);
 	p1->activate();
-	e.choose(true);
+	e.play();
 }
 
 static void item_choose() {

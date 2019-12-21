@@ -673,6 +673,7 @@ public:
 	void				trapeffect();
 	void				update();
 	bool				use(short unsigned index);
+	void				useskills();
 	void				wait(int segments = 0);
 };
 class creaturea : adat<creature*> {
@@ -724,6 +725,13 @@ struct areainfo : coordinate {
 		positions{Blocked, Blocked, Blocked, Blocked, Blocked, Blocked, Blocked, Blocked} {
 	}
 };
+struct vproc {
+	void(*pinp)();
+	void(creature::*pcre)();
+	constexpr vproc() : pinp(0), pcre(0) {}
+	constexpr vproc(void(*v)()) : pinp(v), pcre(0) {}
+	constexpr vproc(void(creature::*v)()) : pinp(0), pcre(v) {}
+};
 struct dungeon {
 	struct layer {
 		tile_s			type;
@@ -754,17 +762,19 @@ class location {
 	bool				wget(short unsigned i, direction_s direction, tile_s value, bool default_result) const;
 	bool				xget(short unsigned i, direction_s direction) const;
 public:
+	void				activate();
 	void				addinfo(indext i, stringbuilder& sb) const;
-	void				adventure();
-	indext				choose(bool allow_cancel) const;
+	indext				choose(bool allow_cancel);
 	void				clear();
 	void				editor();
 	void				drop(indext i, item v);
 	void				fill(rect rc, tile_s v);
 	static indext		get(short x, short y) { return y * mmx + x; }
+	static direction_s	getdirection(indext from, indext to);
 	static short		getx(indext i) { return i % mmx; }
 	static short		gety(indext i) { return i / mmx; }
 	int					getindex(indext i, tile_s e) const;
+	static location*	getlocation();
 	map_object_s		getobject(indext i) const { return objects[i]; }
 	tile_s				gettile(indext i) const;
 	trap_s				gettrap(indext i) const { return NoTrap; }
@@ -773,6 +783,7 @@ public:
 	bool				is(indext i, map_flag_s v) const { return flags[i].is(v); }
 	bool				ispassable(tile_s v) const;
 	bool				ispassable(map_object_s v) const;
+	void				play();
 	bool				read(const char* url);
 	void				set(indext i, map_flag_s v) { flags[i].set(v); }
 	void				set(indext i, tile_s v) { tiles[i] = v; }

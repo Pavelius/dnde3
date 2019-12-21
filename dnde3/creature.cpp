@@ -406,3 +406,19 @@ void creature::select(skilla& a) const {
 	}
 	a.count = ps - a.data;
 }
+
+void creature::useskills() {
+	skillu source(this);
+	source.select(*this);
+	source.sort();
+	source.setcaps();
+	source.change(true, "Выбирайте навык");
+}
+
+bool creature::moveto(indext index) {
+	if(index == Blocked)
+		return false;
+	auto d1 = location::getdirection(getposition(), index);
+	setposition(index);
+	return true;
+}

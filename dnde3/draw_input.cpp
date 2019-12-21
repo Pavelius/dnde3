@@ -7,9 +7,14 @@ namespace draw {
 struct hotkey {
 	int				key;
 	const char*		name;
-	void(*proc)();
+	vproc			proc;
 	int				param;
-	explicit operator bool() const { return proc != 0; }
+	explicit operator bool() const { return key != 0; }
+};
+struct hotkeym {
+	int				key;
+	direction_s		direction;
+	explicit operator bool() const { return key != 0; }
 };
 }
 
@@ -21,7 +26,6 @@ const int			gui_padding = 4;
 static bool			show_gui_panel = true;
 static eventproc	current_background;
 static eventproc	current_layer;
-static location*	current_location;
 static indext		current_index;
 static tile_s		current_tile = Sea;
 static bool			break_modal;
@@ -66,6 +70,16 @@ imgi bsmeta<imgi>::elements[] = {{""},
 {"pcmac", "art"},
 };
 assert_enum(img, ResPCmac);
+
+static hotkeym move_keys[] = {{KeyLeft, Left},
+{KeyHome, LeftUp},
+{KeyUp, Up},
+{KeyPageUp, RightUp},
+{KeyRight, Right},
+{KeyPageDown, RightDown},
+{KeyDown, Down},
+{KeyEnd, LeftDown},
+};
 
 static const sprite* gres(img_s i) {
 	auto& e = bsmeta<imgi>::elements[i];
@@ -112,8 +126,8 @@ static void standart_domodal() {
 	hot.key = draw::rawinput();
 	switch(hot.key) {
 	case 0:
-		if(current_location)
-			current_location->write("overland.map");
+		if(location::getlocation())
+			location::getlocation()->write("overland.map");
 		exit(0);
 		break;
 	}
@@ -352,15 +366,18 @@ static indext translate(indext i) {
 	return i1;
 }
 
-static bool shortcuts(const hotkey* ph, bool instant) {
-	for(auto p = ph; p->proc; p++) {
+static bool shortcuts(const hotkey* ph, creature* player, bool instant) {
+	for(auto p = ph; *p; p++) {
 		if(hot.key != p->key || hot.pressed)
 			continue;
 		if(instant) {
 			hot.param = p->param;
-			p->proc();
+			if(player && p->proc.pcre)
+				(player->*p->proc.pcre)();
+			else
+				p->proc.pinp();
 		} else
-			execute(p->proc, p->param);
+			execute(p->proc.pinp, p->param);
 		return true;
 	}
 	return false;
@@ -489,7 +506,7 @@ static int detaih(int x, int y, int width, const hotkey* pk) {
 	for(auto p = pk; *p; p++) {
 		auto w = 0;
 		if(button(x, y, p->name, p->key, &w))
-			execute(p->proc, p->param);
+			execute(p->proc.pinp, p->param);
 		x += w;
 	}
 	return x - x0;
@@ -512,12 +529,15 @@ void gamei::layer() {
 }
 
 static int render_info(int x, int y, int width) {
+	auto p = location::getlocation();
+	if(!p)
+		return 0;
 	auto y0 = y;
 	char temp[512]; stringbuilder sb(temp);
-	auto tile = current_location->gettile(current_index);
+	auto tile = p->gettile(current_index);
 	sb.adds("Это %1.", getstr(tile));
 	sb.adds("Кординаты %1i,%2i (индекс %3i).",
-		current_location->getx(current_index), current_location->gety(current_index), current_index);
+		p->getx(current_index), p->gety(current_index), current_index);
 	y += detail(x, y, width, sb);
 	return y - y0;
 }
@@ -527,7 +547,7 @@ static void help() {
 }
 
 static void put_tile() {
-	current_location->set(current_index, current_tile);
+	location::getlocation()->set(current_index, current_tile);
 }
 
 static void choose_tile_1() {
@@ -589,8 +609,11 @@ static void render_bottom() {
 }
 
 static void render_editor() {
+	auto p = location::getlocation();
+	if(!p)
+		return;
 	picture effects[1]; effects[0].setcursor(current_index, 1);
-	current_location->worldmap(camera, true);
+	p->worldmap(camera, true);
 	render(effects);
 	render_bottom();
 }
@@ -724,10 +747,23 @@ static void render_info(const creature& e) {
 }
 
 static void render_indoor() {
+	auto p = location::getlocation();
+	if(!p)
+		return;
 	picture effects[2] = {};
 	if(current_index != Blocked)
 		effects[0].setcursor(current_index, 1);
-	current_location->indoor(camera, false, effects);
+	p->indoor(camera, false, effects);
+	auto player = creature::getplayer();
+	if(player)
+		render_info(*player);
+}
+
+static void render_indoor_nomarker() {
+	auto p = location::getlocation();
+	if(!p)
+		return;
+	p->indoor(camera, false, 0);
 	auto player = creature::getplayer();
 	if(player)
 		render_info(*player);
@@ -738,9 +774,8 @@ static void controls() {
 }
 
 void location::editor() {
-	current_location = this;
-	if(current_location)
-		current_location->read("overland.map");
+	activate();
+	read("overland.map");
 	setbackground(render_editor);
 	while(ismodal()) {
 		current_background();
@@ -1219,16 +1254,6 @@ int	answeri::choosev(bool interactive, bool clear_text, bool return_single, cons
 	return getresult() != 0;
 }
 
-void location::adventure() {
-	current_location = this;
-	current_index = Blocked;
-	setbackground(render_indoor);
-	while(ismodal()) {
-		current_background();
-		domodal();
-	}
-}
-
 int	answeri::dialogv(bool allow_cancel, const char* title, const char* format) const {
 	int x, y;
 	const int width = 600;
@@ -1384,34 +1409,16 @@ static void change_player() {
 		p->activate();
 }
 
-static void character_invertory() {
-	auto p = creature::getplayer();
-	if(p)
-		p->inventory();
-}
-
-static void character_skills() {
-	skillu skills(creature::getplayer());
-	auto p = creature::getplayer();
-	if(p) {
-		skillu source(p);
-		source.select(*p);
-		source.sort();
-		source.setcaps();
-		source.change(true, "Выбирайте навык");
-	}
-}
-
 static hotkey adventure_keys[] = {{F1, "Выбрать первого героя", change_player, 0},
 {F2, "Выбрать второго героя", change_player, 1},
 {F3, "Выбрать третьего героя", change_player, 2},
 {Ctrl + Alpha + 'M', "Открыть мануал", gamei::help},
-{Alpha + 'I', "Открыть инвентярь", character_invertory},
-{Alpha + 'A', "Выбрать навык", character_skills},
+{Alpha + 'I', "Открыть инвентярь", &creature::inventory},
+{Alpha + 'A', "Выбрать навык", &creature::useskills},
 {}};
 
-indext location::choose(bool allow_cancel) const {
-	current_location = const_cast<location*>(this);
+indext location::choose(bool allow_cancel) {
+	activate();
 	current_index = gets2i(camera);
 	setbackground(render_indoor);
 	while(ismodal()) {
@@ -1423,7 +1430,7 @@ indext location::choose(bool allow_cancel) const {
 				windowf(sb);
 		}
 		domodal();
-		if(shortcuts(adventure_keys, true))
+		if(shortcuts(adventure_keys, creature::getplayer(), true))
 			continue;
 		switch(hot.key) {
 		case KeyEscape:
@@ -1440,4 +1447,31 @@ indext location::choose(bool allow_cancel) const {
 		}
 	}
 	return getresult();
+}
+
+static bool translatemove(creature* player) {
+	if(!player)
+		return false;
+	for(auto& e : move_keys) {
+		if(e.key == hot.key) {
+			auto ni = location::to(player->getposition(), e.direction);
+			player->moveto(ni);
+			return true;
+		}
+	}
+	return false;
+}
+
+void location::play() {
+	activate();
+	setbackground(render_indoor_nomarker);
+	while(ismodal()) {
+		current_background();
+		domodal();
+		auto player = creature::getplayer();
+		if(translatemove(player))
+			continue;
+		if(shortcuts(adventure_keys, creature::getplayer(), true))
+			continue;
+	}
 }

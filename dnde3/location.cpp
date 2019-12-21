@@ -1,5 +1,15 @@
 #include "main.h"
 
+static location* current_location;
+
+void location::activate() {
+	current_location = this;
+}
+
+location* location::getlocation() {
+	return current_location;
+}
+
 int location::getindex(indext i, tile_s e) const {
 	static direction_s dir[] = {Up, Down, Left, Right};
 	auto m = 0;
@@ -133,4 +143,8 @@ void location::addinfo(indext i, stringbuilder& sb) const {
 	auto o = getobject(i);
 	if(o)
 		sb.adds("Здесь находится %1.", getstr(o));
+}
+
+direction_s	location::getdirection(indext from, indext to) {
+	return Left;
 }
