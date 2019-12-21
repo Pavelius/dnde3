@@ -419,6 +419,8 @@ bool creature::moveto(indext index) {
 	if(index == Blocked)
 		return false;
 	auto d1 = location::getdirection(getposition(), index);
+	if(d1 != Down && d1 != Up)
+		direction = d1;
 	setposition(index);
 	return true;
 }

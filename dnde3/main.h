@@ -771,6 +771,7 @@ public:
 	void				fill(rect rc, tile_s v);
 	static indext		get(short x, short y) { return y * mmx + x; }
 	static direction_s	getdirection(indext from, indext to);
+	static direction_s	getdirection(point from, point to);
 	static short		getx(indext i) { return i % mmx; }
 	static short		gety(indext i) { return i / mmx; }
 	int					getindex(indext i, tile_s e) const;

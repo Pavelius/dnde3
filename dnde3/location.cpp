@@ -2,6 +2,16 @@
 
 static location* current_location;
 
+static const direction_s orientations_7b7[49] = {
+	LeftUp, LeftUp, Up, Up, Up, RightUp, RightUp,
+	LeftUp, LeftUp, LeftUp, Up, RightUp, RightUp, RightUp,
+	Left, Left, LeftUp, Up, RightUp, Right, Right,
+	Left, Left, Left, Center, Right, Right, Right,
+	Left, Left, LeftDown, Down, RightDown, Right, Right,
+	LeftDown, LeftDown, LeftDown, Down, RightDown, RightDown, RightDown,
+	LeftDown, LeftDown, Down, Down, Down, RightDown, RightDown,
+};
+
 void location::activate() {
 	current_location = this;
 }
@@ -31,7 +41,7 @@ int location::getindex(indext i, tile_s e) const {
 indext location::to(indext index, direction_s id) {
 	switch(id) {
 	case Left:
-		if(getx(index)==0)
+		if(getx(index) == 0)
 			return Blocked;
 		return index - 1;
 	case Right:
@@ -145,6 +155,20 @@ void location::addinfo(indext i, stringbuilder& sb) const {
 		sb.adds("Здесь находится %1.", getstr(o));
 }
 
+direction_s	location::getdirection(point s, point d) {
+	const int osize = 7;
+	int dx = d.x - s.x;
+	int dy = d.y - s.y;
+	int st = (2 * imax(iabs(dx), iabs(dy)) + osize - 1) / osize;
+	if(!st)
+		return Center;
+	int ax = dx / st;
+	int ay = dy / st;
+	return orientations_7b7[(ay + (osize / 2))*osize + ax + (osize / 2)];
+}
+
 direction_s	location::getdirection(indext from, indext to) {
-	return Left;
+	short x1 = getx(from); short y1 = gety(from);
+	short x2 = getx(to); short y2 = gety(to);
+	return getdirection({x1, y1}, {x2, y2});
 }
