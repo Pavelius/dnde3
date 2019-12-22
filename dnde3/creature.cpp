@@ -17,7 +17,7 @@ void creature::clear() {
 	site_id = Blocked;
 }
 
-creature* creature::getplayer() {
+creature* creature::getactive() {
 	return current_player;
 }
 
@@ -282,7 +282,7 @@ void creature::activate() {
 	current_player = this;
 }
 
-creature* creature::getplayer(int n) {
+creature* creature::getactive(int n) {
 	auto p = bsmeta<creature>::elements + n;
 	if(!(*p))
 		return 0;
@@ -412,15 +412,106 @@ void creature::useskills() {
 	source.select(*this);
 	source.sort();
 	source.setcaps();
-	source.change(true, "Выбирайте навык");
+	source.choose(true, "Выбирайте навык");
 }
 
-bool creature::moveto(indext index) {
+void creature::move(indext index) {
+	auto loc = location::getactive();
+	if(!loc)
+		return;
 	if(index == Blocked)
-		return false;
+		return;
+	if(loc->gettile(index) == Wall)
+		return;
+	switch(loc->getobject(index)) {
+	case Door:
+		if(!loc->is(index, Opened)) {
+			if(loc->is(index, Sealed))
+				say("Здесь заперто.");
+			else
+				loc->set(index, Opened);
+			wait(Minute / 4);
+			return;
+		}
+		break;
+	case Tree:
+		say("Это же дерево.");
+		return;
+	}
+	auto p = find(index);
+	if(p) {
+		if(isenemy(p)) {
+			meleeattack(p);
+			return;
+		} else if(!isactive()) {
+			// Монстры и другие персонажи не меняются
+			wait(xrand(2, 8));
+			return;
+		} else if(p->isguard()) {
+			static const char* talk[] = {
+				"Я охраняю это место.",
+				"Здесь не пройти.",
+				"Не толкайся, я не отойду.",
+			};
+			p->say(maprnd(talk));
+			wait(xrand(1, 4));
+			return;
+		} else {
+			// Игрок меняется позицией с неигроком
+			auto psite = site::find(p->getposition());
+			if(psite && psite->getowner() == p) {
+				// С владельцами области не поменяешся местами
+				static const char* talk[] = {
+					"Не толкай меня в моем заведении.",
+					"Держи руки на виду.",
+					"Я за тобой слежу",
+				};
+				p->say(maprnd(talk));
+				return;
+			}
+			p->setposition(getposition());
+			p->wait(xrand(1, 4));
+			if(d100() < 50) {
+				static const char* talk[] = {
+					"Эй! Не толкайся.",
+					"Давай, проходи.",
+					"Куда ты так спешишь?",
+				};
+				p->say(maprnd(talk));
+			}
+		}
+	}
 	auto d1 = location::getdirection(getposition(), index);
 	if(d1 != Down && d1 != Up)
 		direction = d1;
 	setposition(index);
-	return true;
+}
+
+creature* creature::find(indext i) {
+	for(auto& e : bsmeta<creature>()) {
+		if(!e)
+			continue;
+		if(e.getposition() == i)
+			return &e;
+	}
+	return 0;
+}
+
+void creature::wait(int segments) {
+	restore_action += segments;
+}
+
+void creature::say(const char* format, ...) const {
+	act("[%герой:]");
+	act("\"");
+	actv(sb, format, xva_start(format));
+	act("\"");
+}
+
+void creature::meleeattack(creature* target, int bonus, int multiplier) {
+
+}
+
+bool creature::isenemy(const creature* target) const {
+	return is(Hostile) != target->is(Hostile);
 }

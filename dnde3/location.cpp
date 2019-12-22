@@ -16,7 +16,7 @@ void location::activate() {
 	current_location = this;
 }
 
-location* location::getlocation() {
+location* location::getactive() {
 	return current_location;
 }
 

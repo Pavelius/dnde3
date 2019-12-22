@@ -253,6 +253,7 @@ char*								szupper(char* p, int count = 1); // to upper reg
 char*								szurl(char* p, const char* path, const char* name, const char* ext = 0, const char* suffix = 0);
 char*								szurlc(char* p1);
 inline int							xrand(int n1, int n2) { return n1 + rand() % (n2 - n1 + 1); }
+inline int							d100() { return rand()%100; }
 // Common used templates
 inline int							ifloor(double n) { return (int)n; }
 template<class T> inline T			imax(T a, T b) { return a > b ? a : b; }

@@ -37,6 +37,8 @@ const int			scrx = 32;
 const int			scry = 32;
 static point		viewport;
 static point		camera;
+static char			status_text[1024];
+stringbuilder		sb(status_text);
 
 struct imgi {
 	const char*		name;
@@ -126,8 +128,8 @@ static void standart_domodal() {
 	hot.key = draw::rawinput();
 	switch(hot.key) {
 	case 0:
-		if(location::getlocation())
-			location::getlocation()->write("overland.map");
+		if(location::getactive())
+			location::getactive()->write("overland.map");
 		exit(0);
 		break;
 	}
@@ -529,7 +531,7 @@ void gamei::layer() {
 }
 
 static int render_info(int x, int y, int width) {
-	auto p = location::getlocation();
+	auto p = location::getactive();
 	if(!p)
 		return 0;
 	auto y0 = y;
@@ -547,7 +549,7 @@ static void help() {
 }
 
 static void put_tile() {
-	location::getlocation()->set(current_index, current_tile);
+	location::getactive()->set(current_index, current_tile);
 }
 
 static void choose_tile_1() {
@@ -609,7 +611,7 @@ static void render_bottom() {
 }
 
 static void render_editor() {
-	auto p = location::getlocation();
+	auto p = location::getactive();
 	if(!p)
 		return;
 	picture effects[1]; effects[0].setcursor(current_index, 1);
@@ -747,24 +749,24 @@ static void render_info(const creature& e) {
 }
 
 static void render_indoor() {
-	auto p = location::getlocation();
+	auto p = location::getactive();
 	if(!p)
 		return;
 	picture effects[2] = {};
 	if(current_index != Blocked)
 		effects[0].setcursor(current_index, 1);
 	p->indoor(camera, false, effects);
-	auto player = creature::getplayer();
+	auto player = creature::getactive();
 	if(player)
 		render_info(*player);
 }
 
 static void render_indoor_nomarker() {
-	auto p = location::getlocation();
+	auto p = location::getactive();
 	if(!p)
 		return;
 	p->indoor(camera, false, 0);
-	auto player = creature::getplayer();
+	auto player = creature::getactive();
 	if(player)
 		render_info(*player);
 }
@@ -1336,31 +1338,31 @@ static int text(int x, int y, int width, dice_s v, const char* format = "+ %1i-%
 	return width + 8;
 }
 
-skill_s skillu::change(bool interactive, const char* title) const {
+skill_s skillu::choose(bool interactive, const char* title, bool* cancel_result) const {
 	int x, y;
 	const int width = 300;
 	while(ismodal()) {
 		current_background();
 		dialogw(x, y, width, 440, title);
+		auto x1 = x, y1 = y + 403;
 		auto x2 = x + width;
-		if(count > 0) {
-			auto index = 0;
-			for(auto e : *this) {
-				auto x0 = x;
-				if(button(x0, y, 0, Alpha + answeri::getkey(index), 0))
-					execute(breakparam, (int)e);
-				x0 += 22;
-				if((index + 1) % 2)
-					rectf({x, y, x + width, y + texth() + 1}, colors::white, 4);
-				text(x0, y, getstr(e)); x0 += 120;
-				x0 += text(x0, y, 36, player->get(e), "%1i%%");
-				x0 += text(x0, y, 36, player->getraise(e));
-				x0 += text(x0, y, 64, getcap(e), " макс. %1i%%");
-				index++;
-				y += texth() + 4;
-			}
-			y += texth();
+		button(x1, y1, "Отмена", KeyEscape, breakparam, 0);
+		auto index = 0;
+		for(auto e : *this) {
+			auto x0 = x;
+			if(button(x0, y, 0, Alpha + answeri::getkey(index), 0))
+				execute(breakparam, (int)e);
+			x0 += 22;
+			if((index + 1) % 2)
+				rectf({x, y, x + width, y + texth() + 1}, colors::white, 4);
+			text(x0, y, getstr(e)); x0 += 120;
+			x0 += text(x0, y, 36, player->get(e), "%1i%%");
+			x0 += text(x0, y, 36, player->getraise(e));
+			x0 += text(x0, y, 64, getcap(e), " макс. %1i%%");
+			index++;
+			y += texth() + 4;
 		}
+		y += texth();
 		domodal();
 	}
 	return (skill_s)getresult();
@@ -1404,7 +1406,7 @@ item* itema::choose(bool interactive, const char* title, const char* format, slo
 
 static void change_player() {
 	auto n = hot.param;
-	auto p = creature::getplayer(n);
+	auto p = creature::getactive(n);
 	if(p)
 		p->activate();
 }
@@ -1430,7 +1432,7 @@ indext location::choose(bool allow_cancel) {
 				windowf(sb);
 		}
 		domodal();
-		if(shortcuts(adventure_keys, creature::getplayer(), true))
+		if(shortcuts(adventure_keys, creature::getactive(), true))
 			continue;
 		switch(hot.key) {
 		case KeyEscape:
@@ -1455,7 +1457,7 @@ static bool translatemove(creature* player) {
 	for(auto& e : move_keys) {
 		if(e.key == hot.key) {
 			auto ni = location::to(player->getposition(), e.direction);
-			player->moveto(ni);
+			player->move(ni);
 			return true;
 		}
 	}
@@ -1468,10 +1470,10 @@ void location::play() {
 	while(ismodal()) {
 		current_background();
 		domodal();
-		auto player = creature::getplayer();
+		auto player = creature::getactive();
 		if(translatemove(player))
 			continue;
-		if(shortcuts(adventure_keys, creature::getplayer(), true))
+		if(shortcuts(adventure_keys, creature::getactive(), true))
 			continue;
 	}
 }

@@ -96,3 +96,7 @@ void nameable::actv(stringbuilder& st, nameable& e, const char* format, const ch
 	sb.addv(format, param);
 	st = sb;
 }
+
+void nameable::act(const char* format, ...) const {
+	actv(sb, format, xva_start(format));
+}

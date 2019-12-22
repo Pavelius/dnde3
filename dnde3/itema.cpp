@@ -29,7 +29,7 @@ static const char* addweight(stringbuilder& sb, int v) {
 }
 
 void itema::footer(stringbuilder& sb) const {
-	auto player = creature::getplayer();
+	auto player = creature::getactive();
 	if(!player)
 		return;
 	char temp[24]; stringbuilder s1(temp);

@@ -486,7 +486,7 @@ class skillu : public skilla {
 	unsigned char		cap[LastSkill + 1];
 public:
 	skillu(creature* player);
-	skill_s				change(bool interactive, const char* title) const;
+	skill_s				choose(bool interactive, const char* title, bool* cancel_result = 0) const;
 	int					getcap(skill_s i) const { return cap[i]; }
 	void				setcap(skill_s i, int v) { cap[i] = v; }
 	void				setcaps();
@@ -505,8 +505,10 @@ public:
 	}
 	operator bool() const { return x1 != x2; }
 	void				entering(creature& player);
+	static site*		find(indext index);
 	int					getfoundchance() const;
 	void				getname(stringbuilder& sb) const;
+	creature*			getowner() const;
 	short unsigned		getposition() const;
 	void				update();
 };
@@ -583,10 +585,12 @@ public:
 	void				drink(item& it, bool interactive);
 	void				dropdown(item& value);
 	bool				equip(item value);
+	static creature*	find(indext i);
 	int					get(ability_s v) const { return abilities[v]; }
 	int					get(spell_s v) const { return spells[v]; }
 	int					get(skill_s v) const;
 	const item&			get(slot_s v) const { return wears[v]; }
+	static creature*	getactive();
 	const creature&		getai() const;
 	attacki				getattack(slot_s slot) const;
 	int					getattacktime(slot_s slot) const;
@@ -598,7 +602,6 @@ public:
 	unsigned			getcostexp() const;
 	int					getdiscount(creature* customer) const;
 	direction_s			getdirection() const { return direction; }
-	creature*			getenemy(aref<creature*> source) const;
 	encumbrance_s		getencumbrance() const { return encumbrance; }
 	int					getexperience() const { return experience; }
 	void				getfullname(stringbuilder& sb) const;
@@ -614,8 +617,7 @@ public:
 	const char*			getmonstername() const;
 	int					getmoverecoil() const;
 	static creature*	getobject(short unsigned v);
-	static creature*	getplayer();
-	static creature*	getplayer(int index);
+	static creature*	getactive(int index);
 	dice_s				getraise(skill_s id) const;
 	role_s				getrole() const { return role; }
 	site*				getsite() const { return 0; }
@@ -625,11 +627,11 @@ public:
 	bool				give(creature& opponent, item& it, bool interactive);
 	void				heal(int value, bool interactive) { damage(-value, Magic, interactive); }
 	void				hint(const char* format, ...) const;
-	bool				interact(short unsigned index);
 	void				inventory();
 	bool				is(class_s v) const { return type == v; }
 	bool				is(state_s v) const { return states.is(v); }
 	bool				is(encumbrance_s value) const { return encumbrance == value; }
+	bool				isactive() const { return getactive() == this; }
 	bool				isagressive() const;
 	bool				ischaracter() const { return role == Character; }
 	bool				isenemy(const creature* target) const;
@@ -645,9 +647,8 @@ public:
 	void				makemove();
 	void				manipulate(short unsigned index);
 	void				meleeattack(creature* target, int bonus = 0, int multiplier = 0);
-	bool				move(short unsigned index);
-	bool				moveto(short unsigned index);
-	bool				moveaway(short unsigned index);
+	void				move(indext index);
+	bool				moveaway(indext index);
 	static void			play();
 	void				pickup(item& value, bool interactive = true);
 	void				post(ability_s i, int value, unsigned rounds);
@@ -658,7 +659,8 @@ public:
 	void				remove(state_s value);
 	bool				roll(skill_s skill, int bonus = 0) const;
 	int					roll(skill_s skill, int bonus, const creature& opponent, skill_s opponent_skill, int opponent_bonus) const;
-	void				sayvs(creature& opponent, const char* format, ...);
+	void				say(const char* format, ...) const;
+	void				say(creature& opponent, const char* format, ...) const;
 	bool				saving(bool interactive, skill_s save, int bonus) const;
 	void				select(itema& a, slot_s i1, slot_s i2, bool filled_only);
 	void				select(skilla& e) const;
@@ -770,13 +772,14 @@ public:
 	void				drop(indext i, item v);
 	void				fill(rect rc, tile_s v);
 	static indext		get(short x, short y) { return y * mmx + x; }
+	static location*	getactive();
 	static direction_s	getdirection(indext from, indext to);
 	static direction_s	getdirection(point from, point to);
 	static short		getx(indext i) { return i % mmx; }
 	static short		gety(indext i) { return i / mmx; }
 	int					getindex(indext i, tile_s e) const;
-	static location*	getlocation();
 	map_object_s		getobject(indext i) const { return objects[i]; }
+	site*				getsite(indext i) const;
 	tile_s				gettile(indext i) const;
 	trap_s				gettrap(indext i) const { return NoTrap; }
 	int					getrand(indext i) const { return random[i]; }
@@ -813,6 +816,7 @@ public:
 	static void			set(background_s v);
 };
 extern gamei			game;
+extern stringbuilder	sb;
 DECLENUM(class);
 DECLENUM(map_object);
 DECLENUM(skill);
