@@ -415,14 +415,26 @@ void creature::useskills() {
 	source.choose(true, "Выбирайте навык");
 }
 
+void creature::cantmovehere() const {
+	if(isactive())
+		act("Сюда не пройти.");
+}
+
 void creature::move(indext index) {
 	auto loc = location::getactive();
 	if(!loc)
 		return;
-	if(index == Blocked)
+	if(index == Blocked) {
+		cantmovehere();
 		return;
-	if(loc->gettile(index) == Wall)
+	}
+	auto d1 = location::getdirection(getposition(), index);
+	if(d1 != Down && d1 != Up)
+		direction = d1;
+	if(loc->gettile(index) == Wall) {
+		cantmovehere();
 		return;
+	}
 	switch(loc->getobject(index)) {
 	case Door:
 		if(!loc->is(index, Opened)) {
@@ -430,12 +442,12 @@ void creature::move(indext index) {
 				say("Здесь заперто.");
 			else
 				loc->set(index, Opened);
-			wait(Minute / 4);
+			wait(Round);
 			return;
 		}
 		break;
 	case Tree:
-		say("Это же дерево.");
+		cantmovehere();
 		return;
 	}
 	auto p = find(index);
@@ -445,7 +457,7 @@ void creature::move(indext index) {
 			return;
 		} else if(!isactive()) {
 			// Монстры и другие персонажи не меняются
-			wait(xrand(2, 8));
+			wait(xrand(Round, Minute));
 			return;
 		} else if(p->isguard()) {
 			static const char* talk[] = {
@@ -481,10 +493,8 @@ void creature::move(indext index) {
 			}
 		}
 	}
-	auto d1 = location::getdirection(getposition(), index);
-	if(d1 != Down && d1 != Up)
-		direction = d1;
 	setposition(index);
+	wait(Round);
 }
 
 creature* creature::find(indext i) {
@@ -501,17 +511,26 @@ void creature::wait(int segments) {
 	restore_action += segments;
 }
 
-void creature::say(const char* format, ...) const {
-	act("[%герой:]");
-	act("\"");
-	actv(sb, format, xva_start(format));
-	act("\"");
-}
-
 void creature::meleeattack(creature* target, int bonus, int multiplier) {
 
 }
 
 bool creature::isenemy(const creature* target) const {
 	return is(Hostile) != target->is(Hostile);
+}
+
+void creature::say(const char* format, ...) const {
+	sayv(sb, format, xva_start(format));
+}
+
+void creature::makemove() {
+	if(isactive()) {
+		auto start = restore_action;
+		while(start == restore_action) {
+			location::setcamera(getposition());
+			playui();
+		}
+	} else {
+
+	}
 }

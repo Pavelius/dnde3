@@ -172,3 +172,8 @@ direction_s	location::getdirection(indext from, indext to) {
 	short x2 = getx(to); short y2 = gety(to);
 	return getdirection({x1, y1}, {x2, y2});
 }
+
+void location::setcamera(indext i) {
+	if(i!=Blocked)
+		setcamera(getx(i), gety(i));
+}

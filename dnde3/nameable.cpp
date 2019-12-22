@@ -83,6 +83,7 @@ void nameable::actv(stringbuilder& st, const char* format, const char* param) co
 	string sb = st;
 	sb.name = getname();
 	sb.gender = getgender();
+	sb.addsep(' ');
 	sb.addv(format, param);
 	st = sb;
 }
@@ -93,10 +94,23 @@ void nameable::actv(stringbuilder& st, nameable& e, const char* format, const ch
 	sb.gender = getgender();
 	sb.opponent_name = e.getname();
 	sb.opponent_gender = e.getgender();
+	sb.addsep(' ');
 	sb.addv(format, param);
 	st = sb;
 }
 
 void nameable::act(const char* format, ...) const {
 	actv(sb, format, xva_start(format));
+}
+
+void nameable::sayv(stringbuilder& st, const char* format, const char* param) const {
+	string sb = st;
+	sb.name = getname();
+	sb.gender = getgender();
+	sb.addsep(' ');
+	sb.add("[%герой:]");
+	sb.add("\"");
+	sb.addv(format, param);
+	sb.add("\"");
+	st = sb;
 }

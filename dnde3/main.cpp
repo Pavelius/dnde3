@@ -71,8 +71,13 @@ static void test_indoor() {
 	auto p1 = create(e.get(3, 3), Human, Male, Ranger);
 	auto p2 = create(e.get(4, 4), Dwarf, Male, Cleric);
 	random_bless(p1);
+	e.activate();
 	p1->activate();
-	e.play();
+	p1->makemove();
+	while(true) {
+		auto p = creature::getactive();
+		p->makemove();
+	}
 }
 
 static void item_choose() {

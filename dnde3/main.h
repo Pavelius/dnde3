@@ -170,7 +170,7 @@ enum map_flag_s : unsigned char {
 };
 enum duration_s : unsigned {
 	Instant = 0,
-	Minute = 12, Turn = 10 * Minute,
+	Round = 3, Minute = 12, Turn = 10 * Minute,
 	Halfhour = 30 * Minute, Hour = 60 * Minute, HalfDay = 12 * Hour, Day = 24 * Hour,
 	Week = 7 * Day, Month = 30 * Day, Season = 3 * Month, Year = 4 * Season,
 	Permanent = 100 * Year
@@ -526,6 +526,7 @@ public:
 	void				actv(stringbuilder& sb, nameable& e, const char* format, const char* param) const;
 	gender_s			getgender() const;
 	const char*			getname() const;
+	void				sayv(stringbuilder& st, const char* format, const char* param) const;
 	void				setname(race_s race, gender_s gender);
 	race_s				getrace() const;
 };
@@ -550,6 +551,7 @@ class creature : public nameable, public posable {
 	//
 	void				applyabilities();
 	const variant*		calculate(const variant* formula, int& result) const;
+	void				cantmovehere() const;
 	void				delayed(variant id, int v, unsigned time);
 	void				dress(int m);
 	void				equip(item it, slot_s id);
@@ -580,6 +582,7 @@ public:
 	void				consume(int value, bool interactive);
 	void				damage(int count, attack_s type, bool interactive);
 	void				damagewears(int count, attack_s type);
+	void				dazzle() { wait(xrand(1, 4)); }
 	void				dressoff() { dress(-1); }
 	void				dresson() { dress(1); }
 	void				drink(item& it, bool interactive);
@@ -649,7 +652,7 @@ public:
 	void				meleeattack(creature* target, int bonus = 0, int multiplier = 0);
 	void				move(indext index);
 	bool				moveaway(indext index);
-	static void			play();
+	void				playui();
 	void				pickup(item& value, bool interactive = true);
 	void				post(ability_s i, int value, unsigned rounds);
 	void				raise(skill_s value);
@@ -659,9 +662,9 @@ public:
 	void				remove(state_s value);
 	bool				roll(skill_s skill, int bonus = 0) const;
 	int					roll(skill_s skill, int bonus, const creature& opponent, skill_s opponent_skill, int opponent_bonus) const;
+	bool				saving(bool interactive, skill_s save, int bonus) const;
 	void				say(const char* format, ...) const;
 	void				say(creature& opponent, const char* format, ...) const;
-	bool				saving(bool interactive, skill_s save, int bonus) const;
 	void				select(itema& a, slot_s i1, slot_s i2, bool filled_only);
 	void				select(skilla& e) const;
 	void				set(state_s id, unsigned segments);
@@ -779,19 +782,17 @@ public:
 	static short		gety(indext i) { return i / mmx; }
 	int					getindex(indext i, tile_s e) const;
 	map_object_s		getobject(indext i) const { return objects[i]; }
-	site*				getsite(indext i) const;
 	tile_s				gettile(indext i) const;
 	trap_s				gettrap(indext i) const { return NoTrap; }
 	int					getrand(indext i) const { return random[i]; }
 	void				indoor(point camera, bool show_fow = true, const picture* effects = 0);
 	bool				is(indext i, map_flag_s v) const { return flags[i].is(v); }
-	bool				ispassable(tile_s v) const;
-	bool				ispassable(map_object_s v) const;
-	void				play();
 	bool				read(const char* url);
 	void				set(indext i, map_flag_s v) { flags[i].set(v); }
 	void				set(indext i, tile_s v) { tiles[i] = v; }
 	void				set(indext i, map_object_s v) { objects[i] = v; }
+	static void			setcamera(short x, short y);
+	static void			setcamera(indext i);
 	static indext		to(indext index, direction_s id);
 	void				worldmap(point camera, bool show_fow = true) const;
 	bool				write(const char* url) const;

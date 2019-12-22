@@ -37,8 +37,8 @@ const int			scrx = 32;
 const int			scry = 32;
 static point		viewport;
 static point		camera;
-static char			status_text[1024];
-stringbuilder		sb(status_text);
+static char			message_text[1024];
+stringbuilder		sb(message_text);
 
 struct imgi {
 	const char*		name;
@@ -366,23 +366,6 @@ static indext translate(indext i) {
 	hot.key = 0;
 	correct(camera, i1);
 	return i1;
-}
-
-static bool shortcuts(const hotkey* ph, creature* player, bool instant) {
-	for(auto p = ph; *p; p++) {
-		if(hot.key != p->key || hot.pressed)
-			continue;
-		if(instant) {
-			hot.param = p->param;
-			if(player && p->proc.pcre)
-				(player->*p->proc.pcre)();
-			else
-				p->proc.pinp();
-		} else
-			execute(p->proc.pinp, p->param);
-		return true;
-	}
-	return false;
 }
 
 void picture::set(short x, short y) {
@@ -748,6 +731,12 @@ static void render_info(const creature& e) {
 	}
 }
 
+static void render_message() {
+	if(!message_text[0])
+		return;
+	windowf(message_text);
+}
+
 static void render_indoor() {
 	auto p = location::getactive();
 	if(!p)
@@ -766,6 +755,7 @@ static void render_indoor_nomarker() {
 	if(!p)
 		return;
 	p->indoor(camera, false, 0);
+	render_message();
 	auto player = creature::getactive();
 	if(player)
 		render_info(*player);
@@ -1404,21 +1394,6 @@ item* itema::choose(bool interactive, const char* title, const char* format, slo
 	return (item*)getresult();
 }
 
-static void change_player() {
-	auto n = hot.param;
-	auto p = creature::getactive(n);
-	if(p)
-		p->activate();
-}
-
-static hotkey adventure_keys[] = {{F1, "Выбрать первого героя", change_player, 0},
-{F2, "Выбрать второго героя", change_player, 1},
-{F3, "Выбрать третьего героя", change_player, 2},
-{Ctrl + Alpha + 'M', "Открыть мануал", gamei::help},
-{Alpha + 'I', "Открыть инвентярь", &creature::inventory},
-{Alpha + 'A', "Выбрать навык", &creature::useskills},
-{}};
-
 indext location::choose(bool allow_cancel) {
 	activate();
 	current_index = gets2i(camera);
@@ -1432,8 +1407,6 @@ indext location::choose(bool allow_cancel) {
 				windowf(sb);
 		}
 		domodal();
-		if(shortcuts(adventure_keys, creature::getactive(), true))
-			continue;
 		switch(hot.key) {
 		case KeyEscape:
 			if(allow_cancel)
@@ -1451,29 +1424,67 @@ indext location::choose(bool allow_cancel) {
 	return getresult();
 }
 
-static bool translatemove(creature* player) {
-	if(!player)
-		return false;
+void location::setcamera(short x, short y) {
+	camera.x = x*elx - getwidth() / 2 + elx / 2;
+	camera.y = y*ely - getheight() / 2 + ely / 2;
+	correct(camera);
+}
+
+static void change_player() {
+	auto n = hot.param;
+	auto pn = creature::getactive(n);
+	auto po = creature::getactive();
+	if(pn != po && pn) {
+		po->dazzle();
+		pn->activate();
+	}
+}
+
+static hotkey adventure_keys[] = {{F1, "Выбрать первого героя", change_player, 0},
+{F2, "Выбрать второго героя", change_player, 1},
+{F3, "Выбрать третьего героя", change_player, 2},
+{F4, "Выбрать четвертого героя", change_player, 3},
+{Ctrl + Alpha + 'M', "Открыть мануал", gamei::help},
+{Alpha + 'I', "Открыть инвентарь", &creature::inventory},
+{Alpha + 'A', "Выбрать навык", &creature::useskills},
+{}};
+
+static bool translate_move(creature* player) {
 	for(auto& e : move_keys) {
 		if(e.key == hot.key) {
 			auto ni = location::to(player->getposition(), e.direction);
 			player->move(ni);
+			breakmodal(0);
 			return true;
 		}
 	}
 	return false;
 }
 
-void location::play() {
-	activate();
+static bool translate_commands(creature* player) {
+	for(auto& e : adventure_keys) {
+		if(hot.key == e.key) {
+			hot.param = e.param;
+			if(player && e.proc.pcre)
+				(player->*e.proc.pcre)();
+			else
+				e.proc.pinp();
+			breakmodal(0);
+			return true;
+		}
+	}
+	return false;
+}
+
+void creature::playui() {
 	setbackground(render_indoor_nomarker);
 	while(ismodal()) {
 		current_background();
 		domodal();
-		auto player = creature::getactive();
-		if(translatemove(player))
+		sb.clear();
+		if(translate_move(this))
 			continue;
-		if(shortcuts(adventure_keys, creature::getactive(), true))
+		if(translate_commands(this))
 			continue;
 	}
 }
