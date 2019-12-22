@@ -210,7 +210,7 @@ static void windowf(const char* string) {
 	draw::textf(rc.x1, rc.y1, w, string);
 }
 
-static void dialogw(int& x, int& y, int width, int height, const char* title) {
+static void dialogw(int& x, int& y, int width, int height, const char* title, int* y1 = 0) {
 	rect rc;
 	rc.x1 = (getwidth() - width) / 2;
 	rc.y1 = 30;
@@ -223,6 +223,10 @@ static void dialogw(int& x, int& y, int width, int height, const char* title) {
 	auto tw = textw(title);
 	x = rc.x1; y = rc.y1;
 	text((getwidth() - tw) / 2, y, title);
+	if(y1) {
+		auto& fr = metrics::font->get(metrics::font->glyph('A'));
+		*y1 = y + height - fr.sy - 2;
+	}
 	y += texth() + 2;
 }
 
@@ -735,6 +739,7 @@ static void render_message() {
 	if(!message_text[0])
 		return;
 	windowf(message_text);
+	sb.clear();
 }
 
 static void render_indoor() {
@@ -755,7 +760,6 @@ static void render_indoor_nomarker() {
 	if(!p)
 		return;
 	p->indoor(camera, false, 0);
-	render_message();
 	auto player = creature::getactive();
 	if(player)
 		render_info(*player);
@@ -1329,12 +1333,12 @@ static int text(int x, int y, int width, dice_s v, const char* format = "+ %1i-%
 }
 
 skill_s skillu::choose(bool interactive, const char* title, bool* cancel_result) const {
-	int x, y;
+	int x, y, y1;
 	const int width = 300;
 	while(ismodal()) {
 		current_background();
-		dialogw(x, y, width, 440, title);
-		auto x1 = x, y1 = y + 403;
+		dialogw(x, y, width, 300, title, &y1);
+		auto x1 = x;
 		auto x2 = x + width;
 		button(x1, y1, "Отмена", KeyEscape, breakparam, 0);
 		auto index = 0;
@@ -1362,9 +1366,9 @@ item* itema::choose(bool interactive, const char* title, const char* format, slo
 	const int width = 600;
 	while(ismodal()) {
 		current_background();
-		int x, y;
-		dialogw(x, y, width, 440, title);
-		auto x1 = x, y1 = y + 403;
+		int x, y, y1;
+		dialogw(x, y, width, 440, title, &y1);
+		auto x1 = x;
 		auto x2 = x + width;
 		if(format)
 			y += textf(x, y, width, format);
@@ -1480,8 +1484,8 @@ void creature::playui() {
 	setbackground(render_indoor_nomarker);
 	while(ismodal()) {
 		current_background();
+		render_message();
 		domodal();
-		sb.clear();
 		if(translate_move(this))
 			continue;
 		if(translate_commands(this))
