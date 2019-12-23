@@ -417,10 +417,9 @@ int	creature::getweight() const {
 }
 
 int	creature::get(skill_s v) const {
-	auto r = skills[v];
-	r += get(bsmeta<skilli>::elements[v].abilities[0]);
-	r += get(bsmeta<skilli>::elements[v].abilities[1]);
-	return r;
+	return skills[v]
+		+ get(bsmeta<skilli>::elements[v].abilities[0])
+		+ get(bsmeta<skilli>::elements[v].abilities[1]);
 }
 
 void creature::select(skilla& a) const {
@@ -559,4 +558,9 @@ void creature::makemove() {
 	} else {
 
 	}
+}
+
+bool creature::roll(skill_s skill, int bonus) const {
+	auto r = get(skill) + bonus;
+	return d100() < r;
 }
