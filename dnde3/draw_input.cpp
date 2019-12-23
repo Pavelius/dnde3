@@ -1451,6 +1451,8 @@ static hotkey adventure_keys[] = {{F1, "Выбрать первого героя", change_player, 0
 {Ctrl + Alpha + 'M', "Открыть мануал", gamei::help},
 {Alpha + 'I', "Открыть инвентарь", &creature::inventory},
 {Alpha + 'A', "Выбрать навык", &creature::useskills},
+{Alpha + 'D', "Положить пердмет", &creature::dropdown},
+{Alpha + 'P', "Поднять пердмет", &creature::pickup},
 {}};
 
 static bool translate_move(creature* player) {

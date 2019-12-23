@@ -468,10 +468,12 @@ public:
 };
 class itema : public adat<item*> {
 public:
+	item*				chooses(bool interactive, const char* title, const char* format, slot_mode_s mode);
 	item*				choose(bool interactive, const char* title, const char* format, slot_mode_s mode);
 	void				footer(stringbuilder& sb) const;
 	void				match(slot_s v);
 	void				select(creature& e);
+	void				select(indext index);
 	void				selecta(creature& e);
 	void				selectb(creature& e);
 };
@@ -554,6 +556,7 @@ class creature : public nameable, public posable {
 	void				cantmovehere() const;
 	void				delayed(variant id, int v, unsigned time);
 	void				dress(int m);
+	void				dropdown(item& item);
 	void				equip(item it, slot_s id);
 	bool				remove(item& it, bool run);
 public:
@@ -586,7 +589,7 @@ public:
 	void				dressoff() { dress(-1); }
 	void				dresson() { dress(1); }
 	void				drink(item& it, bool interactive);
-	void				dropdown(item& value);
+	void				dropdown();
 	bool				equip(item value);
 	static creature*	find(indext i);
 	int					get(ability_s v) const { return abilities[v]; }
@@ -653,7 +656,7 @@ public:
 	void				move(indext index);
 	bool				moveaway(indext index);
 	void				playui();
-	void				pickup(item& value, bool interactive = true);
+	void				pickup();
 	void				post(ability_s i, int value, unsigned rounds);
 	void				raise(skill_s value);
 	void				raiseskills(int number);
@@ -711,8 +714,6 @@ struct spelli {
 };
 struct itemground : item {
 	short unsigned		index;
-	explicit operator bool() const { return index != Blocked; }
-	void				clear() { index = Blocked; }
 };
 struct coordinate {
 	constexpr coordinate() : index(Blocked), level(1) {}

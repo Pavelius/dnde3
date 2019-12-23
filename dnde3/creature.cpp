@@ -336,6 +336,32 @@ void creature::select(itema& a, slot_s i1, slot_s i2, bool filled_only) {
 	a.count = ps - a.data;
 }
 
+void creature::dropdown(item& item) {
+	if(!remove(item, false))
+		return;
+	auto p = location::getactive();
+	if(p) {
+		p->drop(getposition(), item);
+		remove(item, true);
+	}
+}
+
+void creature::dropdown() {
+	itema items; items.selectb(*this);
+	auto pi = items.choose(true, "Выбросить предмет", 0, NoSlotName);
+	if(pi)
+		dropdown(*pi);
+}
+
+void creature::pickup() {
+	itema items; items.select(getposition());
+	auto pi = items.choose(true, "Поднять предмет", 0, NoSlotName);
+	if(pi) {
+		if(add(*pi, true))
+			pi->clear();
+	}
+}
+
 void creature::inventory() {
 	while(true) {
 		itema items; items.select(*this);

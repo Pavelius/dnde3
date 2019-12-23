@@ -12,6 +12,22 @@ void itema::selectb(creature& e) {
 	e.select(*this, FirstBackpack, LastBackpack, true);
 }
 
+void itema::select(indext index) {
+	if(index == Blocked)
+		return;
+	auto ps = data;
+	auto pe = endof();
+	for(auto& e : bsmeta<itemground>()) {
+		if(!e)
+			continue;
+		if(e.index != index)
+			continue;
+		if(ps < pe)
+			*ps++ = &e;
+	}
+	count = ps - data;
+}
+
 void itema::match(slot_s v) {
 	auto ps = data;
 	for(auto p : *this) {
@@ -34,4 +50,10 @@ void itema::footer(stringbuilder& sb) const {
 		return;
 	char temp[24]; stringbuilder s1(temp);
 	sb.add("Общий вес ваших преметов [%1] кг.", addweight(s1, player->getweight()));
+}
+
+item* itema::chooses(bool interactive, const char* title, const char* format, slot_mode_s mode) {
+	if(getcount() == 1)
+		return data[0];
+	return choose(interactive, title, format, mode);
 }
