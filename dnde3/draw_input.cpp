@@ -486,8 +486,10 @@ static bool button(int x, int y, const char* format, int key, int* width) {
 }
 
 static void button(int& x, int y, const char* format, int key, eventproc proc, int param) {
-	if(button(x, y, format, key, &x))
+	auto w = 0;
+	if(button(x, y, format, key, &w))
 		execute(proc, param);
+	x += w;
 }
 
 static int detaih(int x, int y, int width, const hotkey* pk) {
@@ -539,43 +541,23 @@ static void put_tile() {
 	location::getactive()->set(current_index, current_tile);
 }
 
-static void choose_tile_1() {
-	current_tile = Plain;
+static void choose_tile() {
+	current_tile = (tile_s)hot.param;
 }
 
-static void choose_tile_2() {
-	current_tile = Sea;
-}
-
-static void choose_tile_3() {
-	current_tile = Foothills;
-}
-
-static void choose_tile_4() {
-	current_tile = Mountains;
-}
-
-static void choose_tile_5() {
-	current_tile = CloudPeaks;
-}
-
-static void choose_tile_6() {
-	current_tile = Forest;
-}
-
-static hotkey hotkeys[] = {{Alpha + '1', getstr(Plain), choose_tile_1},
-{Alpha + '2', getstr(Sea), choose_tile_2},
-{Alpha + '3', getstr(Foothills), choose_tile_3},
-{Alpha + '4', getstr(Mountains), choose_tile_4},
-{Alpha + '5', getstr(CloudPeaks), choose_tile_5},
-{Alpha + '6', getstr(Forest), choose_tile_6},
+static hotkey hotkeys[] = {{Alpha + '1', getstr(Plain), choose_tile, Plain},
+{Alpha + '2', getstr(Sea), choose_tile, Sea},
+{Alpha + '3', getstr(Foothills), choose_tile, Foothills},
+{Alpha + '4', getstr(Mountains), choose_tile, Mountains},
+{Alpha + '5', getstr(CloudPeaks), choose_tile, CloudPeaks},
+{Alpha + '6', getstr(Forest), choose_tile, Forest},
 {}};
 
 static int render_keys(int x, int y, int width) {
 	auto x0 = x;
 	char temp[260]; stringbuilder sb(temp);
 	sb.add("Вывести [%1]", getstr(current_tile));
-	//x += button(x, y, temp, KeySpace, put_tile);
+	button(x, y, temp, KeySpace, put_tile, current_tile);
 	x += detaih(x, y, width, hotkeys);
 	return x - x0;
 }
@@ -601,8 +583,8 @@ static void render_editor() {
 	auto p = location::getactive();
 	if(!p)
 		return;
-	picture effects[1]; effects[0].setcursor(current_index, 1);
 	p->worldmap(camera, true);
+	picture effects[1]; effects[0].setcursor(current_index, 1);
 	render(effects);
 	render_bottom();
 }
@@ -776,6 +758,14 @@ void location::editor() {
 	while(ismodal()) {
 		current_background();
 		domodal();
+		switch(hot.key) {
+		case KeyEscape:
+			breakmodal(0);
+			break;
+		default:
+			current_index = translate(current_index);
+			break;
+		}
 	}
 }
 

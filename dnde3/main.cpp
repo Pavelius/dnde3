@@ -97,7 +97,7 @@ int main(int argc, char* argv[]) {
 	test_spells();
 	//test_answers();
 	//item_choose();
-	test_indoor();
+	test_worldmap();
 }
 
 int __stdcall WinMain(void* ci, void* pi, char* cmd, int sw) {
