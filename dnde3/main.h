@@ -103,7 +103,7 @@ enum ability_s : unsigned char {
 enum skill_s : unsigned char {
 	Bargaining, Bluff, Diplomacy,
 	Acrobatics, Alertness, Athletics, Backstabbing, Concetration, DisarmTraps, HearNoises, HideInShadow, Lockpicking, PickPockets,
-	Alchemy, Dancing, Engineering, Gambling, History, Healing, Literacy, Mining, Smithing, Survival, Swimming,
+	Alchemy, Dancing, Engineering, Gambling, History, Healing, Literacy, Mining, Riding, Smithing, Survival, Swimming,
 	WeaponFocusBows, WeaponFocusBlades, WeaponFocusAxes, TwoWeaponFighting,
 	FirstSkill = Bargaining, LastSkill = TwoWeaponFighting,
 	ResistAcid, ResistCharm, ResistCold, ResistElectricity, ResistFire, ResistParalize, ResistPoison, ResistWater,
