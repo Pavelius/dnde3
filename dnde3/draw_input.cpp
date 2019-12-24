@@ -897,6 +897,7 @@ void location::indoor(point camera, bool show_fow, const picture* effects) {
 		walls = gres(ResGrassW);
 	}
 	auto shadow = gres(ResShadow);
+	auto doors = gres(ResDoors);
 	viewport.x = draw::getwidth();
 	viewport.y = draw::getheight();
 	auto emmx = mmx * elx;
@@ -1047,34 +1048,27 @@ void location::indoor(point camera, bool show_fow, const picture* effects) {
 			auto y = y0 + my * ely - camera.y;
 			auto i = get(mx, my);
 			auto t = gettile(i);
-			switch(t) {
-			case Hill:
-			case Swamp:
-			case Floor:
-			case Plain:
-				if(true) {
-					bool uw = gettile(to(i, Up)) == Wall;
-					bool rw = gettile(to(i, Right)) == Wall;
-					bool dw = gettile(to(i, Down)) == Wall;
-					bool lw = gettile(to(i, Left)) == Wall;
-					if(uw)
-						image(x, y, shadow, 0, 0);
-					if(lw)
-						image(x, y, shadow, 1, 0);
-					if(dw)
-						image(x, y, shadow, 2, 0);
-					if(rw)
-						image(x, y, shadow, 3, 0);
-					if(!uw && !rw && gettile(to(i, RightUp)) == Wall)
-						image(x, y, shadow, 4, 0);
-					if(!uw && !lw && gettile(to(i, LeftUp)) == Wall)
-						image(x, y, shadow, 5, 0);
-					if(!dw && !rw && gettile(to(i, RightDown)) == Wall)
-						image(x, y, shadow, 6, 0);
-					if(!dw && !lw && gettile(to(i, LeftDown)) == Wall)
-						image(x, y, shadow, 7, 0);
-				}
-				break;
+			if(t != Wall) {
+				bool uw = gettile(to(i, Up)) == Wall;
+				bool rw = gettile(to(i, Right)) == Wall;
+				bool dw = gettile(to(i, Down)) == Wall;
+				bool lw = gettile(to(i, Left)) == Wall;
+				if(uw)
+					image(x, y, shadow, 0, 0);
+				if(lw)
+					image(x, y, shadow, 1, 0);
+				if(dw)
+					image(x, y, shadow, 2, 0);
+				if(rw)
+					image(x, y, shadow, 3, 0);
+				if(!uw && !rw && gettile(to(i, RightUp)) == Wall)
+					image(x, y, shadow, 4, 0);
+				if(!uw && !lw && gettile(to(i, LeftUp)) == Wall)
+					image(x, y, shadow, 5, 0);
+				if(!dw && !rw && gettile(to(i, RightDown)) == Wall)
+					image(x, y, shadow, 6, 0);
+				if(!dw && !lw && gettile(to(i, LeftDown)) == Wall)
+					image(x, y, shadow, 7, 0);
 			}
 			// Паутина
 			if(is(i, Webbed))
@@ -1097,9 +1091,9 @@ void location::indoor(point camera, bool show_fow, const picture* effects) {
 			case Door:
 				r = is(i, Opened) ? 0 : 1;
 				if(gettile(to(i, Left)) == Wall && gettile(to(i, Right)) == Wall)
-					draw::image(x, y + 16, gres(ResDoors), r, 0);
+					draw::image(x, y + 16, doors, r, 0);
 				else if(gettile(to(i, Up)) == Wall && gettile(to(i, Down)) == Wall)
-					draw::image(x, y, gres(ResDoors), 2 + r, 0);
+					draw::image(x, y, doors, 2 + r, 0);
 				break;
 			default:
 				if(bsmeta<map_objecti>::elements[t].start) {

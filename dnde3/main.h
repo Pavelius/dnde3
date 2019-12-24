@@ -764,17 +764,21 @@ class location {
 	map_object_s		objects[mmx*mmy];
 	unsigned char		random[mmx*mmy];
 	flagable<1>			flags[mmx*mmy];
+	indext				bpoint(indext index, int w, int h, direction_s dir) const;
 	bool				wget(short unsigned i, direction_s direction, tile_s value) const;
 	bool				wget(short unsigned i, direction_s direction, tile_s value, bool default_result) const;
 	bool				xget(short unsigned i, direction_s direction) const;
 public:
 	void				activate();
 	void				addinfo(indext i, stringbuilder& sb) const;
+	indext				building(indext i, int width, int height, direction_s dir = Center);
 	indext				choose(bool allow_cancel);
 	void				clear();
-	void				editor();
+	void				create(const rect& rc, int count, map_object_s object);
+	void				create(const rect& rc, int count, tile_s v);
 	void				drop(indext i, item v);
-	void				fill(rect rc, tile_s v);
+	void				editor();
+	void				ellipse(rect rc, tile_s object);
 	static indext		get(short x, short y) { return y * mmx + x; }
 	static location*	getactive();
 	static direction_s	getdirection(indext from, indext to);
@@ -789,11 +793,15 @@ public:
 	void				indoor(point camera, bool show_fow = true, const picture* effects = 0);
 	bool				is(indext i, map_flag_s v) const { return flags[i].is(v); }
 	bool				read(const char* url);
+	void				remove(indext i, map_flag_s v) { flags[i].remove(v); }
 	void				set(indext i, map_flag_s v) { flags[i].set(v); }
 	void				set(indext i, tile_s v) { tiles[i] = v; }
+	void				set(indext i, tile_s v, int width, int height);
 	void				set(indext i, map_object_s v) { objects[i] = v; }
 	static void			setcamera(short x, short y);
 	static void			setcamera(indext i);
+	indext				setiwh(int x, int y, int s, tile_s o, map_object_s r, bool locked_doors);
+	indext				setiwv(int x, int y, int s, tile_s o, map_object_s r, bool locked_doors);
 	static indext		to(indext index, direction_s id);
 	void				worldmap(point camera, bool show_fow = true) const;
 	bool				write(const char* url) const;

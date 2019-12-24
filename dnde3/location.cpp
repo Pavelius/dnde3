@@ -104,14 +104,6 @@ static void correct(rect& rc) {
 		rc.y2 = mmy - 1;
 }
 
-void location::fill(rect rc, tile_s v) {
-	correct(rc);
-	for(auto y = rc.y1; y <= rc.y2; y++) {
-		for(auto x = rc.x1; x <= rc.x2; x++)
-			set(get(x, y), v);
-	}
-}
-
 tile_s location::gettile(indext i) const {
 	if(i == Blocked)
 		return Wall;
@@ -174,6 +166,142 @@ direction_s	location::getdirection(indext from, indext to) {
 }
 
 void location::setcamera(indext i) {
-	if(i!=Blocked)
+	if(i != Blocked)
 		setcamera(getx(i), gety(i));
+}
+
+void location::create(const rect& rc, int count, map_object_s v) {
+	for(int i = 0; i < count; i++) {
+		int x1 = xrand(rc.x1, rc.x2);
+		int y1 = xrand(rc.y1, rc.y2);
+		set(get(x1, y1), v);
+	}
+}
+
+void location::create(const rect& rc, int count, tile_s v) {
+	for(int i = 0; i < count; i++) {
+		int x1 = xrand(rc.x1, rc.x2);
+		int y1 = xrand(rc.y1, rc.y2);
+		set(get(x1, y1), v);
+	}
+}
+
+void location::set(indext index, tile_s v, int width, int height) {
+	if(index == Blocked)
+		return;
+	auto x1 = getx(index);
+	auto y1 = gety(index);
+	auto x2 = x1 + width;
+	auto y2 = y1 + height;
+	if(x2 > mmx)
+		x2 = mmx;
+	if(y2 > mmy)
+		y2 = mmy;
+	for(auto y = y1; y < y2; y++) {
+		for(auto x = x1; x < x2; x++)
+			set(get(x, y), v);
+	}
+}
+
+void location::ellipse(rect rc, tile_s object) {
+	int a = iabs(rc.width()), b = iabs(rc.height()), b1 = b & 1;
+	long dx = 4 * (1 - a)*b*b, dy = 4 * (b1 + 1)*a*a;
+	long err = dx + dy + b1 * a*a, e2; /* error of 1.step */
+	if(rc.x1 > rc.x2) {
+		rc.x1 = rc.x2;
+		rc.x2 += a;
+	} /* if called with swapped points */
+	if(rc.y1 > rc.y2)
+		rc.y1 = rc.y2; /* .. exchange them */
+	rc.y1 += (b + 1) / 2;
+	rc.y2 = rc.y1 - b1;   /* starting pixel */
+	a *= 8 * a; b1 = 8 * b*b;
+	do {
+		set(get(rc.x1, rc.y1), object, rc.x2 - rc.x1, 1);
+		set(get(rc.x1, rc.y2), object, rc.x2 - rc.x1, 1);
+		e2 = 2 * err;
+		if(e2 <= dy) {
+			rc.y1++;
+			rc.y2--;
+			err += dy += a;
+		}  /* y step */
+		if(e2 >= dx || 2 * err > dy) {
+			rc.x1++; rc.x2--;
+			err += dx += b1;
+		} /* x step */
+	} while(rc.x1 <= rc.x2);
+	while(rc.y1 - rc.y2 < b) {  /* too early stop of flat ellipses a=1 */
+		set(get(rc.x1 - 1, rc.y1), object); /* -> finish tip of ellipse */
+		set(get(rc.x2 + 1, rc.y1++), object);
+		set(get(rc.x1 - 1, rc.y2), object);
+		set(get(rc.x2 + 1, rc.y2--), object);
+	}
+}
+
+indext location::bpoint(indext index, int width, int height, direction_s dir) const {
+	auto x = getx(index);
+	auto y = gety(index);
+	switch(dir) {
+	case Left: return get(x, y + xrand(1, height - 2));
+	case Right: return get(x + width - 1, y + xrand(1, height - 2));
+	case Up: return get(x + xrand(1, width - 2), y);
+	default: return get(x + xrand(1, width - 2), y + height - 1);
+	}
+}
+
+indext location::building(indext index, int w, int h, direction_s dir) {
+	static direction_s rdir[] = {Right, Left, Up, Down};
+	if(index == Blooded)
+		return index;
+	// Преобразуем координаты с учетом
+	auto x = getx(index);
+	auto y = gety(index);
+	x = imin(imax((short)1, x), short(mmx - w - 1));
+	y = imin(imax((short)1, y), short(mmy - h - 1));
+	auto i = get(x, y);
+	// Стены и пол
+	set(i, Wall, w, h);
+	set(to(i, RightDown), Floor, w - 2, h - 2);
+	// Двери
+	if(dir==Center)
+		dir = maprnd(rdir);;
+	auto door = bpoint(i, w, h, dir);
+	set(door, Floor);
+	set(door, Door);
+	auto m1 = to(door, dir);
+	auto t1 = gettile(m1);
+	if(t1 != Floor) {
+		if(t1 != Plain && t1 != Road)
+			set(m1, Plain);
+	}
+	set(m1, NoTileObject);
+	return door;
+}
+
+// Set horizontal wall in interior room
+indext location::setiwh(int x, int y, int s, tile_s o, map_object_s r, bool locked_doors) {
+	if(s <= 2)
+		return Blocked;
+	set(get(x, y), o, s, 1);
+	auto i = get(x + xrand(1, s - 2), y);
+	set(i, Floor);
+	set(i, r);
+	remove(i, Opened);
+	if(locked_doors)
+		set(i, Sealed);
+	return i;
+}
+
+// Set vertical wall in interior room
+indext location::setiwv(int x, int y, int s, tile_s o, map_object_s r, bool locked_doors) {
+	if(s <= 2)
+		return Blocked;
+	set(get(x, y), o, 1, s);
+	auto i = get(x, y + xrand(1, s - 2));
+	set(i, Floor);
+	set(i, r);
+	remove(i, Opened);
+	if(locked_doors)
+		set(i, Sealed);
+	return i;
 }

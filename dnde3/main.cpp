@@ -14,10 +14,10 @@ static void test_worldmap() {
 	auto i0 = e.get(5, 4);
 	auto i1 = e.get(5, 5);
 	auto i2 = e.get(5, 6);
-	e.fill({0, 0, mmx, 1}, Sea);
-	e.fill({0, 0, 1, mmy}, Sea);
-	e.fill({mmx-2, 0, mmx, mmy}, Sea);
-	e.fill({0, mmy-2, mmx, mmy}, Sea);
+	e.set(e.get(0, 0), Sea, mmx, 2);
+	e.set(e.get(0, 0), Sea, 2, mmy);
+	e.set(e.get(mmx - 2, 0), Sea, 2, mmy);
+	e.set(e.get(0, mmy - 2), Sea, mmx, 2);
 	e.set(i0, Mountains);
 	e.set(i0 + 1, Mountains);
 	e.set(i1, Sea);
@@ -50,7 +50,8 @@ static void random_bless(creature* p1) {
 static void test_indoor() {
 	location e;
 	e.clear();
-	e.fill({5, 5, 10, 8}, Wall);
+	e.building(e.get(5, 5), 7, 5);
+	e.ellipse({10, 10, 20, 25}, Water);
 	e.drop(e.get(5, 4), SwordShort);
 	e.drop(e.get(4, 6), SwordTwoHanded);
 	e.drop(e.get(3, 3), Staff);
@@ -61,8 +62,7 @@ static void test_indoor() {
 	e.set(e.get(3, 7), Hill);
 	e.set(e.get(3, 8), Water);
 	e.set(e.get(4, 8), Water);
-	e.set(e.get(5, 8), Water);
-	e.set(e.get(5, 9), Water);
+	//e.set(e.get(5, 8), Water);
 	e.set(e.get(3, 7), Hill);
 	e.set(e.get(3, 8), Altar);
 	e.set(e.get(3, 5), Plants);
