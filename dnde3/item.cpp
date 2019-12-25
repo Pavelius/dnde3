@@ -40,8 +40,8 @@ creature* item::getwearer() const {
 	return (creature*)bsmeta<creature>::source.ptr(i);
 }
 
-slot_s item::getslot() const {
-	return getwearer()->getslot(this);
+slot_s item::getwearerslot() const {
+	return getwearer()->getwearerslot(this);
 }
 
 bool item::is(slot_s v) const {
@@ -127,3 +127,7 @@ void item::get(attacki& result) const {
 //{"Укус", 0, 0, Male, Organic, {2, {2, 5, Piercing}}, {}, {Natural}, {Melee}, NoSkill, bite_effect},
 //{"Хитин", 0, 0, Male, Organic, {0, {}, 0, {20}, 4}, {}, {Natural}, {Torso}, NoSkill, armor_effect},
 //{"Мех", 0, 0, Male, Organic, {0, {}, 0, {12}, 4}, {}, {Natural}, {Torso}, NoSkill, armor_effect},
+
+void item::getname(stringbuilder& sb) const {
+
+}

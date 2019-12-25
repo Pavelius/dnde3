@@ -318,7 +318,7 @@ int	creature::calculate(const variant* formula) const {
 	return result;
 }
 
-slot_s creature::getslot(const item* p) const {
+slot_s creature::getwearerslot(const item* p) const {
 	if(this
 		&& p >= wears
 		&& p < (wears + sizeof(wears) / sizeof(wears[0])))
@@ -368,7 +368,7 @@ void creature::inventory() {
 		auto pi = items.choose(true, "Инвенторий", 0, SlotName);
 		if(!pi)
 			break;
-		auto slot = pi->getslot();
+		auto slot = pi->getwearerslot();
 		if(*pi) {
 			if(!remove(*pi, false)) {
 				//say("Я не могу это снять.");
@@ -560,7 +560,13 @@ void creature::makemove() {
 	}
 }
 
-bool creature::roll(skill_s skill, int bonus) const {
-	auto r = get(skill) + bonus;
-	return d100() < r;
+bool creature::rollv(int v, int* r) const {
+	auto result = d100();
+	if(v <= 0)
+		return false;
+	if(v < 5)
+		v = 5;
+	if(r)
+		*r = result;
+	return result < v;
 }

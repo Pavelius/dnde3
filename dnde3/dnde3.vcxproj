@@ -135,6 +135,7 @@
     <ClCompile Include="item.cpp" />
     <ClCompile Include="itema.cpp" />
     <ClCompile Include="itemground.cpp" />
+    <ClCompile Include="item_type.cpp" />
     <ClCompile Include="location.cpp" />
     <ClCompile Include="location_create.cpp" />
     <ClCompile Include="main.cpp" />

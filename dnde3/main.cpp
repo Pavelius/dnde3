@@ -34,10 +34,12 @@ static bool test_spells() {
 }
 
 static void test_answers() {
+	sb.addn("##Создание персонажа");
+	sb.addn("У вас есть преимущество при выборе данных этого элемента.");
 	answeri an;
 	an.add(1, "Тестовый выбор для строки");
 	an.add(1, "Тестовый выбор для второй строки");
-	an.choosev(true, false, true, "##Создание персонажа\nУ вас есть преимущество при выборе данных этого элемента.");
+	an.choosev(true, false, true, sb);
 }
 
 static void random_bless(creature* p1) {

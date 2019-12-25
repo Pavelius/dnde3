@@ -39,6 +39,7 @@ static point		viewport;
 static point		camera;
 static char			message_text[1024];
 stringbuilder		sb(message_text);
+answeri				an;
 
 struct imgi {
 	const char*		name;
@@ -1279,7 +1280,7 @@ static void render(int& x, int y, int width, const item& e, slot_mode_s mode) {
 		return;
 	auto p_fore = fore;
 	fore = colors::h3.mix(colors::text);// colors::text.mix(colors::special, 212);
-	auto slot = e.getslot();
+	auto slot = e.getwearerslot();
 	const char* name = 0;
 	if(slot >= Head && slot <= Amunitions) {
 		if(mode == SlotWhere)

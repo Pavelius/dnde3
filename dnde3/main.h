@@ -103,11 +103,12 @@ enum ability_s : unsigned char {
 enum skill_s : unsigned char {
 	Bargaining, Bluff, Diplomacy,
 	Acrobatics, Alertness, Athletics, Backstabbing, Concetration, DisarmTraps, HearNoises, HideInShadow, Lockpicking, PickPockets,
-	Alchemy, Dancing, Engineering, Gambling, History, Healing, Literacy, Mining, Riding, Smithing, Survival, Swimming,
+	Alchemy, Dancing, Engineering, Gambling, History, Healing, Herbalism,
+	Literacy, Mining, Riding, Smithing, Survival, Swimming,
 	WeaponFocusBows, WeaponFocusBlades, WeaponFocusAxes, TwoWeaponFighting,
 	FirstSkill = Bargaining, LastSkill = TwoWeaponFighting,
 	ResistAcid, ResistCharm, ResistCold, ResistElectricity, ResistFire, ResistParalize, ResistPoison, ResistWater,
-	LastResist = ResistWater,
+	FirstResist = ResistAcid, LastResist = ResistWater,
 };
 enum state_s : unsigned char {
 	Anger, Charmed, Drunken, Friendly, Hostile,
@@ -291,6 +292,7 @@ struct skilli {
 	const char*			name_tome;
 	ability_s			abilities[2];
 	skill_s				getid() const;
+	bool				isresist() const { return getid() >= FirstResist; }
 };
 struct equipmenti {
 	race_s				race;
@@ -370,6 +372,13 @@ struct speciali {
 	char				bonus;
 	char				side;
 };
+struct item_typei {
+	const char*			id;
+	const char*			name_it;
+	const char*			name_male;
+	const char*			name_female;
+	char				bonus;
+};
 struct itemi {
 	const char*			name;
 	int					weight;
@@ -390,20 +399,22 @@ struct itemi {
 class item {
 	item_s				type;
 	//
-	enchantment_s		effect;
+	item_type_s			magic : 2;
+	unsigned char		quality : 2;
+	unsigned char		identify : 1;
+	unsigned char		identify_cab : 1;
+	unsigned char		identify_stats : 1;
+	unsigned char		forsale : 1;
 	//
 	unsigned char		count : 6;
 	unsigned char		damaged : 2;
 	//
-	item_type_s			magic : 2;
-	unsigned char		quality : 2;
-	bool				identify : 1;
-	unsigned char		forsale : 1;
+	enchantment_s		effect;
 public:
-	constexpr item() : type(NoItem), effect(NoEffect), count(0), magic(Mundane), quality(0), identify(0), forsale(0), damaged(0) {}
-	constexpr item(spell_s spell) : type(Scroll1), effect((enchantment_s)spell), count(0), magic(), quality(0), identify(1), forsale(0), damaged(0) {}
-	constexpr item(item_s type) : type(type), effect(NoEffect), count(0), magic(Mundane), quality(0), identify(0), forsale(0), damaged(0) {}
-	constexpr item(item_s type, enchantment_s effect) : type(type), effect(effect), count(0), magic(Mundane), quality(0), identify(1), forsale(0), damaged(0) {}
+	constexpr item() : type(NoItem), effect(NoEffect), count(0), magic(Mundane), quality(0), identify(0), identify_stats(0), identify_cab(0), forsale(0), damaged(0) {}
+	constexpr item(spell_s spell) : type(Scroll1), effect((enchantment_s)spell), count(0), magic(), quality(0), identify(1), identify_stats(0), identify_cab(0), forsale(0), damaged(0) {}
+	constexpr item(item_s type) : type(type), effect(NoEffect), count(0), magic(Mundane), quality(0), identify(0), identify_stats(0), identify_cab(0), forsale(0), damaged(0) {}
+	constexpr item(item_s type, enchantment_s effect) : type(type), effect(effect), count(0), magic(Mundane), quality(0), identify(1), identify_stats(1), identify_cab(0), forsale(0), damaged(0) {}
 	item(item_s type, int chance_artifact, int chance_magic, int chance_cursed, int chance_quality);
 	explicit operator bool() const { return type != NoItem; }
 	void				act(const char* format, ...) const;
@@ -425,16 +436,16 @@ public:
 	item_type_s			getmagic() const { return magic; }
 	material_s			getmaterial() const;
 	const char*			getname() const { return getitem().name; }
-	void				getname(stringbuilder& sb, bool identified) const;
+	void				getname(stringbuilder& sb) const;
 	int					getquality() const;
 	int					getsalecost() const;
 	skill_s				getskill() const;
-	slot_s				getslot() const;
 	spell_s				getspell() const;
 	const speciali&		getspecial() const { return getitem().special; }
 	state_s				getstate() const;
 	item_s				gettype() const { return type; }
 	creature*			getwearer() const;
+	slot_s				getwearerslot() const;
 	int					getweightsingle() const { return getitem().weight; }
 	int					getweight() const { return getweightsingle()*getcount(); }
 	bool				is(slot_s v) const;
@@ -448,13 +459,13 @@ public:
 	bool				isdrinkable() const;
 	bool				isedible() const;
 	bool				isforsale() const { return forsale != 0; }
-	bool				isidentified() const { return identify; }
+	bool				isidentified() const { return identify!=0; }
 	bool				isnatural() const;
 	bool				ismagical() const { return magic != Mundane; }
 	bool				isreadable() const;
 	bool				istome() const;
 	bool				isthrown() const;
-	bool				isunbreakable() const;
+	bool				isunbreakable() const { return magic != Mundane; }
 	void				loot();
 	void				repair(int level);
 	item&				set(item_type_s value) { magic = value; return *this; }
@@ -627,7 +638,7 @@ public:
 	dice_s				getraise(skill_s id) const;
 	role_s				getrole() const { return role; }
 	site*				getsite() const { return 0; }
-	slot_s				getslot(const item* p) const;
+	slot_s				getwearerslot(const item* p) const;
 	int					getweight() const;
 	int					getweight(encumbrance_s id) const;
 	bool				give(creature& opponent, item& it, bool interactive);
@@ -663,8 +674,8 @@ public:
 	void				rangeattack(creature* enemy);
 	void				readbook(item& it);
 	void				remove(state_s value);
-	bool				roll(skill_s skill, int bonus = 0) const;
-	int					roll(skill_s skill, int bonus, const creature& opponent, skill_s opponent_skill, int opponent_bonus) const;
+	bool				roll(skill_s v, int bonus = 0) const { return rollv(get(v) + bonus, 0); }
+	bool				rollv(int v, int* r) const;
 	bool				saving(bool interactive, skill_s save, int bonus) const;
 	void				say(const char* format, ...) const;
 	void				say(creature& opponent, const char* format, ...) const;

@@ -25,6 +25,7 @@ skilli bsmeta<skilli>::elements[] = {{"Торговля", "торговли", {Charisma, Intelle
 {"Азартные игры", "азартных игр", {Charisma, Dexterity}},
 {"История", "истории", {Intellegence, Intellegence}},
 {"Лечение", "лечения", {Wisdow, Intellegence}},
+{"Травознавство", "травознания", {Wisdow, Intellegence}},
 {"Грамотность", "письма и чтения", {Intellegence, Intellegence}},
 {"Шахтерское дело", "шахтерского дела", {Strenght, Constitution}},
 {"Езда верхом", "езды верхом", {Dexterity, Constitution}},
