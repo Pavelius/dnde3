@@ -270,22 +270,23 @@ attacki creature::getattack(slot_s id) const {
 		damage_ability = DamageRanged;
 	}
 	if(weapon) {
-		weapon.get(result);
+		result = weapon.getattack();
 		result.dice = bsmeta<dicei>::elements[result.damage];
-		auto focus = weapon.getfocus();
-		// RULE: Versatile weapon if used two-handed made more damage.
-		if(id == Melee && weapon.is(Versatile) && !wears[OffHand]) {
-			result.dice.min += 1;
-			result.dice.max += 1;
-		}
 	} else if(id == Melee) {
 		result.type = Bludgeon;
 		result.dice.min = 0;
 		result.dice.max = 4;
 	}
+	// RULE: Versatile weapon if used two-handed made more damage.
+	if(id == Melee && weapon.is(Versatile) && !wears[OffHand]) {
+		result.dice.min += 1;
+		result.dice.max += 1;
+	}
 	if(!result.dice.max)
 		return result;
+	auto v_debug = get(attack_ability);
 	result.attack += get(attack_ability); // Basic chance to hit
+	result.dice.max += get(damage_ability);
 	switch(id) {
 	case Melee:
 	case OffHand:

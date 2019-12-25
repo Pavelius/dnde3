@@ -55,10 +55,6 @@ bool item::is(slot_s v) const {
 	}
 }
 
-void item::get(attacki& result) const {
-	result = getitem().weapon;
-}
-
 //{"Щит", 1500, 20 * GP, Male, Iron, {0, {}, {}, {12}, 5}, {}, {}, {OffHand}, NoSkill, shield_effect},
 //{"Шлем", 300, 5 * GP, Male, Iron, {0, {}, {}, {3}, 2}, {}, {}, {Head}, NoSkill, helm_effect},
 //{"Наручи", 200, 3 * GP, They, Leather, {0, {}, {}, {3}, 2}, {}, {}, {Elbows}, NoSkill, bracers_effect},

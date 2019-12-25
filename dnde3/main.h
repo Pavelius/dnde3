@@ -421,7 +421,7 @@ public:
 	void				clear() { memset(this, 0, sizeof(*this)); }
 	bool				damageb();
 	void				damage();
-	void				get(attacki& e) const;
+	const attacki&		getattack() const { return getitem().weapon; }
 	item_s				getammo() const;
 	int					getbonus(enchantment_s type) const;
 	int					getcharges() const;
