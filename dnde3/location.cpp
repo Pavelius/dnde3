@@ -305,3 +305,15 @@ indext location::setiwv(int x, int y, int s, tile_s o, map_object_s r, bool lock
 		set(i, Sealed);
 	return i;
 }
+
+void location::lake(int x, int y, int w, int h) {
+	int w2 = w / 2;
+	int h2 = h / 2;
+	for(int i = 0; i < 5; i++) {
+		int x1 = x + xrand(0, w2);
+		int y1 = y + xrand(0, h2);
+		int w1 = w2 - xrand(0, 2);
+		int h1 = h2 - xrand(0, 2);
+		ellipse({x1, y1, x1 + w1, y1 + h1}, Water);
+	}
+}

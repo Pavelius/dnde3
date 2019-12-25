@@ -770,6 +770,8 @@ class location {
 	bool				xget(short unsigned i, direction_s direction) const;
 public:
 	void				activate();
+	creature*			add(indext index, role_s role);
+	creature*			add(indext index, race_s race, gender_s gender, class_s type);
 	void				addinfo(indext i, stringbuilder& sb) const;
 	indext				building(indext i, int width, int height, direction_s dir = Center);
 	indext				choose(bool allow_cancel);
@@ -792,6 +794,7 @@ public:
 	int					getrand(indext i) const { return random[i]; }
 	void				indoor(point camera, bool show_fow = true, const picture* effects = 0);
 	bool				is(indext i, map_flag_s v) const { return flags[i].is(v); }
+	void				lake(int x, int y, int w, int h);
 	bool				read(const char* url);
 	void				remove(indext i, map_flag_s v) { flags[i].remove(v); }
 	void				set(indext i, map_flag_s v) { flags[i].set(v); }

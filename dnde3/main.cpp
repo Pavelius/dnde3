@@ -51,7 +51,7 @@ static void test_indoor() {
 	location e;
 	e.clear();
 	e.building(e.get(5, 5), 7, 5);
-	e.ellipse({10, 10, 20, 25}, Water);
+	e.lake(10, 10, 20, 20);
 	e.drop(e.get(5, 4), SwordShort);
 	e.drop(e.get(4, 6), SwordTwoHanded);
 	e.drop(e.get(3, 3), Staff);
