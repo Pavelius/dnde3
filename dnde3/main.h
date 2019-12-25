@@ -96,8 +96,8 @@ enum alignment_s : unsigned char {
 };
 enum ability_s : unsigned char {
 	Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
-	AttackMelee, AttackRanged,
-	Pierce, Deflect, Armor, Damage, Speed, Visibility,
+	AttackMelee, AttackRanged, DamageMelee, DamageRanged,
+	Pierce, Deflect, Armor, Speed, Visibility,
 	Level, LifePoints, LifeRate, ManaPoints, ManaRate,
 };
 enum skill_s : unsigned char {
@@ -286,6 +286,7 @@ struct abilityi {
 	const char*			nameof;
 	const char*			cursedof;
 	variant				formula[8];
+	ability_s			getid() const;
 };
 struct skilli {
 	const char*			name;
@@ -567,6 +568,8 @@ class creature : public nameable, public posable {
 	void				cantmovehere() const;
 	void				delayed(variant id, int v, unsigned time);
 	void				dress(int m);
+	void				dressoff() { dress(-1); }
+	void				dresson() { dress(1); }
 	void				dropdown(item& item);
 	void				equip(item it, slot_s id);
 	bool				remove(item& it, bool run);
@@ -597,8 +600,6 @@ public:
 	void				damage(int count, attack_s type, bool interactive);
 	void				damagewears(int count, attack_s type);
 	void				dazzle() { wait(xrand(1, 4)); }
-	void				dressoff() { dress(-1); }
-	void				dresson() { dress(1); }
 	void				drink(item& it, bool interactive);
 	void				dropdown();
 	bool				equip(item value);

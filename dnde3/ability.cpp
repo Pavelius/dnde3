@@ -9,10 +9,11 @@ abilityi bsmeta<abilityi>::elements[] = {{"Strenght", "Сила", "СЛ", "силы", "сла
 //
 {"AttackMelee", "Шанс удачного удара", "", "попадания", "промазывания", {40, Strenght}},
 {"AttackRanged", "Шанс удачного выстрела", "", "меткости", "косоглазия", {40, Dexterity}},
+{"DamageMelee", "Урон рукопашный", "", "урона", "лечения", {Strenght, Divide4, -2}},
+{"DamageRanged", "Урон дистанция", "", "урона", "лечения"},
 {"Pierce", "Прокалывание", "", "проникания", "затупления"},
-{"Deflect", "Отражение", "", "отражения", "", {Acrobatics, Divide4}},
+{"Deflect", "Уклонение", "", "уклонения", "", {Acrobatics, Divide4}},
 {"Armor", "Броня", "", "брони", ""},
-{"Damage", "Урон", "", "урона", "лечения", {Strenght, Divide4, -2}},
 {"Speed", "Скорость", "", "скорости", "замедления"},
 {"Visibility", "Обзор", "", "обзора", "слепоты"},
 //
@@ -23,3 +24,7 @@ abilityi bsmeta<abilityi>::elements[] = {{"Strenght", "Сила", "СЛ", "силы", "сла
 {"ManaRate", "Восстановление маны", "", "воодружения", ""},
 };
 assert_enum(ability, ManaRate);
+
+ability_s abilityi::getid() const {
+	return ability_s(this - bsmeta<abilityi>::elements);
+}

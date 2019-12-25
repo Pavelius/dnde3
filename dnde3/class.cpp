@@ -5,7 +5,7 @@ classi bsmeta<classi>::elements[] = {{"Крестьянин", 4, 0},
 {"Воин", 10, 3, 1, {2, 0, 1, -2, 0, -1}, {Survival, Athletics, WeaponFocusBlades, Riding, WeaponFocusAxes}},
 {"Маг", 4, 10, 0, {-2, 0, 0, 2, 1, 2}, {Alchemy, Concetration, History, Literacy}, {ArmorSpell, MagicMissile, Sleep}},
 {"Паладин", 10, 6, 1, {2, 0, 1, 0, 1, 2}, {Diplomacy, Athletics, Literacy, WeaponFocusBlades}, {DetectEvil}},
-{"Следопыт", 10, 4, 1, {0, 2, 1, 0, 1, -1}, {Survival, Athletics, Swimming, Riding, WeaponFocusBows}},
+{"Следопыт", 10, 4, 1, {0, 2, 1, 0, 1, -1}, {Acrobatics, Survival, Athletics, Swimming, Riding, WeaponFocusBows}},
 {"Вор", 6, 6, 1, {0, 2, 0, 0, 0, 1}, {PickPockets, Lockpicking, HideInShadow, Acrobatics, DisarmTraps, Bluff, Backstabbing}},
 {"Монстер", 8, 8, 0},
 };

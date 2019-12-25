@@ -69,7 +69,9 @@ void creature::dress(int m) {
 	if(!this)
 		return;
 	abilities[AttackMelee] += m * (wears[Melee].getitem().weapon.attack + wears[Melee].getmagic() * 3);
+	abilities[DamageMelee] += m * (wears[Melee].getmagic() / 2);
 	abilities[AttackRanged] += m * (wears[Ranged].getitem().weapon.attack + wears[Ranged].getmagic() * 4);
+	abilities[DamageRanged] += m * (wears[Ranged].getmagic() / 2);
 	for(auto i = Head; i <= Legs; i = (slot_s)(i + 1)) {
 		if(!wears[i])
 			continue;
@@ -83,12 +85,11 @@ void creature::dress(int m) {
 		abilities[Deflect] += m * (ei.armor.deflect + mi*ei.armor.multiplier);
 		abilities[Armor] += m * ei.armor.armor;
 	}
-	// Apply calculating values
-	abilities[AttackMelee] += m * (get(Strenght));
-	abilities[AttackRanged] += m * (get(Dexterity));
-	abilities[Deflect] += m * (get(Acrobatics) / 2);
-	abilities[LifePoints] += m * (get(Constitution));
-	abilities[ManaPoints] += m * (get(Intellegence) + get(Concetration) / 4);
+	for(auto& e : bsmeta<abilityi>()) {
+		if(!e.formula[0])
+			continue;
+		abilities[e.getid()] += m * calculate(e.formula);
+	}
 }
 
 dice_s creature::getraise(skill_s id) const {
