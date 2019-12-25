@@ -65,13 +65,42 @@ void creature::isolate() {
 	}
 }
 
-void creature::dress(int m) {
+void creature::dressoff() {
 	if(!this)
 		return;
-	abilities[AttackMelee] += m * (wears[Melee].getitem().weapon.attack + wears[Melee].getmagic() * 3);
+	dresswp(-1);
+	dressab(-1);
+	dresswr(-1);
+}
+
+void creature::dresson() {
+	if(!this)
+		return;
+	dresswr(1);
+	dressab(1);
+	dresswp(1);
+}
+
+void creature::dressab(int m) {
+	for(auto& e : bsmeta<abilityi>()) {
+		if(!e.formula[0])
+			continue;
+		abilities[e.getid()] += m * calculate(e.formula);
+	}
+}
+
+void creature::dresswp(int m) {
+	abilities[AttackMelee] += m * wears[Melee].getitem().weapon.attack;
+	abilities[AttackMelee] += m * wears[Melee].getmagic() * 3;
+	abilities[AttackMelee] += m * get(wears[Melee].getitem().focus) / 2;
 	abilities[DamageMelee] += m * (wears[Melee].getmagic() / 2);
-	abilities[AttackRanged] += m * (wears[Ranged].getitem().weapon.attack + wears[Ranged].getmagic() * 4);
+	abilities[AttackRanged] += m * wears[Ranged].getitem().weapon.attack;
+	abilities[AttackRanged] += m * wears[Ranged].getmagic() * 4;
+	abilities[AttackRanged] += m * get(WeaponFocusBows) / 2;
 	abilities[DamageRanged] += m * (wears[Ranged].getmagic() / 2);
+}
+
+void creature::dresswr(int m) {
 	for(auto i = Head; i <= Legs; i = (slot_s)(i + 1)) {
 		if(!wears[i])
 			continue;
@@ -84,11 +113,6 @@ void creature::dress(int m) {
 		}
 		abilities[Deflect] += m * (ei.armor.deflect + mi*ei.armor.multiplier);
 		abilities[Armor] += m * ei.armor.armor;
-	}
-	for(auto& e : bsmeta<abilityi>()) {
-		if(!e.formula[0])
-			continue;
-		abilities[e.getid()] += m * calculate(e.formula);
 	}
 }
 
@@ -108,9 +132,9 @@ void creature::raise(skill_s value) {
 }
 
 void creature::equip(item it, slot_s id) {
-	dress(-1);
+	dressoff();
 	wears[id] = it;
-	dress(1);
+	dresson();
 }
 
 bool creature::add(item v, bool run) {
@@ -293,7 +317,7 @@ creature* creature::getactive(int n) {
 const variant* creature::calculate(const variant* p, int& result) const {
 	switch(p->type) {
 	case Ability: result = get((ability_s)p->value); p++; break;
-	case Skill: result = get((ability_s)p->value); p++; break;
+	case Skill: result = get((skill_s)p->value); p++; break;
 	default: return 0;
 	}
 	while(p->type == Formula) {
@@ -403,9 +427,9 @@ bool creature::remove(item& e, bool run) {
 	if(!e)
 		return false;
 	if(run) {
-		dress(-1);
+		dressoff();
 		e.clear();
-		dress(1);
+		dresson();
 	}
 	return true;
 }

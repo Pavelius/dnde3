@@ -1,6 +1,6 @@
 #include "main.h"
 
-itemi bsmeta<itemi>::elements[] = {{""},
+itemi bsmeta<itemi>::elements[] = {{"", 0, 0, NoGender, Organic, {}, {}, {}, {}, Melee, UnarmedFighting},
 {"Боевой топор", 850, 5 * GP, Male, Iron, {-3, D4n9, Slashing}, {}, {}, {}, Melee, WeaponFocusAxes},
 {"Дубина", 1000, 5 * CP, Female, Wood, {-6, D1n4, Bludgeon}, {}, {}, {}, Melee},
 {"Кинжал", 50, 2 * GP, Male, Iron, {-6, D1n3, Piercing}, {}, {}, {}, Melee, WeaponFocusBlades},
@@ -129,5 +129,8 @@ void item::get(attacki& result) const {
 //{"Мех", 0, 0, Male, Organic, {0, {}, 0, {12}, 4}, {}, {Natural}, {Torso}, NoSkill, armor_effect},
 
 void item::getname(stringbuilder& sb) const {
-
+	auto& ei = getitem();
+	if(identify_cab)
+		sb.adds(bsmeta<item_typei>::elements[magic].name[ei.gender]);
+	sb.adds("%-1", getname());
 }

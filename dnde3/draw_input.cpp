@@ -1254,14 +1254,16 @@ static void render_item(int x, int y, int width, const item& e) {
 	if(!e)
 		return;
 	auto ps_fore = fore;
-	if(e.isidentified()) {
-		switch(e.getmagic()) {
-		case Cursed: fore = colors::red; break;
-		case Blessed: fore = colors::green; break;
-		case Artifact: fore = colors::yellow; break;
-		}
-	}
-	text(x, y, e.getname());
+	//if(e.isidentified()) {
+	//	switch(e.getmagic()) {
+	//	case Cursed: fore = colors::red; break;
+	//	case Blessed: fore = colors::green; break;
+	//	case Artifact: fore = colors::yellow; break;
+	//	}
+	//}
+	char temp[260]; stringbuilder sb(temp);
+	e.getname(sb);
+	text(x, y, temp);
 	fore = ps_fore;
 }
 

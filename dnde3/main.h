@@ -105,7 +105,7 @@ enum skill_s : unsigned char {
 	Acrobatics, Alertness, Athletics, Backstabbing, Concetration, DisarmTraps, HearNoises, HideInShadow, Lockpicking, PickPockets,
 	Alchemy, Dancing, Engineering, Gambling, History, Healing, Herbalism,
 	Literacy, Mining, Riding, Smithing, Survival, Swimming,
-	WeaponFocusBows, WeaponFocusBlades, WeaponFocusAxes, TwoWeaponFighting,
+	WeaponFocusBows, WeaponFocusBlades, WeaponFocusAxes, UnarmedFighting, TwoWeaponFighting,
 	FirstSkill = Bargaining, LastSkill = TwoWeaponFighting,
 	ResistAcid, ResistCharm, ResistCold, ResistElectricity, ResistFire, ResistParalize, ResistPoison, ResistWater,
 	FirstResist = ResistAcid, LastResist = ResistWater,
@@ -375,9 +375,7 @@ struct speciali {
 };
 struct item_typei {
 	const char*			id;
-	const char*			name_it;
-	const char*			name_male;
-	const char*			name_female;
+	const char*			name[3];
 	char				bonus;
 };
 struct itemi {
@@ -567,9 +565,11 @@ class creature : public nameable, public posable {
 	const variant*		calculate(const variant* formula, int& result) const;
 	void				cantmovehere() const;
 	void				delayed(variant id, int v, unsigned time);
-	void				dress(int m);
-	void				dressoff() { dress(-1); }
-	void				dresson() { dress(1); }
+	void				dresswr(int m);
+	void				dressab(int m);
+	void				dresswp(int m);
+	void				dressoff();
+	void				dresson();
 	void				dropdown(item& item);
 	void				equip(item it, slot_s id);
 	bool				remove(item& it, bool run);
