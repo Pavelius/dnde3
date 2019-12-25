@@ -1,11 +1,5 @@
 #include "main.h"
 
-static int compare_skills(const void* p1, const void* p2) {
-	auto e1 = *((skill_s*)p1);
-	auto e2 = *((skill_s*)p2);
-	return strcmp(bsmeta<skilli>::elements[e1].name, bsmeta<skilli>::elements[e2].name);
-}
-
 static void choose_children(stringbuilder& sb, manual& mn, answeri& an) {
 	for(auto& e : bsmeta<manual>()) {
 		if(e.parent == mn.value)
@@ -14,16 +8,16 @@ static void choose_children(stringbuilder& sb, manual& mn, answeri& an) {
 }
 
 static void ability_skills(stringbuilder& sb, manual& mn, answeri& an) {
-	adat<skill_s, LastResist + 1> source;
+	skilla source;
 	for(auto& e : bsmeta<skilli>()) {
 		if(e.isresist())
 			continue;
 		if(e.abilities[0] == mn.value.value || e.abilities[1] == mn.value.value)
 			source.add(e.getid());
 	}
-	qsort(source.data, source.count, sizeof(source.data[0]), compare_skills);
 	if(!source.count)
 		return;
+	source.sort();
 	sb.addn("[Навыки]: ");
 	auto p = sb.get();
 	for(auto i : source) {

@@ -96,7 +96,7 @@ void creature::dresswp(int m) {
 	abilities[DamageMelee] += m * (wears[Melee].getmagic() / 2);
 	abilities[AttackRanged] += m * wears[Ranged].getitem().weapon.attack;
 	abilities[AttackRanged] += m * wears[Ranged].getmagic() * 4;
-	abilities[AttackRanged] += m * get(WeaponFocusBows) / 2;
+	abilities[AttackRanged] += m * get(Archery) / 2;
 	abilities[DamageRanged] += m * (wears[Ranged].getmagic() / 2);
 }
 
@@ -263,16 +263,16 @@ void creature::getfullname(stringbuilder& sb) const {
 attacki creature::getattack(slot_s id) const {
 	attacki result = {0};
 	auto& weapon = wears[id];
+	auto attack_ability = AttackMelee;
+	auto damage_ability = DamageMelee;
+	if(id == Ranged) {
+		attack_ability = AttackRanged;
+		damage_ability = DamageRanged;
+	}
 	if(weapon) {
 		weapon.get(result);
 		result.dice = bsmeta<dicei>::elements[result.damage];
 		auto focus = weapon.getfocus();
-		// RULE: Weapon focus add bonus to attack and damage
-		if(focus && getbasic(focus)) {
-			auto fs = get(focus);
-			result.attack += fs / 5;
-			result.dice.max += fs / 40;
-		}
 		// RULE: Versatile weapon if used two-handed made more damage.
 		if(id == Melee && weapon.is(Versatile) && !wears[OffHand]) {
 			result.dice.min += 1;
@@ -285,7 +285,7 @@ attacki creature::getattack(slot_s id) const {
 	}
 	if(!result.dice.max)
 		return result;
-	result.attack += 40; // Basic chance to hit
+	result.attack += get(attack_ability); // Basic chance to hit
 	switch(id) {
 	case Melee:
 	case OffHand:

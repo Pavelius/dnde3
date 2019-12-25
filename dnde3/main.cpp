@@ -72,6 +72,7 @@ static void test_indoor() {
 	e.set(e.get(3, 6), Webbed); e.set(e.get(4, 6), Webbed); e.set(e.get(4, 7), Webbed);
 	auto p1 = create(e.get(3, 3), Human, Male, Ranger);
 	auto p2 = create(e.get(4, 4), Dwarf, Male, Cleric);
+	auto p3 = create(e.get(5, 4), Elf, Male, Fighter);
 	random_bless(p1);
 	e.activate();
 	p1->activate();

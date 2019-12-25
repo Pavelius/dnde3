@@ -105,7 +105,8 @@ enum skill_s : unsigned char {
 	Acrobatics, Alertness, Athletics, Backstabbing, Concetration, DisarmTraps, HearNoises, HideInShadow, Lockpicking, PickPockets,
 	Alchemy, Dancing, Engineering, Gambling, History, Healing, Herbalism,
 	Literacy, Mining, Riding, Smithing, Survival, Swimming,
-	WeaponFocusBows, WeaponFocusBlades, WeaponFocusAxes, UnarmedFighting, TwoWeaponFighting,
+	Archery, FightSwords, FightAxes, FightPointed, FightTwoHanded, FightStaff,
+	UnarmedFighting, TwoWeaponFighting,
 	FirstSkill = Bargaining, LastSkill = TwoWeaponFighting,
 	ResistAcid, ResistCharm, ResistCold, ResistElectricity, ResistFire, ResistParalize, ResistPoison, ResistWater,
 	FirstResist = ResistAcid, LastResist = ResistWater,
@@ -587,7 +588,7 @@ public:
 	void				apply(state_s state, item_type_s magic, int quality, unsigned duration, bool interactive);
 	bool				askyn(creature* opponent, const char* format, ...);
 	void				athletics(bool interactive);
-	void				attack(creature* defender, slot_s slot, int bonus = 0, int multiplier = 0);
+	void				attack(creature* defender, slot_s slot, int bonus, int multiplier);
 	int					calculate(const variant* formule) const;
 	bool				canhear(short unsigned index) const;
 	void				chat(creature* opponent);

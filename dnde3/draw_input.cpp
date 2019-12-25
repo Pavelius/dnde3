@@ -1321,7 +1321,7 @@ static int text(int x, int y, int width, dice_s v, const char* format = "+ %1i-%
 
 skill_s skillu::choose(bool interactive, const char* title, bool* cancel_result) const {
 	int x, y, y1;
-	const int width = 300;
+	const int width = 400;
 	while(ismodal()) {
 		current_background();
 		dialogw(x, y, width, 300, title, &y1);
@@ -1336,7 +1336,7 @@ skill_s skillu::choose(bool interactive, const char* title, bool* cancel_result)
 			x0 += 22;
 			if((index + 1) % 2)
 				rectf({x, y, x + width, y + texth() + 1}, colors::white, 4);
-			text(x0, y, getstr(e)); x0 += 120;
+			text(x0, y, getstr(e)); x0 += 220;
 			x0 += text(x0, y, 36, player->get(e), "%1i%%");
 			x0 += text(x0, y, 36, player->getraise(e));
 			x0 += text(x0, y, 64, getcap(e), " макс. %1i%%");
@@ -1457,6 +1457,7 @@ static bool translate_move(creature* player) {
 static bool translate_commands(creature* player) {
 	for(auto& e : adventure_keys) {
 		if(hot.key == e.key) {
+			hot.key = 0;
 			hot.param = e.param;
 			if(player && e.proc.pcre)
 				(player->*e.proc.pcre)();

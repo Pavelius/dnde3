@@ -2,7 +2,7 @@
 
 racei bsmeta<racei>::elements[] = {{"Человек", {10, 10, 10, 10, 10, 10}, {Bargaining, Gambling, Swimming}},
 {"Гном", {12, 8, 13, 10, 10, 9}, {Smithing, Mining, Athletics}, {{ResistPoison, 30}}},
-{"Эльф", {9, 12, 8, 11, 10, 11}, {Survival, WeaponFocusBows, Swimming}, {{ResistCharm, 30}}},
+{"Эльф", {9, 12, 8, 11, 10, 11}, {Survival, Archery, Swimming}, {{ResistCharm, 30}}},
 {"Полурослик", {7, 12, 11, 10, 8, 10}, {HideInShadow, Acrobatics, Swimming}},
 //
 {"Гоблин", {5, 12, 8, 6, 9, 6}, {HideInShadow, Acrobatics, Swimming}},
