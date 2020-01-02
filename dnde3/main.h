@@ -102,10 +102,11 @@ enum ability_s : unsigned char {
 };
 enum skill_s : unsigned char {
 	Bargaining, Bluff, Diplomacy,
-	Acrobatics, Alertness, Athletics, Backstabbing, Concetration, DisarmTraps, HearNoises, HideInShadow, Lockpicking, PickPockets,
+	Acrobatics, Alertness, Athletics, Backstabbing, Climbing, Concetration,
+	DisarmTraps, HearNoises, HideInShadow, Lockpicking, PickPockets,
 	Alchemy, Dancing, Engineering, Gambling, History, Healing, Herbalism,
 	Literacy, Mining, Riding, Smithing, Survival, Swimming,
-	Archery, FightSwords, FightAxes, FightPointed, FightTwoHanded, FightStaff,
+	Archery, FightEdged, FightSwords, FightAxes, FightPointed, FightTwoHanded, FightStaff,
 	UnarmedFighting, TwoWeaponFighting,
 	FirstSkill = Bargaining, LastSkill = TwoWeaponFighting,
 	ResistAcid, ResistCharm, ResistCold, ResistElectricity, ResistFire, ResistParalize, ResistPoison, ResistWater,
@@ -286,7 +287,6 @@ struct abilityi {
 	const char*			name_short;
 	const char*			nameof;
 	const char*			cursedof;
-	variant				formula[8];
 	ability_s			getid() const;
 };
 struct skilli {
@@ -390,7 +390,7 @@ struct itemi {
 	speciali			special;
 	cflags<item_flag_s>	flags;
 	slot_s				slot;
-	skill_s				focus;
+	skill_s				skill;
 	item_s				ammunition;
 	unsigned char		count;
 	unsigned char		charges;
@@ -429,7 +429,6 @@ public:
 	int					getcount() const { return 1; }
 	enchantment_s		geteffect() const;
 	char				getenchantcost() const;
-	skill_s				getfocus() const { return getitem().focus; }
 	const foodi&		getfood() const { return getitem().food; }
 	const itemi&		getitem() const { return bsmeta<itemi>::elements[type]; }
 	gender_s			getgender() const { return getitem().gender; }
@@ -563,11 +562,11 @@ class creature : public nameable, public posable {
 	unsigned			money;
 	//
 	void				applyabilities();
+	void				attack(creature& enemy, slot_s id, int bonus);
 	const variant*		calculate(const variant* formula, int& result) const;
 	void				cantmovehere() const;
 	void				delayed(variant id, int v, unsigned time);
 	void				dresswr(int m);
-	void				dressab(int m);
 	void				dresswp(int m);
 	void				dressoff();
 	void				dresson();
@@ -610,6 +609,7 @@ public:
 	int					get(skill_s v) const;
 	const item&			get(slot_s v) const { return wears[v]; }
 	static creature*	getactive();
+	static creature*	getactive(int index);
 	const creature&		getai() const;
 	attacki				getattack(slot_s slot) const;
 	int					getattacktime(slot_s slot) const;
@@ -638,7 +638,7 @@ public:
 	const char*			getmonstername() const;
 	int					getmoverecoil() const;
 	static creature*	getobject(short unsigned v);
-	static creature*	getactive(int index);
+	int					getparry() const { return 0; }
 	int					getpotency(skill_s v) const;
 	dice_s				getraise(skill_s id) const;
 	role_s				getrole() const { return role; }
@@ -668,7 +668,7 @@ public:
 	void				lookfloor();
 	void				makemove();
 	void				manipulate(short unsigned index);
-	void				meleeattack(creature* target, int bonus = 0, int multiplier = 0);
+	void				meleeattack(creature& enemy, int bonus = 0);
 	void				move(indext index);
 	bool				moveaway(indext index);
 	void				playui();
@@ -680,7 +680,7 @@ public:
 	void				readbook(item& it);
 	void				remove(state_s value);
 	bool				roll(skill_s v, int bonus = 0) const { return rollv(get(v) + bonus, 0); }
-	bool				rollv(int v, int* r) const;
+	static bool			rollv(int v, int* r);
 	bool				saving(bool interactive, skill_s save, int bonus) const;
 	void				say(const char* format, ...) const;
 	void				say(creature& opponent, const char* format, ...) const;

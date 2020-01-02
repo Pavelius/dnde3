@@ -5,11 +5,6 @@ DECLDATA(creature, 256);
 static int			skill_level[] = {20, 50, 75, 90};
 static const char*	skill_names[] = {"Начальный", "Продвинутый", "Экспертный", "Мастерский"};
 static creature*	current_player;
-static char	int_checks[] = {2,
-2, 2, 2, 2, 3, 3, 3, 3, 4,
-4, 4, 5, 5, 6, 6, 6, 7, 7, 7,
-8, 8, 9, 9, 9
-};
 
 void creature::clear() {
 	memset(this, 0, sizeof(*this));
@@ -71,7 +66,6 @@ void creature::dressoff() {
 	if(!this)
 		return;
 	dresswp(-1);
-	dressab(-1);
 	dresswr(-1);
 }
 
@@ -79,26 +73,13 @@ void creature::dresson() {
 	if(!this)
 		return;
 	dresswr(1);
-	dressab(1);
 	dresswp(1);
 }
 
-void creature::dressab(int m) {
-	for(auto& e : bsmeta<abilityi>()) {
-		if(!e.formula[0])
-			continue;
-		abilities[e.getid()] += m * calculate(e.formula);
-	}
-}
-
 void creature::dresswp(int m) {
-	abilities[AttackMelee] += m * wears[Melee].getitem().weapon.attack;
 	abilities[AttackMelee] += m * wears[Melee].getmagic() * 3;
-	abilities[AttackMelee] += m * get(wears[Melee].getitem().focus) / 2;
 	abilities[DamageMelee] += m * (wears[Melee].getmagic() / 2);
-	abilities[AttackRanged] += m * wears[Ranged].getitem().weapon.attack;
 	abilities[AttackRanged] += m * wears[Ranged].getmagic() * 4;
-	abilities[AttackRanged] += m * get(Archery) / 2;
 	abilities[DamageRanged] += m * (wears[Ranged].getmagic() / 2);
 }
 
@@ -259,7 +240,9 @@ void creature::create(race_s race, gender_s gender, class_s type) {
 		set(e, 1);
 	start_equipment(*this);
 	// Повысим навыки
-	auto skill_checks = maptbl(int_checks, get(Intellegence));
+	raise(UnarmedFighting);
+	raise(Climbing);
+	auto skill_checks = get(Intellegence) / 2;
 	raiseskills(skill_checks);
 	// Восполним хиты
 	add(LifePoints, getclass().hp);
@@ -291,25 +274,18 @@ attacki creature::getattack(slot_s id) const {
 		result.dice.min = 0;
 		result.dice.max = 4;
 	}
-	// RULE: Versatile weapon if used two-handed made more damage.
-	if(id == Melee && weapon.is(Versatile) && !wears[OffHand]) {
-		result.dice.min += 1;
-		result.dice.max += 1;
-	}
 	if(!result.dice.max)
 		return result;
-	auto v_debug = get(attack_ability);
+	result.attack += get(weapon.getitem().skill); // Basic chance to hit
 	result.attack += get(attack_ability); // Basic chance to hit
 	result.dice.max += get(damage_ability);
-	switch(id) {
-	case Melee:
-	case OffHand:
-		result.attack += get(Strenght);
+	// RULE: Versatile weapon if used two-handed made more damage.
+	if(id == Melee) {
 		result.dice.max += (get(Strenght) - 10) / 2;
-		break;
-	case Ranged:
-		result.attack += get(Dexterity);
-		break;
+		if(weapon.is(Versatile) && !wears[OffHand]) {
+			result.dice.min += 1;
+			result.dice.max += 1;
+		}
 	}
 	return result;
 }
@@ -473,12 +449,12 @@ void creature::select(skilla& a) const {
 }
 
 void creature::useskills() {
+	bool cancel = false;
 	skillu source(this);
 	source.select(*this);
 	source.sort();
 	source.setcaps();
-	bool cancel = false;
-	auto s = source.choose(true, "Выбирайте навык", &cancel);
+	auto s = source.choose(true, "Какой навык использовать?", &cancel);
 	if(cancel)
 		return;
 }
@@ -521,7 +497,7 @@ void creature::move(indext index) {
 	auto p = find(index);
 	if(p) {
 		if(isenemy(p)) {
-			meleeattack(p);
+			meleeattack(*p);
 			return;
 		} else if(!isactive()) {
 			// Монстры и другие персонажи не меняются
@@ -579,8 +555,30 @@ void creature::wait(int segments) {
 	restore_action += segments;
 }
 
-void creature::meleeattack(creature* target, int bonus, int multiplier) {
+void creature::attack(creature& enemy, slot_s id, int bonus) {
+	auto ai = getattack(id);
+	if(!rollv(ai.attack + bonus, 0))
+		act("%герой промазал%а.");
+	auto parry = enemy.getparry();
+	if((id == Melee || id == OffHand) && parry>0) {
+		if(enemy.rollv(parry, 0)) {
+			act("%герой, но %оппонент отбил%А удар.");
+			return;
+		}
+	}
+	auto dv = ai.dice.roll();
+	damage(dv, ai.type, isinteractive());
+}
 
+void creature::meleeattack(creature& enemy, int bonus) {
+	int wt = Round;
+	if(wears[OffHand]) {
+		attack(enemy, Melee, bonus - 10);
+		attack(enemy, OffHand, bonus - 25);
+		wt++;
+	} else
+		attack(enemy, Melee, bonus);
+	wait(wt);
 }
 
 bool creature::isenemy(const creature* target) const {
@@ -603,7 +601,7 @@ void creature::makemove() {
 	}
 }
 
-bool creature::rollv(int v, int* r) const {
+bool creature::rollv(int v, int* r) {
 	auto result = d100();
 	if(v <= 0)
 		return false;
@@ -612,4 +610,12 @@ bool creature::rollv(int v, int* r) const {
 	if(r)
 		*r = result;
 	return result < v;
+}
+
+void creature::damage(int value, attack_s type, bool interactive) {
+
+}
+
+bool creature::isinteractive() const {
+	return true;
 }
