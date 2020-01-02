@@ -1305,6 +1305,11 @@ static int render(int x, int y, int width, itema& e) {
 	return 0;
 }
 
+static int text(int x, int y, int width, const char* value) {
+	text(x, y, value);
+	return width + 8;
+}
+
 static int text(int x, int y, int width, int value, const char* format = "%1i") {
 	char temp[32]; stringbuilder sb(temp);
 	sb.add(format, value);
@@ -1327,7 +1332,8 @@ skill_s skillu::choose(bool interactive, const char* title, bool* cancel_result)
 		dialogw(x, y, width, 300, title, &y1);
 		auto x1 = x;
 		auto x2 = x + width;
-		button(x1, y1, "Отмена", KeyEscape, breakparam, 0);
+		if(cancel_result)
+			button(x1, y1, "Отмена", KeyEscape, breakparam, 0);
 		auto index = 0;
 		for(auto e : *this) {
 			auto x0 = x;
@@ -1338,8 +1344,12 @@ skill_s skillu::choose(bool interactive, const char* title, bool* cancel_result)
 				rectf({x, y, x + width, y + texth() + 1}, colors::white, 4);
 			text(x0, y, getstr(e)); x0 += 220;
 			x0 += text(x0, y, 36, player->get(e), "%1i%%");
-			x0 += text(x0, y, 36, player->getraise(e));
-			x0 += text(x0, y, 64, getcap(e), " макс. %1i%%");
+			if(cancel_result)
+				x0 += text(x0, y, 100, player->getlevelname(e));
+			else {
+				x0 += text(x0, y, 36, player->getraise(e));
+				x0 += text(x0, y, 64, getcap(e), " макс. %1i%%");
+			}
 			index++;
 			y += texth() + 4;
 		}

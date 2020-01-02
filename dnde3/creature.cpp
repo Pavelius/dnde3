@@ -2,6 +2,8 @@
 
 DECLDATA(creature, 256);
 
+static int			skill_level[] = {20, 50, 75, 90};
+static const char*	skill_names[] = {"Начальный", "Продвинутый", "Экспертный", "Мастерский"};
 static creature*	current_player;
 static char	int_checks[] = {2,
 2, 2, 2, 2, 3, 3, 3, 3, 4,
@@ -116,14 +118,26 @@ void creature::dresswr(int m) {
 	}
 }
 
-dice_s creature::getraise(skill_s id) const {
-	auto value = skills[id];
-	if(value < 20)
-		return D5n20;
-	else if(value < 50)
-		return D3n13;
-	else
-		return D1n6;
+const char* creature::getlevelname(skill_s v) const {
+	auto n = getlevel(v);
+	return maptbl(skill_names, n);
+}
+
+int creature::getlevel(skill_s v) const {
+	auto r = skills[v];
+	auto n = 0;
+	for(auto a : skill_level) {
+		if(r < a)
+			break;
+		n++;
+	}
+	return n;
+}
+
+dice_s creature::getraise(skill_s v) const {
+	dice_s source[] = {D3n13, D1n6, D1n4};
+	auto n = getlevel(v);
+	return maptbl(source, n);
 }
 
 void creature::raise(skill_s value) {
@@ -463,7 +477,10 @@ void creature::useskills() {
 	source.select(*this);
 	source.sort();
 	source.setcaps();
-	source.choose(true, "Выбирайте навык");
+	bool cancel = false;
+	auto s = source.choose(true, "Выбирайте навык", &cancel);
+	if(cancel)
+		return;
 }
 
 void creature::cantmovehere() const {

@@ -629,6 +629,8 @@ public:
 	creature*			gethorror() const { return getobject(horror); }
 	short unsigned		getid() const;
 	creature*			getleader() const;
+	int					getlevel(skill_s v) const;
+	const char*			getlevelname(skill_s v) const;
 	int					getlos() const;
 	int					getlos(unsigned flags) const;
 	int					getmana() const { return mp; }
@@ -637,6 +639,7 @@ public:
 	int					getmoverecoil() const;
 	static creature*	getobject(short unsigned v);
 	static creature*	getactive(int index);
+	int					getpotency(skill_s v) const;
 	dice_s				getraise(skill_s id) const;
 	role_s				getrole() const { return role; }
 	site*				getsite() const { return 0; }
