@@ -4,6 +4,12 @@ static creature* create(location& loc, race_s race, gender_s gender, class_s cls
 	return loc.add(loc.get(3,3), race, gender, cls);
 }
 
+static creature* create(location& loc, role_s type) {
+	auto p = loc.add(loc.get(10, 10), type);
+	p->set(Hostile);
+	return p;
+}
+
 static void test_worldmap() {
 	location e;
 	e.clear();
@@ -70,6 +76,8 @@ static void test_indoor() {
 	auto p1 = create(e, Human, Male, Ranger);
 	auto p2 = create(e, Dwarf, Male, Cleric);
 	auto p3 = create(e, Elf, Male, Fighter);
+	create(e, GoblinWarrior);
+	create(e, GoblinWarrior);
 	random_bless(p1);
 	e.activate();
 	p1->activate();

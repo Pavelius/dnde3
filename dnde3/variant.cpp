@@ -7,6 +7,7 @@ const char*	variant::getname() const {
 	switch(type) {
 	case Ability: return bsmeta<abilityi>::elements[value].name;
 	case Skill: return bsmeta<skilli>::elements[value].name;
+	case Role: return bsmeta<rolei>::elements[value].name;
 	default: return "Нет варианта";
 	}
 }

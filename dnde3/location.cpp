@@ -145,6 +145,9 @@ void location::addinfo(indext i, stringbuilder& sb) const {
 	auto o = getobject(i);
 	if(o)
 		sb.adds("Здесь находится %1.", getstr(o));
+	auto p = creature::find(i);
+	if(p)
+		sb.adds("Здесь стоит %1.", p->getname());
 }
 
 direction_s	location::getdirection(point s, point d) {
@@ -390,7 +393,8 @@ indext location::getfree(indext i, procis proc, int radius_maximum) const {
 creature* location::add(indext index, role_s role) {
 	auto p = bsmeta<creature>::addz();
 	p->create(role);
-	return 0;
+	p->setposition(getfree(index));
+	return p;
 }
 
 creature* location::add(indext index, race_s race, gender_s gender, class_s type) {
@@ -398,4 +402,14 @@ creature* location::add(indext index, race_s race, gender_s gender, class_s type
 	p->create(race, gender, type);
 	p->setposition(getfree(index));
 	return p;
+}
+
+int	location::getrange(indext i1, indext i2) {
+	if(i1 == Blocked || i2 == Blocked)
+		return Blocked;
+	auto x1 = getx(i1), y1 = gety(i1);
+	auto x2 = getx(i2), y2 = gety(i2);
+	auto dx = iabs(x1 - x2);
+	auto dy = iabs(y1 - y2);
+	return (dx > dy) ? dx : dy;
 }

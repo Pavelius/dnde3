@@ -203,7 +203,7 @@ enum variant_s : unsigned char {
 	NoVariant,
 	Ability, Alignment, Creature, Enchantment, Formula,
 	God, Item,
-	Number, Race, Range, Skill, Spell, State, Target,
+	Number, Race, Range, Role, Skill, Spell, State, Target,
 	Variant,
 };
 enum formula_s : unsigned char {
@@ -230,6 +230,7 @@ struct variant {
 	constexpr variant(enchantment_s v) : type(Enchantment), value(v) {}
 	constexpr variant(formula_s v) : type(Formula), value(v) {}
 	constexpr variant(item_s v) : type(Item), value(v) {}
+	constexpr variant(role_s v) : type(Role), value(v) {}
 	constexpr variant(skill_s v) : type(Skill), value(v) {}
 	constexpr variant(spell_s v) : type(Spell), value(v) {}
 	constexpr variant(state_s v) : type(State), value(v) {}
@@ -241,6 +242,7 @@ struct variant {
 	bool operator==(const variant& e) const { return type == e.type && value == e.value; }
 	const char*			getname() const;
 };
+typedef variant			varianta[16];
 struct string : stringbuilder {
 	const char			*name, *opponent_name;
 	gender_s			gender, opponent_gender;
@@ -298,7 +300,7 @@ struct skilli {
 struct equipmenti {
 	race_s				race;
 	class_s				type;
-	adat<variant, 16>	features;;
+	varianta			features;;
 };
 struct tilei {
 	const char*			id;
@@ -540,6 +542,17 @@ public:
 	void				sayv(stringbuilder& st, const char* format, const char* param) const;
 	void				setname(race_s race, gender_s gender);
 	race_s				getrace() const;
+	bool				ischaracter() const { return value == Character; }
+};
+struct rolei {
+	const char*			name;
+	race_s				race;
+	gender_s			gender;
+	alignment_s			alignment;
+	class_s				type;
+	char				level;
+	varianta			features;
+	role_s				minions[4];
 };
 class creature : public nameable, public posable {
 	char				abilities[ManaRate + 1];
@@ -554,14 +567,14 @@ class creature : public nameable, public posable {
 	short unsigned		charmer, horror;
 	short unsigned		location_id, site_id;
 	encumbrance_s		encumbrance;
-	class_s				type;
-	role_s				role;
+	class_s				kind;
 	unsigned short		guard;
 	direction_s			direction;
 	unsigned			experience;
 	unsigned			money;
 	//
 	void				applyabilities();
+	void				applyaward() const;
 	void				attack(creature& enemy, slot_s id, int bonus);
 	const variant*		calculate(const variant* formula, int& result) const;
 	void				cantmovehere() const;
@@ -581,27 +594,23 @@ public:
 	void				add(variant id, int v, unsigned time);
 	bool				add(item v, bool run);
 	void				addexp(int count);
-	static void			addexp(int value, short unsigned position, int range, const creature* exclude, const creature* enemies);
 	bool				alertness();
-	void				apply(state_s state, item_type_s magic, int quality, unsigned duration, bool interactive);
 	bool				askyn(creature* opponent, const char* format, ...);
 	void				athletics(bool interactive);
 	void				attack(creature* defender, slot_s slot, int bonus, int multiplier);
 	int					calculate(const variant* formule) const;
 	bool				canhear(short unsigned index) const;
 	void				chat(creature* opponent);
-	item*				choose(aref<item*> source, bool interactive, const char* title = 0) const;
-	creature*			choose(aref<creature*> source, bool interactive) const;
-	short unsigned		choose(aref<short unsigned> source, bool interactive) const;
 	void				create(race_s race, gender_s gender, class_s type);
 	void				create(role_s type);
 	void				clear();
 	void				consume(int energy_value);
-	void				damage(int count, attack_s type, bool interactive);
+	void				damage(int count, attack_s type);
 	void				damagewears(int count, attack_s type);
 	void				drink(item& it, bool interactive);
 	void				dropdown();
 	bool				equip(item value);
+	void				enslave();
 	static creature*	find(indext i);
 	int					get(ability_s v) const;
 	int					get(spell_s v) const { return spells[v]; }
@@ -609,15 +618,12 @@ public:
 	const item&			get(slot_s v) const { return wears[v]; }
 	static creature*	getactive();
 	static creature*	getactive(int index);
-	const creature&		getai() const;
 	attacki				getattack(slot_s slot) const;
-	int					getattacktime(slot_s slot) const;
+	int					getaward() const { return 10 + 15*get(Level); }
 	int					getbasic(ability_s value) const;
 	int					getbasic(skill_s v) const { return skills[v]; }
 	int					getbonus(enchantment_s value) const;
-	const classi&		getclass() const { return bsmeta<classi>::elements[type]; }
-	int					getcost(spell_s value) const;
-	unsigned			getcostexp() const;
+	const classi&		getclass() const { return bsmeta<classi>::elements[kind]; }
 	int					getdiscount(creature* customer) const;
 	direction_s			getdirection() const { return direction; }
 	encumbrance_s		getencumbrance() const { return encumbrance; }
@@ -634,35 +640,30 @@ public:
 	int					getlos(unsigned flags) const;
 	int					getmana() const { return mp; }
 	int					getmoney() const { return money; }
-	const char*			getmonstername() const;
-	int					getmoverecoil() const;
 	static creature*	getobject(short unsigned v);
-	int					getpotency(skill_s v) const;
 	dice_s				getraise(skill_s id) const;
-	role_s				getrole() const { return role; }
+	role_s				getrole() const { return (role_s)value; }
 	site*				getsite() const { return 0; }
 	int					getspeed() const;
 	slot_s				getwearerslot(const item* p) const;
 	int					getweight() const;
 	int					getweight(encumbrance_s id) const;
 	bool				give(creature& opponent, item& it, bool interactive);
-	void				heal(int value, bool interactive) { damage(-value, Magic, interactive); }
+	void				heal(int value) { damage(-value, Magic); }
 	void				hint(const char* format, ...) const;
 	void				inventory();
-	bool				is(class_s v) const { return type == v; }
+	bool				is(class_s v) const { return kind == v; }
 	bool				is(state_s v) const { return states.is(v); }
 	bool				is(encumbrance_s value) const { return encumbrance == value; }
 	bool				isactive() const { return getactive() == this; }
 	bool				isagressive() const;
-	bool				ischaracter() const { return role == Character; }
 	bool				isenemy(const creature* target) const;
 	bool				isfriend(const creature* target) const;
 	bool				isguard() const { return guard != 0xFFFF; }
-	bool				isinteractive() const;
-	void				isolate();
 	bool				isparty(const creature* target) const;
 	bool				isplayer() const;
 	bool				isranged(bool interactive) const;
+	void				kill();
 	void				levelup(bool interactive);
 	void				lookfloor();
 	void				makemove();
@@ -677,7 +678,7 @@ public:
 	void				raiseskills(int number);
 	void				rangeattack(creature* enemy);
 	void				readbook(item& it);
-	void				remove(state_s value);
+	void				remove(state_s v) { states.remove(v); }
 	bool				roll(skill_s v, int bonus = 0, int divider = 0) const;
 	static bool			rollv(int v, int* r);
 	bool				saving(bool interactive, skill_s save, int bonus) const;
@@ -685,7 +686,7 @@ public:
 	void				say(creature& opponent, const char* format, ...) const;
 	void				select(itema& a, slot_s i1, slot_s i2, bool filled_only);
 	void				select(skilla& e) const;
-	void				set(state_s id, unsigned segments);
+	void				set(state_s v) { states.set(v); }
 	void				set(spell_s id, int v) { spells[id] = v; }
 	void				setcharmer(const creature* p) { charmer = p->getid(); }
 	static void			setblocks(short unsigned* movements, short unsigned value);
@@ -694,6 +695,7 @@ public:
 	void				setlos();
 	void				setmoney(int value) { money = value; }
 	void				trapeffect();
+	void				unlink();
 	bool				use(short unsigned index);
 	void				useskills();
 	void				wait() { consume(StandartEnergyCost); }
@@ -705,11 +707,12 @@ public:
 	void				match(state_s i);
 	void				match(const alignmenta& v);
 	void				match(const racea& v);
+	void				select();
 	void				remove(state_s v);
 };
-class indexa : adat<short unsigned> {
+class indexa : public adat<indext> {
 public:
-	short unsigned		choose(bool interactive, const char* title);
+	int					choose(bool interactive, const char* title);
 };
 struct targeti {
 	variant_s			type;
@@ -794,6 +797,7 @@ public:
 	void				addinfo(indext i, stringbuilder& sb) const;
 	indext				building(indext i, int width, int height, direction_s dir = Center);
 	indext				choose(bool allow_cancel);
+	indext				choose(bool allow_cancel, const aref<indext>& source, const char* format);
 	void				clear();
 	void				create(const rect& rc, int count, map_object_s object);
 	void				create(const rect& rc, int count, tile_s v);
@@ -811,6 +815,7 @@ public:
 	map_object_s		getobject(indext i) const { return objects[i]; }
 	tile_s				gettile(indext i) const;
 	trap_s				gettrap(indext i) const { return NoTrap; }
+	static int			getrange(indext i1, indext i2);
 	int					getrand(indext i) const { return random[i]; }
 	void				indoor(point camera, bool show_fow = true, const picture* effects = 0);
 	bool				is(indext i, map_flag_s v) const { return flags[i].is(v); }

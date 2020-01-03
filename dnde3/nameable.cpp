@@ -62,21 +62,30 @@ void nameable::setname(race_s race, gender_s gender) {
 }
 
 gender_s nameable::getgender() const {
-	if(name == Blocked)
-		return Male;
-	return bsmeta<nameablei>::elements[name].gender;
+	if(ischaracter()) {
+		if(name == Blocked)
+			return Male;
+		return bsmeta<nameablei>::elements[name].gender;
+	}
+	return bsmeta<rolei>::elements[value].gender;
 }
 
 race_s nameable::getrace() const {
-	if(name == Blocked)
-		return Human;
-	return bsmeta<nameablei>::elements[name].race;
+	if(ischaracter()) {
+		if(name == Blocked)
+			return Human;
+		return bsmeta<nameablei>::elements[name].race;
+	}
+	return bsmeta<rolei>::elements[value].race;
 }
 
 const char* nameable::getname() const {
-	if(name == Blocked)
-		return "Павел";
-	return bsmeta<nameablei>::elements[name].name;
+	if(ischaracter()) {
+		if(name == Blocked)
+			return "Павел";
+		return bsmeta<nameablei>::elements[name].name;
+	}
+	return bsmeta<rolei>::elements[value].name;
 }
 
 void nameable::actv(stringbuilder& st, const char* format, const char* param) const {

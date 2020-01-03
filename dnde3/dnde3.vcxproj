@@ -141,7 +141,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="manual.cpp" />
     <ClCompile Include="map_object.cpp" />
-    <ClCompile Include="monster.cpp" />
+    <ClCompile Include="role.cpp" />
     <ClCompile Include="nameable.cpp" />
     <ClCompile Include="outdoor.cpp" />
     <ClCompile Include="picture.cpp" />

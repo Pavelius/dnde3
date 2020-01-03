@@ -726,16 +726,6 @@ static void render_indoor() {
 		render_info(*player);
 }
 
-static void render_indoor_nomarker() {
-	auto p = location::getactive();
-	if(!p)
-		return;
-	p->indoor(camera, false, 0);
-	auto player = creature::getactive();
-	if(player)
-		render_info(*player);
-}
-
 static void controls() {
 	current_index = translate(current_index);
 }
@@ -1383,6 +1373,50 @@ item* itema::choose(bool interactive, const char* title, const char* format, slo
 	return (item*)getresult();
 }
 
+int indexa::choose(bool interactive, const char* format) {
+	if(!*this)
+		return -1;
+	auto p = location::getactive();
+	if(!p)
+		return -1;
+	auto index = 0;
+	while(ismodal()) {
+		if(current_index != data[index]) {
+			current_index = data[index];
+			p->setcamera(current_index);
+		}
+		current_background();
+		if(true) {
+			char temp[512]; string sb(temp);
+			p->addinfo(current_index, sb);
+			sb.adds(format);
+			if(sb)
+				windowf(sb);
+		}
+		domodal();
+		switch(hot.key) {
+		//case KeyEscape:
+		//	if(allow_cancel)
+		//		breakmodal(Blocked);
+		//	break;
+		case KeyEnter:
+		case KeySpace:
+			breakmodal(index);
+			break;
+		case KeyLeft:
+			if(index > 0)
+				index--;
+			break;
+		case KeyRight:
+			if(index < getcount()-1)
+				index++;
+			break;
+		}
+	}
+	current_index = Blocked;
+	return getresult();
+}
+
 indext location::choose(bool allow_cancel) {
 	activate();
 	current_index = gets2i(camera);
@@ -1438,6 +1472,7 @@ static hotkey adventure_keys[] = {{F1, "Выбрать первого героя", change_player, 0
 {Alpha + 'A', "Выбрать навык", &creature::useskills},
 {Alpha + 'D', "Положить пердмет", &creature::dropdown},
 {Alpha + 'P', "Поднять пердмет", &creature::pickup},
+{Ctrl + Alpha + 'D', "Вселиться", &creature::enslave},
 {}};
 
 static bool translate_move(creature* player) {
@@ -1469,7 +1504,8 @@ static bool translate_commands(creature* player) {
 }
 
 void creature::playui() {
-	setbackground(render_indoor_nomarker);
+	current_index = Blocked;
+	setbackground(render_indoor);
 	while(ismodal()) {
 		current_background();
 		render_message();

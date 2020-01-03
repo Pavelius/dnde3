@@ -50,15 +50,15 @@ creature* creature::getobject(short unsigned v) {
 	return bsmeta<creature>::elements + v;
 }
 
-void creature::isolate() {
+void creature::unlink() {
 	auto id = getid();
 	for(auto& e : bsmeta<creature>()) {
 		if(!e)
 			continue;
 		if(e.charmer == id)
-			e.charmer = 0;
+			e.charmer = Blocked;
 		if(e.horror == id)
-			e.horror = 0;
+			e.horror = Blocked;
 	}
 }
 
@@ -232,8 +232,9 @@ void creature::finish() {
 
 void creature::create(race_s race, gender_s gender, class_s type) {
 	clear();
-	this->type = type;
-	role = Character;
+	this->variant::type = Role;
+	this->variant::value = Character;
+	this->kind = type;
 	abilities[Level] = 1;
 	setname(race, gender);
 	applyabilities();
@@ -252,7 +253,7 @@ void creature::create(race_s race, gender_s gender, class_s type) {
 
 void creature::getfullname(stringbuilder& sb) const {
 	sb.add(getname());
-	sb.adds("%-3-%-1 %2i уровня", getstr(type), get(Level), getstr(getrace()));
+	sb.adds("%-3-%-1 %2i уровня", getstr(kind), get(Level), getstr(getrace()));
 }
 
 attacki creature::getattack(slot_s id) const {
@@ -574,8 +575,9 @@ void creature::attack(creature& enemy, slot_s id, int bonus) {
 		act("%герой промазал%а.");
 		return;
 	}
+	act("%герой попал%а.");
 	auto dv = ai.dice.roll();
-	damage(dv, ai.type, isinteractive());
+	enemy.damage(dv, ai.type);
 }
 
 void creature::meleeattack(creature& enemy, int bonus) {
@@ -631,12 +633,44 @@ bool creature::rollv(int v, int* r) {
 	return result < v;
 }
 
-void creature::damage(int value, attack_s type, bool interactive) {
-
+void creature::applyaward() const {
+	auto index = getposition();
+	if(index == Blocked)
+		return;
+	auto award = getaward();
+	for(auto& e : bsmeta<creature>()) {
+		if(!e)
+			continue;
+		if(!e.isenemy(this))
+			continue;
+		e.addexp(award);
+	}
 }
 
-bool creature::isinteractive() const {
-	return true;
+void creature::kill() {
+	applyaward();
+	unlink();
+	clear();
+}
+
+void creature::damage(int value, attack_s type) {
+	if(value < 0) {
+		value = -value;
+		auto mhp = get(LifePoints);
+		if(hp + value > mhp)
+			value = mhp - hp;
+		if(value <= 0)
+			return;
+		act("%герой восстановил%а %1i повреждений.", value);
+	} else {
+		if(hp <= value) {
+			act("%герой получил%а %1i повреждений и упал%а.", value);
+			kill();
+		} else {
+			act("%герой получил%а %1i повреждений.", value);
+			hp -= value;
+		}
+	}
 }
 
 int	creature::get(ability_s v) const {
@@ -650,4 +684,17 @@ int	creature::get(ability_s v) const {
 	default:
 		return abilities[v];
 	}
+}
+
+void creature::addexp(int v) {
+	experience += v;
+}
+
+void creature::enslave() {
+	creaturea source;
+	source.select();
+	source.match(Hostile);
+	auto p = source.choose(true, "В кого хотите вселиться?");
+	p->activate();
+	wait();
 }

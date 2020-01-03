@@ -29,8 +29,80 @@ itemi bsmeta<itemi>::elements[] = {{"", 0, 0, NoGender, Organic, {}, {}, {}, {},
 {"Кольчуга", 2600, 50 * GP, Female, Iron, {}, {25, 3}, {}, {}, Torso},
 {"Бахрец", 3000, 200 * GP, Male, Iron, {}, {30, 4}, {}, {}, Torso},
 {"Латы", 3500, 800 * GP, Female, Iron, {}, {40, 5}, {}, {}, Torso},
+//
+{"Щит", 0, 0 * GP, Female, Iron, {}, {}, {}, {}, OffHand},
+{"Шлем", 0, 0 * GP, Female, Iron, {}, {}, {}, {}, Head},
+{"Наручи", 0, 0 * GP, Female, Iron, {}, {}, {}, {}, Elbows},
+{"Железные наручи", 0, 0 * GP, Female, Iron, {}, {}, {}, {}, Elbows},
+//
+{"Плащ", 0, 0 * GP, Male, Leather, {}, {}, {}, {}, TorsoBack},
+{"Плащ", 0, 0 * GP, Male, Leather, {}, {}, {}, {}, TorsoBack},
+{"Плащ", 0, 0 * GP, Female, Leather, {}, {}, {}, {}, TorsoBack},
+{"Плащ", 0, 0 * GP, Female, Leather, {}, {}, {}, {}, TorsoBack},
+{"Плащ", 0, 0 * GP, Female, Leather, {}, {}, {}, {}, TorsoBack},
+//
+{"Сапоги", 0, 0 * GP, NoGender, Leather, {}, {}, {}, {}, Legs},
+{"Сапоги", 0, 0 * GP, NoGender, Leather, {}, {}, {}, {}, Legs},
+{"Сапоги", 0, 0 * GP, NoGender, Iron, {}, {}, {}, {}, Legs},
+{"Сапоги", 0, 0 * GP, NoGender, Iron, {}, {}, {}, {}, Legs},
+{"Сапоги", 0, 0 * GP, NoGender, Iron, {}, {}, {}, {}, Legs},
+//
+{"Еда", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {}},
+{"Яблоко", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {}},
+{"Хлеб хоббитов", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {}},
+{"Хлеб эльфов", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {}},
+{"Хлеб гномов", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {}},
+{"Пирожное", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {}},
+{"Колбаса", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {}},
+{"Мясо", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {}},
+//
+{"Свиток", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+{"Свиток", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+{"Свиток", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+//
+{"Жезл", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+{"Жезл", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+{"Жезл", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+{"Жезл", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+{"Жезл", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+//
+{"Книга", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+{"Книга", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+{"Книга", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+{"Книга", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+{"Книга", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+//
+{"Зелье", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+{"Зелье", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+{"Зелье", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+{"Зелье", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+{"Зелье", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+//
+{"Кольцо", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+{"Кольцо", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+{"Кольцо", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+//
+{"Амулет", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+{"Амулет", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+{"Амулет", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+{"Амулет", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+{"Амулет", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+//
+{"Ключ", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+//
+{"Монета", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+{"Серебрянная монета", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+{"Золотая монета", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+//
+{"Когти", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+{"Кулаки", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+{"Укус", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+{"Хитин", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+{"Мех", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+//
+{"Много предметов"},
 };
-
+assert_enum(item, ManyItems);
 static_assert(sizeof(item) == sizeof(int), "Struct 'item' must be sizeof(int)");
 
 creature* item::getwearer() const {
