@@ -1,13 +1,13 @@
 #include "main.h"
 
-itemi bsmeta<itemi>::elements[] = {{"", 0, 0, NoGender, Organic, {}, {}, {}, {}, Melee, UnarmedFighting},
+itemi bsmeta<itemi>::elements[] = {{"", 0, 0, NoGender, Organic, {}, {}, {}, {}, Melee},
 {"Боевой топор", 850, 5 * GP, Male, Iron, {-4, D4n9, Slashing}, {}, {}, {Versatile}, Melee, FightAxes},
 {"Дубина", 1000, 5 * CP, Female, Wood, {-6, D1n4, Bludgeon}, {}, {}, {}, Melee, FightSwords},
-{"Кинжал", 50, 2 * GP, Male, Iron, {-2, D1n3, Piercing}, {}, {}, {}, Melee, FightPointed},
-{"Молот", 800, 2 * GP, Male, Wood, {-3, D3n8, Bludgeon}, {}, {}, {}, Melee, FightBlunt},
-{"Булава", 700, 8 * GP, Female, Iron, {-3, D2n7, Bludgeon}, {}, {}, {}, Melee, FightBlunt},
-{"Копье", 700, 8 * GP, NoGender, Iron, {-5, D3n8, Piercing}, {}, {}, {}, Melee, FightPointed},
-{"Посох", 700, 8 * GP, Female, Iron, {-1, D1n6, Bludgeon}, {}, {}, {TwoHanded}, Melee, FightStaff},
+{"Кинжал", 50, 2 * GP, Male, Iron, {-2, D1n3, Piercing}, {}, {}, {}, Melee},
+{"Молот", 800, 2 * GP, Male, Wood, {-3, D3n8, Bludgeon}, {}, {}, {}, Melee},
+{"Булава", 700, 8 * GP, Female, Iron, {-3, D2n7, Bludgeon}, {}, {}, {}, Melee},
+{"Копье", 700, 8 * GP, NoGender, Iron, {-5, D3n8, Piercing}, {}, {}, {}, Melee},
+{"Посох", 700, 8 * GP, Female, Iron, {-1, D1n6, Bludgeon}, {}, {}, {TwoHanded}, Melee},
 {"Меч", 700, 8 * GP, Female, Iron, {-4, D5n10, Slashing}, {}, {}, {Versatile}, Melee, FightSwords},
 {"Короткий меч", 700, 8 * GP, Female, Iron, {-3, D3n8, Slashing}, {}, {}, {}, Melee, FightSwords},
 {"Двуручный меч", 700, 8 * GP, Female, Iron, {-8, D4n14, Slashing}, {}, {}, {TwoHanded}, Melee, FightSwords},
@@ -98,7 +98,7 @@ itemi bsmeta<itemi>::elements[] = {{"", 0, 0, NoGender, Organic, {}, {}, {}, {},
 {"Кулаки", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
 {"Укус", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
 {"Хитин", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
-{"Мех", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+{"Мех", 0, 0 * GP, NoGender, Paper, {}, {40}, {}, {}, Torso},
 //
 {"Много предметов"},
 };

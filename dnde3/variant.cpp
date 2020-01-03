@@ -6,8 +6,8 @@ variant::variant(const creature* v) : type(v ? Creature : NoVariant), value(v - 
 const char*	variant::getname() const {
 	switch(type) {
 	case Ability: return bsmeta<abilityi>::elements[value].name;
-	case Skill: return bsmeta<skilli>::elements[value].name;
 	case Role: return bsmeta<rolei>::elements[value].name;
+	case Skill: return bsmeta<skilli>::elements[value].name;
 	default: return "Нет варианта";
 	}
 }

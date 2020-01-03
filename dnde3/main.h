@@ -107,8 +107,8 @@ enum skill_s : unsigned char {
 	DisarmTraps, HearNoises, HideInShadow, Lockpicking, PickPockets,
 	Alchemy, Dancing, Engineering, Gambling, History, Healing, Herbalism,
 	Literacy, Mining, Riding, Smithing, Survival, Swimming,
-	Archery, FightBlunt, FightSwords, FightAxes, FightPointed, FightTwoHanded, FightStaff,
-	UnarmedFighting, TwoWeaponFighting,
+	Archery, FightSwords, FightAxes,
+	TwoWeaponFighting,
 	FirstSkill = Bargaining, LastSkill = TwoWeaponFighting,
 	ResistAcid, ResistCharm, ResistCold, ResistElectricity, ResistFire, ResistParalize, ResistPoison, ResistWater,
 	FirstResist = ResistAcid, LastResist = ResistWater,
@@ -283,9 +283,8 @@ struct abilityi {
 };
 struct skilli {
 	struct weaponi {
-		char			base;
-		char			divider;
-		int				get(int v) const;
+		char			attack;
+		char			damage;
 	};
 	const char*			name;
 	const char*			name_tome;
@@ -295,7 +294,7 @@ struct skilli {
 	skill_s				getid() const;
 	const char*			getusetext() const;
 	bool				isresist() const { return getid() >= FirstResist; }
-	constexpr bool		isweapon() const { return weapon.base != 0; }
+	constexpr bool		isweapon() const { return weapon.attack != 0; }
 };
 struct equipmenti {
 	race_s				race;

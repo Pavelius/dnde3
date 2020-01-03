@@ -242,7 +242,6 @@ void creature::create(race_s race, gender_s gender, class_s type) {
 	abilities[Level] = 1;
 	setname(race, gender);
 	applyabilities();
-	raise(UnarmedFighting);
 	raise(Climbing);
 	if(abilities[Intellegence] >= 9)
 		raise(Literacy);
@@ -276,7 +275,16 @@ attacki creature::getattack(slot_s id) const {
 	}
 	if(!result.dice.max)
 		return result;
-	result.attack += bsmeta<skilli>::elements[skill].weapon.get(get(skill)); // Basic chance to hit
+	result.attack += 50; // Basic chance to hit
+	if(skill && skills[skill]) {
+		auto& ei = bsmeta<skilli>::elements[skill];
+		result.attack += get(skill) / ei.weapon.attack; // Basic chance to hit
+		if(ei.weapon.damage) {
+			result.dice.min += get(skill) / ei.weapon.damage;
+			result.dice.max += get(skill) / ei.weapon.damage;
+		}
+	}
+	//result.attack += .weapon.get(get(skill)); // Basic chance to hit
 	result.attack += get(attack_ability); // Basic chance to hit
 	result.dice.max += get(damage_ability);
 	// RULE: Versatile weapon if used two-handed made more damage.
@@ -571,6 +579,8 @@ void creature::attack(creature& enemy, slot_s id, int bonus) {
 	auto ai = getattack(id);
 	bonus += ai.attack;
 	bonus -= enemy.get(Deflect);
+	if(bonus < 5)
+		bonus = 5;
 	if(!rollv(bonus, 0)) {
 		act("%герой промазал%а.");
 		return;
