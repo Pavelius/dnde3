@@ -77,10 +77,7 @@ static void test_indoor() {
 	e.activate();
 	p1->activate();
 	p1->makemove();
-	while(true) {
-		auto p = creature::getactive();
-		p->makemove();
-	}
+	game.play();
 }
 
 static void item_choose() {

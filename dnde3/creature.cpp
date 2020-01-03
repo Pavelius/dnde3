@@ -359,6 +359,7 @@ void creature::dropdown(item& item) {
 	if(p) {
 		p->drop(getposition(), item);
 		remove(item, true);
+		consume(StandartEnergyCost / 4);
 	}
 }
 
@@ -373,8 +374,10 @@ void creature::pickup() {
 	itema items; items.select(getposition());
 	auto pi = items.choose(true, "Поднять предмет", 0, NoSlotName);
 	if(pi) {
-		if(add(*pi, true))
+		if(add(*pi, true)) {
 			pi->clear();
+			consume(StandartEnergyCost / 4);
+		}
 	}
 }
 
@@ -486,7 +489,7 @@ void creature::move(indext index) {
 				say("Здесь заперто.");
 			else
 				loc->set(index, Opened);
-			wait(Round);
+			wait();
 			return;
 		}
 		break;
@@ -501,7 +504,7 @@ void creature::move(indext index) {
 			return;
 		} else if(!isactive()) {
 			// Монстры и другие персонажи не меняются
-			wait(xrand(Round, Minute));
+			wait();
 			return;
 		} else if(p->isguard()) {
 			static const char* talk[] = {
@@ -510,7 +513,7 @@ void creature::move(indext index) {
 				"Не толкайся, я не отойду.",
 			};
 			p->say(maprnd(talk));
-			wait(xrand(1, 4));
+			wait();
 			return;
 		} else {
 			// Игрок меняется позицией с неигроком
@@ -526,7 +529,7 @@ void creature::move(indext index) {
 				return;
 			}
 			p->setposition(getposition());
-			p->wait(xrand(1, 4));
+			p->wait();
 			if(d100() < 50) {
 				static const char* talk[] = {
 					"Эй! Не толкайся.",
@@ -538,7 +541,7 @@ void creature::move(indext index) {
 		}
 	}
 	setposition(index);
-	wait(Round);
+	wait();
 }
 
 creature* creature::find(indext i) {
@@ -551,8 +554,15 @@ creature* creature::find(indext i) {
 	return 0;
 }
 
-void creature::wait(int segments) {
-	restore_action += segments;
+void creature::consume(int v) {
+	energy -= v;
+}
+
+int	creature::getspeed() const {
+	auto r = 100 + abilities[Speed];
+	r += get(Athletics) / 10;
+	r += get(Dexterity) / 2 - 5;
+	return r;
 }
 
 void creature::attack(creature& enemy, slot_s id, int bonus) {
@@ -560,7 +570,7 @@ void creature::attack(creature& enemy, slot_s id, int bonus) {
 	if(!rollv(ai.attack + bonus, 0))
 		act("%герой промазал%а.");
 	auto parry = enemy.getparry();
-	if((id == Melee || id == OffHand) && parry>0) {
+	if((id == Melee || id == OffHand) && parry > 0) {
 		if(enemy.rollv(parry, 0)) {
 			act("%герой, но %оппонент отбил%А удар.");
 			return;
@@ -571,14 +581,14 @@ void creature::attack(creature& enemy, slot_s id, int bonus) {
 }
 
 void creature::meleeattack(creature& enemy, int bonus) {
-	int wt = Round;
+	int energy = StandartEnergyCost;
 	if(wears[OffHand]) {
 		attack(enemy, Melee, bonus - 10);
 		attack(enemy, OffHand, bonus - 25);
-		wt++;
+		energy += StandartEnergyCost / 2;
 	} else
 		attack(enemy, Melee, bonus);
-	wait(wt);
+	consume(energy);
 }
 
 bool creature::isenemy(const creature* target) const {
@@ -590,15 +600,26 @@ void creature::say(const char* format, ...) const {
 }
 
 void creature::makemove() {
+	if(energy < StandartEnergyCost) {
+		energy += getspeed();
+		return;
+	}
 	if(isactive()) {
-		auto start = restore_action;
-		while(start == restore_action) {
+		auto start = energy;
+		while(start == energy) {
 			location::setcamera(getposition());
 			playui();
 		}
 	} else {
 
 	}
+}
+
+bool creature::roll(skill_s v, int bonus, int divider) const {
+	auto r = get(v) + bonus;
+	if(divider > 1)
+		r /= divider;
+	return rollv(r, 0);
 }
 
 bool creature::rollv(int v, int* r) {

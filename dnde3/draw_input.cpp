@@ -25,7 +25,6 @@ const int			gui_border = 8;
 const int			gui_padding = 4;
 static bool			show_gui_panel = true;
 static eventproc	current_background;
-static eventproc	current_layer;
 static indext		current_index;
 static tile_s		current_tile = Sea;
 static bool			break_modal;
@@ -508,18 +507,6 @@ static void setbackground(eventproc proc) {
 	current_background = proc;
 }
 
-void gamei::setnextlayer(void(*proc)()) {
-	current_layer = proc;
-}
-
-void gamei::layer() {
-	while(current_layer) {
-		auto proc = current_layer;
-		current_layer = 0;
-		proc();
-	}
-}
-
 static int render_info(int x, int y, int width) {
 	auto p = location::getactive();
 	if(!p)
@@ -698,9 +685,10 @@ static void render_info(const creature& e) {
 	x += dx + 40 + 20 - tw;
 	y = y1;
 	y += field(x, y, 52, "Опыт", e.getexperience());
-	//y += field(x, y, 52, "Время", getstrfdat(temp, segments));
 	y += field(x, y, 52, "Деньги", e.getmoney());
 	x += dx + 58;
+	y = y1;
+	y += field(x, y, 52, "Время", game.getrouns());
 	x = x1;
 	y = y1 + draw::texth() * 2;
 	// Draw encumbrance
@@ -1436,7 +1424,7 @@ static void change_player() {
 	auto pn = creature::getactive(n);
 	auto po = creature::getactive();
 	if(pn != po && pn) {
-		po->dazzle();
+		po->wait();
 		pn->activate();
 	}
 }

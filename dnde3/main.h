@@ -11,6 +11,7 @@ const short unsigned mmx = 96;
 const short unsigned mmy = 96;
 const unsigned short Blocked = 0xFFFF;
 const unsigned short BlockedCreature = Blocked - 1;
+const int StandartEnergyCost = 1000;
 
 enum dice_s : unsigned char {
 	NoDice,
@@ -171,13 +172,6 @@ enum spell_s : unsigned char {
 enum map_flag_s : unsigned char {
 	Visible, Hidden, Opened, Sealed, Explored, Webbed, Blooded,
 };
-enum duration_s : unsigned {
-	Instant = 0,
-	Round = 3, Minute = 12, Turn = 10 * Minute,
-	Halfhour = 30 * Minute, Hour = 60 * Minute, HalfDay = 12 * Hour, Day = 24 * Hour,
-	Week = 7 * Day, Month = 30 * Day, Season = 3 * Month, Year = 4 * Season,
-	Permanent = 100 * Year
-};
 enum item_type_s : unsigned char {
 	Mundane, Cursed, Blessed, Artifact,
 };
@@ -211,10 +205,6 @@ enum variant_s : unsigned char {
 	God, Item,
 	Number, Race, Range, Skill, Spell, State, Target,
 	Variant,
-};
-enum background_s : unsigned char {
-	NoBackground,
-	Outdoor, Indoor,
 };
 enum formula_s : unsigned char {
 	Negative,
@@ -290,11 +280,18 @@ struct abilityi {
 	ability_s			getid() const;
 };
 struct skilli {
+	struct weaponi {
+		char			base;
+		char			divider;
+	};
 	const char*			name;
 	const char*			name_tome;
 	ability_s			abilities[2];
+	weaponi				weapon;
+	//
 	skill_s				getid() const;
 	bool				isresist() const { return getid() >= FirstResist; }
+	constexpr bool		isweapon() const { return weapon.base != 0; }
 };
 struct equipmenti {
 	race_s				race;
@@ -548,7 +545,8 @@ class creature : public nameable, public posable {
 	unsigned char		skills[LastResist + 1];
 	unsigned char		spells[LastSpell + 1];
 	item				wears[Amunitions + 1];
-	unsigned			restore_hits, restore_mana, restore_action;
+	int					energy;
+	unsigned			restore_hits, restore_mana;
 	char				hp, mp;
 	statea				states;
 	short unsigned		charmer, horror;
@@ -596,10 +594,9 @@ public:
 	short unsigned		choose(aref<short unsigned> source, bool interactive) const;
 	void				create(race_s race, gender_s gender, class_s type);
 	void				clear();
-	void				consume(int value, bool interactive);
+	void				consume(int energy_value);
 	void				damage(int count, attack_s type, bool interactive);
 	void				damagewears(int count, attack_s type);
-	void				dazzle() { wait(xrand(1, 4)); }
 	void				drink(item& it, bool interactive);
 	void				dropdown();
 	bool				equip(item value);
@@ -643,6 +640,7 @@ public:
 	dice_s				getraise(skill_s id) const;
 	role_s				getrole() const { return role; }
 	site*				getsite() const { return 0; }
+	int					getspeed() const;
 	slot_s				getwearerslot(const item* p) const;
 	int					getweight() const;
 	int					getweight(encumbrance_s id) const;
@@ -679,7 +677,7 @@ public:
 	void				rangeattack(creature* enemy);
 	void				readbook(item& it);
 	void				remove(state_s value);
-	bool				roll(skill_s v, int bonus = 0) const { return rollv(get(v) + bonus, 0); }
+	bool				roll(skill_s v, int bonus = 0, int divider = 0) const;
 	static bool			rollv(int v, int* r);
 	bool				saving(bool interactive, skill_s save, int bonus) const;
 	void				say(const char* format, ...) const;
@@ -695,10 +693,9 @@ public:
 	void				setlos();
 	void				setmoney(int value) { money = value; }
 	void				trapeffect();
-	void				update();
 	bool				use(short unsigned index);
 	void				useskills();
-	void				wait(int segments = 0);
+	void				wait() { consume(StandartEnergyCost); }
 };
 class creaturea : adat<creature*> {
 public:
@@ -837,12 +834,10 @@ struct outdoor : public posable {
 class gamei {
 	unsigned			rounds;
 public:
+	int					getrouns() const { return rounds; }
 	void				intialize();
-	static void			layer();
 	static void			help();
-	void				pass(unsigned seconds);
-	static void			setnextlayer(void(*proc)());
-	static void			set(background_s v);
+	void				play();
 };
 extern gamei			game;
 extern stringbuilder	sb;
