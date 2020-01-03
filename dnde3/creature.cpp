@@ -165,7 +165,7 @@ void creature::raiseskills(int number) {
 	source.setcaps();
 	unsigned index = 0;
 	unsigned count = source.getcount();
-	while(number >= 0) {
+	while(number > 0) {
 		if(index >= count)
 			index = 0;
 		raise(source[index++]);
@@ -220,12 +220,16 @@ void creature::applyabilities() {
 		raise(e);
 	for(auto e : ci.skills)
 		raise(e);
+	// Class spells
+	for(auto e : ci.spells)
+		set(e, 1);
+	// Hits
+	add(LifePoints, getclass().hp);
+	add(ManaPoints, getclass().mp);
 	dresson();
 }
 
 void creature::finish() {
-	add(LifePoints, getclass().hp);
-	add(ManaPoints, getclass().mp);
 	hp = get(LifePoints);
 	mp = get(ManaPoints);
 }
@@ -238,16 +242,12 @@ void creature::create(race_s race, gender_s gender, class_s type) {
 	abilities[Level] = 1;
 	setname(race, gender);
 	applyabilities();
-	if(abilities[Intellegence] >= 9)
-		raise(Literacy);
-	for(auto e : getclass().spells)
-		set(e, 1);
-	start_equipment(*this);
-	// Повысим навыки
 	raise(UnarmedFighting);
 	raise(Climbing);
-	auto skill_checks = get(Intellegence) / 2;
-	raiseskills(skill_checks);
+	if(abilities[Intellegence] >= 9)
+		raise(Literacy);
+	raiseskills();
+	start_equipment(*this);
 	finish();
 }
 

@@ -676,6 +676,7 @@ public:
 	void				post(ability_s i, int value, unsigned rounds);
 	void				raise(skill_s value);
 	void				raiseskills(int number);
+	void				raiseskills() { raiseskills(get(Intellegence) / 2); }
 	void				rangeattack(creature* enemy);
 	void				readbook(item& it);
 	void				remove(state_s v) { states.remove(v); }

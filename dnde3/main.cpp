@@ -78,6 +78,7 @@ static void test_indoor() {
 	auto p3 = create(e, Elf, Male, Fighter);
 	create(e, GoblinWarrior);
 	create(e, GoblinWarrior);
+	create(e, GnollWarrior);
 	random_bless(p1);
 	e.activate();
 	p1->activate();
