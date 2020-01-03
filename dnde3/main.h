@@ -15,9 +15,12 @@ const int StandartEnergyCost = 1000;
 
 enum dice_s : unsigned char {
 	NoDice,
-	D1n3, D1n4, D1n6, D2n7, D3n8, D4n9, D5n10, D6n11,
-	D2n12, D3n13, D4n14, D5n15,
-	D3n18, D4n19, D5n20,
+	D1n3, D1n4,
+	D1n6, D2n7,
+	D1n8,
+	D1n10,
+	D1n12,
+	D2n12,
 };
 enum item_s : unsigned char {
 	NoItem,
@@ -266,10 +269,15 @@ struct boosti {
 	unsigned			time;
 };
 struct classi {
+	struct weaponi {
+		char			base;
+		char			multiplier;
+	};
 	const char*			name;
 	unsigned char		hp, mp;
 	unsigned char		naked_avatar;
 	char				ability[6];
+	weaponi				weapon;
 	adat<skill_s, 8>	skills;
 	adat<spell_s, 6>	spells;
 };
@@ -643,7 +651,6 @@ public:
 	dice_s				getraise(skill_s id) const;
 	role_s				getrole() const { return (role_s)value; }
 	site*				getsite() const { return 0; }
-	int					getspeed() const;
 	slot_s				getwearerslot(const item* p) const;
 	int					getweight() const;
 	int					getweight(encumbrance_s id) const;

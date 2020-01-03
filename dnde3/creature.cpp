@@ -117,7 +117,7 @@ int creature::getlevel(skill_s v) const {
 }
 
 dice_s creature::getraise(skill_s v) const {
-	dice_s source[] = {D3n13, D1n6, D1n4};
+	dice_s source[] = {D2n12, D1n6, D1n4};
 	auto n = getlevel(v);
 	return maptbl(source, n);
 }
@@ -275,7 +275,9 @@ attacki creature::getattack(slot_s id) const {
 	}
 	if(!result.dice.max)
 		return result;
-	result.attack += 50; // Basic chance to hit
+	auto& ci = getclass();
+	result.attack += ci.weapon.base;
+	result.attack += get(Level) * ci.weapon.multiplier;
 	if(skill && skills[skill]) {
 		auto& ei = bsmeta<skilli>::elements[skill];
 		result.attack += get(skill) / ei.weapon.attack; // Basic chance to hit
@@ -284,7 +286,6 @@ attacki creature::getattack(slot_s id) const {
 			result.dice.max += get(skill) / ei.weapon.damage;
 		}
 	}
-	//result.attack += .weapon.get(get(skill)); // Basic chance to hit
 	result.attack += get(attack_ability); // Basic chance to hit
 	result.dice.max += get(damage_ability);
 	// RULE: Versatile weapon if used two-handed made more damage.
@@ -568,13 +569,6 @@ void creature::consume(int v) {
 	energy -= v;
 }
 
-int	creature::getspeed() const {
-	auto r = 100 + abilities[Speed];
-	r += get(Athletics) / 10;
-	r += get(Dexterity) / 2 - 5;
-	return r;
-}
-
 void creature::attack(creature& enemy, slot_s id, int bonus) {
 	auto ai = getattack(id);
 	bonus += ai.attack;
@@ -611,7 +605,7 @@ void creature::say(const char* format, ...) const {
 
 void creature::makemove() {
 	if(energy < StandartEnergyCost) {
-		energy += getspeed();
+		energy += get(Speed);
 		return;
 	}
 	if(isactive()) {
@@ -684,6 +678,7 @@ void creature::damage(int value, attack_s type) {
 }
 
 int	creature::get(ability_s v) const {
+	int r;
 	switch(v) {
 	case Deflect:
 		return abilities[Deflect] + get(Acrobatics) / 4;
@@ -691,6 +686,12 @@ int	creature::get(ability_s v) const {
 		return abilities[v] + get(Constitution);
 	case ManaPoints:
 		return abilities[v] + get(Wisdow);
+	case Speed:
+		r = 100;
+		r += abilities[Speed];
+		r += get(Athletics) / 10;
+		r += get(Dexterity) / 2 - 5;
+		return r;
 	default:
 		return abilities[v];
 	}
