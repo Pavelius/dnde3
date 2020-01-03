@@ -567,7 +567,7 @@ class creature : public nameable, public posable {
 	unsigned char		skills[LastResist + 1];
 	unsigned char		spells[LastSpell + 1];
 	item				wears[Amunitions + 1];
-	int					energy;
+	int					restore_energy;
 	unsigned			restore_hits, restore_mana;
 	char				hp, mp;
 	statea				states;

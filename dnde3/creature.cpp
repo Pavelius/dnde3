@@ -566,7 +566,7 @@ creature* creature::find(indext i) {
 }
 
 void creature::consume(int v) {
-	energy -= v;
+	restore_energy -= v;
 }
 
 void creature::attack(creature& enemy, slot_s id, int bonus) {
@@ -604,13 +604,26 @@ void creature::say(const char* format, ...) const {
 }
 
 void creature::makemove() {
-	if(energy < StandartEnergyCost) {
-		energy += get(Speed);
+	const auto pc = StandartEnergyCost * 10;
+	if(restore_hits > pc) {
+		if(hp < get(LifePoints))
+			hp++;
+		restore_hits -= pc;
+	} else
+		restore_hits += get(LifeRate);
+	if(restore_mana > pc) {
+		if(mp < get(ManaPoints))
+			mp++;
+		restore_mana -= pc;
+	} else
+		restore_mana += get(LifeRate);
+	if(restore_energy < StandartEnergyCost) {
+		restore_energy += get(Speed);
 		return;
 	}
 	if(isactive()) {
-		auto start = energy;
-		while(start == energy) {
+		auto start = restore_energy;
+		while(start == restore_energy) {
 			location::setcamera(getposition());
 			playui();
 		}
@@ -684,8 +697,12 @@ int	creature::get(ability_s v) const {
 		return abilities[Deflect] + get(Acrobatics) / 4;
 	case LifePoints:
 		return abilities[v] + get(Constitution);
+	case LifeRate:
+		return abilities[v] + get(Healing);
 	case ManaPoints:
 		return abilities[v] + get(Wisdow);
+	case ManaRate:
+		return abilities[v] + get(Concetration) * 3;
 	case Speed:
 		r = 100;
 		r += abilities[Speed];
