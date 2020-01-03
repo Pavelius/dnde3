@@ -65,34 +65,35 @@ void creature::isolate() {
 void creature::dressoff() {
 	if(!this)
 		return;
-	dresswp(-1);
-	dresswr(-1);
+	dress(-1);
 }
 
 void creature::dresson() {
 	if(!this)
 		return;
-	dresswr(1);
-	dresswp(1);
+	dress(1);
 }
 
-void creature::dresswp(int m) {
-	abilities[AttackMelee] += m * wears[Melee].getmagic() * 3;
-	abilities[DamageMelee] += m * (wears[Melee].getmagic() / 2);
-	abilities[AttackRanged] += m * wears[Ranged].getmagic() * 4;
-	abilities[DamageRanged] += m * (wears[Ranged].getmagic() / 2);
-}
-
-void creature::dresswr(int m) {
+void creature::dress(int m) {
 	for(auto i = Head; i <= Legs; i = (slot_s)(i + 1)) {
 		if(!wears[i])
 			continue;
 		auto mi = wears[i].getmagic();
 		auto& ei = wears[i].getitem();
-		if(i != Melee && i != Ranged) {
-			auto a = m * ei.weapon.attack;
-			abilities[AttackMelee] += a;
-			abilities[AttackRanged] += a;
+		auto wa = m * ei.weapon.attack;
+		switch(i) {
+		case Melee:
+			abilities[AttackMelee] += m * mi * 3;
+			abilities[DamageMelee] += m * mi / 2;
+			break;
+		case Ranged:
+			abilities[AttackMelee] += m * mi * 4;
+			abilities[DamageMelee] += m * mi / 2;
+			break;
+		default:
+			abilities[AttackMelee] += wa;
+			abilities[AttackRanged] += wa;
+			break;
 		}
 		abilities[Deflect] += m * (ei.armor.deflect + mi*ei.armor.multiplier);
 		abilities[Armor] += m * ei.armor.armor;
@@ -158,17 +159,12 @@ bool creature::equip(item v) {
 }
 
 void creature::raiseskills(int number) {
-	skill_s source[sizeof(skills) / sizeof(skills[0])];
-	auto pb = source;
-	for(auto i = Bargaining; i <= TwoWeaponFighting; i = (skill_s)(i + 1)) {
-		if(skills[i])
-			*pb++ = i;
-	}
-	unsigned count = pb - source;
-	if(!count)
-		return;
-	zshuffle(source, count);
+	skillu source(this);
+	source.select(*this);
+	source.shuffle();
+	source.setcaps();
 	unsigned index = 0;
+	unsigned count = source.getcount();
 	while(number >= 0) {
 		if(index >= count)
 			index = 0;
@@ -227,6 +223,13 @@ void creature::applyabilities() {
 	dresson();
 }
 
+void creature::finish() {
+	add(LifePoints, getclass().hp);
+	add(ManaPoints, getclass().mp);
+	hp = get(LifePoints);
+	mp = get(ManaPoints);
+}
+
 void creature::create(race_s race, gender_s gender, class_s type) {
 	clear();
 	this->type = type;
@@ -244,12 +247,7 @@ void creature::create(race_s race, gender_s gender, class_s type) {
 	raise(Climbing);
 	auto skill_checks = get(Intellegence) / 2;
 	raiseskills(skill_checks);
-	// Восполним хиты
-	add(LifePoints, getclass().hp);
-	add(ManaPoints, getclass().mp);
-	// Generate name
-	hp = get(LifePoints);
-	mp = get(ManaPoints);
+	finish();
 }
 
 void creature::getfullname(stringbuilder& sb) const {
@@ -570,14 +568,11 @@ int	creature::getspeed() const {
 
 void creature::attack(creature& enemy, slot_s id, int bonus) {
 	auto ai = getattack(id);
-	if(!rollv(ai.attack + bonus, 0))
+	bonus += ai.attack;
+	bonus -= enemy.get(Deflect);
+	if(!rollv(bonus, 0)) {
 		act("%герой промазал%а.");
-	auto parry = enemy.getparry();
-	if((id == Melee || id == OffHand) && parry > 0) {
-		if(enemy.rollv(parry, 0)) {
-			act("%герой, но %оппонент отбил%А удар.");
-			return;
-		}
+		return;
 	}
 	auto dv = ai.dice.roll();
 	damage(dv, ai.type, isinteractive());
@@ -642,4 +637,17 @@ void creature::damage(int value, attack_s type, bool interactive) {
 
 bool creature::isinteractive() const {
 	return true;
+}
+
+int	creature::get(ability_s v) const {
+	switch(v) {
+	case Deflect:
+		return abilities[Deflect] + get(Acrobatics) / 4;
+	case LifePoints:
+		return abilities[v] + get(Constitution);
+	case ManaPoints:
+		return abilities[v] + get(Wisdow);
+	default:
+		return abilities[v];
+	}
 }

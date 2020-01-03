@@ -317,3 +317,85 @@ void location::lake(int x, int y, int w, int h) {
 		ellipse({x1, y1, x1 + w1, y1 + h1}, Water);
 	}
 }
+
+bool location::isfree(indext i) const {
+	if(i == Blocked)
+		return false;
+	if(tiles[i] == Wall)
+		return false;
+	switch(objects[i]) {
+	case Tree:
+		return false;
+	case Door:
+		return is(i, Opened);
+	default:
+		break;
+	}
+	return true;
+}
+
+bool location::isfreenc(indext i) const {
+	if(!isfree(i))
+		return false;
+	if(creature::find(i))
+		return false;
+	return true;
+}
+
+indext location::getfree(indext i, procis proc, int radius_maximum) const {
+	if(i == Blocked)
+		return i;
+	if((this->*proc)(i))
+		return i;
+	auto x = getx(i);
+	auto y = gety(i);
+	for(auto r = 1; r < radius_maximum; r++) {
+		if(rand() % 2) {
+			for(auto x1 = x - r; x1 <= x + r; x1++) {
+				if(x1 < 0)
+					continue;
+				if(x1 >= mmx)
+					break;
+				for(auto y1 = y - r; y1 <= y + r; y1++) {
+					if(y1 < 0)
+						continue;
+					if(y1 >= mmy)
+						break;
+					auto i1 = get(x1, y1);
+					if((this->*proc)(i1))
+						return i1;
+				}
+			}
+		} else {
+			for(auto y1 = y - r; y1 <= y + r; y1++) {
+				if(y1 < 0)
+					continue;
+				if(y1 >= mmy)
+					break;
+				for(auto x1 = x - r; x1 <= x + r; x1++) {
+					if(x1 < 0)
+						continue;
+					if(x1 >= mmx)
+						break;
+					auto i1 = get(x1, y1);
+					if((this->*proc)(i1))
+						return i1;
+				}
+			}
+		}
+	}
+	return Blocked;
+}
+
+creature* location::add(indext index, role_s role) {
+	auto p = bsmeta<creature>::addz();
+	p->create(role);
+	return 0;
+}
+
+creature* location::add(indext index, race_s race, gender_s gender, class_s type) {
+	auto p = bsmeta<creature>::addz();
+	p->create(race, gender, type);
+	p->setposition(getfree(index));
+	return p;
+}

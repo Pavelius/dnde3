@@ -2,11 +2,11 @@
 
 classi bsmeta<classi>::elements[] = {{"Крестьянин", 4, 0},
 {"Клерик", 8, 8, 0, {0, 0, 0, 0, 2, 1}, {Diplomacy, Literacy, History, Healing, Herbalism}, {BlessSpell, HealingSpell}},
-{"Воин", 10, 3, 1, {2, 0, 1, -2, 0, -1}, {Survival, Athletics, Riding, Archery, FightSwords, FightAxes, FightPointed, FightTwoHanded}},
+{"Воин", 10, 3, 0, {2, 0, 1, -2, 0, -1}, {Survival, Athletics, Riding, Archery, FightSwords, FightAxes, FightPointed, FightTwoHanded}},
 {"Маг", 4, 10, 0, {-2, 0, 0, 2, 1, 2}, {Alchemy, Concetration, History, Literacy, FightStaff}, {ArmorSpell, MagicMissile, Sleep}},
-{"Паладин", 10, 6, 1, {2, 0, 1, 0, 1, 2}, {Diplomacy, Athletics, Literacy, FightSwords, FightTwoHanded}, {DetectEvil}},
-{"Следопыт", 10, 4, 1, {0, 2, 1, 0, 1, -1}, {Acrobatics, Survival, Athletics, Swimming, Riding, Archery, TwoWeaponFighting}},
-{"Вор", 6, 6, 1, {0, 2, 0, 0, 0, 1}, {PickPockets, Lockpicking, HideInShadow, Acrobatics, DisarmTraps, Bluff, Backstabbing, FightPointed}},
+{"Паладин", 10, 6, 0, {2, 0, 1, 0, 1, 2}, {Diplomacy, Athletics, Literacy, FightSwords, FightTwoHanded}, {DetectEvil}},
+{"Следопыт", 10, 4, 0, {0, 2, 1, 0, 1, -1}, {Acrobatics, Survival, Athletics, Swimming, Riding, Archery, TwoWeaponFighting}},
+{"Вор", 6, 6, 0, {0, 2, 0, 0, 0, 1}, {PickPockets, Lockpicking, HideInShadow, Acrobatics, DisarmTraps, Bluff, Backstabbing, FightPointed}},
 {"Монстер", 8, 8, 0},
 };
 assert_enum(class, Monster);

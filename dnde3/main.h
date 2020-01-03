@@ -107,7 +107,7 @@ enum skill_s : unsigned char {
 	DisarmTraps, HearNoises, HideInShadow, Lockpicking, PickPockets,
 	Alchemy, Dancing, Engineering, Gambling, History, Healing, Herbalism,
 	Literacy, Mining, Riding, Smithing, Survival, Swimming,
-	Archery, FightEdged, FightSwords, FightAxes, FightPointed, FightTwoHanded, FightStaff,
+	Archery, FightBlunt, FightSwords, FightAxes, FightPointed, FightTwoHanded, FightStaff,
 	UnarmedFighting, TwoWeaponFighting,
 	FirstSkill = Bargaining, LastSkill = TwoWeaponFighting,
 	ResistAcid, ResistCharm, ResistCold, ResistElectricity, ResistFire, ResistParalize, ResistPoison, ResistWater,
@@ -566,15 +566,14 @@ class creature : public nameable, public posable {
 	const variant*		calculate(const variant* formula, int& result) const;
 	void				cantmovehere() const;
 	void				delayed(variant id, int v, unsigned time);
-	void				dresswr(int m);
-	void				dresswp(int m);
+	void				dress(int m);
 	void				dressoff();
 	void				dresson();
 	void				dropdown(item& item);
 	void				equip(item it, slot_s id);
+	void				finish();
 	bool				remove(item& it, bool run);
 public:
-	creature() = default;
 	explicit operator bool() const { return hp > 0; }
 	//
 	void				activate();
@@ -595,6 +594,7 @@ public:
 	creature*			choose(aref<creature*> source, bool interactive) const;
 	short unsigned		choose(aref<short unsigned> source, bool interactive) const;
 	void				create(race_s race, gender_s gender, class_s type);
+	void				create(role_s type);
 	void				clear();
 	void				consume(int energy_value);
 	void				damage(int count, attack_s type, bool interactive);
@@ -603,7 +603,7 @@ public:
 	void				dropdown();
 	bool				equip(item value);
 	static creature*	find(indext i);
-	int					get(ability_s v) const { return abilities[v]; }
+	int					get(ability_s v) const;
 	int					get(spell_s v) const { return spells[v]; }
 	int					get(skill_s v) const;
 	const item&			get(slot_s v) const { return wears[v]; }
@@ -637,7 +637,6 @@ public:
 	const char*			getmonstername() const;
 	int					getmoverecoil() const;
 	static creature*	getobject(short unsigned v);
-	int					getparry() const { return 0; }
 	int					getpotency(skill_s v) const;
 	dice_s				getraise(skill_s id) const;
 	role_s				getrole() const { return role; }
@@ -775,11 +774,16 @@ struct manual {
 	const char*			getname() const;
 };
 class location {
+	typedef bool(location::*procis)(indext i) const;
 	tile_s				tiles[mmx*mmy];
 	map_object_s		objects[mmx*mmy];
 	unsigned char		random[mmx*mmy];
 	flagable<1>			flags[mmx*mmy];
+	//
 	indext				bpoint(indext index, int w, int h, direction_s dir) const;
+	indext				getfree(indext i, procis proc, int radius_maximum) const;
+	bool				isfree(indext i) const;
+	bool				isfreenc(indext i) const;
 	bool				wget(short unsigned i, direction_s direction, tile_s value) const;
 	bool				wget(short unsigned i, direction_s direction, tile_s value, bool default_result) const;
 	bool				xget(short unsigned i, direction_s direction) const;
@@ -800,6 +804,7 @@ public:
 	static location*	getactive();
 	static direction_s	getdirection(indext from, indext to);
 	static direction_s	getdirection(point from, point to);
+	indext				getfree(indext i) const { return getfree(i, &location::isfreenc, 5); }
 	static short		getx(indext i) { return i % mmx; }
 	static short		gety(indext i) { return i / mmx; }
 	int					getindex(indext i, tile_s e) const;
