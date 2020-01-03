@@ -67,9 +67,9 @@ static int handle(MSG& msg) {
 		break;
 	case WM_KEYDOWN:
 		return tokey(msg.wParam);
-	case WM_CHAR:
-		hot.param = msg.wParam;
-		return InputSymbol;
+	//case WM_CHAR:
+	//	hot.param = msg.wParam;
+	//	return InputSymbol;
 	case WM_MY_SIZE:
 	case WM_SIZE:
 		return InputUpdate;

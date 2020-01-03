@@ -9,7 +9,8 @@ extern "C" int strcmp(const char* s1, const char* s2); // Compare two strings
 
 enum draw_event_s {
 	// input events
-	InputSymbol = 0xED00, InputTimer, InputIdle, InputUpdate, InputNoUpdate, InputExecute,
+	FirstInput = 0xED00,
+	InputTimer = FirstInput, InputUpdate, InputNoUpdate,
 	// Keyboard and mouse input (can be overrided by flags)
 	MouseLeft = 0xEE00, MouseLeftDBL, MouseRight,
 	MouseMove, MouseWheelUp, MouseWheelDown,
@@ -33,7 +34,6 @@ enum draw_event_s {
 	Focused = 0x10000000, // Control has keyboard input and can change visual form.
 	Checked = 0x20000000, // Use in background virtual method.
 	Disabled = 0x40000000, // Control not grant any input.
-	FirstInput = InputSymbol,
 };
 enum window_flags {
 	WFResize = 0x0010,

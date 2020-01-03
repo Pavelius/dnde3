@@ -283,6 +283,7 @@ struct skilli {
 	struct weaponi {
 		char			base;
 		char			divider;
+		int				get(int v) const;
 	};
 	const char*			name;
 	const char*			name_tome;
@@ -290,6 +291,7 @@ struct skilli {
 	weaponi				weapon;
 	//
 	skill_s				getid() const;
+	const char*			getusetext() const;
 	bool				isresist() const { return getid() >= FirstResist; }
 	constexpr bool		isweapon() const { return weapon.base != 0; }
 };

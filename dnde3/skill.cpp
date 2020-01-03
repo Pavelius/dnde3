@@ -25,7 +25,7 @@ skilli bsmeta<skilli>::elements[] = {{"Торговля", "торговли", {Charisma, Intelle
 {"Инженерное дело", "инженерии", {Intellegence, Intellegence}},
 {"Азартные игры", "азартных игр", {Charisma, Dexterity}},
 {"История", "истории", {Intellegence, Intellegence}},
-{"Лечение", "лечения", {Wisdow, Intellegence}},
+{"Заживание ран", "здоровья", {Wisdow, Constitution}},
 {"Травознавство", "травознания", {Wisdow, Intellegence}},
 {"Грамотность", "письма и чтения", {Intellegence, Intellegence}},
 {"Шахтерское дело", "шахтерского дела", {Strenght, Constitution}},
@@ -49,7 +49,7 @@ skilli bsmeta<skilli>::elements[] = {{"Торговля", "торговли", {Charisma, Intelle
 {"Сопротивление холоду", "холода", {Constitution, Strenght}},
 {"Сопротивление электричеству", "молнии", {Dexterity, Dexterity}},
 {"Сопротивление огню", "огня", {Constitution, Dexterity}},
-{"Сопротивление параличу", "параличу", {Constitution, Dexterity}},
+{"Сопротивление параличу", "паралича", {Constitution, Dexterity}},
 {"Сопротивление яду", "яда", {Constitution, Constitution}},
 {"Дыхание водой", "воды", {Strenght, Constitution}},
 };
@@ -57,4 +57,22 @@ assert_enum(skill, ResistWater);
 
 skill_s	skilli::getid() const {
 	return skill_s(this - bsmeta<skilli>::elements);
+}
+
+const char* skilli::getusetext() const {
+	switch(getid()) {
+	case Healing: return "Используется автоматически восстанавливая 1 очко жизни за определенный промежуток времени.";
+	case Concetration: return "Используется автоматически восстанавливая 1 очко маны за определенный промежуток времени.";
+	default: return "Этот навык используется автоматически.";
+	}
+}
+
+int	skilli::weaponi::get(int v) const {
+	auto r = base;
+	switch(divider) {
+	case 0: break;
+	case 1: r += (2 * v) / 3; break;
+	default: r += v / divider; break;
+	}
+	return r;
 }

@@ -262,6 +262,7 @@ attacki creature::getattack(slot_s id) const {
 	auto& weapon = wears[id];
 	auto attack_ability = AttackMelee;
 	auto damage_ability = DamageMelee;
+	auto skill = weapon.getitem().skill;
 	if(id == Ranged) {
 		attack_ability = AttackRanged;
 		damage_ability = DamageRanged;
@@ -276,7 +277,7 @@ attacki creature::getattack(slot_s id) const {
 	}
 	if(!result.dice.max)
 		return result;
-	result.attack += get(weapon.getitem().skill); // Basic chance to hit
+	result.attack += bsmeta<skilli>::elements[skill].weapon.get(get(skill)); // Basic chance to hit
 	result.attack += get(attack_ability); // Basic chance to hit
 	result.dice.max += get(damage_ability);
 	// RULE: Versatile weapon if used two-handed made more damage.
@@ -460,6 +461,8 @@ void creature::useskills() {
 	auto s = source.choose(true, "Какой навык использовать?", &cancel);
 	if(cancel)
 		return;
+	auto ps = bsmeta<skilli>::elements[s].getusetext();
+	sb.add(ps);
 }
 
 void creature::cantmovehere() const {
