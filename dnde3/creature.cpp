@@ -278,6 +278,10 @@ attacki creature::getattack(slot_s id) const {
 	auto& ci = getclass();
 	result.attack += ci.weapon.base;
 	result.attack += get(Level) * ci.weapon.multiplier;
+	if(id == Ranged)
+		result.attack += (get(Dexterity) - 10) * 2;
+	else
+		result.attack += (get(Strenght) - 10) * 2;
 	if(skill && skills[skill]) {
 		auto& ei = bsmeta<skilli>::elements[skill];
 		result.attack += get(skill) / ei.weapon.attack; // Basic chance to hit
@@ -288,10 +292,10 @@ attacki creature::getattack(slot_s id) const {
 	}
 	result.attack += get(attack_ability); // Basic chance to hit
 	result.dice.max += get(damage_ability);
-	// RULE: Versatile weapon if used two-handed made more damage.
 	if(id == Melee) {
 		result.dice.max += (get(Strenght) - 10) / 2;
 		if(weapon.is(Versatile) && !wears[OffHand]) {
+			// RULE: Versatile weapon if used two-handed made more damage.
 			result.dice.min += 1;
 			result.dice.max += 1;
 		}
@@ -604,7 +608,7 @@ void creature::say(const char* format, ...) const {
 }
 
 void creature::makemove() {
-	const auto pc = StandartEnergyCost * 10;
+	const auto pc = StandartEnergyCost * 20;
 	if(restore_hits > pc) {
 		if(hp < get(LifePoints))
 			hp++;
@@ -725,4 +729,18 @@ void creature::enslave() {
 	auto p = source.choose(true, "В кого хотите вселиться?");
 	p->activate();
 	wait();
+}
+
+void creature::moveto(indext index) {
+	auto pos = getposition();
+	if(index == pos)
+		return;
+	if(location::getrange(pos, index) == 1) {
+		move(index);
+		return;
+	}
+	//makewave(index);
+	//index = getstepto(position);
+	//if(index == Blocked)
+	//	wait();
 }

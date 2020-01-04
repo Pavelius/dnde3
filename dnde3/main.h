@@ -676,6 +676,7 @@ public:
 	void				manipulate(short unsigned index);
 	void				meleeattack(creature& enemy, int bonus = 0);
 	void				move(indext index);
+	void				moveto(indext index);
 	bool				moveaway(indext index);
 	void				playui();
 	void				pickup();
@@ -696,7 +697,6 @@ public:
 	void				set(state_s v) { states.set(v); }
 	void				set(spell_s id, int v) { spells[id] = v; }
 	void				setcharmer(const creature* p) { charmer = p->getid(); }
-	static void			setblocks(short unsigned* movements, short unsigned value);
 	void				setguard(short unsigned value) { guard = value; }
 	void				sethorror(const creature* p) { horror = p->getid(); }
 	void				setlos();
@@ -806,6 +806,7 @@ public:
 	indext				choose(bool allow_cancel);
 	indext				choose(bool allow_cancel, const aref<indext>& source, const char* format);
 	void				clear();
+	static void			clearmove();
 	void				create(const rect& rc, int count, map_object_s object);
 	void				create(const rect& rc, int count, tile_s v);
 	void				drop(indext i, item v);
@@ -827,6 +828,7 @@ public:
 	void				indoor(point camera, bool show_fow = true, const picture* effects = 0);
 	bool				is(indext i, map_flag_s v) const { return flags[i].is(v); }
 	void				lake(int x, int y, int w, int h);
+	void				makewave(indext index, location::procis proc);
 	bool				read(const char* url);
 	void				remove(indext i, map_flag_s v) { flags[i].remove(v); }
 	void				set(indext i, map_flag_s v) { flags[i].set(v); }

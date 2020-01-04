@@ -1,6 +1,9 @@
 #include "main.h"
 
-static location* current_location;
+static location*		current_location;
+static short unsigned	movements[mmx*mmy];
+static short unsigned	stack[256 * 256];
+static direction_s		all_aroud[] = {Left, Right, Up, Down, LeftDown, LeftUp, RightDown, RightUp};
 
 static const direction_s orientations_7b7[49] = {
 	LeftUp, LeftUp, Up, Up, Up, RightUp, RightUp,
@@ -266,7 +269,7 @@ indext location::building(indext index, int w, int h, direction_s dir) {
 	set(i, Wall, w, h);
 	set(to(i, RightDown), Floor, w - 2, h - 2);
 	// Двери
-	if(dir==Center)
+	if(dir == Center)
 		dir = maprnd(rdir);;
 	auto door = bpoint(i, w, h, dir);
 	set(door, Floor);
@@ -412,4 +415,31 @@ int	location::getrange(indext i1, indext i2) {
 	auto dx = iabs(x1 - x2);
 	auto dy = iabs(y1 - y2);
 	return (dx > dy) ? dx : dy;
+}
+
+void location::clearmove() {
+	memset(movements, 0, sizeof(movements));
+}
+
+void location::makewave(indext index, location::procis proc) {
+	if(index == Blocked)
+		return;
+	auto start = index;
+	short unsigned push = 0;
+	short unsigned pop = 0;
+	stack[push++] = start;
+	movements[start] = 0;
+	while(push != pop) {
+		auto n = stack[pop++];
+		auto w = movements[n] + 1;
+		for(auto d : all_aroud) {
+			auto i = to(n, d);
+			if(movements[i] == BlockedCreature || !(this->*proc)(i))
+				continue;
+			if(movements[i] == Blocked || movements[i] > w) {
+				movements[i] = w;
+				stack[push++] = i;
+			}
+		}
+	}
 }
