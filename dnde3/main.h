@@ -651,7 +651,7 @@ public:
 	site*				getsite() const { return 0; }
 	slot_s				getwearerslot(const item* p) const;
 	int					getweight() const;
-	int					getvisibility() const { return 8; }
+	int					getvisibility() const { return 6; }
 	void				heal(int value) { damage(-value, Magic); }
 	void				inventory();
 	bool				is(class_s v) const { return kind == v; }
