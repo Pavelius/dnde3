@@ -2,7 +2,7 @@
 
 rolei bsmeta<rolei>::elements[] = {{"Гоблин", Goblin, Male, Chaotic, Monster, 0, {SwordShort}},
 {"Гоблин", Goblin, Male, Chaotic, Monster, 0, {Rock}},
-{"Орк", Orc, Male, Chaotic, Monster, 1, {SwordLong, StuddedLeatherArmour}},
+{"Орк", Orc, Male, Chaotic, Monster, 1, {SwordLong, StuddedLeatherArmor}},
 {"Летучая мышь", Animal, Female, Chaotic, Monster, 0, {Bite, Dexterity}},
 {"Крыса", Animal, Female, Chaotic, Monster, 0, {Bite, Dexterity}},
 {"Крестьянин", Human, Male, Neutral, Commoner, 1},

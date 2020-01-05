@@ -60,7 +60,7 @@ static void test_indoor() {
 	e.drop(e.get(5, 4), SwordShort);
 	e.drop(e.get(4, 6), SwordTwoHanded);
 	e.drop(e.get(3, 3), Staff);
-	e.drop(e.get(3, 3), LeatherArmour);
+	e.drop(e.get(3, 3), LeatherArmor);
 	e.set(e.get(2, 2), Tree);
 	e.set(e.get(4, 3), Tree);
 	e.set(e.get(2, 6), Hill);

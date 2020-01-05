@@ -165,6 +165,10 @@ bool creature::add(item v, bool run) {
 }
 
 bool creature::equip(item v) {
+	if(!isallow(v.getkind())) {
+		act("Я не ношу такое.");
+		return false;
+	}
 	// First try to dress this item
 	for(auto i = Head; i <= Amunitions; i = (slot_s)(i + 1)) {
 		if(!v.is(i))
@@ -427,11 +431,13 @@ void creature::inventory() {
 		auto slot = pi->getwearerslot();
 		if(*pi) {
 			if(!remove(*pi, false)) {
-				//say("Я не могу это снять.");
+				say("Я не могу это снять.");
+				pause();
 				continue;
 			}
 			if(!add(*pi, false)) {
-				//say("У меня уже нету места.");
+				say("У меня уже нету места.");
+				pause();
 				continue;
 			}
 			add(*pi, true);
@@ -443,6 +449,11 @@ void creature::inventory() {
 				items.match(slot);
 				auto p2 = items.choose(true, "Рюкзак", 0, NoSlotName);
 				if(p2) {
+					if(!isallow(p2->getkind())) {
+						say("Я такое носить не буду.");
+						pause();
+						continue;
+					}
 					dressoff();
 					auto pc = *pi;
 					*pi = *p2;
@@ -770,4 +781,11 @@ void creature::set(skill_s id, int v) {
 int creature::get(skill_s id) const {
 	const auto& ei = bsmeta<skilli>::elements[id];
 	return skills[id] + get(ei.abilities[0]) + get(ei.abilities[1]);
+}
+
+bool creature::isallow(item_s v) const {
+	auto& ci = bsmeta<classi>::elements[kind];
+	if(ci.restricted.is(v))
+		return false;
+	return true;
 }

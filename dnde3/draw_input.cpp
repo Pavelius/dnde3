@@ -197,9 +197,22 @@ static void window(rect rc, bool disabled, int border) {
 	draw::rectb(rc, b);
 }
 
-static void windowf(const char* string) {
+static int buttonr(int x, int y, int w1, const char* name) {
+	auto w = textw(name);
+	if(w1 == -1)
+		w1 = w;
+	rect rc = {x - 2, y - 1, x + w1 + 2, y + texth()};
+	rectf(rc, colors::button);
+	rectb(rc, colors::border.mix(colors::form));
+	text(x + (w1 - w) / 2, y, name);
+	return w1 + 5;
+}
+
+static void windowf(const char* string, const char* press_key) {
 	rect rc = {0, 0, 400, 0};
 	draw::textf(rc, string);
+	if(press_key)
+		rc.y2 += texth() + 4;
 	auto w = rc.width();
 	auto h = rc.height();
 	rc.x1 = (getwidth() - w) / 2;
@@ -208,6 +221,8 @@ static void windowf(const char* string) {
 	rc.y2 = rc.y1 + h;
 	window(rc, false, 0);
 	draw::textf(rc.x1, rc.y1, w, string);
+	if(press_key)
+		buttonr(rc.x1, rc.y2 - texth(), -1, press_key);
 }
 
 static void dialogw(int& x, int& y, int width, int height, const char* title, int* y1 = 0) {
@@ -706,10 +721,10 @@ static void render_info(const creature& e) {
 	}
 }
 
-static void render_message() {
+static void render_message(const char* press_key = 0) {
 	if(!message_text[0])
 		return;
-	windowf(message_text);
+	windowf(message_text, press_key);
 	sb.clear();
 }
 
@@ -791,22 +806,22 @@ static void avatar(int x, int y, const creature& player, short unsigned flags, u
 	auto back = player.get(TorsoBack);
 	if(melee.is(TwoHanded)) {
 		i1 = 2;
-		i2 = 3 + melee.gettype() - FirstWeapon;
+		i2 = 3 + melee.getkind() - FirstWeapon;
 	} else {
-		if(melee.gettype())
-			i1 = 3 + melee.gettype() - FirstWeapon;
-		if(offhand.gettype() == Shield)
+		if(melee.getkind())
+			i1 = 3 + melee.getkind() - FirstWeapon;
+		if(offhand.getkind() == Shield)
 			i2 = 3 + (SwordTwoHanded - FirstWeapon + 1) + (SwordTwoHanded - FirstWeapon + 1);
-		else if(offhand.gettype())
-			i2 = 3 + (SwordTwoHanded - FirstWeapon + 1) + (offhand.gettype() - FirstWeapon);
+		else if(offhand.getkind())
+			i2 = 3 + (SwordTwoHanded - FirstWeapon + 1) + (offhand.getkind() - FirstWeapon);
 	}
 	auto at = 2;
-	switch(body.gettype()) {
+	switch(body.getkind()) {
 	case NoItem:
 		at = ci.naked_avatar;
 		break;
-	case LeatherArmour:
-	case StuddedLeatherArmour:
+	case LeatherArmor:
+	case StuddedLeatherArmor:
 		at = 1;
 		break;
 	}
@@ -823,8 +838,8 @@ static void avatar(int x, int y, const creature& player, short unsigned flags, u
 		}
 	}
 	// Weapon on back
-	if(ranged && getorder(ranged.gettype()) == 0) {
-		auto index = getaccindex(ranged.gettype());
+	if(ranged && getorder(ranged.getkind()) == 0) {
+		auto index = getaccindex(ranged.getkind());
 		if(index != -1)
 			image(x, y, gres(ResPCmac), index, flags, alpha);
 	}
@@ -832,8 +847,8 @@ static void avatar(int x, int y, const creature& player, short unsigned flags, u
 	image(x, y, gres(ResPCmar), i1, flags, alpha);
 	image(x, y, gres(ResPCmbd), (race - Human) * 6 + (gender - Male) * 3 + at, flags, alpha);
 	// Weapon on belt
-	if(ranged && getorder(ranged.gettype()) == 2) {
-		auto index = getaccindex(ranged.gettype());
+	if(ranged && getorder(ranged.getkind()) == 2) {
+		auto index = getaccindex(ranged.getkind());
 		if(index != -1)
 			image(x, y, gres(ResPCmac), index, flags, alpha);
 	}
@@ -1009,7 +1024,7 @@ void location::indoor(point camera, bool show_fow, const picture* effects) {
 			continue;
 		auto x = x0 + pt.x * elx - camera.x;
 		auto y = y0 + pt.y * ely - camera.y;
-		draw::image(x, y - 8, gres(ResItems), e.gettype(), 0);
+		draw::image(x, y - 8, gres(ResItems), e.getkind(), 0);
 	}
 	// Нижний уровень эффектов
 	if(effects) {
@@ -1351,7 +1366,7 @@ item* itema::choose(bool interactive, const char* title, const char* format, slo
 		if(count > 0) {
 			auto index = 0;
 			for(auto e : *this) {
-				if(e->gettype() >= PlateMail)
+				if(e->getkind() >= PlateMail)
 					continue;
 				auto x0 = x;
 				if(button(x0, y, 0, Alpha + answeri::getkey(index), 0))
@@ -1391,7 +1406,7 @@ int indexa::choose(bool interactive, const char* format) {
 			p->addinfo(current_index, sb);
 			sb.adds(format);
 			if(sb)
-				windowf(sb);
+				windowf(sb, 0);
 		}
 		domodal();
 		switch(hot.key) {
@@ -1427,7 +1442,7 @@ indext location::choose(bool allow_cancel) {
 			char temp[512]; string sb(temp);
 			addinfo(current_index, sb);
 			if(sb)
-				windowf(sb);
+				windowf(sb, 0);
 		}
 		domodal();
 		switch(hot.key) {
@@ -1514,5 +1529,21 @@ void creature::playui() {
 			continue;
 		if(translate_commands(this))
 			continue;
+	}
+}
+
+void creature::pause() {
+	current_index = Blocked;
+	while(ismodal()) {
+		current_background();
+		render_message("Пробел");
+		domodal();
+		switch(hot.key) {
+		case KeySpace:
+		case KeyEscape:
+			breakmodal(1);
+			hot.key = 0;
+			break;
+		}
 	}
 }

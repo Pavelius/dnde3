@@ -28,7 +28,7 @@ enum item_s : unsigned char {
 	SwordLong, SwordShort, SwordTwoHanded,
 	CrossbowLight, CrossbowHeavy, BowLong, BowShort, Dart, Sling,
 	Rock, Arrow, Bolt,
-	LeatherArmour, StuddedLeatherArmour, ScaleMail, ChainMail, SplintMail, PlateMail,
+	LeatherArmor, StuddedLeatherArmor, ScaleMail, ChainMail, SplintMail, PlateMail,
 	Shield, Helmet, BracersLeather, BracersIron,
 	Cloack1, Cloack2, Cloack3, Cloack4, Cloack5,
 	Boot1, Boot2, IronBoot1, IronBoot2, IronBoot3,
@@ -280,6 +280,7 @@ struct classi {
 	weaponi				weapon;
 	adat<skill_s, 8>	skills;
 	adat<spell_s, 6>	spells;
+	flagable<ManyItems>	restricted;
 };
 struct abilityi {
 	const char*			id;
@@ -451,7 +452,7 @@ public:
 	spell_s				getspell() const;
 	const speciali&		getspecial() const { return getitem().special; }
 	state_s				getstate() const;
-	item_s				gettype() const { return type; }
+	item_s				getkind() const { return type; }
 	creature*			getwearer() const;
 	slot_s				getwearerslot() const;
 	int					getweightsingle() const { return getitem().weight; }
@@ -646,7 +647,6 @@ public:
 	int					getlevel(skill_s v) const;
 	const char*			getlevelname(skill_s v) const;
 	int					getlos() const { return abilities[Visibility]; }
-	int					getlos(unsigned flags) const;
 	int					getmana() const { return mp; }
 	int					getmoney() const { return money; }
 	static creature*	getobject(short unsigned v);
@@ -661,6 +661,7 @@ public:
 	bool				is(state_s v) const { return states.is(v); }
 	bool				is(encumbrance_s value) const { return encumbrance == value; }
 	bool				isactive() const { return getactive() == this; }
+	bool				isallow(item_s v) const;
 	bool				isenemy(const creature* target) const;
 	bool				isguard() const { return guard != 0xFFFF; }
 	void				kill();
@@ -668,6 +669,7 @@ public:
 	void				meleeattack(creature& enemy, int bonus = 0);
 	void				move(indext index);
 	void				moveto(indext index);
+	static void			pause();
 	void				playui();
 	void				pickup();
 	void				raise(skill_s value);
