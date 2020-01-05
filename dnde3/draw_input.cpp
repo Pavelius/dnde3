@@ -1487,6 +1487,7 @@ static hotkey adventure_keys[] = {{F1, "Выбрать первого героя", change_player, 0
 {Alpha + 'A', "Выбрать навык", &creature::useskills},
 {Alpha + 'D', "Положить пердмет", &creature::dropdown},
 {Alpha + 'P', "Поднять пердмет", &creature::pickup},
+{Alpha + 'Q', "Стрелять по врагу", &creature::shoot},
 {Ctrl + Alpha + 'D', "Вселиться", &creature::enslave},
 {}};
 

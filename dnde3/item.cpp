@@ -14,8 +14,8 @@ itemi bsmeta<itemi>::elements[] = {{"", 0, 0, NoGender, Organic, {}, {}, {}, {},
 //
 {"Арбалет", 700, 40 * GP, Male, Wood, {}, {}, {}, {}, Ranged},
 {"Тяжелый арбалет", 1200, 80 * GP, Male, Wood, {}, {}, {}, {}, Ranged},
-{"Длинный лук", 500, 60 * GP, Male, Wood, {}, {-8, D1n8, Piercing}, {}, {}, Ranged, Archery},
-{"Короткий лук", 300, 30 * GP, Male, Wood, {-4, D1n6, Piercing}, {}, {}, {}, Ranged, Archery},
+{"Длинный лук", 500, 60 * GP, Male, Wood, {-8, D1n8, Piercing, 0, Arrow}, {}, {}, {}, Ranged, Archery},
+{"Короткий лук", 300, 30 * GP, Male, Wood, {-4, D1n6, Piercing, 0, Arrow}, {}, {}, {}, Ranged, Archery},
 {"Дарт", 30, 1 * SP, Male, Wood, {}, {}, {}, {}, Melee},
 {"Праща", 50, 1 * SP, Female, Leather, {}, {}, {}, {}, Melee},
 //

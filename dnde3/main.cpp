@@ -84,7 +84,8 @@ static void test_indoor() {
 	random_bless(p1);
 	e.activate();
 	p1->activate();
-	p1->makemove();
+	p1->equip(BowLong);
+	p1->equip(Arrow);
 	game.play();
 }
 

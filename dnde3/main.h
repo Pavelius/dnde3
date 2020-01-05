@@ -358,6 +358,7 @@ struct attacki {
 	dice_s				damage;
 	attack_s			type;
 	char				speed;
+	item_s				ammunition;
 	dicei				dice;
 };
 struct armori {
@@ -427,8 +428,8 @@ public:
 	void				clear() { memset(this, 0, sizeof(*this)); }
 	bool				damageb();
 	void				damage();
+	item_s				getammo() const { return getitem().weapon.ammunition; }
 	const attacki&		getattack() const { return getitem().weapon; }
-	item_s				getammo() const;
 	int					getbonus(enchantment_s type) const;
 	int					getcharges() const;
 	unsigned			getcost() const;
@@ -461,14 +462,9 @@ public:
 	bool				iscountable() const;
 	bool				iscursed() const { return magic == Cursed; }
 	bool				isdamaged() const { return damaged != 0; }
-	bool				isdrinkable() const;
-	bool				isedible() const;
 	bool				isforsale() const { return forsale != 0; }
 	bool				isidentified() const { return identify!=0; }
 	bool				ismagical() const { return magic != Mundane; }
-	bool				isreadable() const;
-	bool				istome() const;
-	bool				isthrown() const;
 	bool				isunbreakable() const { return magic != Mundane; }
 	void				loot();
 	void				repair(int level);
@@ -480,6 +476,7 @@ public:
 	item&				setidentify(bool v) { identify = v; return *this; }
 	item&				setsold() { forsale = 0;  return *this; }
 	item&				setquality(unsigned char value) { quality = value; return *this; }
+	bool				use() { return false; }
 };
 class itema : public adat<item*> {
 public:
@@ -610,6 +607,7 @@ public:
 	int					calculate(const variant* formule) const;
 	bool				canhear(short unsigned index) const;
 	bool				cansee(indext i) const;
+	bool				canshoot(bool talk) const;
 	void				chat(creature* opponent);
 	void				create(race_s race, gender_s gender, class_s type);
 	void				create(role_s type);
@@ -665,6 +663,7 @@ public:
 	bool				isguard() const { return guard != 0xFFFF; }
 	bool				isvisible() const;
 	void				kill();
+	void				look(indext index);
 	void				makemove();
 	void				meleeattack(creature& enemy, int bonus = 0);
 	void				move(indext index);
@@ -676,6 +675,7 @@ public:
 	void				raise(skill_s value);
 	void				raiseskills(int number);
 	void				raiseskills() { raiseskills(get(Intellegence) / 2); }
+	void				rangeattack(creature& enemy, int bonus = 0);
 	void				remove(state_s v) { states.remove(v); }
 	bool				roll(skill_s v, int bonus = 0, int divider = 0) const;
 	static bool			rollv(int v, int* r);
@@ -691,6 +691,7 @@ public:
 	void				sethorror(const creature* p) { horror = p->getid(); }
 	void				setlos();
 	void				setmoney(int value) { money = value; }
+	void				shoot();
 	void				trapeffect();
 	void				unlink();
 	bool				use(short unsigned index);
@@ -868,6 +869,7 @@ public:
 extern gamei			game;
 extern stringbuilder	sb;
 DECLENUM(class);
+DECLENUM(item);
 DECLENUM(map_object);
 DECLENUM(skill);
 DECLENUM(tile);

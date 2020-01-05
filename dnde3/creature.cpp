@@ -556,6 +556,12 @@ void creature::cantmovehere() const {
 		act("Сюда не пройти.");
 }
 
+void creature::look(indext index) {
+	auto d1 = location::getdirection(getposition(), index);
+	if(d1 != Down && d1 != Up)
+		direction = d1;
+}
+
 void creature::move(indext index) {
 	auto loc = location::getactive();
 	if(!loc)
@@ -564,9 +570,7 @@ void creature::move(indext index) {
 		cantmovehere();
 		return;
 	}
-	auto d1 = location::getdirection(getposition(), index);
-	if(d1 != Down && d1 != Up)
-		direction = d1;
+	look(index);
 	if(loc->gettile(index) == Wall) {
 		cantmovehere();
 		return;
@@ -653,6 +657,7 @@ void creature::attack(creature& enemy, slot_s id, int bonus) {
 	bonus -= enemy.get(Deflect);
 	if(bonus < 5)
 		bonus = 5;
+	look(enemy.getposition());
 	if(!rollv(bonus, 0)) {
 		act("%герой промазал%а.");
 		return;
@@ -928,4 +933,64 @@ bool creature::cansee(indext i) const {
 	if(!loc)
 		return false;
 	return loc->cansee(getposition(), i);
+}
+
+bool creature::canshoot(bool talk) const {
+	if(!wears[Ranged]) {
+		if(talk) {
+			static const char* text[] = {
+				"Мне надо дистанционное оружие.",
+				"Чем стрелять?",
+			};
+			say(maprnd(text));
+		}
+		return false;
+	}
+	auto am = wears[Ranged].getammo();
+	if(am) {
+		if(!wears[Amunitions]) {
+			if(talk) {
+				static const char* text[] = {
+					"Нет боеприпасов.",
+					"Закончились %-1.",
+				};
+				say(maprnd(text), getstr(am));
+			}
+			return false;
+		}
+		if(wears[Amunitions].getkind() != am) {
+			if(talk) {
+				static const char* text[] = {
+					"Не подходят боеприпасы. Надо %-1.",
+					"Для стрельбы необходимы %-1, а я пытаюсь использовать %-2.",
+				};
+				say(maprnd(text), getstr(am), wears[Amunitions].getname());
+			}
+			return false;
+		}
+	}
+	return true;
+}
+
+void creature::shoot() {
+	if(!canshoot(true))
+		return;
+	creaturea enemies;
+	enemies.select(getposition(), getlos());
+	enemies.matchenemy(this);
+	enemies.sort(getposition());
+	if(!enemies) {
+		say("Я не вижу вокруг ни одного врага. Куда целится?");
+		return;
+	}
+	rangeattack(*enemies[0], 0);
+}
+
+void creature::rangeattack(creature& enemy, int bonus) {
+	int energy = StandartEnergyCost;
+	attack(enemy, Ranged, 0);
+	auto& ei = wears[Amunitions].getitem();
+	if(ei.ammunition)
+		wears[Amunitions].use();
+	consume(energy);
 }
