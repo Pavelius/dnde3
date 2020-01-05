@@ -66,6 +66,20 @@ void creaturea::select() {
 	count = ps - data;
 }
 
+void creaturea::select(state_s v) {
+	auto ps = data;
+	auto pe = endof();
+	for(auto& e : bsmeta<creature>()) {
+		if(!e)
+			continue;
+		if(!e.is(v))
+			continue;
+		if(ps < pe)
+			*ps++ = &e;
+	}
+	count = ps - data;
+}
+
 void creaturea::select(indext start, int distance) {
 	auto ps = data;
 	auto pe = endof();

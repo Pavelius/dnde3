@@ -10,11 +10,32 @@ static void move_creatures() {
 	}
 }
 
-void gamei::play() {
+void gamei::playactive() {
 	const int moves_per_minute = 30;
-	while(true) {
-		for(auto i = 0; i < moves_per_minute; i++)
+	bool need_continue = true;
+	while(need_continue) {
+		need_continue = true;
+		for(auto i = 0; i < moves_per_minute; i++) {
 			move_creatures();
+			if(!creature::getactive())
+				need_continue = false;
+		}
 		rounds++; // One round is one minute
+	}
+}
+
+bool gamei::checkalive() {
+	creaturea source;
+	source.select(Friendly);
+	if(!source)
+		return false;
+	if(!creature::getactive())
+		source[0]->activate();
+	return true;
+}
+
+void gamei::play() {
+	while(checkalive()) {
+		playactive();
 	}
 }

@@ -5,6 +5,8 @@ DECLDATA(creature, 256);
 static int			skill_level[] = {20, 50, 75, 90};
 static const char*	skill_names[] = {"Начальный", "Продвинутый", "Экспертный", "Мастерский"};
 static creature*	current_player;
+const int			chance_act = 40;
+const int			chance_blood_when_dead = 70;
 
 void creature::clear() {
 	memset(this, 0, sizeof(*this));
@@ -60,6 +62,8 @@ void creature::unlink() {
 		if(e.horror == id)
 			e.horror = Blocked;
 	}
+	if(current_player == this)
+		current_player = 0;
 }
 
 void creature::dressoff() {
@@ -637,6 +641,17 @@ void creature::say(const char* format, ...) const {
 }
 
 void creature::aiturn() {
+	// Need active location
+	auto loc = location::getactive();
+	if(!loc)
+		return;
+	// If horror are near run away
+	auto horror = gethorror();
+	if(horror && loc->getrange(horror->getposition(), getposition()) <= getlos() + 1) {
+		moveaway(horror->getposition());
+		return;
+	}
+	// Get nearest creatures
 	creaturea source;
 	source.select(getposition(), getlos());
 	creaturea enemies = source;
@@ -646,12 +661,48 @@ void creature::aiturn() {
 		auto enemy = enemies[0];
 		moveto(enemy->getposition());
 	} else {
-
+		// If creature guard some square move to guard position
+		if(guard != Blocked) {
+			moveto(guard);
+			return;
+		}
+		// If creature have a leader don't move far away from him
+		auto leader = getleader();
+		if(leader) {
+			if(loc->getrange(leader->getposition(), getposition()) > 2) {
+				moveto(leader->getposition());
+				return;
+			}
+		}
+		if(d100() < chance_act) {
+			// Do nothing
+			wait();
+			return;
+		}
+		// When we try to stand and think
+		//if(d100() < chance_act) {
+		//	if(aiboost())
+		//		return;
+		//	if(use_skills(*this, sc))
+		//		return;
+		//	if(d100() < chance_act) {
+		//		if(use_spells(*this, sc, false))
+		//			return;
+		//	}
+		//}
+		//// When we move and traps or close door just before our step
+		//if(move_skills(*this, sc))
+		//	return;
+		auto d = (direction_s)xrand(Left, RightDown);
+		move(loc->to(getposition(), d));
 	}
 }
 
 void creature::makemove() {
 	const auto pc = StandartEnergyCost * 20;
+	// RULE: paralized creature don't move and don't restore
+	if(is(Paralized))
+		return;
 	if(restore_hits > pc) {
 		if(hp < get(LifePoints))
 			hp++;
@@ -668,6 +719,9 @@ void creature::makemove() {
 		restore_energy += get(Speed);
 		return;
 	}
+	// RULE: sleeped creature don't move
+	if(is(Sleeped))
+		return;
 	if(isactive()) {
 		auto start = restore_energy;
 		while(start == restore_energy) {
@@ -713,6 +767,11 @@ void creature::applyaward() const {
 void creature::kill() {
 	applyaward();
 	unlink();
+	auto loc = location::getactive();
+	if(loc) {
+		if(d100() < chance_blood_when_dead)
+			loc->set(getposition(), Blooded);
+	}
 	clear();
 }
 
@@ -749,7 +808,7 @@ void creature::enslave() {
 	wait();
 }
 
-void creature::moveto(indext index) {
+void creature::move(indext index, bool runaway) {
 	auto pos = getposition();
 	if(index == pos)
 		return;
@@ -761,7 +820,10 @@ void creature::moveto(indext index) {
 		loc->blockwalls();
 		loc->blockcreatures();
 		loc->makewave(index);
-		index = loc->stepto(pos);
+		if(runaway)
+			index = loc->stepfrom(pos);
+		else
+			index = loc->stepto(pos);
 		if(index == Blocked)
 			return;
 	}
@@ -788,4 +850,15 @@ bool creature::isallow(item_s v) const {
 	if(ci.restricted.is(v))
 		return false;
 	return true;
+}
+
+creature* creature::getleader() const {
+	if(charmer != Blocked)
+		return getobject(charmer);
+	if(is(Friendly)) {
+		auto pa = getactive();
+		if(pa != this)
+			return pa;
+	}
+	return 0;
 }

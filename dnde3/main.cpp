@@ -1,7 +1,9 @@
 #include "main.h"
 
 static creature* create(location& loc, race_s race, gender_s gender, class_s cls) {
-	return loc.add(loc.get(3,3), race, gender, cls);
+	auto p = loc.add(loc.get(3,3), race, gender, cls);
+	p->set(Friendly);
+	return p;
 }
 
 static creature* create(location& loc, role_s type) {

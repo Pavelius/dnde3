@@ -597,6 +597,7 @@ class creature : public nameable, public posable {
 	void				dropdown(item& item);
 	void				equip(item it, slot_s id);
 	void				finish();
+	void				move(indext index, bool runaway);
 	bool				remove(item& it, bool run);
 public:
 	explicit operator bool() const { return hp > 0; }
@@ -668,7 +669,8 @@ public:
 	void				makemove();
 	void				meleeattack(creature& enemy, int bonus = 0);
 	void				move(indext index);
-	void				moveto(indext index);
+	void				moveaway(indext index) { move(index, true); }
+	void				moveto(indext index) { move(index, false); }
 	static void			pause();
 	void				playui();
 	void				pickup();
@@ -706,6 +708,7 @@ public:
 	void				matchenemy(const creature* v);
 	void				select();
 	void				select(indext start, int distance);
+	void				select(state_s v);
 	void				sort(indext start);
 	void				remove(state_s v);
 };
@@ -795,7 +798,7 @@ public:
 	creature*			add(indext index, race_s race, gender_s gender, class_s type);
 	void				addinfo(indext i, stringbuilder& sb) const;
 	void				blockcreatures();
-	void				blockwalls();
+	void				blockwalls(bool water = true);
 	indext				building(indext i, int width, int height, direction_s dir = Center);
 	indext				choose(bool allow_cancel);
 	indext				choose(bool allow_cancel, const aref<indext>& source, const char* format);
@@ -850,9 +853,12 @@ struct outdoor : public posable {
 };
 class gamei {
 	unsigned			rounds;
+	bool				checkalive();
+	void				playactive();
 public:
 	int					getrouns() const { return rounds; }
 	void				intialize();
+	bool				isplayers();
 	static void			help();
 	void				play();
 };

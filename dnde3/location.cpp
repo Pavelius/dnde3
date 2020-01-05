@@ -455,10 +455,18 @@ void location::blockcreatures() {
 	}
 }
 
-void location::blockwalls() {
+void location::blockwalls(bool water) {
 	for(indext i = 0; i < mmx*mmy; i++) {
-		if(!isfree(i))
-			movements[i] = Blocked;
+		switch(tiles[i]) {
+		case Water:
+			if(water)
+				movements[i] = Blocked;
+			break;
+		default:
+			if(!isfree(i))
+				movements[i] = Blocked;
+			break;
+		}
 	}
 }
 
