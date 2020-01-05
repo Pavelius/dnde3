@@ -10,7 +10,6 @@ const int CP = 1;
 const short unsigned mmx = 96;
 const short unsigned mmy = 96;
 const unsigned short Blocked = 0xFFFF;
-const unsigned short BlockedCreature = Blocked - 1;
 const int StandartEnergyCost = 1000;
 
 enum dice_s : unsigned char {
@@ -802,11 +801,13 @@ public:
 	creature*			add(indext index, role_s role);
 	creature*			add(indext index, race_s race, gender_s gender, class_s type);
 	void				addinfo(indext i, stringbuilder& sb) const;
+	void				blockcreatures();
+	void				blockwalls();
 	indext				building(indext i, int width, int height, direction_s dir = Center);
 	indext				choose(bool allow_cancel);
 	indext				choose(bool allow_cancel, const aref<indext>& source, const char* format);
 	void				clear();
-	static void			clearmove();
+	static void			clearblock();
 	void				create(const rect& rc, int count, map_object_s object);
 	void				create(const rect& rc, int count, tile_s v);
 	void				drop(indext i, item v);
@@ -828,7 +829,7 @@ public:
 	void				indoor(point camera, bool show_fow = true, const picture* effects = 0);
 	bool				is(indext i, map_flag_s v) const { return flags[i].is(v); }
 	void				lake(int x, int y, int w, int h);
-	void				makewave(indext index, location::procis proc);
+	void				makewave(indext index);
 	bool				read(const char* url);
 	void				remove(indext i, map_flag_s v) { flags[i].remove(v); }
 	void				set(indext i, map_flag_s v) { flags[i].set(v); }
@@ -839,6 +840,8 @@ public:
 	static void			setcamera(indext i);
 	indext				setiwh(int x, int y, int s, tile_s o, map_object_s r, bool locked_doors);
 	indext				setiwv(int x, int y, int s, tile_s o, map_object_s r, bool locked_doors);
+	indext				stepto(indext index);
+	indext				stepfrom(indext index);
 	static indext		to(indext index, direction_s id);
 	void				worldmap(point camera, bool show_fow = true) const;
 	bool				write(const char* url) const;

@@ -417,29 +417,77 @@ int	location::getrange(indext i1, indext i2) {
 	return (dx > dy) ? dx : dy;
 }
 
-void location::clearmove() {
+void location::clearblock() {
 	memset(movements, 0, sizeof(movements));
 }
 
-void location::makewave(indext index, location::procis proc) {
+void location::makewave(indext index) {
 	if(index == Blocked)
 		return;
 	auto start = index;
 	short unsigned push = 0;
 	short unsigned pop = 0;
 	stack[push++] = start;
-	movements[start] = 0;
+	movements[start] = Blocked;
 	while(push != pop) {
 		auto n = stack[pop++];
 		auto w = movements[n] + 1;
 		for(auto d : all_aroud) {
 			auto i = to(n, d);
-			if(movements[i] == BlockedCreature || !(this->*proc)(i))
+			if(i==Blocked || movements[i] == Blocked)
 				continue;
-			if(movements[i] == Blocked || movements[i] > w) {
+			if(!movements[i] || movements[i] > w) {
 				movements[i] = w;
 				stack[push++] = i;
 			}
 		}
 	}
+}
+
+void location::blockcreatures() {
+	for(auto& e : bsmeta<creature>()) {
+		if(!e)
+			continue;
+		auto i = e.getposition();
+		if(i == Blocked)
+			continue;
+		movements[i] = Blocked;
+	}
+}
+
+void location::blockwalls() {
+	for(indext i = 0; mmx*mmy; i++) {
+		if(!isfree(i))
+			movements[i] = Blocked;
+	}
+}
+
+indext location::stepto(indext index) {
+	auto current_index = Blocked;
+	auto current_value = Blocked;
+	for(auto d : all_aroud) {
+		auto i = to(index, d);
+		if(i==Blocked || movements[i]==Blocked || !movements[i])
+			continue;
+		if(movements[i] < current_value) {
+			current_value = movements[i];
+			current_index = i;
+		}
+	}
+	return current_index;
+}
+
+indext location::stepfrom(indext index) {
+	auto current_index = Blocked;
+	auto current_value = 0;
+	for(auto d : all_aroud) {
+		auto i = to(index, d);
+		if(i == Blocked || movements[i] == Blocked)
+			continue;
+		if(movements[i] > current_value) {
+			current_value = movements[i];
+			current_index = i;
+		}
+	}
+	return current_index;
 }

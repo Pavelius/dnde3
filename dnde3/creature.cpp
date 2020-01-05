@@ -735,12 +735,17 @@ void creature::moveto(indext index) {
 	auto pos = getposition();
 	if(index == pos)
 		return;
-	if(location::getrange(pos, index) == 1) {
-		move(index);
-		return;
+	if(location::getrange(pos, index) > 1) {
+		auto loc = location::getactive();
+		if(!loc)
+			return;
+		loc->clearblock();
+		loc->blockwalls();
+		loc->blockcreatures();
+		loc->makewave(index);
+		index = loc->stepto(pos);
+		if(index == Blocked)
+			return;
 	}
-	//makewave(index);
-	//index = getstepto(position);
-	//if(index == Blocked)
-	//	wait();
+	move(index);
 }
