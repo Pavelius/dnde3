@@ -582,6 +582,7 @@ class creature : public nameable, public posable {
 	unsigned			experience;
 	unsigned			money;
 	//
+	void				aimove();
 	void				aiturn();
 	void				applyabilities();
 	void				applyaward() const;
@@ -787,8 +788,6 @@ class location {
 	//
 	indext				bpoint(indext index, int w, int h, direction_s dir) const;
 	indext				getfree(indext i, procis proc, int radius_maximum) const;
-	bool				isfree(indext i) const;
-	bool				isfreenc(indext i) const;
 	bool				wget(short unsigned i, direction_s direction, tile_s value) const;
 	bool				wget(short unsigned i, direction_s direction, tile_s value, bool default_result) const;
 	bool				xget(short unsigned i, direction_s direction) const;
@@ -824,6 +823,9 @@ public:
 	int					getrand(indext i) const { return random[i]; }
 	void				indoor(point camera, bool show_fow = true, const picture* effects = 0);
 	bool				is(indext i, map_flag_s v) const { return flags[i].is(v); }
+	bool				isfree(indext i) const;
+	bool				isfreenc(indext i) const;
+	bool				isfreenw(indext i) const;
 	void				lake(int x, int y, int w, int h);
 	void				makewave(indext index);
 	bool				read(const char* url);

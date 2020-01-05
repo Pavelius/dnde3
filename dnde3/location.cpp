@@ -348,6 +348,18 @@ bool location::isfreenc(indext i) const {
 	return true;
 }
 
+bool location::isfreenw(indext i) const {
+	if(!isfree(i))
+		return false;
+	switch(tiles[i]) {
+	case Water:
+		return false;
+	default:
+		return isfree(i);
+	}
+	return true;
+}
+
 indext location::getfree(indext i, procis proc, int radius_maximum) const {
 	if(i == Blocked)
 		return i;

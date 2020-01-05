@@ -70,7 +70,6 @@ void creature::dressoff() {
 	if(!this)
 		return;
 	dresssa(-1);
-	//dresssk(-1);
 	dress(-1);
 }
 
@@ -78,7 +77,6 @@ void creature::dresson() {
 	if(!this)
 		return;
 	dress(1);
-	//dresssk(1);
 	dresssa(1);
 }
 
@@ -640,6 +638,19 @@ void creature::say(const char* format, ...) const {
 	sayv(sb, format, xva_start(format));
 }
 
+void creature::aimove() {
+	// Need active location
+	auto loc = location::getactive();
+	if(!loc)
+		return;
+	auto d = (direction_s)xrand(Left, RightDown);
+	auto i = loc->to(getposition(), d);
+	if(loc->isfreenw(i))
+		move(i);
+	else
+		wait();
+}
+
 void creature::aiturn() {
 	// Need active location
 	auto loc = location::getactive();
@@ -680,21 +691,20 @@ void creature::aiturn() {
 			return;
 		}
 		// When we try to stand and think
-		//if(d100() < chance_act) {
+		if(d100() < chance_act) {
 		//	if(aiboost())
 		//		return;
 		//	if(use_skills(*this, sc))
 		//		return;
-		//	if(d100() < chance_act) {
+			if(d100() < chance_act) {
 		//		if(use_spells(*this, sc, false))
 		//			return;
-		//	}
-		//}
+			}
+		}
 		//// When we move and traps or close door just before our step
 		//if(move_skills(*this, sc))
 		//	return;
-		auto d = (direction_s)xrand(Left, RightDown);
-		move(loc->to(getposition(), d));
+		aimove();
 	}
 }
 
