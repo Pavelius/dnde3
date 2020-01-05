@@ -37,6 +37,7 @@ skilli bsmeta<skilli>::elements[] = {{"Торговля", "торговли", {Charisma, Intelle
 {"Владение луком", "стрельбы из лука", {Dexterity, Dexterity}, {3, 30}},
 {"Владение мечом", "сражения на мечах", {Strenght, Dexterity}, {4, 20}},
 {"Владение топором", "сражения на топорах", {Strenght, Constitution}, {5, 15}},
+{"Владение двуручным оружием", "двуручного оружия", {Strenght, Strenght}, {4, 10}},
 {"Сражение двумя оружиями", "ужасного оружия", {Strenght, Dexterity}, {5, 30}},
 //
 {"Сопротивление кислоте", "кислоты", {Dexterity, Constitution}},

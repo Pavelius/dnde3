@@ -915,3 +915,10 @@ creature* creature::getleader() const {
 	}
 	return 0;
 }
+
+bool creature::isvisible() const {
+	auto loc = location::getactive();
+	if(!loc)
+		return false;
+	return loc->is(getposition(), Visible);
+}

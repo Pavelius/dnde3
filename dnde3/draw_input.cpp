@@ -735,7 +735,7 @@ static void render_indoor() {
 	picture effects[2] = {};
 	if(current_index != Blocked)
 		effects[0].setcursor(current_index, 1);
-	p->indoor(camera, false, effects);
+	p->indoor(camera, true, effects);
 	auto player = creature::getactive();
 	if(player)
 		render_info(*player);
@@ -1103,7 +1103,7 @@ void location::indoor(point camera, bool show_fow, const picture* effects) {
 			int i1 = mget(rc.x1, rc.y1, mx, my);
 			if(i1 != -1) {
 				auto pc = units[i1];
-				if(pc) {
+				if(pc && pc->isvisible()) {
 					unsigned flags;
 					switch(pc->getdirection()) {
 					case Left:

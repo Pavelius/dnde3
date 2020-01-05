@@ -109,7 +109,7 @@ enum skill_s : unsigned char {
 	DisarmTraps, HearNoises, HideInShadow, Lockpicking, PickPockets,
 	Alchemy, Dancing, Engineering, Gambling, History, Healing, Herbalism,
 	Literacy, Mining, Riding, Smithing, Survival, Swimming,
-	Archery, FightSwords, FightAxes,
+	Archery, FightSwords, FightAxes, FightTwohanded,
 	TwoWeaponFighting,
 	FirstSkill = Bargaining, LastSkill = TwoWeaponFighting,
 	ResistAcid, ResistCharm, ResistCold, ResistElectricity, ResistFire, ResistParalize, ResistPoison, ResistWater,
@@ -358,10 +358,6 @@ struct attacki {
 	dice_s				damage;
 	attack_s			type;
 	char				speed;
-	char				critical;
-	char				multiplier;
-	enchantment_s		effect;
-	char				quality;
 	dicei				dice;
 };
 struct armori {
@@ -666,6 +662,7 @@ public:
 	bool				isallow(item_s v) const;
 	bool				isenemy(const creature* target) const;
 	bool				isguard() const { return guard != 0xFFFF; }
+	bool				isvisible() const;
 	void				kill();
 	void				makemove();
 	void				meleeattack(creature& enemy, int bonus = 0);
@@ -838,6 +835,7 @@ public:
 	static void			setcamera(indext i);
 	indext				setiwh(int x, int y, int s, tile_s o, map_object_s r, bool locked_doors);
 	indext				setiwv(int x, int y, int s, tile_s o, map_object_s r, bool locked_doors);
+	void				setlos(indext index, int r);
 	indext				stepto(indext index);
 	indext				stepfrom(indext index);
 	static indext		to(indext index, direction_s id);

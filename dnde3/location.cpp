@@ -511,3 +511,66 @@ indext location::stepfrom(indext index) {
 	}
 	return current_index;
 }
+
+static bool linelossv(int x0, int y0, int x1, int y1) {
+	int dx = iabs(x1 - x0), sx = x0 < x1 ? 1 : -1;
+	int dy = iabs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+	int err = (dx > dy ? dx : -dy) / 2, e2;
+	for(;;) {
+		if(x0 >= 0 && x0 < mmx && y0 >= 0 && y0 < mmy) {
+			auto i = current_location->get(x0, y0);
+			current_location->set(i, Visible);
+			current_location->set(i, Explored);
+			if(!current_location->isfree(i))
+				return false;
+		}
+		if(x0 == x1 && y0 == y1)
+			return true;
+		e2 = err;
+		if(e2 > -dx) {
+			err -= dy;
+			x0 += sx;
+		}
+		if(e2 < dy) {
+			err += dx;
+			y0 += sy;
+		}
+	}
+}
+
+static bool linelos(int x0, int y0, int x1, int y1) {
+	int dx = iabs(x1 - x0), sx = x0 < x1 ? 1 : -1;
+	int dy = iabs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+	int err = (dx > dy ? dx : -dy) / 2, e2;
+	for(;;) {
+		if(x0 >= 0 && x0 < mmx && y0 >= 0 && y0 < mmy) {
+			auto i = current_location->get(x0, y0);
+			if(!current_location->isfree(i))
+				return false;
+		}
+		if(x0 == x1 && y0 == y1)
+			return true;
+		e2 = err;
+		if(e2 > -dx) {
+			err -= dy;
+			x0 += sx;
+		}
+		if(e2 < dy) {
+			err += dx;
+			y0 += sy;
+		}
+	}
+}
+
+void location::setlos(indext index, int r) {
+	auto x0 = getx(index);
+	auto y0 = gety(index);
+	for(auto x = x0 - r; x <= x0 + r; x++) {
+		linelossv(x0, y0, x, y0 - r);
+		linelossv(x0, y0, x, y0 + r);
+	}
+	for(auto y = y0 - r; y <= y0 + r; y++) {
+		linelossv(x0, y0, x0 - r, y);
+		linelossv(x0, y0, x0 + r, y);
+	}
+}

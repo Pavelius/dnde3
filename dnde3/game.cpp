@@ -2,6 +2,23 @@
 
 gamei game;
 
+static void updatelos() {
+	auto loc = location::getactive();
+	if(!loc)
+		return;
+	// Set fog of war
+	auto max_count = mmx * mmy;
+	for(auto i = 0; i < max_count; i++)
+		loc->remove(i, Visible);
+	for(auto& e : bsmeta<creature>()) {
+		if(!e)
+			continue;
+		if(!e.is(Friendly))
+			continue;
+		loc->setlos(e.getposition(), e.getlos());
+	}
+}
+
 static void move_creatures() {
 	for(auto& e : bsmeta<creature>()) {
 		if(!e)
@@ -16,6 +33,8 @@ void gamei::playactive() {
 	while(need_continue) {
 		need_continue = true;
 		for(auto i = 0; i < moves_per_minute; i++) {
+			if((i % 5) == 0)
+				updatelos();
 			move_creatures();
 			if(!creature::getactive())
 				need_continue = false;
