@@ -65,6 +65,8 @@ void creature::unlink() {
 void creature::dressoff() {
 	if(!this)
 		return;
+	dresssa(-1);
+	//dresssk(-1);
 	dress(-1);
 }
 
@@ -72,6 +74,8 @@ void creature::dresson() {
 	if(!this)
 		return;
 	dress(1);
+	//dresssk(1);
+	dresssa(1);
 }
 
 void creature::dress(int m) {
@@ -97,6 +101,21 @@ void creature::dress(int m) {
 		}
 		abilities[Deflect] += m * (ei.armor.deflect + mi*ei.armor.multiplier);
 		abilities[Armor] += m * ei.armor.armor;
+	}
+}
+
+void creature::dresssk(int m) {
+	for(auto i = FirstSkill; i <= LastSkill; i = (skill_s)(i + 1)) {
+		auto& ei = bsmeta<skilli>::elements[i];
+		skills[i] += m*(get(ei.abilities[0]) + get(ei.abilities[1]));
+	}
+}
+
+void creature::dresssa(int m) {
+	for(auto i = AttackMelee; i <= ManaRate; i = (ability_s)(i + 1)) {
+		auto& ei = bsmeta<abilityi>::elements[i];
+		if(ei.formula)
+			abilities[i] += m*calculate(ei.formula);
 	}
 }
 
@@ -322,6 +341,7 @@ const variant* creature::calculate(const variant* p, int& result) const {
 	switch(p->type) {
 	case Ability: result = get((ability_s)p->value); p++; break;
 	case Skill: result = get((skill_s)p->value); p++; break;
+	case Number: result = p->value; p++; break;
 	default: return 0;
 	}
 	while(p->type == Formula) {
@@ -330,6 +350,10 @@ const variant* creature::calculate(const variant* p, int& result) const {
 		case Divide2: result = result / 2; break;
 		case Divide3: result = result / 3; break;
 		case Divide4: result = result / 4; break;
+		case Divide10: result = result / 10; break;
+		case Multiply2: result = result * 2; break;
+		case Multiply3: result = result * 3; break;
+		case Multiply4: result = result * 4; break;
 		default: return 0;
 		}
 		p++;
@@ -446,12 +470,6 @@ int	creature::getweight() const {
 	for(auto& e : wears)
 		r += e.getweight();
 	return r;
-}
-
-int	creature::get(skill_s v) const {
-	return skills[v]
-		+ get(bsmeta<skilli>::elements[v].abilities[0])
-		+ get(bsmeta<skilli>::elements[v].abilities[1]);
 }
 
 void creature::select(skilla& a) const {
@@ -609,7 +627,7 @@ void creature::say(const char* format, ...) const {
 
 void creature::aiturn() {
 	creaturea source;
-	source.select(getposition(), getvisibility());
+	source.select(getposition(), getlos());
 	creaturea enemies = source;
 	enemies.matchenemy(this);
 	if(enemies) {
@@ -707,30 +725,6 @@ void creature::damage(int value, attack_s type) {
 	}
 }
 
-int	creature::get(ability_s v) const {
-	int r;
-	switch(v) {
-	case Deflect:
-		return abilities[Deflect] + get(Acrobatics) / 4;
-	case LifePoints:
-		return abilities[v] + get(Constitution);
-	case LifeRate:
-		return abilities[v] + get(Healing);
-	case ManaPoints:
-		return abilities[v] + get(Wisdow);
-	case ManaRate:
-		return abilities[v] + get(Concetration) * 3;
-	case Speed:
-		r = 100;
-		r += abilities[Speed];
-		r += get(Athletics) / 10;
-		r += get(Dexterity) / 2 - 5;
-		return r;
-	default:
-		return abilities[v];
-	}
-}
-
 void creature::addexp(int v) {
 	experience += v;
 }
@@ -761,4 +755,19 @@ void creature::moveto(indext index) {
 			return;
 	}
 	move(index);
+}
+
+void creature::set(ability_s id, int v) {
+	dressoff();
+	abilities[id] = v;
+	dresson();
+}
+
+void creature::set(skill_s id, int v) {
+	skills[id] = v;
+}
+
+int creature::get(skill_s id) const {
+	const auto& ei = bsmeta<skilli>::elements[id];
+	return skills[id] + get(ei.abilities[0]) + get(ei.abilities[1]);
 }

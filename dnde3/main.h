@@ -210,7 +210,8 @@ enum variant_s : unsigned char {
 };
 enum formula_s : unsigned char {
 	Negative,
-	Divide2, Divide3, Divide4,
+	Divide2, Divide3, Divide4, Divide10,
+	Multiply2, Multiply3, Multiply4
 };
 enum slot_mode_s : unsigned char {
 	NoSlotName, SlotName, SlotWhere
@@ -286,6 +287,7 @@ struct abilityi {
 	const char*			name_short;
 	const char*			nameof;
 	const char*			cursedof;
+	varianta			formula;
 	ability_s			getid() const;
 };
 struct skilli {
@@ -587,6 +589,8 @@ class creature : public nameable, public posable {
 	void				cantmovehere() const;
 	void				delayed(variant id, int v, unsigned time);
 	void				dress(int m);
+	void				dresssk(int m);
+	void				dresssa(int m);
 	void				dressoff();
 	void				dresson();
 	void				dropdown(item& item);
@@ -619,14 +623,14 @@ public:
 	bool				equip(item value);
 	void				enslave();
 	static creature*	find(indext i);
-	int					get(ability_s v) const;
+	int					get(ability_s v) const { return abilities[v]; }
 	int					get(spell_s v) const { return spells[v]; }
 	int					get(skill_s v) const;
 	const item&			get(slot_s v) const { return wears[v]; }
 	static creature*	getactive();
 	static creature*	getactive(int index);
 	attacki				getattack(slot_s slot) const;
-	int					getaward() const { return 10 + 15*get(Level); }
+	int					getaward() const { return 10 + 15 * get(Level); }
 	int					getbasic(ability_s value) const;
 	int					getbasic(skill_s v) const { return skills[v]; }
 	const classi&		getclass() const { return bsmeta<classi>::elements[kind]; }
@@ -641,7 +645,7 @@ public:
 	creature*			getleader() const;
 	int					getlevel(skill_s v) const;
 	const char*			getlevelname(skill_s v) const;
-	int					getlos() const;
+	int					getlos() const { return abilities[Visibility]; }
 	int					getlos(unsigned flags) const;
 	int					getmana() const { return mp; }
 	int					getmoney() const { return money; }
@@ -651,7 +655,6 @@ public:
 	site*				getsite() const { return 0; }
 	slot_s				getwearerslot(const item* p) const;
 	int					getweight() const;
-	int					getvisibility() const { return 6; }
 	void				heal(int value) { damage(-value, Magic); }
 	void				inventory();
 	bool				is(class_s v) const { return kind == v; }
@@ -660,7 +663,6 @@ public:
 	bool				isactive() const { return getactive() == this; }
 	bool				isenemy(const creature* target) const;
 	bool				isguard() const { return guard != 0xFFFF; }
-	bool				isplayer() const;
 	void				kill();
 	void				makemove();
 	void				meleeattack(creature& enemy, int bonus = 0);
@@ -677,8 +679,10 @@ public:
 	void				say(const char* format, ...) const;
 	void				select(itema& a, slot_s i1, slot_s i2, bool filled_only);
 	void				select(skilla& e) const;
+	void				set(ability_s id, int v);
 	void				set(state_s v) { states.set(v); }
 	void				set(spell_s id, int v) { spells[id] = v; }
+	void				set(skill_s id, int v);
 	void				setcharmer(const creature* p) { charmer = p->getid(); }
 	void				setguard(short unsigned value) { guard = value; }
 	void				sethorror(const creature* p) { horror = p->getid(); }

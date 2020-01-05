@@ -93,10 +93,22 @@ static void item_choose() {
 	p1->inventory();
 }
 
+static bool test_formula() {
+	creature c1;
+	c1.create(GnollWarrior);
+	c1.set(Strenght, 18);
+	c1.set(Dexterity, 8);
+	c1.set(Athletics, 4);
+	auto r = c1.calculate(bsmeta<abilityi>::elements[Speed].formula);
+	return r == 102;
+}
+
 int main(int argc, char* argv[]) {
 	auto s1 = sizeof(outdoor);
 	auto s2 = sizeof(creature);
 	auto s3 = sizeof(item);
+	if(!test_formula())
+		return false;
 	game.intialize();
 	//game.setnextlayer(test_worldmap);
 	//game.layer();

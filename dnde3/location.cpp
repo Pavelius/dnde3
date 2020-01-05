@@ -428,10 +428,10 @@ void location::makewave(indext index) {
 	short unsigned push = 0;
 	short unsigned pop = 0;
 	stack[push++] = start;
-	movements[start] = Blocked;
+	movements[start] = 0;
 	while(push != pop) {
 		auto n = stack[pop++];
-		auto w = movements[n] + 1;
+		auto w = ((n==start) ? 0 : movements[n]) + 1;
 		for(auto d : all_aroud) {
 			auto i = to(n, d);
 			if(i==Blocked || movements[i] == Blocked)
