@@ -10,6 +10,16 @@ void creaturea::match(state_s v) {
 	count = ps - data;
 }
 
+void creaturea::matchenemy(const creature* player) {
+	auto ps = data;
+	for(auto p : *this) {
+		if(!p->isenemy(player))
+			continue;
+		*ps++ = p;
+	}
+	count = ps - data;
+}
+
 void creaturea::match(const racea& v) {
 	if(!v)
 		return;
@@ -56,6 +66,20 @@ void creaturea::select() {
 	count = ps - data;
 }
 
+void creaturea::select(indext start, int distance) {
+	auto ps = data;
+	auto pe = endof();
+	for(auto& e : bsmeta<creature>()) {
+		if(!e)
+			continue;
+		if(location::getrange(e.getposition(), start) > distance)
+			continue;
+		if(ps < pe)
+			*ps++ = &e;
+	}
+	count = ps - data;
+}
+
 creature* creaturea::choose(bool interactive, const char* format) {
 	indexa source;
 	for(auto p : *this)
@@ -64,4 +88,18 @@ creature* creaturea::choose(bool interactive, const char* format) {
 	if(i == -1)
 		return 0;
 	return data[i];
+}
+
+static indext compare_index;
+
+static int compare_distace(const void* v1, const void* v2) {
+	auto p1 = *((creature**)v1);
+	auto p2 = *((creature**)v2);
+	auto d1 = location::getrange(p1->getposition(), compare_index);
+	auto d2 = location::getrange(p2->getposition(), compare_index);
+	return d1 - d2;
+}
+
+void creaturea::sort(indext start) {
+	qsort(data, count, sizeof(data[0]), compare_distace);
 }

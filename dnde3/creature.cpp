@@ -607,6 +607,20 @@ void creature::say(const char* format, ...) const {
 	sayv(sb, format, xva_start(format));
 }
 
+void creature::aiturn() {
+	creaturea source;
+	source.select(getposition(), getvisibility());
+	creaturea enemies = source;
+	enemies.matchenemy(this);
+	if(enemies) {
+		enemies.sort(getposition());
+		auto enemy = enemies[0];
+		moveto(enemy->getposition());
+	} else {
+
+	}
+}
+
 void creature::makemove() {
 	const auto pc = StandartEnergyCost * 20;
 	if(restore_hits > pc) {
@@ -631,9 +645,8 @@ void creature::makemove() {
 			location::setcamera(getposition());
 			playui();
 		}
-	} else {
-
-	}
+	} else
+		aiturn();
 }
 
 bool creature::roll(skill_s v, int bonus, int divider) const {

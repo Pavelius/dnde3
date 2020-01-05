@@ -579,6 +579,7 @@ class creature : public nameable, public posable {
 	unsigned			experience;
 	unsigned			money;
 	//
+	void				aiturn();
 	void				applyabilities();
 	void				applyaward() const;
 	void				attack(creature& enemy, slot_s id, int bonus);
@@ -628,9 +629,7 @@ public:
 	int					getaward() const { return 10 + 15*get(Level); }
 	int					getbasic(ability_s value) const;
 	int					getbasic(skill_s v) const { return skills[v]; }
-	int					getbonus(enchantment_s value) const;
 	const classi&		getclass() const { return bsmeta<classi>::elements[kind]; }
-	int					getdiscount(creature* customer) const;
 	direction_s			getdirection() const { return direction; }
 	encumbrance_s		getencumbrance() const { return encumbrance; }
 	int					getexperience() const { return experience; }
@@ -652,45 +651,30 @@ public:
 	site*				getsite() const { return 0; }
 	slot_s				getwearerslot(const item* p) const;
 	int					getweight() const;
-	int					getweight(encumbrance_s id) const;
-	bool				give(creature& opponent, item& it, bool interactive);
+	int					getvisibility() const { return 8; }
 	void				heal(int value) { damage(-value, Magic); }
-	void				hint(const char* format, ...) const;
 	void				inventory();
 	bool				is(class_s v) const { return kind == v; }
 	bool				is(state_s v) const { return states.is(v); }
 	bool				is(encumbrance_s value) const { return encumbrance == value; }
 	bool				isactive() const { return getactive() == this; }
-	bool				isagressive() const;
 	bool				isenemy(const creature* target) const;
-	bool				isfriend(const creature* target) const;
 	bool				isguard() const { return guard != 0xFFFF; }
-	bool				isparty(const creature* target) const;
 	bool				isplayer() const;
-	bool				isranged(bool interactive) const;
 	void				kill();
-	void				levelup(bool interactive);
-	void				lookfloor();
 	void				makemove();
-	void				manipulate(short unsigned index);
 	void				meleeattack(creature& enemy, int bonus = 0);
 	void				move(indext index);
 	void				moveto(indext index);
-	bool				moveaway(indext index);
 	void				playui();
 	void				pickup();
-	void				post(ability_s i, int value, unsigned rounds);
 	void				raise(skill_s value);
 	void				raiseskills(int number);
 	void				raiseskills() { raiseskills(get(Intellegence) / 2); }
-	void				rangeattack(creature* enemy);
-	void				readbook(item& it);
 	void				remove(state_s v) { states.remove(v); }
 	bool				roll(skill_s v, int bonus = 0, int divider = 0) const;
 	static bool			rollv(int v, int* r);
-	bool				saving(bool interactive, skill_s save, int bonus) const;
 	void				say(const char* format, ...) const;
-	void				say(creature& opponent, const char* format, ...) const;
 	void				select(itema& a, slot_s i1, slot_s i2, bool filled_only);
 	void				select(skilla& e) const;
 	void				set(state_s v) { states.set(v); }
@@ -706,14 +690,17 @@ public:
 	void				useskills();
 	void				wait() { consume(StandartEnergyCost); }
 };
-class creaturea : adat<creature*> {
+class creaturea : public adat<creature*> {
 public:
 	void				add(const creature* e);
 	creature*			choose(bool interactive, const char* title);
 	void				match(state_s i);
 	void				match(const alignmenta& v);
 	void				match(const racea& v);
+	void				matchenemy(const creature* v);
 	void				select();
+	void				select(indext start, int distance);
+	void				sort(indext start);
 	void				remove(state_s v);
 };
 class indexa : public adat<indext> {

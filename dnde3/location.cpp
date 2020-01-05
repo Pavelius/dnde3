@@ -456,7 +456,7 @@ void location::blockcreatures() {
 }
 
 void location::blockwalls() {
-	for(indext i = 0; mmx*mmy; i++) {
+	for(indext i = 0; i < mmx*mmy; i++) {
 		if(!isfree(i))
 			movements[i] = Blocked;
 	}
