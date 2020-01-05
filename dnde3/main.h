@@ -116,7 +116,7 @@ enum skill_s : unsigned char {
 	FirstResist = ResistAcid, LastResist = ResistWater,
 };
 enum state_s : unsigned char {
-	Anger, Charmed, Drunken, Friendly, Hostile,
+	Anger, Drunken, Friendly, Hostile,
 	Invisible, Paralized, Poisoned, Sick, Sleeped,
 	Wounded,
 	LastState = Wounded,
@@ -199,7 +199,7 @@ enum target_s : unsigned char {
 	SingleTarget, RandomTarget, AllTargets,
 };
 enum item_flag_s : unsigned char {
-	TwoHanded, Versatile
+	TwoHanded, Versatile, Natural,
 };
 enum variant_s : unsigned char {
 	NoVariant,
@@ -469,7 +469,6 @@ public:
 	bool				isedible() const;
 	bool				isforsale() const { return forsale != 0; }
 	bool				isidentified() const { return identify!=0; }
-	bool				isnatural() const;
 	bool				ismagical() const { return magic != Mundane; }
 	bool				isreadable() const;
 	bool				istome() const;
@@ -599,14 +598,14 @@ class creature : public nameable, public posable {
 	void				equip(item it, slot_s id);
 	void				finish();
 	void				move(indext index, bool runaway);
-	bool				remove(item& it, bool run);
+	bool				remove(item& it, bool run, bool talk);
 public:
 	explicit operator bool() const { return hp > 0; }
 	//
 	void				activate();
 	void				add(variant id, int v);
 	void				add(variant id, int v, unsigned time);
-	bool				add(item v, bool run);
+	bool				add(item v, bool run, bool talk);
 	void				addexp(int count);
 	bool				alertness();
 	bool				askyn(creature* opponent, const char* format, ...);
@@ -624,6 +623,7 @@ public:
 	void				drink(item& it, bool interactive);
 	void				dropdown();
 	bool				equip(item value);
+	bool				equip(item& v1, item& v2, bool run);
 	void				enslave();
 	static creature*	find(indext i);
 	int					get(ability_s v) const { return abilities[v]; }

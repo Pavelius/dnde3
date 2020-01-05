@@ -154,7 +154,7 @@ void creature::equip(item it, slot_s id) {
 	dresson();
 }
 
-bool creature::add(item v, bool run) {
+bool creature::add(item v, bool run, bool talk) {
 	// Second place item to backpack
 	for(auto i = FirstBackpack; i <= LastBackpack; i = (slot_s)(i + 1)) {
 		if(wears[i])
@@ -163,14 +163,20 @@ bool creature::add(item v, bool run) {
 			equip(v, i);
 		return true;
 	}
+	if(talk) {
+		static const char* text[] = {
+			"Ну и куда мне это засунуть?",
+			"У меня уже нету места.",
+			"Некуда класть. Надо что-нибудь выбросить из рюкзака.",
+		};
+		say(maprnd(text));
+	}
 	return false;
 }
 
 bool creature::equip(item v) {
-	if(!isallow(v.getkind())) {
-		act("Я не ношу такое.");
+	if(!isallow(v.getkind()))
 		return false;
-	}
 	// First try to dress this item
 	for(auto i = Head; i <= Amunitions; i = (slot_s)(i + 1)) {
 		if(!v.is(i))
@@ -180,7 +186,27 @@ bool creature::equip(item v) {
 		equip(v, i);
 		return true;
 	}
-	return add(v, true);
+	return add(v, true, false);
+}
+
+bool creature::equip(item& v1, item& v2, bool run) {
+	if(!isallow(v2.getkind())) {
+		if(run) {
+			static const char* text[] = {
+				"Да ну, это не мой размер.",
+				"Я не знаю как этим пользоваться.",
+				"Я такое носить не буду.",
+			};
+			say(maprnd(text));
+		}
+		return false;
+	}
+	dressoff();
+	auto v = v1;
+	v1 = v2;
+	v2 = v;
+	dresson();
+	return true;
 }
 
 void creature::raiseskills(int number) {
@@ -396,12 +422,12 @@ void creature::select(itema& a, slot_s i1, slot_s i2, bool filled_only) {
 }
 
 void creature::dropdown(item& item) {
-	if(!remove(item, false))
+	if(!remove(item, false, true))
 		return;
-	auto p = location::getactive();
-	if(p) {
-		p->drop(getposition(), item);
-		remove(item, true);
+	auto loc = location::getactive();
+	if(loc) {
+		loc->drop(getposition(), item);
+		remove(item, true, true);
 		consume(StandartEnergyCost / 4);
 	}
 }
@@ -417,7 +443,7 @@ void creature::pickup() {
 	itema items; items.select(getposition());
 	auto pi = items.choose(true, "Поднять предмет", 0, NoSlotName);
 	if(pi) {
-		if(add(*pi, true)) {
+		if(add(*pi, true, true)) {
 			pi->clear();
 			consume(StandartEnergyCost / 4);
 		}
@@ -432,18 +458,16 @@ void creature::inventory() {
 			break;
 		auto slot = pi->getwearerslot();
 		if(*pi) {
-			if(!remove(*pi, false)) {
-				say("Я не могу это снять.");
+			if(!remove(*pi, false, true)) {
 				pause();
 				continue;
 			}
-			if(!add(*pi, false)) {
-				say("У меня уже нету места.");
+			if(!add(*pi, false, true)) {
 				pause();
 				continue;
 			}
-			add(*pi, true);
-			remove(*pi, true);
+			add(*pi, true, false);
+			remove(*pi, true, false);
 		} else {
 			if(slot >= Head && slot <= Amunitions) {
 				items.clear();
@@ -451,11 +475,6 @@ void creature::inventory() {
 				items.match(slot);
 				auto p2 = items.choose(true, "Рюкзак", 0, NoSlotName);
 				if(p2) {
-					if(!isallow(p2->getkind())) {
-						say("Я такое носить не буду.");
-						pause();
-						continue;
-					}
 					dressoff();
 					auto pc = *pi;
 					*pi = *p2;
@@ -467,9 +486,33 @@ void creature::inventory() {
 	}
 }
 
-bool creature::remove(item& e, bool run) {
+bool creature::remove(item& e, bool run, bool talk) {
 	if(!e)
 		return false;
+	if(e.iscursed()) {
+		if(talk) {
+			static const char* text[] = {
+				"Уберите руки! Это мое!",
+				"Нет, я это не отдам.",
+				"Мое сокровище! Моя прелесть!",
+			};
+			say(maprnd(text));
+		}
+		if(run)
+			e.setidentify(true);
+		return false;
+	} else if(e.is(Natural)) {
+		if(talk) {
+			static const char* text[] = {
+				"Это часть меня!",
+				"Как я это сниму? Отрежу?",
+				"Ты в своем уме?",
+				"Это приросло ко мне намертво.",
+			};
+			say(maprnd(text));
+		}
+		return false;
+	}
 	if(run) {
 		dressoff();
 		e.clear();
@@ -793,13 +836,13 @@ void creature::damage(int value, attack_s type) {
 			value = mhp - hp;
 		if(value <= 0)
 			return;
-		act("%герой восстановил%а %1i повреждений.", value);
+		act("%герой восстановил%а [+%1i] повреждений.", value);
 	} else {
 		if(hp <= value) {
-			act("%герой получил%а %1i повреждений и упал%а.", value);
+			act("%герой получил%а [%1i] повреждений и упал%а.", value);
 			kill();
 		} else {
-			act("%герой получил%а %1i повреждений.", value);
+			act("%герой получил%а [%1i] повреждений.", value);
 			hp -= value;
 		}
 	}

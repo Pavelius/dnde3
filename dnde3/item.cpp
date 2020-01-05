@@ -94,11 +94,11 @@ itemi bsmeta<itemi>::elements[] = {{"", 0, 0, NoGender, Organic, {}, {}, {}, {},
 {"Серебрянная монета", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
 {"Золотая монета", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
 //
-{"Когти", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
-{"Кулаки", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
-{"Укус", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
-{"Хитин", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
-{"Мех", 0, 0 * GP, NoGender, Paper, {}, {20}, {}, {}, Torso},
+{"Когти", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {Natural}},
+{"Кулаки", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {Natural}},
+{"Укус", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {Natural}},
+{"Хитин", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {Natural}},
+{"Мех", 0, 0 * GP, NoGender, Paper, {}, {20}, {}, {Natural}, Torso},
 //
 {"Много предметов"},
 };
@@ -126,75 +126,6 @@ bool item::is(slot_s v) const {
 		return bsmeta<itemi>::elements[type].slot == v;
 	}
 }
-
-//{"Щит", 1500, 20 * GP, Male, Iron, {0, {}, {}, {12}, 5}, {}, {}, {OffHand}, NoSkill, shield_effect},
-//{"Шлем", 300, 5 * GP, Male, Iron, {0, {}, {}, {3}, 2}, {}, {}, {Head}, NoSkill, helm_effect},
-//{"Наручи", 200, 3 * GP, They, Leather, {0, {}, {}, {3}, 2}, {}, {}, {Elbows}, NoSkill, bracers_effect},
-//{"Наручи", 400, 8 * GP, They, Iron, {0, {}, {}, {5, 1}, 2}, {}, {}, {Elbows}, NoSkill, bracers_effect},
-////
-//{"Плащ", 200, 5 * GP, Male, Leather, {0, {}, {}, {1, 0}, 1}, {}, {}, {TorsoBack}, NoSkill, cloack_effect},
-//{"Плащ", 200, 6 * GP, Male, Leather, {0, {}, {}, {2, 0}, 1}, {}, {}, {TorsoBack}, NoSkill, cloack_effect},
-//{"Плащ", 200, 5 * GP, Male, Leather, {0, {}, {}, {1, 0}, 2}, {}, {}, {TorsoBack}, NoSkill, cloack_effect},
-//{"Плащ", 200, 5 * GP, Male, Leather, {0, {}, {}, {1, 0}, 1}, {}, {}, {TorsoBack}, NoSkill, cloack_effect},
-//{"Плащ", 200, 6 * GP, Male, Leather, {0, {}, {}, {2, 0}, 1}, {}, {}, {TorsoBack}, NoSkill, cloack_effect},
-////
-//{"Сапоги", 300, 6 * GP, They, Leather, {0, {}, {}, {1, 0}, 1}, {}, {}, {Legs}, NoSkill},
-//{"Сапоги", 300, 6 * GP, They, Leather, {0, {}, {}, {2, 0}, 1}, {}, {}, {Legs}, NoSkill},
-//{"Сапоги", 350, 6 * GP, They, Leather, {0, {}, {}, {3, 0}, 1}, {}, {}, {Legs}, NoSkill},
-//{"Сапоги", 400, 6 * GP, They, Leather, {0, {}, {}, {4, 0}, 1}, {}, {}, {Legs}, NoSkill},
-//{"Сапоги", 450, 6 * GP, They, Leather, {0, {}, {}, {4, 0}, 2}, {}, {}, {Legs}, NoSkill},
-////
-//{"Сухпаек", 100, 3 * SP, Male, Organic, {}, {}, {}, {}, NoSkill, {}, NoItem, 0, 0, {5, 0, {1, 0, 1, 0, 0, 0}, 10 * Minute}},
-//{"Яблоко", 10, 1 * SP, NoGender, Organic, {}, {}, {}, {}, NoSkill, {}, NoItem, 0, 0, {1, 0, {2, 0, 0, 0, 0, 0}, 2 * Minute}},
-//{"Хлеб хоббитов", 20, 5 * SP, Male, Organic, {}, {}, {}, {}, NoSkill, {}, NoItem, 0, 0, {3, 0, {0, 3, 2, 0, 0, 0}, 4 * Minute, 10}},
-//{"Хлеб эльфов", 20, 10 * SP, Male, Organic, {}, {}, {}, {}, NoSkill, {}, NoItem, 0, 0, {4, 0, {0, 4, 0, 1, 0, 0}, 5 * Minute, 20}},
-//{"Хлеб гномов", 25, 2 * SP, Male, Organic, {}, {}, {}, {}, NoSkill, {}, NoItem, 0, 0, {2, 0, {1, 0, 4, 0, 0, 0}, 5 * Minute, 0, 10}},
-//{"Печенье", 10, 1 * SP, Male, Organic, {}, {}, {}, {}, NoSkill, {}, NoItem, 0, 0, {1, 0, {0, 0, 0, 1, 0, 1}, Minute}},
-//{"Колбаса", 40, 8 * SP, Female, Organic, {}, {}, {}, {}, NoSkill, {}, NoItem, 0, 0, {4, 0, {1, 1, 1, 0, 0, 0}, 5 * Minute}},
-//{"Мясо", 50, 5 * SP, NoGender, Organic, {}, {}, {}, {}, NoSkill, {}, NoItem, 0, 0, {2, 0, {2, 0, 0, 0, 0, 0}, 3 * Minute}},
-////
-//{"Свиток", 10, 5 * GP, Male, Paper, {}, {15, 5}, {Readable}, {}, NoSkill, scroll_spells},
-//{"Свиток", 10, 6 * GP, Male, Paper, {}, {10, 10}, {Readable}, {}, NoSkill, scroll_spells},
-//{"Свиток", 10, 7 * GP, Male, Paper, {}, {5, 10}, {Readable}, {}, NoSkill, scroll_spells},
-////
-//{"Палочка", 5, 50 * GP, Female, Wood, {}, {}, {}, {}, NoSkill, wand_spells, NoItem, 0, 20},
-//{"Палочка", 5, 70 * GP, Female, Wood, {}, {}, {}, {}, NoSkill, wand_spells, NoItem, 0, 30},
-//{"Палочка", 5, 90 * GP, Female, Iron, {}, {}, {}, {}, NoSkill, wand_spells, NoItem, 0, 40},
-//{"Палочка", 5, 50 * GP, Female, Iron, {}, {}, {}, {}, NoSkill, wand_spells, NoItem, 0, 20},
-//{"Палочка", 5, 60 * GP, Female, Iron, {}, {}, {}, {}, NoSkill, wand_spells, NoItem, 0, 25},
-////
-//{"Книга", 300, 80 * GP, Female, Paper, {}, {80, -20, 65}, {Readable, Tome}, {}, NoSkill, wand_spells},
-//{"Мануал", 350, 100 * GP, Male, Paper, {}, {55, -15, 50}, {Readable, Tome}, {}, NoSkill, manual_skills},
-//{"Книга", 300, 110 * GP, Female, Paper, {}, {70, -10, 55}, {Readable, Tome}, {}, NoSkill, wand_spells},
-//{"Книга", 300, 90 * GP, Female, Paper, {}, {75, -15, 50}, {Readable, Tome}, {}, NoSkill, wand_spells},
-//{"Том", 300, 130 * GP, Male, Paper, {}, {60, -15, 35}, {Readable, Tome}, {}, NoSkill, wand_spells},
-////
-//{"Зелье", 40, 20 * GP, NoGender, Glass, {}, {}, {}, {}, NoSkill, potion_state, NoItem},
-//{"Зелье", 40, 25 * GP, NoGender, Glass, {}, {}, {}, {}, NoSkill, potion_state, NoItem},
-//{"Зелье", 40, 30 * GP, NoGender, Glass, {}, {}, {}, {}, NoSkill, potion_state, NoItem},
-//{"Зелье", 40, 20 * GP, NoGender, Glass, {}, {}, {}, {}, NoSkill, potion_state, NoItem},
-//{"Зелье", 40, 25 * GP, NoGender, Glass, {}, {}, {}, {}, NoSkill, potion_state, NoItem},
-////
-//{"Кольцо", 2, 60 * GP, NoGender, Iron, {}, {}, {}, {}, NoSkill, ring_effect},
-//{"Кольцо", 2, 70 * GP, NoGender, Iron, {}, {}, {}, {}, NoSkill, ring_effect},
-//{"Кольцо", 2, 80 * GP, NoGender, Iron, {}, {}, {}, {}, NoSkill, ring_effect},
-////
-//{"Амулет", 2, 50 * GP, Male, Iron, {}, {}, {}, {}, NoSkill, ring_effect},
-//{"Амулет", 2, 50 * GP, Male, Iron, {}, {}, {}, {}, NoSkill, ring_effect},
-//{"Амулет", 2, 50 * GP, Male, Iron, {}, {}, {}, {}, NoSkill, ring_effect},
-//{"Амулет", 2, 50 * GP, Male, Iron, {}, {}, {}, {}, NoSkill, ring_effect},
-//{"Амулет", 2, 50 * GP, Male, Iron, {}, {}, {}, {}, NoSkill, ring_effect},
-////
-//{"Ключ", 10, 0, Male, Iron},
-//{"Монета", 1, 1 * CP, Female, Iron, {}, {}, {}, {}, NoSkill, {}, NoItem, 50},
-//{"Монета", 1, 1 * SP, Female, Iron, {}, {}, {}, {}, NoSkill, {}, NoItem, 50},
-//{"Монета", 1, 1 * GP, Female, Iron, {}, {}, {}, {}, NoSkill, {}, NoItem, 50},
-////
-//{"Когти", 0, 0, They, Organic, {4, {1, 3, Slashing}}, {}, {Natural}, {Melee}, NoSkill, bite_effect},
-//{"Удар", 0, 0, Male, Organic, {0, {2, 7}}, {}, {Natural}, {Melee}, NoSkill, bite_effect},
-//{"Укус", 0, 0, Male, Organic, {2, {2, 5, Piercing}}, {}, {Natural}, {Melee}, NoSkill, bite_effect},
-//{"Хитин", 0, 0, Male, Organic, {0, {}, 0, {20}, 4}, {}, {Natural}, {Torso}, NoSkill, armor_effect},
-//{"Мех", 0, 0, Male, Organic, {0, {}, 0, {12}, 4}, {}, {Natural}, {Torso}, NoSkill, armor_effect},
 
 void item::getname(stringbuilder& sb) const {
 	auto& ei = getitem();
