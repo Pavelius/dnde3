@@ -2,7 +2,7 @@
 
 gamei game;
 
-static void updatelos() {
+static void update_los() {
 	auto loc = location::getactive();
 	if(!loc)
 		return;
@@ -34,7 +34,7 @@ void gamei::playactive() {
 		need_continue = true;
 		for(auto i = 0; i < moves_per_minute; i++) {
 			if((i % 5) == 0)
-				updatelos();
+				update_los();
 			move_creatures();
 			if(!creature::getactive())
 				need_continue = false;

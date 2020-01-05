@@ -609,6 +609,7 @@ public:
 	void				attack(creature* defender, slot_s slot, int bonus, int multiplier);
 	int					calculate(const variant* formule) const;
 	bool				canhear(short unsigned index) const;
+	bool				cansee(indext i) const;
 	void				chat(creature* opponent);
 	void				create(race_s race, gender_s gender, class_s type);
 	void				create(role_s type);
@@ -785,6 +786,7 @@ class location {
 	//
 	indext				bpoint(indext index, int w, int h, direction_s dir) const;
 	indext				getfree(indext i, procis proc, int radius_maximum) const;
+	bool				linelos(int x0, int y0, int x1, int y1) const;
 	bool				wget(short unsigned i, direction_s direction, tile_s value) const;
 	bool				wget(short unsigned i, direction_s direction, tile_s value, bool default_result) const;
 	bool				xget(short unsigned i, direction_s direction) const;
@@ -796,6 +798,7 @@ public:
 	void				blockcreatures();
 	void				blockwalls(bool water = true);
 	indext				building(indext i, int width, int height, direction_s dir = Center);
+	bool				cansee(indext i1, indext i2) const;
 	indext				choose(bool allow_cancel);
 	indext				choose(bool allow_cancel, const aref<indext>& source, const char* format);
 	void				clear();

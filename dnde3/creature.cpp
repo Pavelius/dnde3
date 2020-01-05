@@ -922,3 +922,10 @@ bool creature::isvisible() const {
 		return false;
 	return loc->is(getposition(), Visible);
 }
+
+bool creature::cansee(indext i) const {
+	auto loc = location::getactive();
+	if(!loc)
+		return false;
+	return loc->cansee(getposition(), i);
+}

@@ -538,14 +538,14 @@ static bool linelossv(int x0, int y0, int x1, int y1) {
 	}
 }
 
-static bool linelos(int x0, int y0, int x1, int y1) {
+bool location::linelos(int x0, int y0, int x1, int y1) const {
 	int dx = iabs(x1 - x0), sx = x0 < x1 ? 1 : -1;
 	int dy = iabs(y1 - y0), sy = y0 < y1 ? 1 : -1;
 	int err = (dx > dy ? dx : -dy) / 2, e2;
 	for(;;) {
 		if(x0 >= 0 && x0 < mmx && y0 >= 0 && y0 < mmy) {
-			auto i = current_location->get(x0, y0);
-			if(!current_location->isfree(i))
+			auto i = get(x0, y0);
+			if(!isfree(i))
 				return false;
 		}
 		if(x0 == x1 && y0 == y1)
@@ -573,4 +573,10 @@ void location::setlos(indext index, int r) {
 		linelossv(x0, y0, x0 - r, y);
 		linelossv(x0, y0, x0 + r, y);
 	}
+}
+
+bool location::cansee(indext i1, indext i2) const {
+	if(i1 == Blocked || i2 == Blocked)
+		return false;
+	return linelos(getx(i1), gety(i1), getx(i2), gety(i2));
 }
