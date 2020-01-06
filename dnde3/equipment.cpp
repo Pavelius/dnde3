@@ -2,7 +2,7 @@
 
 equipmenti bsmeta<equipmenti>::elements[] = {{Dwarf, Fighter, {AxeBattle, ScaleMail, Shield, BreadDwarven}},
 {Elf, Ranger, {SwordLong, SwordShort, LeatherArmor, BowLong}},
-{Elf, Fighter, {SwordLong, LeatherArmor, BowLong}},
+{Elf, Fighter, {SwordLong, StuddedLeatherArmor, BowLong}},
 {Halfling, Fighter, {SwordShort, LeatherArmor, BreadHalflings}},
 {Halfling, Theif, {SwordShort, LeatherArmor, RingRed}},
 {Human, Cleric, {Mace}},

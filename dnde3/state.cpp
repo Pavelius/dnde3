@@ -1,14 +1,15 @@
 #include "main.h"
 
-statei bsmeta<statei>::elements[] = {{"Anger", "Злой"},
-{"Dazzled", "Ошеламлен"},
-{"Drunken", "Пьяный"},
-{"Friendly", "Дружественен"},
-{"Hostile", "Враждебен"},
-{"Invisible", "Невидим"},
-{"Poisoned", "Отравлен"},
-{"Sick", "Болен"},
-{"Sleeped", "Спит"},
-{"Wounded", "Ранен"},
+statei bsmeta<statei>::elements[] = {{"Anger", "Злой", true},
+{"Dazzled", "Ошеламлен", true},
+{"Drunken", "Пьяный", true},
+{"Friendly", "Дружественен", false},
+{"Hostile", "Враждебен", true},
+{"Hunger", "Голоден", true},
+{"Invisible", "Невидим", false},
+{"Poisoned", "Отравлен", true},
+{"Sick", "Болен", true},
+{"Sleeped", "Спит", true},
+{"Wounded", "Ранен", true},
 };
 assert_enum(state, LastState);

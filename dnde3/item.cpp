@@ -47,14 +47,14 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, NoGender, Organic, {0, D1n3, B
 {"Сапоги", 0, 0 * GP, NoGender, Iron, {}, {3, 1, 10}, {}, {}, Legs},
 {"Сапоги", 0, 0 * GP, NoGender, Iron, {}, {3, 1, 10}, {}, {}, Legs},
 
-{"Еда", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {}},
-{"Яблоко", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {}},
-{"Хлеб хоббитов", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {}},
-{"Хлеб эльфов", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {}},
-{"Хлеб гномов", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {}},
-{"Пирожное", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {}},
-{"Колбаса", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {}},
-{"Мясо", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {}},
+{"Еда", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {}, Edible},
+{"Яблоко", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {}, Edible},
+{"Хлеб хоббитов", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {}, Edible},
+{"Хлеб эльфов", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {}, Edible},
+{"Хлеб гномов", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {}, Edible},
+{"Пирожное", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {}, Edible},
+{"Колбаса", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {}, Edible},
+{"Мясо", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {}, Edible},
 //
 {"Свиток", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
 {"Свиток", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
@@ -164,4 +164,23 @@ bool item::use() {
 	auto c = getcount();
 	setcount(getcount() - 1);
 	return c > 1;
+}
+
+bool item::match(variant v) const {
+	switch(v.type) {
+	case Item:
+		if(type != v.value)
+			return false;
+		break;
+	}
+	return true;
+}
+
+int	item::getquality() const {
+	switch(magic) {
+	case Blessed: return quality + 1;
+	case Cursed: return quality - 2;
+	case Artifact: return quality + 2;
+	default: return quality;
+	}
 }

@@ -5,6 +5,7 @@ DECLDATA(creature, 256);
 static int			skill_level[] = {20, 50, 75, 90};
 static const char*	skill_names[] = {"Начальный", "Продвинутый", "Экспертный", "Мастерский"};
 static creature*	current_player;
+const int			restore_points_when_percent = 60;
 const int			chance_act = 40;
 const int			chance_blood_when_dead = 70;
 
@@ -26,14 +27,26 @@ short unsigned creature::getid() const {
 	return this - bsmeta<creature>::elements;
 }
 
-void creature::add(variant id, int v) {
+void creature::add(variant id, int v, bool interactive) {
 	switch(id.type) {
-	case Ability: abilities[id.value] += v; break;
-	case Item: equip(item_s(id.value)); break;
+	case Ability:
+		dressoff();
+		abilities[id.value] += v;
+		dresson();
+		break;
+	case State:
+		if(v > 0)
+			set((state_s)id.value);
+		else
+			remove((state_s)id.value);
+		break;
+	case Item:
+		equip(item_s(id.value));
+		break;
 	}
 }
 
-void creature::delayed(variant id, int modifier, unsigned rounds) {
+void creature::addboost(variant id, int modifier, unsigned rounds) {
 	auto p = bsmeta<boosti>::add();
 	p->id = id;
 	p->modifier = modifier;
@@ -41,15 +54,21 @@ void creature::delayed(variant id, int modifier, unsigned rounds) {
 	p->owner = getid();
 }
 
-void creature::add(variant id, int v, unsigned time) {
-	add(id, v);
-	delayed(id, -v, time);
-}
-
 creature* creature::getobject(short unsigned v) {
 	if(v == Blocked)
 		return 0;
 	return bsmeta<creature>::elements + v;
+}
+
+void creature::clearboost() const {
+	auto id = getid();
+	auto ps = bsmeta<boosti>::elements;
+	for(auto& e : bsmeta<boosti>()) {
+		if(e.owner == id)
+			continue;
+		*ps++ = e;
+	}
+	bsmeta<boosti>::source.setcount(ps - bsmeta<boosti>::elements);
 }
 
 void creature::unlink() {
@@ -64,6 +83,7 @@ void creature::unlink() {
 	}
 	if(current_player == this)
 		current_player = 0;
+	clearboost();
 }
 
 void creature::dressoff() {
@@ -117,8 +137,7 @@ void creature::dresssk(int m) {
 void creature::dresssa(int m) {
 	for(auto i = AttackMelee; i <= ManaRate; i = (ability_s)(i + 1)) {
 		auto& ei = bsmeta<abilityi>::elements[i];
-		if(ei.formula)
-			abilities[i] += m*calculate(ei.formula);
+		abilities[i] += m*calculate(ei.formula);
 	}
 }
 
@@ -245,11 +264,11 @@ static void start_equipment(creature& e) {
 	for(auto& ei : bsmeta<equipmenti>()) {
 		if((!ei.race || ei.race == e.getrace()) && e.is(ei.type)) {
 			for(auto ef : ei.features) {
-				e.add(ef, 1);
+				e.add(ef, 1, false);
 				switch(ef.type) {
 				case Item:
 					if(bsmeta<itemi>::elements[ef.value].weapon.ammunition)
-						e.add(bsmeta<itemi>::elements[ef.value].weapon.ammunition, 1);
+						e.add(bsmeta<itemi>::elements[ef.value].weapon.ammunition, 1, false);
 					break;
 				}
 			}
@@ -284,8 +303,8 @@ void creature::applyabilities() {
 		set(e, 1);
 	// Hits
 	if(abilities[Level] > 0) {
-		add(LifePoints, getclass().hp);
-		add(ManaPoints, getclass().mp);
+		abilities[LifePoints] += getclass().hp;
+		abilities[ManaPoints] += getclass().mp;
 	}
 	dresson();
 }
@@ -773,6 +792,23 @@ void creature::aiturn() {
 		}
 		moveto(enemy->getposition());
 	} else {
+		// When we try to stand and think
+		if(d100() < chance_act) {
+			auto mhp = get(LifePoints), mmp = get(ManaPoints);
+			auto mhz = restore_points_when_percent * mhp / 100, mmz = restore_points_when_percent * mmp / 100;
+			if((mhz && hp <= mhz) || (mmz && mp <= mmz)) {
+				if(aieat(false))
+					return;
+			}
+			//	if(aiboost())
+			//		return;
+			//	if(use_skills(*this, sc))
+			//		return;
+			if(d100() < chance_act) {
+				//		if(use_spells(*this, sc, false))
+				//			return;
+			}
+		}
 		// If creature guard some square move to guard position
 		if(guard != Blocked) {
 			moveto(guard);
@@ -790,17 +826,6 @@ void creature::aiturn() {
 			// Do nothing
 			wait();
 			return;
-		}
-		// When we try to stand and think
-		if(d100() < chance_act) {
-			//	if(aiboost())
-			//		return;
-			//	if(use_skills(*this, sc))
-			//		return;
-			if(d100() < chance_act) {
-				//		if(use_spells(*this, sc, false))
-				//			return;
-			}
 		}
 		//// When we move and traps or close door just before our step
 		//if(move_skills(*this, sc))
@@ -924,6 +949,7 @@ void creature::damage(int value, attack_s type, int pierce, bool interactive) {
 			return;
 		if(interactive)
 			act("%герой восстановил%а [+%1i] повреждений.", value);
+		hp += value;
 	} else {
 		auto armor = get(Armor);
 		if(armor > 0 && pierce > 0) {
@@ -1117,4 +1143,162 @@ void creature::testweapons() {
 		act("%1 с шансом [%2i%%] наносит [%3i-%4i] повреждений.", wears[Ranged].getname(), ai.attack, ai.dice.min, ai.dice.max);
 		act("Дистанционная атака стоит [%1i] энергии.", ai.getenergy());
 	}
+}
+
+boosti*	creature::find(variant id) const {
+	auto owner_id = getid();
+	for(auto& e : bsmeta<boosti>()) {
+		if(e.owner == owner_id && e.id == id)
+			return &e;
+	}
+	return 0;
+}
+
+bool creature::match(variant id) const {
+	switch(id.type) {
+	case Race:
+		if(getrace() != id.value)
+			return false;
+		break;
+	case Skill:
+		if(!skills[id.value])
+			return false;
+		break;
+	case State:
+		if(!is(state_s(id.value)))
+			return false;
+		break;
+	case Spell:
+		if(!spells[id.value])
+			return false;
+		break;
+	}
+	return true;
+}
+
+void creature::add(variant id, int v, unsigned minutes, bool interactive) {
+	add(id, v, interactive);
+	addboost(id, -v, game.getrouns() + minutes);
+}
+
+static int getchance(int chance, bool hostile, int quality, int damage) {
+	if(!chance)
+		return 100;
+	auto m = 1;
+	if(chance > 5)
+		m = chance / 4;
+	if(hostile)
+		chance += m*damage - quality;
+	else
+		chance += m*quality - damage;
+	if(chance < 0)
+		chance = 0;
+	if(chance > 100)
+		chance = 100;
+	return chance;
+}
+
+bool creature::apply(variant id, int chance, bool interactive, item_type_s magic, int quality, int damaged, int minutes) {
+	bool need_test = true;
+	bool need_message = true;
+	if(id.type == Ability) {
+		switch(id.value) {
+		case LifePoints:
+		case ManaPoints:
+			need_test = false;
+			break;
+		}
+	}
+	if(need_test) {
+		if(chance >= 0) {
+			auto n = getchance(chance, false, quality, damaged);
+			if(d100() >= n)
+				return false;
+		} else {
+			auto n = getchance(-chance, true, quality, damaged);
+			if(d100() >= n)
+				return false;
+		}
+	}
+	switch(id.type) {
+	case Ability:
+		switch(id.value) {
+		case LifePoints: case ManaPoints:
+			if(chance >= 0) {
+				switch(magic) {
+				case Artifact: add(id, (1 + quality) * 3, interactive); break;
+				case Cursed: add(id, -(1 + quality), interactive); break;
+				case Blessed: damage(-5 * (chance + quality * chance), Magic, 0, interactive); break;
+				default: damage(-(chance + quality * chance), Magic, 0, interactive); break;
+				}
+				return true;
+			} else {
+				chance = -chance;
+				switch(magic) {
+				case Blessed: case Artifact: return false;
+				case Cursed: damage(5 * (chance + quality * chance), Magic, 0, interactive); break;
+				default: damage(chance + quality * chance, Magic, 0, interactive); break;
+				}
+				return true;
+			}
+			break;
+		case AttackMelee: case AttackRanged: case Protection: case Deflect:
+			if(chance >= 0) {
+				switch(magic) {
+				case Artifact: add(id, (1 + quality) * 3, interactive); break;
+				case Cursed: add(id, -(20 + quality * 5), minutes * 10, interactive); break;
+				case Blessed: add(id, 20 + quality * 5, minutes * 10, interactive); break;
+				default: add(id, 5 + quality * 3, minutes, interactive); break;
+				}
+				break;
+			} else {
+				switch(magic) {
+				case Blessed: case Artifact: return false;
+				case Cursed: add(id, -(20 + quality * 5), minutes * 10, interactive); break;
+				default: add(id, -(5 + quality * 3), minutes, interactive); break;
+				}
+				break;
+			}
+			break;
+		default:
+			if(chance >= 0) {
+				switch(magic) {
+				case Artifact: add(id, 1 + quality, interactive); break;
+				case Cursed: add(id, -(1 + quality), interactive); break;
+				case Blessed: add(id, xrand(1, 3), 10 * minutes * (1 + quality), interactive); break;
+				default: add(id, xrand(1, 3), minutes * (1 + quality), interactive); break;
+				}
+			} else {
+				switch(magic) {
+				case Artifact: return false;
+				case Cursed: add(id, -(2 + quality), interactive); break;
+				case Blessed: add(id, 1, minutes - (1 + quality)*minutes / 5, interactive); break;
+				default: add(id, -xrand(1, 3), minutes * (1 + quality), interactive); break;
+				}
+			}
+			break;
+		}
+		break;
+	case State:
+		break;
+	}
+	return true;
+}
+
+bool creature::aieat(bool interactive) {
+	itema source; source.selectb(*this);
+	source.match(Edible);
+	auto pi = source.choose(interactive, "Что хотите съесть?", 0, NoSlotName);
+	if(pi)
+		return eat(*pi, interactive);
+	return false;
+}
+
+void creature::eat() {
+	aieat(isactive());
+}
+
+void creature::backpack() {
+	itema source; source.selectb(*this);
+	source.choose(true, "Рюкзак", 0, NoSlotName);
 }

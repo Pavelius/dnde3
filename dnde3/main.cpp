@@ -84,6 +84,7 @@ static void test_indoor() {
 	random_bless(p1);
 	e.activate();
 	p1->activate();
+	p1->damage(6, Bludgeon, 100);
 	game.play();
 }
 

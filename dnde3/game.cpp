@@ -55,3 +55,16 @@ void gamei::play() {
 		playactive();
 	}
 }
+
+void gamei::applyboost() {
+	auto ps = bsmeta<boosti>::elements;
+	for(auto& e : bsmeta<boosti>()) {
+		if(e.time > rounds) {
+			*ps++ = e;
+			continue;
+		}
+		auto player = bsmeta<creature>::elements + e.owner;
+		player->add(e.id, e.modifier, player->is(Friendly));
+	}
+	bsmeta<boosti>::source.setcount(ps - bsmeta<boosti>::elements);
+}

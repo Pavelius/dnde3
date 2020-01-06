@@ -1355,6 +1355,11 @@ skill_s skillu::choose(bool interactive, const char* title, bool* cancel_result)
 }
 
 item* itema::choose(bool interactive, const char* title, const char* format, slot_mode_s mode) {
+	if(!interactive) {
+		if(!count)
+			return 0;
+		return data[rand() % count];
+	}
 	const int width = 600;
 	while(ismodal()) {
 		current_background();
@@ -1368,8 +1373,6 @@ item* itema::choose(bool interactive, const char* title, const char* format, slo
 		if(count > 0) {
 			auto index = 0;
 			for(auto e : *this) {
-				if(e->getkind() >= PlateMail)
-					continue;
 				auto x0 = x;
 				if(button(x0, y, 0, Alpha + answeri::getkey(index), 0))
 					execute(breakparam, (int)e);
@@ -1490,7 +1493,9 @@ static hotkey adventure_keys[] = {{F1, "Выбрать первого героя", change_player, 0
 {Alpha + 'D', "Положить пердмет", &creature::dropdown},
 {Alpha + 'P', "Поднять пердмет", &creature::pickup},
 {Alpha + 'Q', "Стрелять по врагу", &creature::shoot},
+{Alpha + 'V', "Рюкзак", &creature::backpack},
 {Ctrl + Alpha + 'D', "Вселиться", &creature::enslave},
+{Ctrl + Alpha + 'E', "Вселиться", &creature::eat},
 {Ctrl + Alpha + 'W', "Тестировать оружие", &creature::testweapons},
 {}};
 

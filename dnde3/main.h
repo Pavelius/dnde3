@@ -48,7 +48,7 @@ enum diety_s : unsigned char {
 	GodBane, GodBhaal, GodGruumsh, GodHelm, GodMistra, GodTempus, GodTyr
 };
 enum slot_s : unsigned char {
-	Backpack, LastBackpack = Backpack + 31,
+	Backpack, Edible, LastBackpack = Backpack + 31,
 	Head, Neck, Melee, OffHand, TorsoBack, Torso, RightFinger, LeftFinger, Elbows, Legs, Ranged, Amunitions,
 };
 enum enchantment_s : unsigned char {
@@ -116,7 +116,7 @@ enum skill_s : unsigned char {
 	FirstResist = ResistAcid, LastResist = ResistWater,
 };
 enum state_s : unsigned char {
-	Anger, Dazzled, Drunken, Friendly, Hostile,
+	Anger, Dazzled, Drunken, Friendly, Hostile, Hunger,
 	Invisible, Poisoned, Sick, Sleeped,
 	Wounded,
 	LastState = Wounded,
@@ -262,6 +262,9 @@ struct sloti {
 	const char*			name;
 	const char*			name_where;
 };
+struct chancei {
+	state_s				state;
+};
 struct boosti {
 	short unsigned		owner;
 	variant				id;
@@ -288,6 +291,8 @@ struct abilityi {
 	const char*			name_short;
 	const char*			nameof;
 	const char*			cursedof;
+	const char*			name_how;
+	const char*			curse_how;
 	varianta			formula;
 	ability_s			getid() const;
 };
@@ -338,11 +343,14 @@ struct picture : point {
 struct statei {
 	const char*			id;
 	const char*			name;
+	bool				hostile;
 };
-struct skillv {
-	skill_s				id;
+template<class T>
+struct casev {
+	T					id;
 	char				value;
 };
+typedef casev<skill_s> skillv;
 struct racei {
 	const char*			name;
 	char				abilities[6];
@@ -369,16 +377,6 @@ struct armori {
 	char				armor;
 	char				deflect;
 };
-struct foodi {
-	char				hits;
-	char				mana;
-	char				abilities[Charisma + 1];
-	unsigned			duration;
-	char				sickness;
-	char				poision;
-	explicit operator bool() const { return hits != 0; }
-	int					get(int value) const { return value * 50; }
-};
 struct speciali {
 	char				broke;
 	char				bonus;
@@ -403,7 +401,6 @@ struct itemi {
 	skill_s				skill;
 	unsigned char		count;
 	unsigned char		charges;
-	foodi				food;
 };
 class item {
 	item_s				type;
@@ -431,10 +428,10 @@ public:
 	item_s				getammo() const { return getitem().weapon.ammunition; }
 	const attacki&		getattack() const { return getitem().weapon; }
 	int					getbonus(enchantment_s type) const;
-	int					getcharges() const;
+	int					getchance(int n, bool hostile) const;
 	unsigned			getcost() const;
 	int					getcount() const { return count + 1; }
-	const foodi&		getfood() const { return getitem().food; }
+	int					getdamage() const { return damaged; }
 	const itemi&		getitem() const { return bsmeta<itemi>::elements[type]; }
 	gender_s			getgender() const { return getitem().gender; }
 	item_type_s			getmagic() const { return magic; }
@@ -442,6 +439,7 @@ public:
 	const char*			getname() const { return getitem().name; }
 	void				getname(stringbuilder& sb) const;
 	int					getquality() const;
+	int					getqualityr() const { return quality; }
 	int					getsalecost() const;
 	skill_s				getskill() const;
 	spell_s				getspell() const;
@@ -464,6 +462,7 @@ public:
 	bool				ismagical() const { return magic != Mundane; }
 	bool				isunbreakable() const { return magic != Mundane; }
 	void				loot();
+	bool				match(variant v) const;
 	void				repair(int level);
 	item&				set(item_type_s value) { magic = value; return *this; }
 	item&				set(enchantment_s value) { effect = value; return *this; }
@@ -554,7 +553,6 @@ struct rolei {
 };
 class creature : public nameable, public posable {
 	char				abilities[ManaRate + 1];
-	short				abilities_raise[Charisma + 1];
 	unsigned char		skills[LastResist + 1];
 	unsigned char		spells[LastSpell + 1];
 	item				wears[Amunitions + 1];
@@ -570,6 +568,8 @@ class creature : public nameable, public posable {
 	unsigned			experience;
 	unsigned			money;
 	//
+	void				addboost(variant id, int modifier, unsigned rounds);
+	bool				aieat(bool interactive);
 	void				aimove();
 	void				aiturn();
 	void				applyabilities();
@@ -577,7 +577,7 @@ class creature : public nameable, public posable {
 	void				attack(creature& enemy, const attacki& ai, int bonus);
 	const variant*		calculate(const variant* formula, int& result) const;
 	void				cantmovehere() const;
-	void				delayed(variant id, int v, unsigned time);
+	void				clearboost() const;
 	void				dress(int m);
 	void				dresssk(int m);
 	void				dresssa(int m);
@@ -590,13 +590,15 @@ public:
 	explicit operator bool() const { return hp > 0; }
 	//
 	void				activate();
-	void				add(variant id, int v);
-	void				add(variant id, int v, unsigned time);
-	bool				add(item v, bool run, bool talk);
+	void				add(variant id, int v, bool interactive);
+	bool				add(item v, bool run, bool interactive);
+	void				add(variant id, int v, unsigned minutes, bool interactive);
 	void				addexp(int count);
 	bool				alertness();
+	bool				apply(variant id, int chance, bool interactive, item_type_s magic = Mundane, int quality = 0, int damage = 0, int minutes = 60);
 	bool				askyn(creature* opponent, const char* format, ...);
 	void				athletics(bool interactive);
+	void				backpack();
 	void				bloodstain() const;
 	int					calculate(const variant* formule) const;
 	bool				canhear(short unsigned index) const;
@@ -613,10 +615,13 @@ public:
 	void				dresson();
 	void				drink(item& it, bool interactive);
 	void				dropdown();
+	void				eat();
+	bool				eat(item it, bool interactive);
 	bool				equip(item value);
 	bool				equip(item& v1, item& v2, bool run);
 	void				enslave();
 	static creature*	find(indext i);
+	boosti*				find(variant id) const;
 	int					get(ability_s v) const { return abilities[v]; }
 	int					get(spell_s v) const { return spells[v]; }
 	int					get(skill_s v) const;
@@ -661,6 +666,7 @@ public:
 	void				kill();
 	void				look(indext index);
 	void				makemove();
+	bool				match(variant id) const;
 	void				meleeattack(creature& enemy, int bonus = 0);
 	void				move(indext index);
 	void				moveaway(indext index) { move(index, true); }
@@ -859,9 +865,9 @@ class gamei {
 	bool				checkalive();
 	void				playactive();
 public:
+	void				applyboost();
 	int					getrouns() const { return rounds; }
 	void				intialize();
-	bool				isplayers();
 	static void			help();
 	void				play();
 };
