@@ -657,9 +657,34 @@ void creature::attack(creature& enemy, slot_s id, int bonus) {
 		act("%герой промазал%а.");
 		return;
 	}
-	act("%герой попал%а.");
 	auto dv = ai.dice.roll();
-	enemy.damage(dv, ai.type);
+	auto pierce = 0;
+	auto deflect = enemy.get(Deflect);
+	if(roll(FindWeakness, -deflect)) {
+		auto danger = 30;
+		switch(ai.type) {
+		case Piercing:
+			danger += 20;
+			pierce = 100;
+			act("%герой попал%а в уязвимое место.");
+			break;
+		case Slashing:
+			act("%герой нанесл%а кровоточащую рану.");
+			enemy.set(Wounded);
+			enemy.bloodstain();
+			break;
+		case Bludgeon:
+			act("%герой нанесл%а ошеломляющий удар.");
+			enemy.set(Dazzled);
+			break;
+		}
+		auto damage_bonus = dv * danger / 100;
+		if(damage_bonus < 1)
+			damage_bonus = 1;
+		dv += damage_bonus;
+	} else
+		act("%герой попал%а.");
+	enemy.damage(dv, ai.type, pierce);
 }
 
 void creature::meleeattack(creature& enemy, int bonus) {
@@ -740,13 +765,13 @@ void creature::aiturn() {
 		}
 		// When we try to stand and think
 		if(d100() < chance_act) {
-		//	if(aiboost())
-		//		return;
-		//	if(use_skills(*this, sc))
-		//		return;
+			//	if(aiboost())
+			//		return;
+			//	if(use_skills(*this, sc))
+			//		return;
 			if(d100() < chance_act) {
-		//		if(use_spells(*this, sc, false))
-		//			return;
+				//		if(use_spells(*this, sc, false))
+				//			return;
 			}
 		}
 		//// When we move and traps or close door just before our step
@@ -758,9 +783,6 @@ void creature::aiturn() {
 
 void creature::makemove() {
 	const auto pc = StandartEnergyCost * 20;
-	// RULE: paralized creature don't move and don't restore
-	if(is(Paralized))
-		return;
 	if(restore_hits > pc) {
 		if(hp < get(LifePoints))
 			hp++;
@@ -777,7 +799,28 @@ void creature::makemove() {
 		restore_energy += get(Speed);
 		return;
 	}
-	// RULE: sleeped creature don't move
+	if(is(Wounded)) {
+		// Wounded creature loose 1 hit point each turn
+		if(rollv(get(Constitution) * 2, 0)) {
+			remove(Wounded);
+			act("Кровотечение у %героя прекратилось.");
+		} else {
+			act("%герой истекает кровью.");
+			damage(1, Slashing, 100, false);
+			if(!(*this))
+				return;
+		}
+	}
+	// Dazzled creature don't make turn
+	if(is(Dazzled)) {
+		if(rollv(get(Constitution) * 2, 0))
+			act("%герой очухался от головокружения.");
+		else {
+			wait();
+			return;
+		}
+	}
+	// Sleeped creature don't move
 	if(is(Sleeped))
 		return;
 	if(isactive()) {
@@ -791,18 +834,24 @@ void creature::makemove() {
 }
 
 bool creature::roll(skill_s v, int bonus, int divider) const {
-	auto r = get(v) + bonus;
-	if(divider > 1)
-		r /= divider;
+	auto r = get(v);
+	switch(divider) {
+	case 0: break;
+	case 1: r = r * 2 / 3; break;
+	default: r /= divider; break;
+	}
+	r += bonus;
 	return rollv(r, 0);
 }
 
 bool creature::rollv(int v, int* r) {
-	auto result = d100();
+	if(r)
+		*r = 100;
 	if(v <= 0)
 		return false;
 	if(v < 5)
 		v = 5;
+	auto result = d100();
 	if(r)
 		*r = result;
 	return result < v;
@@ -822,18 +871,22 @@ void creature::applyaward() const {
 	}
 }
 
+void creature::bloodstain() const {
+	auto loc = location::getactive();
+	if(!loc)
+		return;
+	loc->set(getposition(), Blooded);
+}
+
 void creature::kill() {
 	applyaward();
+	if(d100() < chance_blood_when_dead)
+		bloodstain();
 	unlink();
-	auto loc = location::getactive();
-	if(loc) {
-		if(d100() < chance_blood_when_dead)
-			loc->set(getposition(), Blooded);
-	}
 	clear();
 }
 
-void creature::damage(int value, attack_s type, int pierce) {
+void creature::damage(int value, attack_s type, int pierce, bool interactive) {
 	if(value < 0) {
 		value = -value;
 		auto mhp = get(LifePoints);
@@ -841,7 +894,8 @@ void creature::damage(int value, attack_s type, int pierce) {
 			value = mhp - hp;
 		if(value <= 0)
 			return;
-		act("%герой восстановил%а [+%1i] повреждений.", value);
+		if(interactive)
+			act("%герой восстановил%а [+%1i] повреждений.", value);
 	} else {
 		auto armor = get(Armor);
 		if(armor > 0 && pierce > 0) {
@@ -851,13 +905,16 @@ void creature::damage(int value, attack_s type, int pierce) {
 				armor -= pierce;
 		}
 		value -= armor;
-		if(value <= 0)
-			act("Броня поглатила весь урон.");
-		else if(hp <= value) {
-			act("%герой получил%а [%1i] повреждений и упал%а.", value);
+		if(value <= 0) {
+			if(interactive)
+				act("Броня поглатила весь урон.");
+		} else if(hp <= value) {
+			if(interactive)
+				act("%герой получил%а [%1i] повреждений и упал%а.", value);
 			kill();
 		} else {
-			act("%герой получил%а [%1i] повреждений.", value);
+			if(interactive)
+				act("%герой получил%а [%1i] повреждений.", value);
 			hp -= value;
 		}
 	}

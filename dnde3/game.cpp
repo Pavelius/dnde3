@@ -3,6 +3,9 @@
 gamei game;
 
 static void update_los() {
+	auto player = creature::getactive();
+	if(!player)
+		return;
 	auto loc = location::getactive();
 	if(!loc)
 		return;
@@ -10,13 +13,7 @@ static void update_los() {
 	auto max_count = mmx * mmy;
 	for(auto i = 0; i < max_count; i++)
 		loc->remove(i, Visible);
-	for(auto& e : bsmeta<creature>()) {
-		if(!e)
-			continue;
-		if(!e.is(Friendly))
-			continue;
-		loc->setlos(e.getposition(), e.getlos());
-	}
+	loc->setlos(player->getposition(), player->getlos());
 }
 
 static void move_creatures() {

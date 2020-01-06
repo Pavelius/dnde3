@@ -116,8 +116,8 @@ enum skill_s : unsigned char {
 	FirstResist = ResistAcid, LastResist = ResistWater,
 };
 enum state_s : unsigned char {
-	Anger, Drunken, Friendly, Hostile,
-	Invisible, Paralized, Poisoned, Sick, Sleeped,
+	Anger, Dazzled, Drunken, Friendly, Hostile,
+	Invisible, Poisoned, Sick, Sleeped,
 	Wounded,
 	LastState = Wounded,
 };
@@ -560,8 +560,7 @@ class creature : public nameable, public posable {
 	unsigned char		skills[LastResist + 1];
 	unsigned char		spells[LastSpell + 1];
 	item				wears[Amunitions + 1];
-	int					restore_energy;
-	unsigned			restore_hits, restore_mana;
+	int					restore_energy, restore_hits, restore_mana;
 	char				hp, mp;
 	statea				states;
 	short unsigned		charmer, horror;
@@ -600,7 +599,7 @@ public:
 	bool				alertness();
 	bool				askyn(creature* opponent, const char* format, ...);
 	void				athletics(bool interactive);
-	void				attack(creature* defender, slot_s slot, int bonus, int multiplier);
+	void				bloodstain() const;
 	int					calculate(const variant* formule) const;
 	bool				canhear(short unsigned index) const;
 	bool				cansee(indext i) const;
@@ -610,7 +609,7 @@ public:
 	void				create(role_s type);
 	void				clear();
 	void				consume(int energy_value);
-	void				damage(int count, attack_s type, int pierce = 0);
+	void				damage(int count, attack_s type, int pierce = 0, bool interactive = true);
 	void				damagewears(int count, attack_s type);
 	void				dressoff();
 	void				dresson();
@@ -676,7 +675,9 @@ public:
 	void				raiseskills() { raiseskills(get(Intellegence) / 2); }
 	void				rangeattack(creature& enemy, int bonus = 0);
 	void				remove(state_s v) { states.remove(v); }
-	bool				roll(skill_s v, int bonus = 0, int divider = 0) const;
+	bool				roll(skill_s v) const { return rollv(get(v), 0); }
+	bool				roll(skill_s v, int bonus) const { return rollv(get(v) + bonus, 0); }
+	bool				roll(skill_s v, int bonus, int divider) const;
 	static bool			rollv(int v, int* r);
 	void				say(const char* format, ...) const;
 	void				select(itema& a, slot_s i1, slot_s i2, bool filled_only);
