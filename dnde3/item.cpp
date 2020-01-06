@@ -169,10 +169,18 @@ bool item::is(slot_s v) const {
 
 void item::getstatistic(stringbuilder& sb) const {
 	auto& ei = getitem();
-	auto& ai = ei.weapon;
+	auto slot = ei.slot;
+	auto ai = ei.weapon;
+	auto player = getwearer();
+	ai.dice = ai.getdice();
+	if(player) {
+		auto s = getwearerslot();
+		if(s && (slot==Melee || slot==Ranged || slot==OffHand))
+			ai = player->getattack(s, *this);
+	}
 	if(ai.attack)
-		sb.adds("%1:%2i%%", bsmeta<abilityi>::elements[AttackMelee].name_short, ei.weapon.attack);
-	auto dc = ai.getdice();
+		sb.adds("%1:%2i%%", bsmeta<abilityi>::elements[AttackMelee].name_short, ai.attack);
+	auto dc = ai.dice;
 	if(dc.max)
 		sb.adds("%1:%2i-%3i", bsmeta<abilityi>::elements[DamageMelee].name_short, dc.min, dc.max);
 	auto& am = ei.armor;
@@ -235,13 +243,10 @@ bool item::match(variant v) const {
 	return true;
 }
 
-int	item::getquality() const {
-	switch(magic) {
-	case Blessed: return quality + 1;
-	case Cursed: return quality - 2;
-	case Artifact: return quality + 2;
-	default: return quality;
-	}
+int	item::getbonus() const {
+	if(!isidentified())
+		return 0;
+	return quality + bsmeta<item_typei>::elements[magic].bonus;
 }
 
 variant item::geteffect() const {

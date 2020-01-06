@@ -27,7 +27,7 @@ bool foodi::match(const creature* player, const item it) const {
 
 void foodi::apply(creature* player, const item it, bool interactive) const {
 	for(auto& e : chances)
-		player->apply(e.id, e.value, interactive, it.getmagic(), it.getqualityr(), it.getdamage(), 60);
+		player->apply(e.id, e.value, interactive, it.getmagic(), it.getquality(), it.getdamage(), 60);
 }
 
 bool creature::use(item& it, bool interactive) {
@@ -47,7 +47,7 @@ bool creature::use(item& it, bool interactive) {
 		act("%герой выпил%а %-1.", it.getname());
 		effect = it.geteffect();
 		if(effect)
-			apply(effect, 0, true, it.getmagic(), it.getqualityr(), it.getdamage(), 120);
+			apply(effect, 0, true, it.getmagic(), it.getquality(), it.getdamage(), 120);
 		else {
 			if(interactive)
 				act("Ничего не произошло.");

@@ -419,7 +419,7 @@ public:
 	void				damage();
 	item_s				getammo() const { return getitem().weapon.ammunition; }
 	const attacki&		getattack() const { return getitem().weapon; }
-	unsigned			getcost() const;
+	int					getbonus() const;
 	int					getcount() const { return count + 1; }
 	int					getdamage() const { return damaged; }
 	variant				geteffect() const;
@@ -430,8 +430,7 @@ public:
 	material_s			getmaterial() const { return getitem().material; }
 	const char*			getname() const { return getitem().name; }
 	void				getname(stringbuilder& sb, bool show_cab) const;
-	int					getquality() const;
-	int					getqualityr() const { return quality; }
+	int					getquality() const { return quality; }
 	int					getsalecost() const;
 	void				getstatistic(stringbuilder& sb) const;
 	creature*			getwearer() const;
@@ -616,7 +615,8 @@ public:
 	const item&			get(slot_s v) const { return wears[v]; }
 	static creature*	getactive();
 	static creature*	getactive(int index);
-	attacki				getattack(slot_s slot) const;
+	attacki				getattack(slot_s slot, const item& weapon) const;
+	attacki				getattack(slot_s slot) const { return getattack(slot, wears[slot]); }
 	int					getaward() const { return 10 + 15 * get(Level); }
 	int					getbasic(ability_s value) const;
 	int					getbasic(skill_s v) const { return skills[v]; }

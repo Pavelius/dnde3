@@ -111,22 +111,17 @@ void creature::dress(int m) {
 	for(auto i = Head; i <= Legs; i = (slot_s)(i + 1)) {
 		if(!wears[i])
 			continue;
-		auto mi = wears[i].getmagic();
+		auto mi = wears[i].getbonus();
 		auto& ei = wears[i].getitem();
 		auto wa = m * ei.weapon.attack;
-		switch(i) {
-		case Melee:
-			abilities[AttackMelee] += m * mi * 3;
-			abilities[DamageMelee] += m * mi / 2;
-			break;
-		case Ranged:
-			abilities[AttackRanged] += m * mi * 4;
-			abilities[DamageRanged] += m * mi / 2;
-			break;
-		default:
+		if(i != Melee && i != Ranged && (i != OffHand || !wears[i].is(Light))) {
 			abilities[AttackMelee] += wa;
 			abilities[AttackRanged] += wa;
-			break;
+		}
+		switch(i) {
+		case TorsoBack: abilities[Protection] += m * mi * 2; break;
+		case Elbows: case Legs: abilities[Protection] += m * mi * 3; break;
+		case Torso: case Head: abilities[Protection] += m * mi * 4; break;
 		}
 		abilities[Protection] += m * ei.armor.protection;
 		abilities[Deflect] += m * ei.armor.deflect;
@@ -342,9 +337,8 @@ void creature::getfullname(stringbuilder& sb) const {
 	sb.adds("%-3-%-1 %2i уровня", getstr(kind), get(Level), getstr(getrace()));
 }
 
-attacki creature::getattack(slot_s id) const {
+attacki creature::getattack(slot_s id, const item& weapon) const {
 	attacki result = {0};
-	auto& weapon = wears[id];
 	auto attack_ability = AttackMelee;
 	auto damage_ability = DamageMelee;
 	auto skill = weapon.getitem().skill;
@@ -376,13 +370,19 @@ attacki creature::getattack(slot_s id) const {
 		if(ei.weapon.speed)
 			result.speed += get(skill) / ei.weapon.speed;
 	}
+	if(weapon.isidentified()) {
+		auto wb = weapon.getbonus();
+		result.attack += wb * 3;
+		result.dice.min += wb;
+		result.dice.max += wb;
+	}
 	switch(id) {
 	case Melee:
 		if(weapon.is(Versatile) && !wears[OffHand]) {
 			result.dice.min += 1;
 			result.dice.max += 1;
 		}
-		if(wears[OffHand] && wears[OffHand].is(Light)) {
+		if(wears[OffHand].is(Light)) {
 			result.attack -= 20;
 			result.speed -= 8;
 			result.speed += wears[OffHand].getitem().weapon.speed;
@@ -398,7 +398,7 @@ attacki creature::getattack(slot_s id) const {
 		}
 		break;
 	case OffHand:
-		if(wears[Melee] && wears[OffHand].is(Light)) {
+		if(weapon.is(Light) && wears[Melee]) {
 			result.attack -= 30;
 			auto& ei = bsmeta<skilli>::elements[TwoWeaponFighting];
 			if(ei.weapon.attack)
@@ -745,7 +745,7 @@ void creature::attack(creature& enemy, const attacki& ai, int bonus) {
 }
 
 void creature::meleeattack(creature& enemy, int bonus) {
-	auto am = getattack(Melee);
+	auto am = getattack(Melee, wears[Melee]);
 	attack(enemy, am, bonus);
 	if(wears[OffHand] && wears[OffHand].is(Light))
 		attack(enemy, getattack(OffHand), bonus);
