@@ -5,11 +5,11 @@ void itema::select(creature& e) {
 }
 
 void itema::selecta(creature& e) {
-	e.select(*this, FirstBackpack, Amunitions, true);
+	e.select(*this, Backpack, Amunitions, true);
 }
 
 void itema::selectb(creature& e) {
-	e.select(*this, FirstBackpack, LastBackpack, true);
+	e.select(*this, Backpack, LastBackpack, true);
 }
 
 void itema::select(indext index) {

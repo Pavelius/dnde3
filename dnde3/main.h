@@ -48,7 +48,7 @@ enum diety_s : unsigned char {
 	GodBane, GodBhaal, GodGruumsh, GodHelm, GodMistra, GodTempus, GodTyr
 };
 enum slot_s : unsigned char {
-	FirstBackpack, LastBackpack = FirstBackpack + 31,
+	Backpack, LastBackpack = Backpack + 31,
 	Head, Neck, Melee, OffHand, TorsoBack, Torso, RightFinger, LeftFinger, Elbows, Legs, Ranged, Amunitions,
 };
 enum enchantment_s : unsigned char {
@@ -199,7 +199,7 @@ enum target_s : unsigned char {
 	SingleTarget, RandomTarget, AllTargets,
 };
 enum item_flag_s : unsigned char {
-	TwoHanded, Versatile, Natural,
+	TwoHanded, Versatile, Light, Natural,
 };
 enum variant_s : unsigned char {
 	NoVariant,
@@ -353,6 +353,7 @@ struct dicei {
 	char				min;
 	char				max;
 	int					roll() const;
+	void				normalize();
 };
 struct attacki {
 	char				attack; // Percent bonus to hit
@@ -420,7 +421,6 @@ class item {
 	enchantment_s		effect;
 public:
 	constexpr item() : type(NoItem), effect(NoEffect), count(0), magic(Mundane), quality(0), identify(0), identify_stats(0), identify_cab(0), forsale(0), damaged(0) {}
-	constexpr item(spell_s spell) : type(Scroll1), effect((enchantment_s)spell), count(0), magic(), quality(0), identify(1), identify_stats(0), identify_cab(0), forsale(0), damaged(0) {}
 	item(item_s type);
 	item(item_s type, int chance_artifact, int chance_magic, int chance_cursed, int chance_quality);
 	explicit operator bool() const { return type != NoItem; }
@@ -434,8 +434,6 @@ public:
 	int					getcharges() const;
 	unsigned			getcost() const;
 	int					getcount() const { return count + 1; }
-	enchantment_s		geteffect() const;
-	char				getenchantcost() const;
 	const foodi&		getfood() const { return getitem().food; }
 	const itemi&		getitem() const { return bsmeta<itemi>::elements[type]; }
 	gender_s			getgender() const { return getitem().gender; }
@@ -456,7 +454,6 @@ public:
 	int					getweight() const { return getweightsingle()*getcount(); }
 	bool				is(slot_s v) const;
 	bool				is(item_flag_s v) const { return getitem().flags.is(v); }
-	bool				isarmor() const;
 	bool				isartifact() const { return magic == Artifact; }
 	bool				ischargeable() const { return getitem().charges > 0; }
 	bool				iscountable() const { return getitem().count > 0; }
@@ -577,7 +574,7 @@ class creature : public nameable, public posable {
 	void				aiturn();
 	void				applyabilities();
 	void				applyaward() const;
-	void				attack(creature& enemy, slot_s id, int bonus);
+	void				attack(creature& enemy, const attacki& ai, int bonus);
 	const variant*		calculate(const variant* formula, int& result) const;
 	void				cantmovehere() const;
 	void				delayed(variant id, int v, unsigned time);
@@ -693,6 +690,7 @@ public:
 	void				setlos();
 	void				setmoney(int value) { money = value; }
 	void				shoot();
+	void				testweapons();
 	void				trapeffect();
 	void				unlink();
 	bool				use(short unsigned index);

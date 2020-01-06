@@ -1491,6 +1491,7 @@ static hotkey adventure_keys[] = {{F1, "Выбрать первого героя", change_player, 0
 {Alpha + 'P', "Поднять пердмет", &creature::pickup},
 {Alpha + 'Q', "Стрелять по врагу", &creature::shoot},
 {Ctrl + Alpha + 'D', "Вселиться", &creature::enslave},
+{Ctrl + Alpha + 'W', "Тестировать оружие", &creature::testweapons},
 {}};
 
 static bool translate_move(creature* player) {

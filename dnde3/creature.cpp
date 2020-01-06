@@ -93,8 +93,8 @@ void creature::dress(int m) {
 			abilities[DamageMelee] += m * mi / 2;
 			break;
 		case Ranged:
-			abilities[AttackMelee] += m * mi * 4;
-			abilities[DamageMelee] += m * mi / 2;
+			abilities[AttackRanged] += m * mi * 4;
+			abilities[DamageRanged] += m * mi / 2;
 			break;
 		default:
 			abilities[AttackMelee] += wa;
@@ -157,7 +157,7 @@ void creature::equip(item it, slot_s id) {
 
 bool creature::add(item v, bool run, bool talk) {
 	// Second place item to backpack
-	for(auto i = FirstBackpack; i <= LastBackpack; i = (slot_s)(i + 1)) {
+	for(auto i = Backpack; i <= LastBackpack; i = (slot_s)(i + 1)) {
 		if(wears[i])
 			continue;
 		if(run)
@@ -283,8 +283,10 @@ void creature::applyabilities() {
 	for(auto e : ci.spells)
 		set(e, 1);
 	// Hits
-	add(LifePoints, getclass().hp);
-	add(ManaPoints, getclass().mp);
+	if(abilities[Level] > 0) {
+		add(LifePoints, getclass().hp);
+		add(ManaPoints, getclass().mp);
+	}
 	dresson();
 }
 
@@ -348,13 +350,37 @@ attacki creature::getattack(slot_s id) const {
 		if(ei.weapon.speed)
 			result.speed += get(skill) / ei.weapon.speed;
 	}
-	if(id == Melee) {
-		// Versatile weapon if used two-handed made more damage.
+	switch(id) {
+	case Melee:
 		if(weapon.is(Versatile) && !wears[OffHand]) {
 			result.dice.min += 1;
 			result.dice.max += 1;
 		}
+		if(wears[OffHand] && wears[OffHand].is(Light)) {
+			result.attack -= 20;
+			result.speed -= 8;
+			result.speed += wears[OffHand].getitem().weapon.speed;
+			auto& ei = bsmeta<skilli>::elements[TwoWeaponFighting];
+			if(ei.weapon.attack)
+				result.attack += get(skill) / ei.weapon.attack;
+			if(ei.weapon.damage) {
+				result.dice.min += get(skill) / ei.weapon.damage;
+				result.dice.max += get(skill) / ei.weapon.damage;
+			}
+			if(ei.weapon.speed)
+				result.speed += get(TwoWeaponFighting) / ei.weapon.speed;
+		}
+		break;
+	case OffHand:
+		if(wears[Melee] && wears[OffHand].is(Light)) {
+			result.attack -= 30;
+			auto& ei = bsmeta<skilli>::elements[TwoWeaponFighting];
+			if(ei.weapon.attack)
+				result.attack += get(skill) / ei.weapon.attack;
+		}
+		break;
 	}
+	result.dice.normalize();
 	return result;
 }
 
@@ -412,7 +438,7 @@ slot_s creature::getwearerslot(const item* p) const {
 		&& p >= wears
 		&& p < (wears + sizeof(wears) / sizeof(wears[0])))
 		return slot_s(p - wears);
-	return FirstBackpack;
+	return Backpack;
 }
 
 void creature::select(itema& a, slot_s i1, slot_s i2, bool filled_only) {
@@ -652,8 +678,7 @@ void creature::consume(int v) {
 	restore_energy -= v;
 }
 
-void creature::attack(creature& enemy, slot_s id, int bonus) {
-	auto ai = getattack(id);
+void creature::attack(creature& enemy, const attacki& ai, int bonus) {
 	bonus += ai.attack;
 	bonus -= enemy.get(Protection);
 	if(bonus < 5)
@@ -664,8 +689,6 @@ void creature::attack(creature& enemy, slot_s id, int bonus) {
 		return;
 	}
 	auto dv = ai.dice.roll();
-	if(dv < 1)
-		dv = 1;
 	auto pierce = 0;
 	auto deflect = enemy.get(Deflect);
 	if(roll(FindWeakness, -deflect)) {
@@ -696,14 +719,11 @@ void creature::attack(creature& enemy, slot_s id, int bonus) {
 }
 
 void creature::meleeattack(creature& enemy, int bonus) {
-	int energy = StandartEnergyCost;
-	if(wears[OffHand]) {
-		attack(enemy, Melee, bonus - 10);
-		attack(enemy, OffHand, bonus - 25);
-		energy += StandartEnergyCost / 2;
-	} else
-		attack(enemy, Melee, bonus);
-	consume(energy);
+	auto am = getattack(Melee);
+	attack(enemy, am, bonus);
+	if(wears[OffHand] && wears[OffHand].is(Light))
+		attack(enemy, getattack(OffHand), bonus);
+	consume(am.getenergy());
 }
 
 bool creature::isenemy(const creature* target) const {
@@ -1076,8 +1096,25 @@ void creature::shoot() {
 }
 
 void creature::rangeattack(creature& enemy, int bonus) {
-	attack(enemy, Ranged, 0);
+	auto ai = getattack(Ranged);
+	attack(enemy, ai, 0);
 	if(wears[Ranged].getammo())
 		wears[Amunitions].use();
-	consume(getattack(Ranged).getenergy());
+	consume(ai.getenergy());
+}
+
+void creature::testweapons() {
+	auto ai = getattack(Melee);
+	act("%герой опробывал%а свое оружие.");
+	act("%1 с шансом [%2i%%] наносит [%3i-%4i] повреждений.", wears[Melee].getname(), ai.attack, ai.dice.min, ai.dice.max);
+	if(wears[OffHand].is(Light)) {
+		auto ai = getattack(OffHand);
+		act("%1 с шансом [%2i%%] наносит [%3i-%4i] повреждений.", wears[OffHand].getname(), ai.attack, ai.dice.min, ai.dice.max);
+	}
+	act("–укопашна€ атака стоит [%1i] энергии.", ai.getenergy());
+	if(wears[Ranged]) {
+		auto ai = getattack(Ranged);
+		act("%1 с шансом [%2i%%] наносит [%3i-%4i] повреждений.", wears[Ranged].getname(), ai.attack, ai.dice.min, ai.dice.max);
+		act("ƒистанционна€ атака стоит [%1i] энергии.", ai.getenergy());
+	}
 }

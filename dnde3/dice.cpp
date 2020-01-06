@@ -16,3 +16,10 @@ int	dicei::roll() const {
 		return 0;
 	return min + rand() % d;
 }
+
+void dicei::normalize() {
+	if(min < 1)
+		min = 1;
+	if(max < 1)
+		max = 1;
+}
