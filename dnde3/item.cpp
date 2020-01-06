@@ -1,21 +1,21 @@
 #include "main.h"
 
 itemi bsmeta<itemi>::elements[] = {{"", 0, 0, NoGender, Organic, {}, {}, {}, {}, Melee},
-{"Боевой топор", 850, 5 * GP, Male, Iron, {-4, D1n8, Slashing}, {}, {}, {Versatile}, Melee, FightAxes},
+{"Боевой топор", 850, 5 * GP, Male, Iron, {-4, D1n8, Slashing}, {}, {}, {Versatile}, Melee, FocusAxes},
 {"Дубина", 1000, 5 * CP, Female, Wood, {-6, D1n4, Bludgeon}, {}, {}, {}, Melee},
 {"Кинжал", 50, 2 * GP, Male, Iron, {-2, D1n3, Piercing}, {}, {}, {}, Melee},
 {"Молот", 800, 2 * GP, Male, Wood, {-3, D1n4, Bludgeon}, {}, {}, {}, Melee},
 {"Булава", 700, 8 * GP, Female, Iron, {-3, D2n7, Bludgeon}, {}, {}, {}, Melee},
 {"Копье", 700, 8 * GP, NoGender, Iron, {-5, D1n8, Piercing}, {}, {}, {}, Melee},
 {"Посох", 700, 8 * GP, Female, Iron, {-1, D1n6, Bludgeon}, {}, {}, {TwoHanded}, Melee},
-{"Длинный меч", 700, 8 * GP, Female, Iron, {-4, D1n8, Slashing}, {}, {}, {Versatile}, Melee, FightSwords},
-{"Короткий меч", 700, 8 * GP, Female, Iron, {-3, D1n8, Slashing}, {}, {}, {}, Melee, FightSwords},
-{"Двуручный меч", 700, 8 * GP, Female, Iron, {-8, D2n12, Slashing}, {}, {}, {TwoHanded}, Melee, FightTwohanded},
+{"Длинный меч", 700, 8 * GP, Female, Iron, {-4, D1n8, Slashing}, {}, {}, {Versatile}, Melee, FocusSwords},
+{"Короткий меч", 700, 8 * GP, Female, Iron, {-3, D1n8, Slashing}, {}, {}, {}, Melee, FocusSwords},
+{"Двуручный меч", 700, 8 * GP, Female, Iron, {-8, D2n12, Slashing}, {}, {}, {TwoHanded}, Melee, FocusTwohanded},
 //
 {"Арбалет", 700, 40 * GP, Male, Wood, {}, {}, {}, {}, Ranged},
 {"Тяжелый арбалет", 1200, 80 * GP, Male, Wood, {}, {}, {}, {}, Ranged},
-{"Длинный лук", 500, 60 * GP, Male, Wood, {-8, D1n8, Piercing, 0, Arrow}, {}, {}, {}, Ranged, Archery},
-{"Короткий лук", 300, 30 * GP, Male, Wood, {-4, D1n6, Piercing, 0, Arrow}, {}, {}, {}, Ranged, Archery},
+{"Длинный лук", 500, 60 * GP, Male, Wood, {-8, D1n8, Piercing, 0, Arrow}, {}, {}, {}, Ranged, FocusBows},
+{"Короткий лук", 300, 30 * GP, Male, Wood, {-4, D1n6, Piercing, 0, Arrow}, {}, {}, {}, Ranged, FocusBows},
 {"Дарт", 30, 1 * SP, Male, Wood, {}, {}, {}, {}, Melee},
 {"Праща", 50, 1 * SP, Female, Leather, {}, {}, {}, {}, Melee},
 //

@@ -106,10 +106,10 @@ enum ability_s : unsigned char {
 enum skill_s : unsigned char {
 	Bargaining, Bluff, Diplomacy,
 	Acrobatics, Alertness, Athletics, Backstabbing, Climbing, Concetration,
-	DisarmTraps, HearNoises, HideInShadow, Lockpicking, PickPockets,
+	DisarmTraps, FindWeakness, HearNoises, HideInShadow, Lockpicking, PickPockets,
 	Alchemy, Dancing, Engineering, Gambling, History, Healing, Herbalism,
 	Literacy, Mining, Riding, Smithing, Survival, Swimming,
-	Archery, FightSwords, FightAxes, FightTwohanded,
+	FocusBows, FocusSwords, FocusAxes, FocusTwohanded,
 	TwoWeaponFighting,
 	FirstSkill = Bargaining, LastSkill = TwoWeaponFighting,
 	ResistAcid, ResistCharm, ResistCold, ResistElectricity, ResistFire, ResistParalize, ResistPoison, ResistWater,
@@ -345,7 +345,7 @@ struct skillv {
 struct racei {
 	const char*			name;
 	char				abilities[6];
-	adat<skill_s, 4>	skills;
+	skill_s				skills[3];
 	adat<skillv, 8>		skillvs;
 };
 struct dicei {
