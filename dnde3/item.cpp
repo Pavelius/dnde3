@@ -19,9 +19,9 @@ itemi bsmeta<itemi>::elements[] = {{"", 0, 0, NoGender, Organic, {}, {}, {}, {},
 {"Дарт", 30, 1 * SP, Male, Wood, {}, {}, {}, {}, Melee},
 {"Праща", 50, 1 * SP, Female, Leather, {}, {}, {}, {}, Melee},
 //
-{"Камни", 20, 0, Male, Stone, {}, {}, {}, {}, Amunitions},
-{"Стрелы", 2, 2 * CP, Female, Wood, {}, {}, {}, {}, Amunitions},
-{"Болты", 3, 1 * CP, Male, Iron, {}, {}, {}, {}, Amunitions},
+{"Камни", 20, 0, Male, Stone, {}, {}, {}, {}, Amunitions, Bargaining, 30},
+{"Стрелы", 2, 2 * CP, Female, Wood, {}, {}, {}, {}, Amunitions, Bargaining, 20},
+{"Болты", 3, 1 * CP, Male, Iron, {}, {}, {}, {}, Amunitions, Bargaining, 20},
 //
 {"Кожанная броня", 1000, 5 * GP, Female, Leather, {}, {10, 1}, {}, {}, Torso},
 {"Клепанная броня", 1500, 15 * GP, Female, Leather, {}, {15, 1}, {}, {}, Torso},
@@ -105,6 +105,14 @@ itemi bsmeta<itemi>::elements[] = {{"", 0, 0, NoGender, Organic, {}, {}, {}, {},
 assert_enum(item, ManyItems);
 static_assert(sizeof(item) == sizeof(int), "Struct 'item' must be sizeof(int)");
 
+item::item(item_s type) {
+	clear();
+	this->type = type;
+	auto& ei = getitem();
+	if(ei.count > 0)
+		setcount(ei.count);
+}
+
 creature* item::getwearer() const {
 	auto i = bsmeta<creature>::source.indexof((creature*)(this));
 	if(i == -1)
@@ -129,7 +137,33 @@ bool item::is(slot_s v) const {
 
 void item::getname(stringbuilder& sb) const {
 	auto& ei = getitem();
-	if(identify_cab)
-		sb.adds(bsmeta<item_typei>::elements[magic].name[ei.gender]);
+	//if(identify_cab)
+	//	sb.adds(bsmeta<item_typei>::elements[magic].name[ei.gender]);
 	sb.adds("%-1", getname());
+	auto n = getcount();
+	if(n>1)
+		sb.adds("%1iшт.", n);
+}
+
+item& item::setcount(int count) {
+	if(!count) {
+		auto p = getwearer();
+		if(p)
+			p->dressoff();
+		clear();
+		if(p)
+			p->dresson();
+	} else if(iscountable()) {
+		auto mc = getitem().count;
+		if(count > mc)
+			count = mc;
+		this->count = count - 1;
+	}
+	return *this;
+}
+
+bool item::use() {
+	auto c = getcount();
+	setcount(getcount() - 1);
+	return c > 1;
 }

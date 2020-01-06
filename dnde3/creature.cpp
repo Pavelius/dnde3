@@ -475,11 +475,8 @@ void creature::inventory() {
 				items.match(slot);
 				auto p2 = items.choose(true, "Рюкзак", 0, NoSlotName);
 				if(p2) {
-					dressoff();
-					auto pc = *pi;
-					*pi = *p2;
-					*p2 = pc;
-					dresson();
+					if(!equip(*pi, *p2, true))
+						pause();
 				}
 			}
 		}
@@ -718,6 +715,11 @@ void creature::aiturn() {
 	if(enemies) {
 		enemies.sort(getposition());
 		auto enemy = enemies[0];
+		if(loc->getrange(enemy->getposition(), getposition()) > 1
+			&& canshoot(false)) {
+			rangeattack(*enemy);
+			return;
+		}
 		moveto(enemy->getposition());
 	} else {
 		// If creature guard some square move to guard position
@@ -980,17 +982,29 @@ void creature::shoot() {
 	enemies.matchenemy(this);
 	enemies.sort(getposition());
 	if(!enemies) {
-		say("Я не вижу вокруг ни одного врага. Куда целится?");
+		static const char* text[] = {
+			"Я не вижу вокруг ни одного врага. Куда целится?",
+			"Не в кого стрелять.",
+			"Стрелять куда?",
+		};
+		say(maprnd(text));
+		return;
+	}
+	if(location::getrange(enemies[0]->getposition(), getposition()) <= 1) {
+		static const char* text[] = {
+			"Враг слишком близко!",
+			"Надо драться в рукопашную а не стрелять!",
+			"Надо отойти от врага!",
+		};
+		say(maprnd(text));
 		return;
 	}
 	rangeattack(*enemies[0], 0);
 }
 
 void creature::rangeattack(creature& enemy, int bonus) {
-	int energy = StandartEnergyCost;
 	attack(enemy, Ranged, 0);
-	auto& ei = wears[Amunitions].getitem();
-	if(ei.ammunition)
+	if(wears[Ranged].getammo())
 		wears[Amunitions].use();
-	consume(energy);
+	consume(getattack(Ranged).getenergy());
 }

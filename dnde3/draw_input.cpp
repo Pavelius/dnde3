@@ -617,7 +617,7 @@ static int fielp(int x, int y, int w, const char* name, int p1, int p2) {
 	char temp[128]; stringbuilder sb(temp);
 	sb.add("%1i%%", p1);
 	if(p2)
-		sb.adds("è %2i%%", p2);
+		sb.adds("è %1i%%", p2);
 	draw::text(x + w, y, sb);
 	return draw::texth();
 }
@@ -1256,6 +1256,7 @@ static void render_item(int x, int y, int width, const item& e) {
 	//}
 	char temp[260]; stringbuilder sb(temp);
 	e.getname(sb);
+	szupper(temp, 1);
 	text(x, y, temp);
 	fore = ps_fore;
 }

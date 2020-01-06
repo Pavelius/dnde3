@@ -360,6 +360,7 @@ struct attacki {
 	char				speed;
 	item_s				ammunition;
 	dicei				dice;
+	int					getenergy() const { return StandartEnergyCost - speed * 50; }
 };
 struct armori {
 	char				deflect;
@@ -398,7 +399,6 @@ struct itemi {
 	cflags<item_flag_s>	flags;
 	slot_s				slot;
 	skill_s				skill;
-	item_s				ammunition;
 	unsigned char		count;
 	unsigned char		charges;
 	foodi				food;
@@ -420,8 +420,7 @@ class item {
 public:
 	constexpr item() : type(NoItem), effect(NoEffect), count(0), magic(Mundane), quality(0), identify(0), identify_stats(0), identify_cab(0), forsale(0), damaged(0) {}
 	constexpr item(spell_s spell) : type(Scroll1), effect((enchantment_s)spell), count(0), magic(), quality(0), identify(1), identify_stats(0), identify_cab(0), forsale(0), damaged(0) {}
-	constexpr item(item_s type) : type(type), effect(NoEffect), count(0), magic(Mundane), quality(0), identify(0), identify_stats(0), identify_cab(0), forsale(0), damaged(0) {}
-	constexpr item(item_s type, enchantment_s effect) : type(type), effect(effect), count(0), magic(Mundane), quality(0), identify(1), identify_stats(1), identify_cab(0), forsale(0), damaged(0) {}
+	item(item_s type);
 	item(item_s type, int chance_artifact, int chance_magic, int chance_cursed, int chance_quality);
 	explicit operator bool() const { return type != NoItem; }
 	void				act(const char* format, ...) const;
@@ -433,7 +432,7 @@ public:
 	int					getbonus(enchantment_s type) const;
 	int					getcharges() const;
 	unsigned			getcost() const;
-	int					getcount() const { return 1; }
+	int					getcount() const { return count + 1; }
 	enchantment_s		geteffect() const;
 	char				getenchantcost() const;
 	const foodi&		getfood() const { return getitem().food; }
@@ -458,12 +457,12 @@ public:
 	bool				is(item_flag_s v) const { return getitem().flags.is(v); }
 	bool				isarmor() const;
 	bool				isartifact() const { return magic == Artifact; }
-	bool				ischargeable() const;
-	bool				iscountable() const;
+	bool				ischargeable() const { return getitem().charges > 0; }
+	bool				iscountable() const { return getitem().count > 0; }
 	bool				iscursed() const { return magic == Cursed; }
 	bool				isdamaged() const { return damaged != 0; }
 	bool				isforsale() const { return forsale != 0; }
-	bool				isidentified() const { return identify!=0; }
+	bool				isidentified() const { return identify != 0; }
 	bool				ismagical() const { return magic != Mundane; }
 	bool				isunbreakable() const { return magic != Mundane; }
 	void				loot();
@@ -476,7 +475,7 @@ public:
 	item&				setidentify(bool v) { identify = v; return *this; }
 	item&				setsold() { forsale = 0;  return *this; }
 	item&				setquality(unsigned char value) { quality = value; return *this; }
-	bool				use() { return false; }
+	bool				use();
 };
 class itema : public adat<item*> {
 public:
@@ -585,8 +584,6 @@ class creature : public nameable, public posable {
 	void				dress(int m);
 	void				dresssk(int m);
 	void				dresssa(int m);
-	void				dressoff();
-	void				dresson();
 	void				dropdown(item& item);
 	void				equip(item it, slot_s id);
 	void				finish();
@@ -615,6 +612,8 @@ public:
 	void				consume(int energy_value);
 	void				damage(int count, attack_s type);
 	void				damagewears(int count, attack_s type);
+	void				dressoff();
+	void				dresson();
 	void				drink(item& it, bool interactive);
 	void				dropdown();
 	bool				equip(item value);
