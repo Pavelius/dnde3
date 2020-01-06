@@ -101,7 +101,7 @@ void creature::dress(int m) {
 			abilities[AttackRanged] += wa;
 			break;
 		}
-		abilities[Deflect] += m * (ei.armor.deflect + mi*ei.armor.multiplier);
+		abilities[Protection] += m * ei.armor.deflect;
 		abilities[Armor] += m * ei.armor.armor;
 	}
 }
@@ -649,7 +649,7 @@ void creature::consume(int v) {
 void creature::attack(creature& enemy, slot_s id, int bonus) {
 	auto ai = getattack(id);
 	bonus += ai.attack;
-	bonus -= enemy.get(Deflect);
+	bonus -= enemy.get(Protection);
 	if(bonus < 5)
 		bonus = 5;
 	look(enemy.getposition());
@@ -833,7 +833,7 @@ void creature::kill() {
 	clear();
 }
 
-void creature::damage(int value, attack_s type) {
+void creature::damage(int value, attack_s type, int pierce) {
 	if(value < 0) {
 		value = -value;
 		auto mhp = get(LifePoints);
@@ -843,7 +843,17 @@ void creature::damage(int value, attack_s type) {
 			return;
 		act("%герой восстановил%а [+%1i] повреждений.", value);
 	} else {
-		if(hp <= value) {
+		auto armor = get(Armor);
+		if(armor > 0 && pierce > 0) {
+			if(pierce > armor)
+				armor = 0;
+			else
+				armor -= pierce;
+		}
+		value -= armor;
+		if(value <= 0)
+			act("Броня поглатила весь урон.");
+		else if(hp <= value) {
 			act("%герой получил%а [%1i] повреждений и упал%а.", value);
 			kill();
 		} else {

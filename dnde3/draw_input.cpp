@@ -692,7 +692,7 @@ static void render_info(const creature& e) {
 	x += dx + 6;
 	y = y1;
 	y += fielp(x, y, tw, "Рв", e.getattack(Melee).attack, e.getattack(Ranged).attack);
-	y += fielr(x, y, tw, "Са", e.get(Deflect), e.get(Armor));
+	y += fielr(x, y, tw, "Са", e.get(Protection), e.get(Armor));
 	x += dx + 50;
 	y = y1;
 	y += field(x, y, 40, "ешђћ", e.gethits(), e.get(LifePoints));

@@ -3,7 +3,7 @@
 classi bsmeta<classi>::elements[] = {{"Крестьянин", 4, 0, {}, {40, 3}},
 {"Клерик", 8, 8, 0, {1, 0, 0, 0, 2, 1}, {50, 4}, {Diplomacy, Literacy, History, Healing, Herbalism}, {BlessSpell, HealingSpell},
 {SwordLong, SwordShort, SwordTwoHanded, BowLong, BowShort}},
-{"Воин", 10, 3, 0, {4, 1, 2, -2, 0, -1}, {50, 5}, {Survival, Athletics, Riding, FocusBows, FocusSwords}, {},
+{"Воин", 10, 3, 0, {4, 1, 2, -2, 0, -1}, {50, 5}, {Survival, Athletics, Riding, FindWeakness, FocusSwords}, {},
 {}},
 {"Маг", 4, 10, 0, {-2, -1, 0, 4, 1, 2}, {40, 3}, {Alchemy, Concetration, History, Literacy}, {ArmorSpell, MagicMissile, Sleep},
 {AxeBattle, HammerWar, SwordLong, SwordShort, Spear, BowLong, BowShort, LeatherArmor, StuddedLeatherArmor, ScaleMail, ChainMail, SplintMail, PlateMail}},

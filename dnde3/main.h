@@ -100,7 +100,7 @@ enum alignment_s : unsigned char {
 enum ability_s : unsigned char {
 	Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
 	AttackMelee, AttackRanged, DamageMelee, DamageRanged,
-	Pierce, Deflect, Armor, Speed, Visibility,
+	Pierce, Protection, Armor, Deflect, Speed, Visibility,
 	Level, LifePoints, LifeRate, ManaPoints, ManaRate,
 };
 enum skill_s : unsigned char {
@@ -363,9 +363,9 @@ struct attacki {
 	int					getenergy() const { return StandartEnergyCost - speed * 50; }
 };
 struct armori {
-	char				deflect;
+	char				protection;
 	char				armor;
-	char				multiplier;
+	char				deflect;
 };
 struct foodi {
 	char				hits;
@@ -610,7 +610,7 @@ public:
 	void				create(role_s type);
 	void				clear();
 	void				consume(int energy_value);
-	void				damage(int count, attack_s type);
+	void				damage(int count, attack_s type, int pierce = 0);
 	void				damagewears(int count, attack_s type);
 	void				dressoff();
 	void				dresson();
