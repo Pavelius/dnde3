@@ -704,6 +704,7 @@ static void render_info(const creature& e) {
 	x += dx + 58;
 	y = y1;
 	y += field(x, y, 52, "Время", game.getrouns());
+	y += fielp(x, y, 52, "ПБ", e.get(Deflect), 0);
 	x = x1;
 	y = y1 + draw::texth() * 2;
 	// Draw encumbrance

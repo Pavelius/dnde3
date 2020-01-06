@@ -244,8 +244,15 @@ static spell_s choose_spells(creature* p) {
 static void start_equipment(creature& e) {
 	for(auto& ei : bsmeta<equipmenti>()) {
 		if((!ei.race || ei.race == e.getrace()) && e.is(ei.type)) {
-			for(auto ef : ei.features)
+			for(auto ef : ei.features) {
 				e.add(ef, 1);
+				switch(ef.type) {
+				case Item:
+					if(bsmeta<itemi>::elements[ef.value].weapon.ammunition)
+						e.add(bsmeta<itemi>::elements[ef.value].weapon.ammunition, 1);
+					break;
+				}
+			}
 			break;
 		}
 	}
@@ -330,7 +337,7 @@ attacki creature::getattack(slot_s id) const {
 	result.dice.min += get(damage_ability);
 	result.dice.max += get(damage_ability);
 	if(skill && skills[skill]) {
-		// RULE: Weapon focus
+		// Weapon focus modify damage, attack and speed
 		auto& ei = bsmeta<skilli>::elements[skill];
 		if(ei.weapon.attack)
 			result.attack += get(skill) / ei.weapon.attack;
@@ -338,9 +345,11 @@ attacki creature::getattack(slot_s id) const {
 			result.dice.min += get(skill) / ei.weapon.damage;
 			result.dice.max += get(skill) / ei.weapon.damage;
 		}
+		if(ei.weapon.speed)
+			result.speed += get(skill) / ei.weapon.speed;
 	}
 	if(id == Melee) {
-		// RULE: Versatile weapon if used two-handed made more damage.
+		// Versatile weapon if used two-handed made more damage.
 		if(weapon.is(Versatile) && !wears[OffHand]) {
 			result.dice.min += 1;
 			result.dice.max += 1;
@@ -655,6 +664,8 @@ void creature::attack(creature& enemy, slot_s id, int bonus) {
 		return;
 	}
 	auto dv = ai.dice.roll();
+	if(dv < 1)
+		dv = 1;
 	auto pierce = 0;
 	auto deflect = enemy.get(Deflect);
 	if(roll(FindWeakness, -deflect)) {

@@ -295,6 +295,7 @@ struct skilli {
 	struct weaponi {
 		char			attack;
 		char			damage;
+		char			speed;
 	};
 	const char*			name;
 	const char*			name_tome;
