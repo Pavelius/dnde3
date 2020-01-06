@@ -1248,18 +1248,22 @@ static void render_item(int x, int y, int width, const item& e) {
 	if(!e)
 		return;
 	auto ps_fore = fore;
-	//if(e.isidentified()) {
-	//	switch(e.getmagic()) {
-	//	case Cursed: fore = colors::red; break;
-	//	case Blessed: fore = colors::green; break;
-	//	case Artifact: fore = colors::yellow; break;
-	//	}
-	//}
+	if(e.isidentified()) {
+		switch(e.getmagic()) {
+		case Cursed: fore = colors::red; break;
+		case Blessed: fore = colors::green; break;
+		case Artifact: fore = colors::yellow; break;
+		}
+	}
 	char temp[260]; stringbuilder sb(temp);
-	e.getname(sb);
+	e.getname(sb, false);
 	szupper(temp, 1);
 	text(x, y, temp);
+	sb.clear();
+	e.getstatistic(sb);
+	text(x + width - 160, y, temp);
 	fore = ps_fore;
+	//line(x + width, y, x + width, y + 10, colors::red);
 }
 
 static void render_weight(int x, int y, int width, const item& e) {
@@ -1380,7 +1384,7 @@ item* itema::choose(bool interactive, const char* title, const char* format, slo
 				if((index + 1) % 2)
 					rectf({x, y, x + width, y + texth() + 1}, colors::white, 4);
 				render(x0, y, 110, *e, mode);
-				render_item(x0, y, x2 - x0, *e);
+				render_item(x0, y, x2 - x0 - 72, *e);
 				render_weight(x0, y, x2 - x0, *e);
 				index++;
 				y += texth() + 4;
@@ -1494,8 +1498,9 @@ static hotkey adventure_keys[] = {{F1, "Выбрать первого героя", change_player, 0
 {Alpha + 'P', "Поднять пердмет", &creature::pickup},
 {Alpha + 'Q', "Стрелять по врагу", &creature::shoot},
 {Alpha + 'V', "Рюкзак", &creature::backpack},
-{Ctrl + Alpha + 'D', "Вселиться", &creature::enslave},
-{Ctrl + Alpha + 'E', "Вселиться", &creature::eat},
+{Ctrl + Alpha + 'D', "Выпить что-то", &creature::drink},
+{Ctrl + Alpha + 'E', "Чъесть что-то", &creature::eat},
+{Ctrl + Alpha + 'B', "Выпить что-то", &creature::enslave},
 {Ctrl + Alpha + 'W', "Тестировать оружие", &creature::testweapons},
 {}};
 

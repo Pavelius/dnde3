@@ -148,7 +148,7 @@
     <ClCompile Include="role.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="food.cpp">
+    <ClCompile Include="use.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
   </ItemGroup>

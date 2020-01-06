@@ -132,6 +132,11 @@ public:
 	constexpr void			set(short unsigned v) { data[v / s] |= 1 << (v%s); }
 	constexpr void			set(short unsigned v, bool activate) { if(activate) set(v); else remove(v); }
 };
+// Abstract value collection
+template<class T> struct casev {
+	T						id;
+	char					value;
+};
 // Abstract flag data bazed on enumerator
 template<typename T, typename DT = unsigned>
 struct cflags {

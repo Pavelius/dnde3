@@ -48,7 +48,7 @@ enum diety_s : unsigned char {
 	GodBane, GodBhaal, GodGruumsh, GodHelm, GodMistra, GodTempus, GodTyr
 };
 enum slot_s : unsigned char {
-	Backpack, Edible, LastBackpack = Backpack + 31,
+	Backpack, Edible, Readable, Drinkable, LastBackpack = Backpack + 31,
 	Head, Neck, Melee, OffHand, TorsoBack, Torso, RightFinger, LeftFinger, Elbows, Legs, Ranged, Amunitions,
 };
 enum enchantment_s : unsigned char {
@@ -220,6 +220,7 @@ typedef short unsigned indext;
 typedef flagable<1 + Chaotic / 8> alignmenta;
 typedef flagable<1 + LastState / 8> statea;
 typedef flagable<1 + LastRace / 8> racea;
+typedef casev<skill_s> skillv;
 class creature;
 struct variant {
 	variant_s			type;
@@ -238,14 +239,16 @@ struct variant {
 	constexpr variant(spell_s v) : type(Spell), value(v) {}
 	constexpr variant(state_s v) : type(State), value(v) {}
 	constexpr variant(target_s v) : type(Target), value(v) {}
-	constexpr variant(variant_s v) : type(Variant), value(v) {}
+	constexpr variant(variant_s v) : type(v ? Variant : NoVariant), value(v) {}
 	constexpr variant(int v) : type(Number), value(v) {}
 	variant(const creature* v);
 	explicit operator bool() const { return type != NoVariant; }
 	bool operator==(const variant& e) const { return type == e.type && value == e.value; }
 	const char*			getname() const;
+	const char*			getnameof() const;
 };
 typedef variant			varianta[16];
+typedef adat<casev<variant>, 8> chancev;
 struct string : stringbuilder {
 	const char			*name, *opponent_name;
 	gender_s			gender, opponent_gender;
@@ -343,14 +346,9 @@ struct picture : point {
 struct statei {
 	const char*			id;
 	const char*			name;
+	const char*			nameof;
 	bool				hostile;
 };
-template<class T>
-struct casev {
-	T					id;
-	char				value;
-};
-typedef casev<skill_s> skillv;
 struct racei {
 	const char*			name;
 	char				abilities[6];
@@ -370,17 +368,13 @@ struct attacki {
 	char				speed;
 	item_s				ammunition;
 	dicei				dice;
+	const dicei&		getdice() const { return bsmeta<dicei>::elements[damage]; }
 	int					getenergy() const { return StandartEnergyCost - speed * 50; }
 };
 struct armori {
 	char				protection;
 	char				armor;
 	char				deflect;
-};
-struct speciali {
-	char				broke;
-	char				bonus;
-	char				side;
 };
 struct item_typei {
 	const char*			id;
@@ -395,7 +389,7 @@ struct itemi {
 	material_s			material;
 	attacki				weapon;
 	armori				armor;
-	speciali			special;
+	aref<variant>		effects;
 	cflags<item_flag_s>	flags;
 	slot_s				slot;
 	skill_s				skill;
@@ -408,16 +402,14 @@ class item {
 	item_type_s			magic : 2;
 	unsigned char		quality : 2;
 	unsigned char		identify : 1;
-	unsigned char		identify_cab : 1;
-	unsigned char		identify_stats : 1;
 	unsigned char		forsale : 1;
 	//
 	unsigned char		count : 6;
 	unsigned char		damaged : 2;
 	//
-	enchantment_s		effect;
+	unsigned char		effect;
 public:
-	constexpr item() : type(NoItem), effect(NoEffect), count(0), magic(Mundane), quality(0), identify(0), identify_stats(0), identify_cab(0), forsale(0), damaged(0) {}
+	constexpr item() : type(NoItem), effect(NoEffect), count(0), magic(Mundane), quality(0), identify(0), forsale(0), damaged(0) {}
 	item(item_s type);
 	item(item_s type, int chance_artifact, int chance_magic, int chance_cursed, int chance_quality);
 	explicit operator bool() const { return type != NoItem; }
@@ -427,25 +419,21 @@ public:
 	void				damage();
 	item_s				getammo() const { return getitem().weapon.ammunition; }
 	const attacki&		getattack() const { return getitem().weapon; }
-	int					getbonus(enchantment_s type) const;
-	int					getchance(int n, bool hostile) const;
 	unsigned			getcost() const;
 	int					getcount() const { return count + 1; }
 	int					getdamage() const { return damaged; }
+	variant				geteffect() const;
 	const itemi&		getitem() const { return bsmeta<itemi>::elements[type]; }
 	gender_s			getgender() const { return getitem().gender; }
+	item_s				getkind() const { return type; }
 	item_type_s			getmagic() const { return magic; }
-	material_s			getmaterial() const;
+	material_s			getmaterial() const { return getitem().material; }
 	const char*			getname() const { return getitem().name; }
-	void				getname(stringbuilder& sb) const;
+	void				getname(stringbuilder& sb, bool show_cab) const;
 	int					getquality() const;
 	int					getqualityr() const { return quality; }
 	int					getsalecost() const;
-	skill_s				getskill() const;
-	spell_s				getspell() const;
-	const speciali&		getspecial() const { return getitem().special; }
-	state_s				getstate() const;
-	item_s				getkind() const { return type; }
+	void				getstatistic(stringbuilder& sb) const;
 	creature*			getwearer() const;
 	slot_s				getwearerslot() const;
 	int					getweightsingle() const { return getitem().weight; }
@@ -569,7 +557,7 @@ class creature : public nameable, public posable {
 	unsigned			money;
 	//
 	void				addboost(variant id, int modifier, unsigned rounds);
-	bool				aieat(bool interactive);
+	bool				aiuse(bool interactive, const char* title, slot_s slot);
 	void				aimove();
 	void				aiturn();
 	void				applyabilities();
@@ -613,7 +601,7 @@ public:
 	void				damagewears(int count, attack_s type);
 	void				dressoff();
 	void				dresson();
-	void				drink(item& it, bool interactive);
+	void				drink();
 	void				dropdown();
 	void				eat();
 	bool				eat(item it, bool interactive);
@@ -671,7 +659,9 @@ public:
 	void				move(indext index);
 	void				moveaway(indext index) { move(index, true); }
 	void				moveto(indext index) { move(index, false); }
+	bool				needrestore(ability_s id) const;
 	static void			pause();
+	void				paymana(int value, bool interactive);
 	void				playui();
 	void				pickup();
 	void				raise(skill_s value);
@@ -699,7 +689,7 @@ public:
 	void				testweapons();
 	void				trapeffect();
 	void				unlink();
-	bool				use(short unsigned index);
+	bool				use(item& it, bool interactive);
 	void				useskills();
 	void				wait() { consume(StandartEnergyCost); }
 };

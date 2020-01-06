@@ -11,3 +11,12 @@ const char*	variant::getname() const {
 	default: return "Нет варианта";
 	}
 }
+
+const char*	variant::getnameof() const {
+	switch(type) {
+	case Ability: return bsmeta<abilityi>::elements[value].nameof;
+	case State: return bsmeta<statei>::elements[value].name;
+	case Skill: return bsmeta<skilli>::elements[value].name_tome;
+	default: return "Нет варианта";
+	}
+}

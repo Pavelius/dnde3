@@ -5,7 +5,7 @@ DECLDATA(creature, 256);
 static int			skill_level[] = {20, 50, 75, 90};
 static const char*	skill_names[] = {"Начальный", "Продвинутый", "Экспертный", "Мастерский"};
 static creature*	current_player;
-const int			restore_points_when_percent = 60;
+const int			restore_points_percent = 75;
 const int			chance_act = 40;
 const int			chance_blood_when_dead = 70;
 
@@ -30,9 +30,16 @@ short unsigned creature::getid() const {
 void creature::add(variant id, int v, bool interactive) {
 	switch(id.type) {
 	case Ability:
-		dressoff();
-		abilities[id.value] += v;
-		dresson();
+		if(v != 0) {
+			dressoff();
+			abilities[id.value] += v;
+			if(abilities[id.value] < 0)
+				abilities[id.value] = 0;
+			dresson();
+			if(interactive)
+				act("%герой почувстовал%а себя %1.",
+				(v > 0) ? bsmeta<abilityi>::elements[id.value].name_how : bsmeta<abilityi>::elements[id.value].curse_how);
+		}
 		break;
 	case State:
 		if(v > 0)
@@ -766,6 +773,15 @@ void creature::aimove() {
 		wait();
 }
 
+bool creature::needrestore(ability_s id) const {
+	auto max = restore_points_percent * get(id) / 100;
+	switch(id) {
+	case LifePoints: return hp <= max;
+	case ManaPoints: return mp <= max;
+	}
+	return false;
+}
+
 void creature::aiturn() {
 	// Need active location
 	auto loc = location::getactive();
@@ -792,21 +808,11 @@ void creature::aiturn() {
 		}
 		moveto(enemy->getposition());
 	} else {
-		// When we try to stand and think
 		if(d100() < chance_act) {
-			auto mhp = get(LifePoints), mmp = get(ManaPoints);
-			auto mhz = restore_points_when_percent * mhp / 100, mmz = restore_points_when_percent * mmp / 100;
-			if((mhz && hp <= mhz) || (mmz && mp <= mmz)) {
-				if(aieat(false))
+			// When we try to stand and think
+			if(needrestore(LifePoints) || needrestore(ManaPoints)) {
+				if(aiuse(false, 0, Edible))
 					return;
-			}
-			//	if(aiboost())
-			//		return;
-			//	if(use_skills(*this, sc))
-			//		return;
-			if(d100() < chance_act) {
-				//		if(use_spells(*this, sc, false))
-				//			return;
 			}
 		}
 		// If creature guard some square move to guard position
@@ -827,9 +833,6 @@ void creature::aiturn() {
 			wait();
 			return;
 		}
-		//// When we move and traps or close door just before our step
-		//if(move_skills(*this, sc))
-		//	return;
 		aimove();
 	}
 }
@@ -1198,6 +1201,26 @@ static int getchance(int chance, bool hostile, int quality, int damage) {
 	return chance;
 }
 
+void creature::paymana(int value, bool interactive) {
+	if(value < 0) {
+		auto max = get(ManaPoints);
+		value = -value;
+		if(mp + value > max)
+			value = max - mp;
+		if(value <= 0)
+			return;
+		mp += value;
+		act("%герой восстановил%а %1i маны.", value);
+	} else {
+		if(value > mp)
+			value = mp;
+		if(value == 0)
+			return;
+		mp -= value;
+		act("%герой потерял%а %1i маны.", value);
+	}
+}
+
 bool creature::apply(variant id, int chance, bool interactive, item_type_s magic, int quality, int damaged, int minutes) {
 	bool need_test = true;
 	bool need_message = true;
@@ -1225,11 +1248,23 @@ bool creature::apply(variant id, int chance, bool interactive, item_type_s magic
 		switch(id.value) {
 		case LifePoints: case ManaPoints:
 			if(chance >= 0) {
+				if(!chance)
+					chance = xrand(5, 8);
 				switch(magic) {
 				case Artifact: add(id, (1 + quality) * 3, interactive); break;
 				case Cursed: add(id, -(1 + quality), interactive); break;
-				case Blessed: damage(-5 * (chance + quality * chance), Magic, 0, interactive); break;
-				default: damage(-(chance + quality * chance), Magic, 0, interactive); break;
+				case Blessed:
+					if(id.value == LifePoints)
+						damage(-5 * (chance + quality * chance), Magic, 0, interactive);
+					else
+						paymana(-5 * (chance + quality * chance), interactive);
+					break;
+				default:
+					if(id.value == LifePoints)
+						damage(-(chance + quality * chance), Magic, 0, interactive);
+					else
+						paymana(-(chance + quality * chance), interactive);
+					break;
 				}
 				return true;
 			} else {
@@ -1285,17 +1320,21 @@ bool creature::apply(variant id, int chance, bool interactive, item_type_s magic
 	return true;
 }
 
-bool creature::aieat(bool interactive) {
+bool creature::aiuse(bool interactive, const char* title, slot_s slot) {
 	itema source; source.selectb(*this);
-	source.match(Edible);
-	auto pi = source.choose(interactive, "Что хотите съесть?", 0, NoSlotName);
+	source.match(slot);
+	auto pi = source.choose(interactive, title, 0, NoSlotName);
 	if(pi)
-		return eat(*pi, interactive);
+		return use(*pi, interactive);
 	return false;
 }
 
+void creature::drink() {
+	aiuse(isactive(), "Чего хотите выпить?", Drinkable);
+}
+
 void creature::eat() {
-	aieat(isactive());
+	aiuse(isactive(), "Что хотите съесть?", Edible);
 }
 
 void creature::backpack() {

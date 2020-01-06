@@ -1,5 +1,7 @@
 #include "main.h"
 
+static variant common_potions[] = {Dexterity, Wisdow, Charisma, LifePoints, ManaPoints};
+
 itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, NoGender, Organic, {0, D1n3, Bludgeon, 4}, {}, {}, {}, Melee},
 {"Боевой топор", 850, 5 * GP, Male, Iron, {-4, D1n8, Slashing}, {}, {}, {Versatile}, Melee, FocusAxes},
 {"Дубина", 1000, 5 * CP, Female, Wood, {-6, D1n4, Bludgeon}, {}, {}, {}, Melee},
@@ -7,10 +9,10 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, NoGender, Organic, {0, D1n3, B
 {"Молот", 800, 2 * GP, Male, Wood, {-3, D1n4, Bludgeon}, {}, {}, {}, Melee},
 {"Булава", 700, 8 * GP, Female, Iron, {-3, D2n7, Bludgeon}, {}, {}, {}, Melee},
 {"Копье", 700, 8 * GP, NoGender, Iron, {-5, D1n8, Piercing}, {}, {}, {}, Melee},
-{"Посох", 700, 8 * GP, Female, Iron, {-2, D1n6, Bludgeon, 1}, {}, {}, {TwoHanded}, Melee},
-{"Длинный меч", 700, 8 * GP, Female, Iron, {-4, D1n8, Slashing}, {}, {}, {Versatile}, Melee, FocusSwords},
-{"Короткий меч", 700, 8 * GP, Female, Iron, {-3, D1n6, Slashing}, {}, {}, {Light}, Melee, FocusSwords},
-{"Двуручный меч", 700, 8 * GP, Female, Iron, {-9, D2n12, Slashing, -2}, {}, {}, {TwoHanded}, Melee, FocusTwohanded},
+{"Посох", 700, 8 * GP, Male, Iron, {-2, D1n6, Bludgeon, 1}, {}, {}, {TwoHanded}, Melee},
+{"Длинный меч", 700, 8 * GP, Male, Iron, {-4, D1n8, Slashing}, {}, {}, {Versatile}, Melee, FocusSwords},
+{"Короткий меч", 700, 8 * GP, Male, Iron, {-3, D1n6, Slashing}, {}, {}, {Light}, Melee, FocusSwords},
+{"Двуручный меч", 700, 8 * GP, Male, Iron, {-9, D2n12, Slashing, -2}, {}, {}, {TwoHanded}, Melee, FocusTwohanded},
 //
 {"Арбалет", 700, 40 * GP, Male, Wood, {-3, D1n8, Piercing, -2, Bolt}, {}, {}, {}, Ranged},
 {"Тяжелый арбалет", 1200, 80 * GP, Male, Wood, {-10, D1n12, Piercing, -6, Bolt}, {}, {}, {}, Ranged},
@@ -47,18 +49,18 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, NoGender, Organic, {0, D1n3, B
 {"Сапоги", 0, 0 * GP, NoGender, Iron, {}, {3, 1, 10}, {}, {}, Legs},
 {"Сапоги", 0, 0 * GP, NoGender, Iron, {}, {3, 1, 10}, {}, {}, Legs},
 
-{"Еда", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {}, Edible},
-{"Яблоко", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {}, Edible},
-{"Хлеб хоббитов", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {}, Edible},
-{"Хлеб эльфов", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {}, Edible},
-{"Хлеб гномов", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {}, Edible},
-{"Пирожное", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {}, Edible},
-{"Колбаса", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {}, Edible},
-{"Мясо", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {}, Edible},
+{"Еда", 100, 5 * SP, NoGender, Organic, {}, {}, {}, {}, Edible},
+{"Яблоко", 10, 5 * CP, NoGender, Organic, {}, {}, {}, {}, Edible},
+{"Хлеб хоббитов", 50, 1 * SP, NoGender, Organic, {}, {}, {}, {}, Edible},
+{"Хлеб эльфов", 50, 2 * SP, NoGender, Organic, {}, {}, {}, {}, Edible},
+{"Хлеб гномов", 80, 8 * CP, NoGender, Organic, {}, {}, {}, {}, Edible},
+{"Пирожное", 20, 1 * GP, NoGender, Organic, {}, {}, {}, {}, Edible},
+{"Колбаса", 60, 8 * SP, NoGender, Organic, {}, {}, {}, {}, Edible},
+{"Мясо", 80, 5 * CP, NoGender, Organic, {}, {}, {}, {}, Edible},
 //
-{"Свиток", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
-{"Свиток", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
-{"Свиток", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+{"Свиток", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}, Readable},
+{"Свиток", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}, Readable},
+{"Свиток", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}, Readable},
 //
 {"Жезл", 0, 0 * GP, NoGender, Wood, {}, {}, {}, {}},
 {"Жезл", 0, 0 * GP, NoGender, Wood, {}, {}, {}, {}},
@@ -72,11 +74,11 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, NoGender, Organic, {0, D1n3, B
 {"Книга", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
 {"Книга", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
 //
-{"Зелье", 0, 0 * GP, NoGender, Glass, {}, {}, {}, {}},
-{"Зелье", 0, 0 * GP, NoGender, Glass, {}, {}, {}, {}},
-{"Зелье", 0, 0 * GP, NoGender, Glass, {}, {}, {}, {}},
-{"Зелье", 0, 0 * GP, NoGender, Glass, {}, {}, {}, {}},
-{"Зелье", 0, 0 * GP, NoGender, Glass, {}, {}, {}, {}},
+{"Зелье", 15, 20 * GP, NoGender, Glass, {}, {}, common_potions, {}, Drinkable},
+{"Зелье", 20, 30 * GP, NoGender, Glass, {}, {}, common_potions, {}, Drinkable},
+{"Зелье", 10, 40 * GP, NoGender, Glass, {}, {}, common_potions, {}, Drinkable},
+{"Зелье", 10, 45 * GP, NoGender, Glass, {}, {}, common_potions, {}, Drinkable},
+{"Зелье", 5, 50 * GP, NoGender, Glass, {}, {}, common_potions, {}, Drinkable},
 //
 {"Кольцо", 0, 0 * GP, NoGender, Iron, {}, {}, {}, {}},
 {"Кольцо", 0, 0 * GP, NoGender, Iron, {}, {}, {}, {}},
@@ -97,7 +99,7 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, NoGender, Organic, {0, D1n3, B
 {"Когти", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {Natural}, Melee},
 {"Кулаки", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {Natural}, Melee},
 {"Укус", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {Natural}, Melee},
-{"Хитин", 0, 0 * GP, NoGender, Leather, {-10}, {}, {30, 2, 40}, {Natural}, Torso},
+{"Хитин", 0, 0 * GP, NoGender, Leather, {-10}, {30, 2, 40}, {}, {Natural}, Torso},
 {"Мех", 0, 0 * GP, NoGender, Leather, {-3}, {20, 0, 20}, {}, {Natural}, Torso},
 //
 {"Много предметов"},
@@ -109,6 +111,38 @@ item::item(item_s type) {
 	clear();
 	this->type = type;
 	auto& ei = getitem();
+	if(ei.count > 0)
+		setcount(ei.count);
+}
+
+item::item(item_s item_type, int chance_artifact, int chance_magic, int chance_cursed, int chance_quality) {
+	clear();
+	type = item_type;
+	auto& ei = getitem();
+	magic = Mundane;
+	if(chance_magic) {
+		if(d100() < chance_cursed)
+			magic = Cursed;
+		else if(d100() < chance_magic)
+			magic = Blessed;
+		else if(d100() < chance_artifact)
+			magic = Artifact;
+	}
+	quality = 0;
+	if(chance_quality && d100()<chance_quality) {
+		static char quality_chances[] = {1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3};
+		quality = maprnd(quality_chances);
+	}
+	if(ei.effects) {
+		if(ei.effects[0])
+			effect = rand() % ei.effects.getcount();
+		else if(ei.effects[1]) {
+			if(d100()<chance_magic)
+				effect = 1 + (rand() % (ei.effects.getcount() - 1));
+			else
+				effect = 0;
+		}
+	}
 	if(ei.count > 0)
 		setcount(ei.count);
 }
@@ -133,11 +167,36 @@ bool item::is(slot_s v) const {
 	}
 }
 
-void item::getname(stringbuilder& sb) const {
+void item::getstatistic(stringbuilder& sb) const {
 	auto& ei = getitem();
-	//if(identify_cab)
-	//	sb.adds(bsmeta<item_typei>::elements[magic].name[ei.gender]);
+	auto& ai = ei.weapon;
+	if(ai.attack)
+		sb.adds("%1:%2i%%", bsmeta<abilityi>::elements[AttackMelee].name_short, ei.weapon.attack);
+	auto dc = ai.getdice();
+	if(dc.max)
+		sb.adds("%1:%2i-%3i", bsmeta<abilityi>::elements[DamageMelee].name_short, dc.min, dc.max);
+	auto& am = ei.armor;
+	if(am.protection || am.armor) {
+		sb.adds("%1:%2i%%", bsmeta<abilityi>::elements[Armor].name_short, am.protection);
+		if(am.armor)
+			sb.adds("и %1i", am.armor);
+		if(am.deflect)
+			sb.adds("%1:%2i%%", bsmeta<abilityi>::elements[Deflect].name_short, am.deflect);
+	}
+}
+
+void item::getname(stringbuilder& sb, bool show_cab) const {
+	auto& ei = getitem();
+	if(show_cab) {
+		if(isidentified())
+			sb.adds(bsmeta<item_typei>::elements[getmagic()].name[ei.gender]);
+	}
 	sb.adds("%-1", getname());
+	if(isidentified()) {
+		auto effect = geteffect();
+		if(effect)
+			sb.adds(effect.getnameof());
+	}
 	auto n = getcount();
 	if(n>1)
 		sb.adds("%1iшт.", n);
@@ -183,4 +242,11 @@ int	item::getquality() const {
 	case Artifact: return quality + 2;
 	default: return quality;
 	}
+}
+
+variant item::geteffect() const {
+	auto& ei = getitem();
+	if(ei.effects.getcount()>0)
+		return ei.effects[effect];
+	return NoVariant;
 }
