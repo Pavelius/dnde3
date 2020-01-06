@@ -1,11 +1,11 @@
 #include "main.h"
 
 statei bsmeta<statei>::elements[] = {{"Anger", "Злой"},
+{"Dazzled", "Ошеламлен"},
 {"Drunken", "Пьяный"},
 {"Friendly", "Дружественен"},
 {"Hostile", "Враждебен"},
 {"Invisible", "Невидим"},
-{"Paralized", "Парализован"},
 {"Poisoned", "Отравлен"},
 {"Sick", "Болен"},
 {"Sleeped", "Спит"},

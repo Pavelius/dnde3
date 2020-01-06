@@ -101,7 +101,8 @@ void creature::dress(int m) {
 			abilities[AttackRanged] += wa;
 			break;
 		}
-		abilities[Protection] += m * ei.armor.deflect;
+		abilities[Protection] += m * ei.armor.protection;
+		abilities[Deflect] += m * ei.armor.deflect;
 		abilities[Armor] += m * ei.armor.armor;
 	}
 }
@@ -316,13 +317,9 @@ attacki creature::getattack(slot_s id) const {
 		attack_ability = AttackRanged;
 		damage_ability = DamageRanged;
 	}
-	if(weapon) {
+	if(id == Melee || weapon) {
 		result = weapon.getattack();
 		result.dice = bsmeta<dicei>::elements[result.damage];
-	} else if(id == Melee) {
-		result.type = Bludgeon;
-		result.dice.min = 0;
-		result.dice.max = 4;
 	}
 	if(!result.dice.max)
 		return result;
@@ -664,17 +661,17 @@ void creature::attack(creature& enemy, slot_s id, int bonus) {
 		auto danger = 30;
 		switch(ai.type) {
 		case Piercing:
-			danger += 20;
+			danger += 10;
 			pierce = 100;
 			act("%герой попал%а в уязвимое место.");
 			break;
 		case Slashing:
-			act("%герой нанесл%а кровоточащую рану.");
+			act("%герой нанес%ла кровоточащую рану.");
 			enemy.set(Wounded);
 			enemy.bloodstain();
 			break;
 		case Bludgeon:
-			act("%герой нанесл%а ошеломляющий удар.");
+			act("%герой нанес%ла ошеломляющий удар.");
 			enemy.set(Dazzled);
 			break;
 		}
@@ -813,7 +810,7 @@ void creature::makemove() {
 	}
 	// Dazzled creature don't make turn
 	if(is(Dazzled)) {
-		if(rollv(get(Constitution) * 2, 0))
+		if(rollv(get(Constitution) + 8, 0))
 			act("%герой очухался от головокружения.");
 		else {
 			wait();

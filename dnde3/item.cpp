@@ -1,6 +1,6 @@
 #include "main.h"
 
-itemi bsmeta<itemi>::elements[] = {{"", 0, 0, NoGender, Organic, {}, {}, {}, {}, Melee},
+itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, NoGender, Organic, {0, D1n3, Bludgeon}, {}, {}, {}, Melee},
 {"Боевой топор", 850, 5 * GP, Male, Iron, {-4, D1n8, Slashing}, {}, {}, {Versatile}, Melee, FocusAxes},
 {"Дубина", 1000, 5 * CP, Female, Wood, {-6, D1n4, Bludgeon}, {}, {}, {}, Melee},
 {"Кинжал", 50, 2 * GP, Male, Iron, {-2, D1n3, Piercing}, {}, {}, {}, Melee},
@@ -94,11 +94,11 @@ itemi bsmeta<itemi>::elements[] = {{"", 0, 0, NoGender, Organic, {}, {}, {}, {},
 {"Серебрянная монета", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
 {"Золотая монета", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
 //
-{"Когти", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {Natural}},
-{"Кулаки", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {Natural}},
-{"Укус", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {Natural}},
-{"Хитин", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {Natural}},
-{"Мех", 0, 0 * GP, NoGender, Paper, {}, {20}, {}, {Natural}, Torso},
+{"Когти", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {Natural}, Melee},
+{"Кулаки", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {Natural}, Melee},
+{"Укус", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {Natural}, Melee},
+{"Хитин", 0, 0 * GP, NoGender, Leather, {}, {}, {30, 2, 40}, {Natural}, Torso},
+{"Мех", 0, 0 * GP, NoGender, Leather, {}, {20, 0, 20}, {}, {Natural}, Torso},
 //
 {"Много предметов"},
 };
