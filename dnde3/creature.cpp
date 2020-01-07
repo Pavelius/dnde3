@@ -43,9 +43,12 @@ void creature::add(variant id, int v, bool interactive) {
 		break;
 	case State:
 		if(v > 0)
-			set((state_s)id.value);
-		else
-			remove((state_s)id.value);
+			states.set(id.value);
+		else {
+			states.remove(id.value);
+			if(interactive)
+				act(bsmeta<statei>::elements[id.value].remove);
+		}
 		break;
 	case Item:
 		equip(item_s(id.value));
@@ -727,12 +730,12 @@ void creature::attack(creature& enemy, const attacki& ai, int bonus) {
 			break;
 		case Slashing:
 			act("%герой нанес%ла кровоточащую рану.");
-			enemy.set(Wounded);
+			enemy.add(Wounded, 1, false);
 			enemy.bloodstain();
 			break;
 		case Bludgeon:
 			act("%герой нанес%ла ошеломляющий удар.");
-			enemy.set(Dazzled);
+			enemy.add(Dazzled, 1, false);
 			break;
 		}
 		auto damage_bonus = dv * danger / 100;
@@ -867,10 +870,9 @@ void creature::makemove() {
 	}
 	if(is(Wounded)) {
 		// Wounded creature loose 1 hit point each turn
-		if(rollv(get(Constitution) * 2, 0)) {
-			remove(Wounded);
-			act("Кровотечение у %героя прекратилось.");
-		} else {
+		if(rollv(get(Constitution) + 5, 0))
+			add(Wounded, -1, true);
+		else {
 			act("%герой истекает кровью.");
 			damage(1, Slashing, 100, false);
 			if(!(*this))
@@ -880,7 +882,7 @@ void creature::makemove() {
 	// Dazzled creature don't make turn
 	if(is(Dazzled)) {
 		if(rollv(get(Constitution) + 8, 0))
-			act("%герой очухался от головокружения.");
+			add(Dazzled, -1, true);
 		else {
 			wait();
 			return;

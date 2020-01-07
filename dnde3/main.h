@@ -349,6 +349,7 @@ struct statei {
 	const char*			name;
 	const char*			nameof;
 	bool				hostile;
+	const char*			remove;
 };
 struct racei {
 	const char*			name;
@@ -671,7 +672,6 @@ public:
 	void				raiseskills(int number);
 	void				raiseskills() { raiseskills(get(Intellegence) / 2); }
 	void				rangeattack(creature& enemy, int bonus = 0);
-	void				remove(state_s v) { states.remove(v); }
 	bool				roll(skill_s v) const { return rollv(get(v), 0); }
 	bool				roll(skill_s v, int bonus) const { return rollv(get(v) + bonus, 0); }
 	bool				roll(skill_s v, int bonus, int divider) const;
@@ -680,7 +680,6 @@ public:
 	void				select(itema& a, slot_s i1, slot_s i2, bool filled_only);
 	void				select(skilla& e) const;
 	void				set(ability_s id, int v);
-	void				set(state_s v) { states.set(v); }
 	void				set(spell_s id, int v) { spells[id] = v; }
 	void				set(skill_s id, int v);
 	void				setcharmer(const creature* p) { charmer = p->getid(); }

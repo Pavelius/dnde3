@@ -89,6 +89,8 @@ const char* nameable::getname() const {
 }
 
 void nameable::actv(stringbuilder& st, const char* format, const char* param) const {
+	if(!format)
+		return;
 	string sb = st;
 	sb.name = getname();
 	sb.gender = getgender();
@@ -98,6 +100,8 @@ void nameable::actv(stringbuilder& st, const char* format, const char* param) co
 }
 
 void nameable::actv(stringbuilder& st, nameable& e, const char* format, const char* param) const {
+	if(!format)
+		return;
 	string sb = st;
 	sb.name = getname();
 	sb.gender = getgender();
@@ -113,6 +117,8 @@ void nameable::act(const char* format, ...) const {
 }
 
 void nameable::sayv(stringbuilder& st, const char* format, const char* param) const {
+	if(!format)
+		return;
 	string sb = st;
 	sb.name = getname();
 	sb.gender = getgender();

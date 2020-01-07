@@ -2,13 +2,13 @@
 
 static creature* create(location& loc, race_s race, gender_s gender, class_s cls) {
 	auto p = loc.add(loc.get(3,3), race, gender, cls);
-	p->set(Friendly);
+	p->add(Friendly, 1, false);
 	return p;
 }
 
 static creature* create(location& loc, role_s type) {
 	auto p = loc.add(loc.get(10, 10), type);
-	p->set(Hostile);
+	p->add(Hostile, 1, false);
 	return p;
 }
 
