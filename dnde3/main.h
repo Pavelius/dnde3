@@ -202,6 +202,7 @@ enum identify_s : unsigned char {
 	Unknown, KnownStats, KnownMagic, KnownPower,
 };
 typedef short unsigned indext;
+typedef adat<rect, 64> rooma;
 typedef flagable<1 + Chaotic / 8> alignmenta;
 typedef flagable<1 + LastState / 8> statea;
 typedef flagable<1 + LastRace / 8> racea;
@@ -487,19 +488,21 @@ class site : rect {
 	short unsigned		owner_id;
 	unsigned char		found;
 	unsigned			recoil;
-	void				wait(unsigned count);
 public:
-	constexpr site() : rect({0, 0, 0, 0}), type(EmpthyRoom), diety(NoGod), name(), owner_id(Blocked),
-		found(0), recoil(0) {
-	}
+	constexpr site() : rect({0, 0, 0, 0}), type(EmpthyRoom), diety(NoGod),
+		name(), owner_id(Blocked), found(0), recoil(0) {}
 	operator bool() const { return x1 != x2; }
-	void				entering(creature& player);
+	creature*			add(race_s race, gender_s gender, class_s type);
+	creature*			add(role_s type);
 	static site*		find(indext index);
-	int					getfoundchance() const;
 	void				getname(stringbuilder& sb) const;
 	creature*			getowner() const;
-	short unsigned		getposition() const;
-	void				update();
+	indext				getposition() const;
+	creature*			priest();
+	void				set(site_s v) { type = v; }
+	void				set(diety_s v) { diety = v; }
+	void				setowner(const creature* v);
+	creature*			shopkeeper();
 };
 class posable {
 	indext				index;
@@ -763,15 +766,23 @@ struct manual {
 	explicit operator bool() const { return (bool)value; }
 	const char*			getname() const;
 };
-class location {
+struct statistici {
+	indext				positions[2];
+};
+class location : public statistici {
 	typedef bool(location::*procis)(indext i) const;
 	tile_s				tiles[mmx*mmy];
 	map_object_s		objects[mmx*mmy];
 	unsigned char		random[mmx*mmy];
 	flagable<1>			flags[mmx*mmy];
+	bool				visualize;
 	//
 	indext				bpoint(indext index, int w, int h, direction_s dir) const;
+	void				connector(indext index, direction_s dir, const rect& correct);
+	void				corridor(const rect& rc, direction_s dir);
+	void				dungeonc(rooma& rooms);
 	indext				getfree(indext i, procis proc, int radius_maximum) const;
+	void				room(const rect& rc);
 	bool				linelos(int x0, int y0, int x1, int y1) const;
 	bool				wget(short unsigned i, direction_s direction, tile_s value) const;
 	bool				wget(short unsigned i, direction_s direction, tile_s value, bool default_result) const;
@@ -785,8 +796,9 @@ public:
 	void				blockwalls(bool water = true);
 	indext				building(indext i, int width, int height, direction_s dir = Center);
 	bool				cansee(indext i1, indext i2) const;
+	static indext		center(int x, int y, int w, int h);
+	static indext		center(const rect& rc);
 	indext				choose(bool allow_cancel);
-	indext				choose(bool allow_cancel, const aref<indext>& source, const char* format);
 	void				clear();
 	static void			clearblock();
 	void				create(const rect& rc, int count, map_object_s object);
@@ -812,6 +824,7 @@ public:
 	bool				isfree(indext i) const;
 	bool				isfreenc(indext i) const;
 	bool				isfreenw(indext i) const;
+	bool				ismatch(indext index, const rect& rectanle) const;
 	void				lake(int x, int y, int w, int h);
 	void				makewave(indext index);
 	bool				read(const char* url);
@@ -827,7 +840,8 @@ public:
 	void				setlos(indext index, int r);
 	indext				stepto(indext index);
 	indext				stepfrom(indext index);
-	static indext		to(indext index, direction_s id);
+	static indext		to(indext index, direction_s v);
+	static direction_s	to(direction_s d, direction_s v);
 	void				worldmap(point camera, bool show_fow = true) const;
 	bool				write(const char* url) const;
 };

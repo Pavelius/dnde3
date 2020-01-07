@@ -41,6 +41,63 @@ int location::getindex(indext i, tile_s e) const {
 	return m;
 }
 
+direction_s location::to(direction_s from, direction_s side) {
+	switch(side) {
+	case Up:
+		return from;
+	case RightUp:
+		switch(from) {
+		case Left: return LeftUp;
+		case LeftUp: return Up;
+		case Up: return RightUp;
+		case RightUp: return Right;
+		case Right: return RightDown;
+		case RightDown: return Down;
+		case Down: return LeftDown;
+		case LeftDown: return Left;
+		default: return Center;
+		}
+	case LeftUp:
+		switch(from) {
+		case Left: return LeftDown;
+		case LeftDown: return Down;
+		case Down: return RightDown;
+		case RightDown: return Right;
+		case Right: return RightUp;
+		case RightUp: return Up;
+		case Up: return LeftUp;
+		case LeftUp: return Left;
+		default: return Center;
+		}
+	case Down:
+		switch(from) {
+		case Left: return Right;
+		case Right: return Left;
+		case Up: return Down;
+		case Down: return Up;
+		default: return Center;
+		}
+	case Left:
+		switch(from) {
+		case Left: return Down;
+		case Right: return Up;
+		case Up: return Left;
+		case Down: return Right;
+		default: return Center;
+		}
+	case Right:
+		switch(from) {
+		case Left: return Up;
+		case Right: return Down;
+		case Up: return Right;
+		case Down: return Left;
+		default: return Center;
+		}
+	default:
+		return Center;
+	}
+}
+
 indext location::to(indext index, direction_s id) {
 	switch(id) {
 	case Left:
@@ -579,4 +636,32 @@ bool location::cansee(indext i1, indext i2) const {
 	if(i1 == Blocked || i2 == Blocked)
 		return false;
 	return linelos(getx(i1), gety(i1), getx(i2), gety(i2));
+}
+
+indext location::center(int x, int y, int w, int h) {
+	return get(x + w / 2, y + (h / 2));
+}
+
+indext location::center(const rect& rc) {
+	return get(rc.x1 + rc.width() / 2, rc.y1 + rc.height() / 2);
+}
+
+void location::room(const rect& rc) {
+	for(auto x = rc.x1; x < rc.x2; x++) {
+		for(auto y = rc.y1; y < rc.y2; y++)
+			set(get(x, y), Floor);
+	}
+	auto p = bsmeta<site>::add();
+	*((rect*)p) = rc;
+	p->set(Lair);
+}
+
+bool location::ismatch(indext index, const rect& rectangle) const {
+	if(index == Blocked)
+		return false;
+	auto x = getx(index);
+	auto y = gety(index);
+	if(x < rectangle.x1 || x >= rectangle.x2 || y < rectangle.y1 || y >= rectangle.y2)
+		return false;
+	return true;
 }
