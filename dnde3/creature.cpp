@@ -799,6 +799,7 @@ void creature::aiturn() {
 	creaturea enemies = source;
 	enemies.matchenemy(this);
 	if(enemies) {
+		// Combat situation - need eliminate enemy
 		enemies.sort(getposition());
 		auto enemy = enemies[0];
 		if(loc->getrange(enemy->getposition(), getposition()) > 1
@@ -808,13 +809,17 @@ void creature::aiturn() {
 		}
 		moveto(enemy->getposition());
 	} else {
+		// When we try to stand and think
 		if(d100() < chance_act) {
-			// When we try to stand and think
 			if(needrestore(LifePoints)) {
+				if(aiuse(false, 0, Drinkable, LifePoints))
+					return;
 				if(aiuse(false, 0, Edible, LifePoints))
 					return;
 			}
 			if(needrestore(ManaPoints)) {
+				if(aiuse(false, 0, Drinkable, ManaPoints))
+					return;
 				if(aiuse(false, 0, Edible, ManaPoints))
 					return;
 			}
@@ -832,11 +837,12 @@ void creature::aiturn() {
 				return;
 			}
 		}
+		// Chance to do nothing
 		if(d100() < chance_act) {
-			// Do nothing
 			wait();
 			return;
 		}
+		// Investigate items
 		aimove();
 	}
 }
@@ -1285,7 +1291,7 @@ void creature::add(variant id, int v, bool interactive, item_type_s magic, int q
 		case DamageMelee: case DamageRanged:
 			if(v >= 0) {
 				switch(magic) {
-				case Artifact: add(id, (1 + quality) * 3, interactive); break;
+				case Artifact: add(id, (1 + quality) * 2, interactive); break;
 				case Cursed: add(id, -v, 5 * (minutes + minutes*quality), interactive); break;
 				case Blessed: add(id, v, 5 * (minutes + minutes*quality), interactive); break;
 				default: add(id, v, minutes + minutes*quality, interactive); break;

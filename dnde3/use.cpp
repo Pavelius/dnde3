@@ -53,6 +53,12 @@ void foodi::apply(creature* player, const item it, bool interactive) const {
 }
 
 bool item::isboost(variant id) const {
+	// Simple case, when item have effect
+	if(isidentified()) {
+		auto e = geteffect();
+		if(e == id)
+			return true;
+	}
 	// Check for food
 	for(auto& e : elements) {
 		if(e.type != type)
@@ -81,9 +87,22 @@ bool creature::use(item& it, bool interactive) {
 	case Drinkable:
 		act("%герой выпил%а %-1.", it.getname());
 		effect = it.geteffect();
-		if(effect)
-			add(effect, 0, true, it.getmagic(), it.getquality(), it.getdamage(), 120);
-		else {
+		if(effect) {
+			auto v = 1;
+			if(effect.type == Ability) {
+				switch(effect.value) {
+				case ManaPoints:
+				case LifePoints:
+					v = xrand(8, 16);
+					break;
+				case AttackMelee: case AttackRanged:
+				case Deflect: case Protection:
+					v = xrand(5, 10);
+					break;
+				}
+			}
+			add(effect, v, true, it.getmagic(), it.getquality(), it.getdamage(), 120);
+		} else {
 			if(interactive)
 				act("Ничего не произошло.");
 		}

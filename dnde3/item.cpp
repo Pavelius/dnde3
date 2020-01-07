@@ -129,7 +129,7 @@ item::item(item_s item_type, int chance_artifact, int chance_magic, int chance_c
 			magic = Artifact;
 	}
 	quality = 0;
-	if(chance_quality && d100()<chance_quality) {
+	if(chance_quality && d100() < chance_quality) {
 		static char quality_chances[] = {1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3};
 		quality = maprnd(quality_chances);
 	}
@@ -137,7 +137,7 @@ item::item(item_s item_type, int chance_artifact, int chance_magic, int chance_c
 		if(ei.effects[0])
 			effect = rand() % ei.effects.getcount();
 		else if(ei.effects[1]) {
-			if(d100()<chance_magic)
+			if(d100() < chance_magic)
 				effect = 1 + (rand() % (ei.effects.getcount() - 1));
 			else
 				effect = 0;
@@ -175,7 +175,7 @@ void item::getstatistic(stringbuilder& sb) const {
 	ai.dice = ai.getdice();
 	if(player) {
 		auto s = getwearerslot();
-		if(s && (slot==Melee || slot==Ranged || slot==OffHand))
+		if(s && (slot == Melee || slot == Ranged || slot == OffHand))
 			ai = player->getattack(s, *this);
 	}
 	if(ai.attack)
@@ -204,9 +204,14 @@ void item::getname(stringbuilder& sb, bool show_cab) const {
 		auto effect = geteffect();
 		if(effect)
 			sb.adds(effect.getnameof());
+		auto q = quality;
+		if(ei.slot == Melee || ei.slot == OffHand || ei.slot == Head)
+			q = getbonus();
+		if(q != 0)
+			sb.adds("%+1i", q);
 	}
 	auto n = getcount();
-	if(n>1)
+	if(n > 1)
 		sb.adds("%1iøò.", n);
 }
 
@@ -250,12 +255,17 @@ bool item::match(variant v) const {
 int	item::getbonus() const {
 	if(!isidentified())
 		return 0;
-	return quality + bsmeta<item_typei>::elements[magic].bonus;
+	switch(magic) {
+	case Artifact: return 2 + quality;
+	case Blessed: return 1 + quality;
+	case Cursed: return -1 - quality;
+	default: return quality;
+	}
 }
 
 variant item::geteffect() const {
 	auto& ei = getitem();
-	if(ei.effects.getcount()>0)
+	if(ei.effects.getcount() > 0)
 		return ei.effects[effect];
 	return variant();
 }
