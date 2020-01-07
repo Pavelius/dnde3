@@ -11,6 +11,7 @@ const short unsigned mmx = 96;
 const short unsigned mmy = 96;
 const unsigned short Blocked = 0xFFFF;
 const int StandartEnergyCost = 1000;
+const int enchantment_cost_gp = 100;
 
 enum dice_s : unsigned char {
 	NoDice,
@@ -80,7 +81,7 @@ enum alignment_s : unsigned char {
 };
 enum ability_s : unsigned char {
 	Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
-	AttackMelee, AttackRanged, DamageMelee, DamageRanged,
+	Attack, Damage,
 	Pierce, Protection, Armor, Deflect, Speed, Visibility,
 	ResistAcid, ResistCharm, ResistCold, ResistElectricity,
 	ResistFire, ResistParalize, ResistPoison, ResistWater,
@@ -228,6 +229,7 @@ struct variant {
 	bool operator==(const variant& e) const { return type == e.type && value == e.value; }
 	const char*			getname() const;
 	const char*			getnameof() const;
+	const char*			getnameofc() const;
 };
 typedef variant			varianta[16];
 typedef adat<casev<variant>, 8> chancev;
@@ -279,7 +281,11 @@ struct abilityi {
 	const char*			name_how;
 	const char*			curse_how;
 	varianta			formula;
+	char				bonus_base, bonus_multiplier;
+	const char*			format;
+	//
 	ability_s			getid() const;
+	int					getbonus(int v) const;
 };
 struct skilli {
 	struct weaponi {
@@ -344,22 +350,21 @@ struct dicei {
 	int					roll() const;
 	void				normalize();
 };
-struct attacki {
-	char				attack; // Percent bonus to hit
-	dice_s				damage;
-	attack_s			type;
-	char				speed;
-	item_s				ammunition;
-	dicei				dice;
-	const dicei&		getdice() const { return bsmeta<dicei>::elements[damage]; }
-	int					getenergy() const { return StandartEnergyCost - speed * 50; }
-};
 struct armori {
 	char				protection;
 	char				armor;
 	char				deflect;
 	char				protection_bonus;
 	char				armor_bonus;
+};
+struct attacki {
+	char				attack, attack_bonus; // Percent bonus to hit
+	dicei				dice;
+	attack_s			type;
+	char				speed;
+	char				damage_bonus;
+	item_s				ammunition;
+	int					getenergy() const { return StandartEnergyCost - speed * 50; }
 };
 struct item_typei {
 	const char*			id;
@@ -404,7 +409,7 @@ public:
 	void				damage();
 	item_s				getammo() const { return getitem().weapon.ammunition; }
 	armori				getarmor() const;
-	const attacki&		getattack() const { return getitem().weapon; }
+	attacki				getattack() const;
 	int					getbonus() const;
 	int					getcount() const { return count + 1; }
 	int					getdamage() const { return damaged; }
@@ -439,13 +444,12 @@ public:
 	void				loot();
 	bool				match(variant v) const;
 	void				repair(int level);
-	void				set(item_type_s v) { magic = v; }
+	void				set(item_type_s v);
 	void				setcharges(int v);
 	void				setcount(int v);
 	void				seteffect(variant v);
-	void				setforsale() { forsale = 1; }
-	void				setidentify(int v) { identify = v; }
-	void				setquality(unsigned char v) { quality = v; }
+	void				setidentify(int v);
+	void				setquality(int v);
 	void				setsale(int v) { forsale = v; }
 	bool				use();
 };

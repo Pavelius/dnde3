@@ -95,8 +95,7 @@ bool creature::use(item& it, bool interactive) {
 				case LifePoints:
 					v = xrand(8, 16);
 					break;
-				case AttackMelee: case AttackRanged:
-				case Deflect: case Protection:
+				case Attack: case Deflect: case Protection:
 					v = xrand(5, 10);
 					break;
 				}

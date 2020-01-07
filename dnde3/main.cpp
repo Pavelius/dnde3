@@ -13,7 +13,7 @@ static creature* create(location& loc, role_s type) {
 }
 
 static void create(creature* p1, item_s type) {
-	item it(type, 5, 20, 6, 40);
+	item it(type, 3, 20, 6, 30);
 	it.setidentify(1);
 	p1->add(it, true, false);
 }
@@ -60,11 +60,12 @@ static void test_answers() {
 	an.choosev(true, false, true, sb);
 }
 
-static void random_bless(creature* p1) {
-	itema source;
-	source.selecta(*p1);
-	source[1]->set(Blessed);
-	source[1]->setidentify(true);
+static void modify_weapon(creature* p1) {
+	item* pi = (item*)&p1->get(Melee);
+	pi->seteffect(Attack);
+	pi->set(Cursed);
+	pi->setquality(3);
+	pi->setidentify(1);
 }
 
 static void test_indoor() {
@@ -94,22 +95,24 @@ static void test_indoor() {
 	create(e, GoblinWarrior);
 	create(e, GoblinWarrior);
 	create(e, GnollWarrior);
-	random_bless(p1);
 	e.activate();
 	p1->activate();
 	p1->damage(6, Bludgeon, 100);
+	modify_weapon(p1);
 	create(p1, Potion1);
 	create(p1, Potion1, Dexterity);
 	create(p1, BracersLeather);
 	create(p1, Boot1);
 	create(p1, Helmet);
+	create(p1, RingRed);
+	create(p1, RingBlue);
+	modify_weapon(p1);
 	game.play();
 }
 
 static void item_choose() {
 	auto p1 = bsmeta<creature>::addz();
 	p1->create(Human, Male, Theif);
-	random_bless(p1);
 	p1->inventory();
 }
 

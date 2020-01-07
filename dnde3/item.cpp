@@ -6,30 +6,39 @@ LifePoints, ManaPoints};
 static variant uncommon_potions[] = {Strenght, Dexterity, Wisdow, Charisma,
 LifeRate, ManaRate,
 LifePoints, ManaPoints, Speed};
-static variant rare_potions[] = {AttackMelee, AttackRanged, DamageMelee,
+static variant rare_potions[] = {Attack, Damage,
 Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
 Armor, Protection,
 LifeRate, ManaRate,
 LifePoints, ManaPoints, Speed};
+static variant swords_enchanments[] = {{},
+Attack, Damage,
+Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
+Protection, LifePoints, ManaPoints, Speed};
+static variant ring_enchanments[] = {ResistAcid, ResistCharm, ResistCold, ResistElectricity,
+ResistFire, ResistParalize, ResistPoison, ResistWater,
+Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
+Armor, Protection,
+LifePoints, ManaPoints, Speed};
 
-itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, NoGender, Organic, {0, D1n3, Bludgeon, 4}, {}, {}, {}, Melee},
-{"Боевой топор", 850, 5 * GP, Male, Iron, {-4, D1n8, Slashing}, {}, {}, {Versatile}, Melee, FocusAxes},
-{"Дубина", 1000, 5 * CP, Female, Wood, {-6, D1n4, Bludgeon}, {}, {}, {}, Melee},
-{"Кинжал", 50, 2 * GP, Male, Iron, {-2, D1n3, Piercing, 2}, {}, {}, {Light}, Melee},
-{"Молот", 800, 2 * GP, Male, Wood, {-3, D1n4, Bludgeon}, {}, {}, {}, Melee},
-{"Булава", 700, 8 * GP, Female, Iron, {-3, D2n7, Bludgeon}, {}, {}, {}, Melee},
-{"Копье", 700, 8 * GP, NoGender, Iron, {-5, D1n8, Piercing}, {}, {}, {}, Melee},
-{"Посох", 700, 8 * GP, Male, Iron, {-2, D1n6, Bludgeon, 1}, {}, {}, {TwoHanded}, Melee},
-{"Длинный меч", 700, 8 * GP, Male, Iron, {-4, D1n8, Slashing}, {}, {}, {Versatile}, Melee, FocusSwords},
-{"Короткий меч", 700, 8 * GP, Male, Iron, {-3, D1n6, Slashing}, {}, {}, {Light}, Melee, FocusSwords},
-{"Двуручный меч", 700, 8 * GP, Male, Iron, {-9, D2n12, Slashing, -2}, {}, {}, {TwoHanded}, Melee, FocusTwohanded},
+itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, NoGender, Organic, {0, 3, {1, 3}, Bludgeon, 4, 2}, {}, {}, {}, Melee},
+{"Боевой топор", 850, 5 * GP, Male, Iron, {-4, 3, {1, 8}, Slashing, 0, 2}, {}, {}, {Versatile}, Melee, FocusAxes},
+{"Дубина", 1000, 5 * CP, Female, Wood, {-6, 3, {1, 6}, Bludgeon, 0, 2}, {}, {}, {}, Melee},
+{"Кинжал", 50, 2 * GP, Male, Iron, {-2, 3, {1, 4}, Piercing, 2, 3}, {}, {}, {Light}, Melee},
+{"Молот", 800, 2 * GP, Male, Wood, {-3, 3, {2, 5}, Bludgeon, 0, 1}, {}, {}, {}, Melee},
+{"Булава", 700, 8 * GP, Female, Iron, {-3, 3, {2, 7}, Bludgeon, 0, 1}, {}, {}, {}, Melee},
+{"Копье", 700, 8 * GP, NoGender, Iron, {-5, 3, {1, 8}, Piercing, 0, 2}, {}, {}, {}, Melee},
+{"Посох", 700, 8 * GP, Male, Iron, {-2, 3, {1, 6}, Bludgeon, 1, 2}, {}, {}, {TwoHanded}, Melee},
+{"Длинный меч", 700, 8 * GP, Male, Iron, {-4, 3, {1, 8}, Slashing, 0, 2}, {}, swords_enchanments, {Versatile}, Melee, FocusSwords},
+{"Короткий меч", 700, 8 * GP, Male, Iron, {-3, 3, {1, 6}, Slashing, 0, 2}, {}, swords_enchanments, {Light}, Melee, FocusSwords},
+{"Двуручный меч", 700, 8 * GP, Male, Iron, {-9, 3, {2, 12}, Slashing, -2, 2}, {}, swords_enchanments, {TwoHanded}, Melee, FocusTwohanded},
 //
-{"Арбалет", 700, 40 * GP, Male, Wood, {-3, D1n8, Piercing, -2, Bolt}, {}, {}, {}, Ranged},
-{"Тяжелый арбалет", 1200, 80 * GP, Male, Wood, {-10, D1n12, Piercing, -6, Bolt}, {}, {}, {}, Ranged},
-{"Длинный лук", 500, 60 * GP, Male, Wood, {-10, D1n8, Piercing, 1, Arrow}, {}, {}, {}, Ranged, FocusBows},
-{"Короткий лук", 300, 30 * GP, Male, Wood, {-6, D1n6, Piercing, 1, Arrow}, {}, {}, {}, Ranged, FocusBows},
-{"Дарт", 30, 1 * SP, Male, Wood, {-4, D1n3, Piercing, 3}, {}, {}, {}, Ranged},
-{"Праща", 50, 1 * SP, Female, Leather, {-6, D1n4, Bludgeon, 0, Rock}, {}, {}, {}, Ranged},
+{"Арбалет", 700, 40 * GP, Male, Wood, {-3, 3, {1, 8}, Piercing, -2, Bolt}, {}, {}, {}, Ranged},
+{"Тяжелый арбалет", 1200, 80 * GP, Male, Wood, {-10, 3, {1, 12}, Piercing, -6, Bolt}, {}, {}, {}, Ranged},
+{"Длинный лук", 500, 60 * GP, Male, Wood, {-10, 3, {1, 8}, Piercing, 1, Arrow}, {}, {}, {}, Ranged, FocusBows},
+{"Короткий лук", 300, 30 * GP, Male, Wood, {-6, 3, {1, 6}, Piercing, 1, Arrow}, {}, {}, {}, Ranged, FocusBows},
+{"Дарт", 30, 1 * SP, Male, Wood, {-4, 3, {1, 3}, Piercing, 3}, {}, {}, {}, Ranged},
+{"Праща", 50, 1 * SP, Female, Leather, {-6, 3, {1, 4}, Bludgeon, 0, Rock}, {}, {}, {}, Ranged},
 //
 {"Камни", 20, 0, Male, Stone, {}, {}, {}, {}, Amunitions, Bargaining, 30},
 {"Стрелы", 3, 2 * CP, Female, Wood, {}, {}, {}, {}, Amunitions, Bargaining, 20},
@@ -42,16 +51,16 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, NoGender, Organic, {0, D1n3, B
 {"Бахрец", 3000, 200 * GP, Male, Iron, {-15}, {30, 4, 35}, {}, {}, Torso},
 {"Латы", 3500, 800 * GP, Female, Iron, {-20}, {40, 5, 35}, {}, {}, Torso},
 //
-{"Щит", 0, 0 * GP, Female, Iron, {-5}, {10, 0, 25}, {}, {}, OffHand},
-{"Шлем", 0, 0 * GP, Female, Iron, {-1}, {5, 0, 20}, {}, {}, Head},
-{"Наручи", 0, 0 * GP, Female, Iron, {-1}, {5, 0, 15}, {}, {}, Elbows},
-{"Железные наручи", 0, 0 * GP, Female, Iron, {-3}, {5, 1, 20}, {}, {}, Elbows},
+{"Щит", 800, 0 * GP, Female, Iron, {-5, 1}, {10, 0, 25}, {}, {}, OffHand},
+{"Шлем", 100, 0 * GP, Female, Iron, {-1}, {5, 0, 20}, {}, {}, Head},
+{"Наручи", 70, 0 * GP, Female, Iron, {-1}, {5, 0, 15}, {}, {}, Elbows},
+{"Железные наручи", 110, 0 * GP, Female, Iron, {-3}, {5, 1, 20}, {}, {}, Elbows},
 //
-{"Плащ", 0, 0 * GP, Male, Leather, {}, {3, 0, 2}, {}, {}, TorsoBack},
-{"Плащ", 0, 0 * GP, Male, Leather, {}, {3, 0, 2}, {}, {}, TorsoBack},
-{"Плащ", 0, 0 * GP, Female, Leather, {}, {3, 0, 2}, {}, {}, TorsoBack},
-{"Плащ", 0, 0 * GP, Female, Leather, {}, {5, 0, 2}, {}, {}, TorsoBack},
-{"Плащ", 0, 0 * GP, Female, Leather, {}, {5, 0, 2}, {}, {}, TorsoBack},
+{"Плащ", 30, 10 * SP, Male, Leather, {}, {3, 0, 2}, {}, {}, TorsoBack},
+{"Плащ", 30, 15 * GP, Male, Leather, {}, {3, 0, 2}, {}, {}, TorsoBack},
+{"Плащ", 35, 20 * GP, Female, Leather, {}, {3, 0, 2}, {}, {}, TorsoBack},
+{"Плащ", 35, 5 * GP, Female, Leather, {}, {5, 0, 2}, {}, {}, TorsoBack},
+{"Плащ", 40, 5 * GP, Female, Leather, {}, {5, 0, 2}, {}, {}, TorsoBack},
 //
 {"Сапоги", 0, 0 * GP, NoGender, Leather, {}, {3, 0, 10}, {}, {}, Legs},
 {"Сапоги", 0, 0 * GP, NoGender, Leather, {}, {3, 0, 10}, {}, {}, Legs},
@@ -90,15 +99,15 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, NoGender, Organic, {0, D1n3, B
 {"Зелье", 10, 45 * GP, NoGender, Glass, {}, {}, rare_potions, {}, Drinkable},
 {"Зелье", 5, 50 * GP, NoGender, Glass, {}, {}, rare_potions, {}, Drinkable},
 //
-{"Кольцо", 0, 0 * GP, NoGender, Iron, {}, {}, {}, {}},
-{"Кольцо", 0, 0 * GP, NoGender, Iron, {}, {}, {}, {}},
-{"Кольцо", 0, 0 * GP, NoGender, Iron, {}, {}, {}, {}},
+{"Кольцо", 1, 35 * GP, NoGender, Iron, {}, {}, ring_enchanments, {}, RightFinger},
+{"Кольцо", 1, 40 * GP, NoGender, Iron, {}, {}, ring_enchanments, {}, RightFinger},
+{"Кольцо", 2, 45 * GP, NoGender, Iron, {}, {}, ring_enchanments, {}, RightFinger},
 //
-{"Амулет", 0, 0 * GP, NoGender, Wood, {}, {}, {}, {}},
-{"Амулет", 0, 0 * GP, NoGender, Wood, {}, {}, {}, {}},
-{"Амулет", 0, 0 * GP, NoGender, Iron, {}, {}, {}, {}},
-{"Амулет", 0, 0 * GP, NoGender, Iron, {}, {}, {}, {}},
-{"Амулет", 0, 0 * GP, NoGender, Iron, {}, {}, {}, {}},
+{"Амулет", 5, 0 * GP, NoGender, Wood, {}, {}, {}, {}, Neck},
+{"Амулет", 6, 0 * GP, NoGender, Wood, {}, {}, {}, {}, Neck},
+{"Амулет", 6, 0 * GP, NoGender, Iron, {}, {}, {}, {}, Neck},
+{"Амулет", 7, 0 * GP, NoGender, Iron, {}, {}, {}, {}, Neck},
+{"Амулет", 7, 0 * GP, NoGender, Iron, {}, {}, {}, {}, Neck},
 //
 {"Ключ", 0, 0 * GP, NoGender, Iron, {}, {}, {}, {}},
 //
@@ -179,27 +188,20 @@ bool item::is(slot_s v) const {
 
 void item::getstatistic(stringbuilder& sb) const {
 	auto& ei = getitem();
-	auto slot = ei.slot;
-	auto ai = ei.weapon;
-	auto player = getwearer();
-	ai.dice = ai.getdice();
-	if(player) {
-		auto s = getwearerslot();
-		if(s && (slot == Melee || slot == Ranged || slot == OffHand))
-			ai = player->getattack(s, *this);
-	}
-	if(ai.attack)
-		sb.adds("%1:%2i%%", bsmeta<abilityi>::elements[AttackMelee].name_short, ai.attack);
-	auto dc = ai.dice;
-	if(dc.max)
-		sb.adds("%1:%2i-%3i", bsmeta<abilityi>::elements[DamageMelee].name_short, dc.min, dc.max);
-	auto& am = ei.armor;
-	if(am.protection || am.armor) {
-		sb.adds("%1:%2i%%", bsmeta<abilityi>::elements[Armor].name_short, am.protection);
-		if(am.armor)
-			sb.adds("и %1i", am.armor);
-		if(am.deflect)
-			sb.adds("%1:%2i%%", bsmeta<abilityi>::elements[Deflect].name_short, am.deflect);
+	if(ei.slot >= Head && ei.slot <= Ranged) {
+		auto ai = getattack();
+		if(ai.attack)
+			sb.adds("%1:%2i%%", bsmeta<abilityi>::elements[Attack].name_short, ai.attack);
+		if(ai.dice.max)
+			sb.adds("%1:%2i-%3i", bsmeta<abilityi>::elements[Damage].name_short, ai.dice.min, ai.dice.max);
+		auto am = getarmor();
+		if(am.protection || am.armor) {
+			sb.adds("%1:%2i%%", bsmeta<abilityi>::elements[Armor].name_short, am.protection);
+			if(am.armor)
+				sb.adds("и %1i", am.armor);
+			if(am.deflect)
+				sb.adds("%1:%2i%%", bsmeta<abilityi>::elements[Deflect].name_short, am.deflect);
+		}
 	}
 }
 
@@ -211,14 +213,23 @@ void item::getname(stringbuilder& sb, bool show_cab) const {
 	}
 	sb.adds("%-1", getname());
 	if(isidentified()) {
-		auto effect = geteffect();
-		if(effect)
-			sb.adds(effect.getnameof());
-		auto q = quality;
-		if(ei.slot == Melee || ei.slot == OffHand || ei.slot == Head)
+		int q = quality;
+		if(ei.slot >= Head && ei.slot <= Amunitions)
 			q = getbonus();
+		auto effect = geteffect();
+		const char* format = "%+1i";
+		if(effect) {
+			if(q < 0)
+				sb.adds(effect.getnameofc());
+			else
+				sb.adds(effect.getnameof());
+			if(effect.type == Ability) {
+				format = bsmeta<abilityi>::elements[effect.value].format;
+				q = bsmeta<abilityi>::elements[effect.value].getbonus(q);
+			}
+		}
 		if(q != 0)
-			sb.adds("%+1i", q);
+			sb.adds(format, q);
 	}
 	auto n = getcount();
 	if(n > 1)
@@ -276,14 +287,29 @@ bool item::match(variant v) const {
 }
 
 int	item::getbonus() const {
-	if(!isidentified())
-		return 0;
+	int m = 0;
 	switch(magic) {
-	case Artifact: return 2 + quality;
-	case Blessed: return 1 + quality;
-	case Cursed: return -1 - quality;
-	default: return quality;
+	case Artifact:
+		m = 2 + quality;
+		break;
+	case Blessed:
+		m = 1 + quality;
+		break;
+	case Cursed:
+		if(isidentified())
+			return -1 - (int)quality;
+		else
+			return 1 + quality;
+	default:
+		m = quality;
+		break;
 	}
+	auto& ei = getitem();
+	if(!ei.effects.count)
+		return m;
+	if(effect || ei.effects.data[0])
+		m++;
+	return m;
 }
 
 variant item::geteffect() const {
@@ -301,4 +327,47 @@ armori item::getarmor() const {
 	if(result.armor < 0)
 		result.armor = 0;
 	return result;
+}
+
+attacki item::getattack() const {
+	auto& ei = getitem();
+	auto result = ei.weapon;
+	auto b = getbonus() - damaged;
+	result.attack += b * ei.weapon.attack_bonus;
+	if(ei.weapon.damage_bonus) {
+		result.dice.min += b / ei.weapon.damage_bonus;
+		result.dice.max += b / ei.weapon.damage_bonus;
+		if(result.dice.min < 0)
+			result.dice.min = 0;
+		if(result.dice.max < 0)
+			result.dice.max = 0;
+	}
+	return result;
+}
+
+void item::set(item_type_s v) {
+	auto p = getwearer();
+	if(p)
+		p->dressoff();
+	magic = v;
+	if(p)
+		p->dresson();
+}
+
+void item::setidentify(int v) {
+	auto p = getwearer();
+	if(p)
+		p->dressoff();
+	identify = v;
+	if(p)
+		p->dresson();
+}
+
+void item::setquality(int v) {
+	auto p = getwearer();
+	if(p)
+		p->dressoff();
+	quality = v;
+	if(p)
+		p->dresson();
 }

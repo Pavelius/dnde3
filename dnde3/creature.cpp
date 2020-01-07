@@ -113,7 +113,7 @@ void creature::dresson() {
 void creature::dress(int m) {
 	static slot_s enchant_slots[] = {Head, Neck, TorsoBack, Torso, OffHand, RightFinger, LeftFinger, Elbows, Legs};
 	// Modify armor abilities
-	for(auto i : enchant_slots) {
+	for(auto i = Head; i <= Ranged; i = (slot_s)(i + 1)) {
 		if(!wears[i])
 			continue;
 		auto ei = wears[i].getarmor();
@@ -122,15 +122,34 @@ void creature::dress(int m) {
 		abilities[Armor] += m * ei.armor;
 	}
 	// Modify weapon abilities
-	for(auto i : enchant_slots) {
+	for(auto i = Head; i <= Ranged; i = (slot_s)(i + 1)) {
 		if(!wears[i])
 			continue;
 		if(i == OffHand && wears[i].getitem().slot != OffHand)
 			continue;
-		auto& ei = wears[i].getitem().weapon;
-		auto wa = ei.attack - wears[i].getdamage();
-		abilities[AttackMelee] += m * wa;
-		abilities[AttackRanged] += m * wa;
+		auto ei = wears[i].getattack();
+		abilities[Attack] += m * ei.attack;
+	}
+	// Apply enchant effect
+	for(auto i = Head; i <= Ranged; i = (slot_s)(i + 1)) {
+		if(!wears[i])
+			continue;
+		auto id = wears[i].geteffect();
+		if(!id)
+			continue;
+		auto q = wears[i].getbonus();
+		switch(id.type) {
+		case Ability:
+			if(q > 0)
+				q = bsmeta<abilityi>::elements[id.value].bonus_base + bsmeta<abilityi>::elements[id.value].bonus_multiplier * q;
+			abilities[id.value] += m * q;
+			break;
+		case Skill:
+			if(q > 0)
+				q = 20 + q * 10;
+			skills[id.value] += m * q;
+			break;
+		}
 	}
 }
 
@@ -142,7 +161,7 @@ void creature::dresssk(int m) {
 }
 
 void creature::dresssa(int m) {
-	for(auto i = AttackMelee; i <= ManaRate; i = (ability_s)(i + 1)) {
+	for(auto i = Attack; i <= ManaRate; i = (ability_s)(i + 1)) {
 		auto& ei = bsmeta<abilityi>::elements[i];
 		abilities[i] += m*calculate(ei.formula);
 	}
@@ -274,8 +293,11 @@ static void start_equipment(creature& e) {
 				e.add(ef, 1, false);
 				switch(ef.type) {
 				case Item:
-					if(bsmeta<itemi>::elements[ef.value].weapon.ammunition)
-						e.add(bsmeta<itemi>::elements[ef.value].weapon.ammunition, 1, false);
+					if(true) {
+						auto& ei = bsmeta<itemi>::elements[ef.value];
+						if(ei.weapon.ammunition)
+							e.add(ei.weapon.ammunition, 1, false);
+					}
 					break;
 				}
 			}
@@ -344,42 +366,26 @@ void creature::getfullname(stringbuilder& sb) const {
 
 attacki creature::getattack(slot_s id, const item& weapon) const {
 	attacki result = {0};
-	auto attack_ability = AttackMelee;
-	auto damage_ability = DamageMelee;
 	auto skill = weapon.getitem().skill;
-	if(id == Ranged) {
-		attack_ability = AttackRanged;
-		damage_ability = DamageRanged;
-	}
-	if(id == Melee || weapon) {
+	if(id == Melee || weapon)
 		result = weapon.getattack();
-		result.dice = bsmeta<dicei>::elements[result.damage];
-	}
 	if(!result.dice.max)
 		return result;
 	auto& ci = getclass();
 	result.attack += ci.weapon.base;
 	result.attack += get(Level) * ci.weapon.multiplier;
-	result.attack += get(attack_ability);
-	result.dice.min += get(damage_ability);
-	result.dice.max += get(damage_ability);
+	result.attack += get(Attack);
+	result.dice.min += get(Damage);
+	result.dice.max += get(Damage);
 	if(skill && skills[skill]) {
 		// Weapon focus modify damage, attack and speed
 		auto& ei = bsmeta<skilli>::elements[skill];
 		if(ei.weapon.attack)
 			result.attack += get(skill) / ei.weapon.attack;
-		if(ei.weapon.damage) {
-			result.dice.min += get(skill) / ei.weapon.damage;
+		if(ei.weapon.damage)
 			result.dice.max += get(skill) / ei.weapon.damage;
-		}
 		if(ei.weapon.speed)
 			result.speed += get(skill) / ei.weapon.speed;
-	}
-	if(weapon.isidentified()) {
-		auto wb = weapon.getbonus();
-		result.attack += wb * 3;
-		result.dice.min += wb;
-		result.dice.max += wb;
 	}
 	switch(id) {
 	case Melee:
@@ -394,10 +400,8 @@ attacki creature::getattack(slot_s id, const item& weapon) const {
 			auto& ei = bsmeta<skilli>::elements[TwoWeaponFighting];
 			if(ei.weapon.attack)
 				result.attack += get(skill) / ei.weapon.attack;
-			if(ei.weapon.damage) {
-				result.dice.min += get(skill) / ei.weapon.damage;
+			if(ei.weapon.damage)
 				result.dice.max += get(skill) / ei.weapon.damage;
-			}
 			if(ei.weapon.speed)
 				result.speed += get(TwoWeaponFighting) / ei.weapon.speed;
 		}
@@ -1290,9 +1294,7 @@ void creature::add(variant id, int v, bool interactive, item_type_s magic, int q
 				}
 			}
 			break;
-		case AttackMelee: case AttackRanged:
-		case Protection: case Deflect:
-		case DamageMelee: case DamageRanged:
+		case Attack: case Protection: case Deflect:
 			if(v >= 0) {
 				switch(magic) {
 				case Artifact: add(id, (1 + quality) * 2, interactive); break;
@@ -1329,6 +1331,12 @@ void creature::add(variant id, int v, bool interactive, item_type_s magic, int q
 		}
 		break;
 	case State:
+		switch(magic) {
+		case Artifact: add(id, v, interactive, 30 * (minutes + minutes*quality)); break;
+		case Cursed: add(id, -v, interactive, (minutes + minutes*quality)); break;
+		case Blessed: add(id, v, interactive, 5 * (minutes + minutes*quality)); break;
+		default: add(id, v, interactive, minutes + minutes*quality); break;
+		}
 		break;
 	}
 }
