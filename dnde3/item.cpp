@@ -28,6 +28,9 @@ ResistFire, ResistParalize, ResistPoison, ResistWater,
 Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
 Armor, Protection,
 LifePoints, ManaPoints, Speed};
+static variant boots_enchanments[] = {{}, ResistElectricity, ResistParalize, ResistWater,
+Dexterity, Constitution,
+Armor, Speed};
 
 itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, NoGender, Organic, {0, 3, {1, 3}, Bludgeon, 4, 2}, {}, {}, {}, Melee},
 {"Боевой топор", 850, 5 * GP, Male, Iron, {-4, 3, {1, 8}, Slashing, 0, 2}, {}, {}, {Versatile}, Melee, FocusAxes},
@@ -70,11 +73,11 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, NoGender, Organic, {0, 3, {1, 
 {"Плащ", 35, 5 * GP, Female, Leather, {}, {5, 0, 2}, {}, {}, TorsoBack},
 {"Плащ", 40, 5 * GP, Female, Leather, {}, {5, 0, 2}, {}, {}, TorsoBack},
 //
-{"Сапоги", 0, 0 * GP, NoGender, Leather, {}, {3, 0, 10}, {}, {}, Legs},
-{"Сапоги", 0, 0 * GP, NoGender, Leather, {}, {3, 0, 10}, {}, {}, Legs},
-{"Сапоги", 0, 0 * GP, NoGender, Iron, {}, {5, 0, 15}, {}, {}, Legs},
-{"Сапоги", 0, 0 * GP, NoGender, Iron, {}, {3, 1, 10}, {}, {}, Legs},
-{"Сапоги", 0, 0 * GP, NoGender, Iron, {}, {3, 1, 10}, {}, {}, Legs},
+{"Туфли", 0, 0 * GP, NoGender, Leather, {}, {3, 0, 10}, boots_enchanments, {}, Legs},
+{"Сапоги", 0, 0 * GP, NoGender, Leather, {}, {3, 0, 10}, boots_enchanments, {}, Legs},
+{"Сапоги", 0, 0 * GP, NoGender, Iron, {}, {5, 0, 15}, boots_enchanments, {}, Legs},
+{"Сапоги", 0, 0 * GP, NoGender, Iron, {}, {3, 1, 10}, boots_enchanments, {}, Legs},
+{"Сапоги", 0, 0 * GP, NoGender, Iron, {}, {3, 1, 10}, boots_enchanments, {}, Legs},
 
 {"Еда", 100, 5 * SP, NoGender, Organic, {}, {}, {}, {}, Edible},
 {"Яблоко", 10, 5 * CP, NoGender, Organic, {}, {}, {}, {}, Edible},
