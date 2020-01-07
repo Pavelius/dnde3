@@ -82,6 +82,9 @@ enum ability_s : unsigned char {
 	Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
 	AttackMelee, AttackRanged, DamageMelee, DamageRanged,
 	Pierce, Protection, Armor, Deflect, Speed, Visibility,
+	ResistAcid, ResistCharm, ResistCold, ResistElectricity,
+	ResistFire, ResistParalize, ResistPoison, ResistWater,
+	FirstResist = ResistAcid, LastResist = ResistWater,
 	Level, LifePoints, LifeRate, ManaPoints, ManaRate,
 };
 enum skill_s : unsigned char {
@@ -93,8 +96,6 @@ enum skill_s : unsigned char {
 	FocusBows, FocusSwords, FocusAxes, FocusTwohanded,
 	TwoWeaponFighting,
 	FirstSkill = Bargaining, LastSkill = TwoWeaponFighting,
-	ResistAcid, ResistCharm, ResistCold, ResistElectricity, ResistFire, ResistParalize, ResistPoison, ResistWater,
-	FirstResist = ResistAcid, LastResist = ResistWater,
 };
 enum state_s : unsigned char {
 	Anger, Dazzled, Drunken, Friendly, Hostile, Hunger,
@@ -201,7 +202,7 @@ typedef short unsigned indext;
 typedef flagable<1 + Chaotic / 8> alignmenta;
 typedef flagable<1 + LastState / 8> statea;
 typedef flagable<1 + LastRace / 8> racea;
-typedef casev<skill_s> skillv;
+typedef casev<ability_s> abilityv;
 class creature;
 struct variant {
 	variant_s			type;
@@ -335,7 +336,7 @@ struct racei {
 	const char*			name;
 	char				abilities[6];
 	skill_s				skills[3];
-	adat<skillv, 8>		skillvs;
+	adat<abilityv, 8>	skillvs;
 };
 struct dicei {
 	char				min;
@@ -357,6 +358,8 @@ struct armori {
 	char				protection;
 	char				armor;
 	char				deflect;
+	char				protection_bonus;
+	char				armor_bonus;
 };
 struct item_typei {
 	const char*			id;
@@ -400,6 +403,7 @@ public:
 	bool				damageb();
 	void				damage();
 	item_s				getammo() const { return getitem().weapon.ammunition; }
+	armori				getarmor() const;
 	const attacki&		getattack() const { return getitem().weapon; }
 	int					getbonus() const;
 	int					getcount() const { return count + 1; }
@@ -415,6 +419,7 @@ public:
 	int					getquality() const { return quality; }
 	int					getsalecost() const;
 	void				getstatistic(stringbuilder& sb) const;
+	attacki				getweapon() const;
 	creature*			getwearer() const;
 	slot_s				getwearerslot() const;
 	int					getweightsingle() const { return getitem().weight; }

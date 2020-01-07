@@ -121,5 +121,6 @@ static int compare_distace(const void* v1, const void* v2) {
 }
 
 void creaturea::sort(indext start) {
+	compare_index = start;
 	qsort(data, count, sizeof(data[0]), compare_distace);
 }

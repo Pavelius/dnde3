@@ -1,6 +1,16 @@
 #include "main.h"
 
-static variant common_potions[] = {Dexterity, Wisdow, Charisma, LifePoints, ManaPoints};
+static variant common_potions[] = {Dexterity, Wisdow, Charisma,
+LifePoints, ManaPoints,
+LifePoints, ManaPoints};
+static variant uncommon_potions[] = {Strenght, Dexterity, Wisdow, Charisma,
+LifeRate, ManaRate,
+LifePoints, ManaPoints, Speed};
+static variant rare_potions[] = {AttackMelee, AttackRanged, DamageMelee,
+Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
+Armor, Protection,
+LifeRate, ManaRate,
+LifePoints, ManaPoints, Speed};
 
 itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, NoGender, Organic, {0, D1n3, Bludgeon, 4}, {}, {}, {}, Melee},
 {"Боевой топор", 850, 5 * GP, Male, Iron, {-4, D1n8, Slashing}, {}, {}, {Versatile}, Melee, FocusAxes},
@@ -76,9 +86,9 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, NoGender, Organic, {0, D1n3, B
 //
 {"Зелье", 15, 20 * GP, NoGender, Glass, {}, {}, common_potions, {}, Drinkable},
 {"Зелье", 20, 30 * GP, NoGender, Glass, {}, {}, common_potions, {}, Drinkable},
-{"Зелье", 10, 40 * GP, NoGender, Glass, {}, {}, common_potions, {}, Drinkable},
-{"Зелье", 10, 45 * GP, NoGender, Glass, {}, {}, common_potions, {}, Drinkable},
-{"Зелье", 5, 50 * GP, NoGender, Glass, {}, {}, common_potions, {}, Drinkable},
+{"Зелье", 10, 40 * GP, NoGender, Glass, {}, {}, uncommon_potions, {}, Drinkable},
+{"Зелье", 10, 45 * GP, NoGender, Glass, {}, {}, rare_potions, {}, Drinkable},
+{"Зелье", 5, 50 * GP, NoGender, Glass, {}, {}, rare_potions, {}, Drinkable},
 //
 {"Кольцо", 0, 0 * GP, NoGender, Iron, {}, {}, {}, {}},
 {"Кольцо", 0, 0 * GP, NoGender, Iron, {}, {}, {}, {}},
@@ -281,4 +291,14 @@ variant item::geteffect() const {
 	if(ei.effects.getcount() > 0)
 		return ei.effects[effect];
 	return variant();
+}
+
+armori item::getarmor() const {
+	auto result = getitem().armor;
+	auto b = getbonus() - damaged;
+	result.protection += b*result.protection_bonus;
+	result.armor += b*result.armor_bonus;
+	if(result.armor < 0)
+		result.armor = 0;
+	return result;
 }

@@ -111,24 +111,26 @@ void creature::dresson() {
 }
 
 void creature::dress(int m) {
-	for(auto i = Head; i <= Legs; i = (slot_s)(i + 1)) {
+	static slot_s enchant_slots[] = {Head, Neck, TorsoBack, Torso, OffHand, RightFinger, LeftFinger, Elbows, Legs};
+	// Modify armor abilities
+	for(auto i : enchant_slots) {
 		if(!wears[i])
 			continue;
-		auto mi = wears[i].getbonus();
-		auto& ei = wears[i].getitem();
-		auto wa = m * ei.weapon.attack;
-		if(i != Melee && i != Ranged && (i != OffHand || !wears[i].is(Light))) {
-			abilities[AttackMelee] += wa;
-			abilities[AttackRanged] += wa;
-		}
-		switch(i) {
-		case TorsoBack: abilities[Protection] += m * mi * 2; break;
-		case Elbows: case Legs: abilities[Protection] += m * mi * 3; break;
-		case Torso: case Head: abilities[Protection] += m * mi * 4; break;
-		}
-		abilities[Protection] += m * ei.armor.protection;
-		abilities[Deflect] += m * ei.armor.deflect;
-		abilities[Armor] += m * ei.armor.armor;
+		auto ei = wears[i].getarmor();
+		abilities[Protection] += m * ei.protection;
+		abilities[Deflect] += m * ei.deflect;
+		abilities[Armor] += m * ei.armor;
+	}
+	// Modify weapon abilities
+	for(auto i : enchant_slots) {
+		if(!wears[i])
+			continue;
+		if(i == OffHand && wears[i].getitem().slot != OffHand)
+			continue;
+		auto& ei = wears[i].getitem().weapon;
+		auto wa = ei.attack - wears[i].getdamage();
+		abilities[AttackMelee] += m * wa;
+		abilities[AttackRanged] += m * wa;
 	}
 }
 

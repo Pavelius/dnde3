@@ -40,17 +40,8 @@ skilli bsmeta<skilli>::elements[] = {{"Торговля", "торговли", {Charisma, Intelle
 {"Владение топором", "сражения на топорах", {Strenght, Constitution}, {5, 15, 30}},
 {"Владение двуручным оружием", "двуручного оружия", {Strenght, Strenght}, {4, 10, 35}},
 {"Сражение двумя оружиями", "ужасного оружия", {Strenght, Dexterity}, {5, 30, 15}},
-//
-{"Сопротивление кислоте", "кислоты", {Dexterity, Constitution}},
-{"Сопротивление шарму", "красоты и любви", {Wisdow, Wisdow}},
-{"Сопротивление холоду", "холода", {Constitution, Strenght}},
-{"Сопротивление электричеству", "молнии", {Dexterity, Dexterity}},
-{"Сопротивление огню", "огня", {Constitution, Dexterity}},
-{"Сопротивление параличу", "паралича", {Constitution, Dexterity}},
-{"Сопротивление яду", "яда", {Constitution, Constitution}},
-{"Дыхание водой", "воды", {Strenght, Constitution}},
 };
-assert_enum(skill, ResistWater);
+assert_enum(skill, LastSkill);
 
 skill_s	skilli::getid() const {
 	return skill_s(this - bsmeta<skilli>::elements);
