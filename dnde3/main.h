@@ -414,6 +414,7 @@ public:
 	armori				getarmor() const;
 	attacki				getattack() const;
 	int					getbonus() const;
+	unsigned			getcost() const;
 	int					getcount() const { return count + 1; }
 	int					getdamage() const { return damaged; }
 	variant				geteffect() const;
@@ -425,9 +426,7 @@ public:
 	const char*			getname() const { return getitem().name; }
 	void				getname(stringbuilder& sb, bool show_cab) const;
 	int					getquality() const { return quality; }
-	int					getsalecost() const;
 	void				getstatistic(stringbuilder& sb) const;
-	attacki				getweapon() const;
 	creature*			getwearer() const;
 	slot_s				getwearerslot() const;
 	int					getweightsingle() const { return getitem().weight; }
@@ -565,6 +564,7 @@ class creature : public nameable, public posable {
 	void				dresssk(int m);
 	void				dresssa(int m);
 	void				dropdown(item& item);
+	void				dropitems();
 	void				equip(item it, slot_s id);
 	void				finish();
 	void				move(indext index, bool runaway);

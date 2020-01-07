@@ -370,3 +370,11 @@ void item::setquality(int v) {
 	if(p)
 		p->dresson();
 }
+
+void item::loot() {
+	set(Unknown);
+}
+
+unsigned item::getcost() const {
+	return 0;
+}

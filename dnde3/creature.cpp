@@ -8,6 +8,7 @@ static creature*	current_player;
 const int			restore_points_percent = 75;
 const int			chance_act = 40;
 const int			chance_blood_when_dead = 70;
+const int			chance_drop_item = 40;
 
 void creature::clear() {
 	memset(this, 0, sizeof(*this));
@@ -954,11 +955,32 @@ void creature::bloodstain() const {
 	loc->set(getposition(), Blooded);
 }
 
+void creature::dropitems() {
+	auto loc = location::getactive();
+	if(!loc)
+		return;
+	auto index = getposition();
+	for(auto i = Backpack; i <= Amunitions; i = (slot_s)(i + 1)) {
+		auto& e = wears[i];
+		if(!e)
+			continue;
+		if(e.getmagic() == Mundane) {
+			if(d100() >= chance_drop_item)
+				continue;
+		}
+		e.loot();
+		loc->drop(index, e);
+		e.clear();
+	}
+}
+
 void creature::kill() {
-	applyaward();
 	if(d100() < chance_blood_when_dead)
 		bloodstain();
+	applyaward();
 	unlink();
+	dressoff();
+	dropitems();
 	clear();
 }
 
