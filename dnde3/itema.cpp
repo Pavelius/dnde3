@@ -28,6 +28,16 @@ void itema::select(indext index) {
 	count = ps - data;
 }
 
+void itema::matchboost(variant v) {
+	auto ps = data;
+	for(auto p : *this) {
+		if(!p->isboost(v))
+			continue;
+		*ps++ = p;
+	}
+	count = ps - data;
+}
+
 void itema::match(slot_s v) {
 	auto ps = data;
 	for(auto p : *this) {

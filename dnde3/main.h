@@ -204,7 +204,7 @@ enum item_flag_s : unsigned char {
 enum variant_s : unsigned char {
 	NoVariant,
 	Ability, Alignment, Creature, Enchantment, Formula,
-	God, Item,
+	God, Item, ItemType,
 	Number, Race, Range, Role, Skill, Spell, State, Target,
 	Variant,
 };
@@ -234,12 +234,13 @@ struct variant {
 	constexpr variant(enchantment_s v) : type(Enchantment), value(v) {}
 	constexpr variant(formula_s v) : type(Formula), value(v) {}
 	constexpr variant(item_s v) : type(Item), value(v) {}
+	constexpr variant(item_type_s v) : type(ItemType), value(v) {}
 	constexpr variant(role_s v) : type(Role), value(v) {}
 	constexpr variant(skill_s v) : type(Skill), value(v) {}
 	constexpr variant(spell_s v) : type(Spell), value(v) {}
 	constexpr variant(state_s v) : type(State), value(v) {}
 	constexpr variant(target_s v) : type(Target), value(v) {}
-	constexpr variant(variant_s v) : type(v ? Variant : NoVariant), value(v) {}
+	constexpr variant(variant_s v) : type(Variant), value(v) {}
 	constexpr variant(int v) : type(Number), value(v) {}
 	variant(const creature* v);
 	explicit operator bool() const { return type != NoVariant; }
@@ -440,6 +441,7 @@ public:
 	bool				is(slot_s v) const;
 	bool				is(item_flag_s v) const { return getitem().flags.is(v); }
 	bool				isartifact() const { return magic == Artifact; }
+	bool				isboost(variant id) const;
 	bool				ischargeable() const { return getitem().charges > 0; }
 	bool				iscountable() const { return getitem().count > 0; }
 	bool				iscursed() const { return magic == Cursed; }
@@ -467,6 +469,7 @@ public:
 	item*				choose(bool interactive, const char* title, const char* format, slot_mode_s mode);
 	void				footer(stringbuilder& sb) const;
 	void				match(slot_s v);
+	void				matchboost(variant v);
 	void				select(creature& e);
 	void				select(indext index);
 	void				selecta(creature& e);
@@ -556,7 +559,7 @@ class creature : public nameable, public posable {
 	unsigned			money;
 	//
 	void				addboost(variant id, int modifier, unsigned rounds);
-	bool				aiuse(bool interactive, const char* title, slot_s slot);
+	bool				aiuse(bool interactive, const char* title, slot_s slot, variant effect);
 	void				aimove();
 	void				aiturn();
 	void				applyabilities();
@@ -579,10 +582,10 @@ public:
 	void				activate();
 	void				add(variant id, int v, bool interactive);
 	bool				add(item v, bool run, bool interactive);
-	void				add(variant id, int v, unsigned minutes, bool interactive);
+	void				add(variant id, int v, bool interactive, unsigned minutes);
+	void				add(variant id, int v, bool interactive, item_type_s magic, int quality, int damage, int minutes);
 	void				addexp(int count);
 	bool				alertness();
-	bool				apply(variant id, int chance, bool interactive, item_type_s magic = Mundane, int quality = 0, int damage = 0, int minutes = 60);
 	bool				askyn(creature* opponent, const char* format, ...);
 	void				athletics(bool interactive);
 	void				backpack();
@@ -690,6 +693,7 @@ public:
 	void				trapeffect();
 	void				unlink();
 	bool				use(item& it, bool interactive);
+	static bool			usechance(int chance, bool hostile, item_type_s magic, int quality, int damaged);
 	void				useskills();
 	void				wait() { consume(StandartEnergyCost); }
 };

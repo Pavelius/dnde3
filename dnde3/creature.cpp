@@ -810,8 +810,12 @@ void creature::aiturn() {
 	} else {
 		if(d100() < chance_act) {
 			// When we try to stand and think
-			if(needrestore(LifePoints) || needrestore(ManaPoints)) {
-				if(aiuse(false, 0, Edible))
+			if(needrestore(LifePoints)) {
+				if(aiuse(false, 0, Edible, LifePoints))
+					return;
+			}
+			if(needrestore(ManaPoints)) {
+				if(aiuse(false, 0, Edible, ManaPoints))
 					return;
 			}
 		}
@@ -1179,7 +1183,7 @@ bool creature::match(variant id) const {
 	return true;
 }
 
-void creature::add(variant id, int v, unsigned minutes, bool interactive) {
+void creature::add(variant id, int v, bool interactive, unsigned minutes) {
 	add(id, v, interactive);
 	addboost(id, -v, game.getrouns() + minutes);
 }
@@ -1221,94 +1225,94 @@ void creature::paymana(int value, bool interactive) {
 	}
 }
 
-bool creature::apply(variant id, int chance, bool interactive, item_type_s magic, int quality, int damaged, int minutes) {
-	bool need_test = true;
-	bool need_message = true;
-	if(id.type == Ability) {
-		switch(id.value) {
-		case LifePoints:
-		case ManaPoints:
-			need_test = false;
-			break;
-		}
+bool creature::usechance(int chance, bool hostile, item_type_s magic, int quality, int damaged) {
+	if(!chance)
+		return true;
+	auto m = 1;
+	if(chance > 2)
+		m = chance / 2;
+	switch(magic) {
+	case Cursed: quality = -(1 + quality); break;
+	case Blessed: quality += 1; break;
+	case Artifact: quality += 2; break;
 	}
-	if(need_test) {
-		if(chance >= 0) {
-			auto n = getchance(chance, false, quality, damaged);
-			if(d100() >= n)
-				return false;
-		} else {
-			auto n = getchance(-chance, true, quality, damaged);
-			if(d100() >= n)
-				return false;
-		}
-	}
+	if(hostile)
+		chance += m*damaged - quality;
+	else
+		chance += m*quality - damaged;
+	if(chance < 0)
+		return false;
+	if(chance > 100)
+		chance = 100;
+	return d100() < chance;
+}
+
+void creature::add(variant id, int v, bool interactive, item_type_s magic, int quality, int damaged, int minutes) {
 	switch(id.type) {
 	case Ability:
 		switch(id.value) {
 		case LifePoints: case ManaPoints:
-			if(chance >= 0) {
-				if(!chance)
-					chance = xrand(5, 8);
+			if(v >= 0) {
+				if(!v)
+					v = xrand(2, 8);
 				switch(magic) {
 				case Artifact: add(id, (1 + quality) * 3, interactive); break;
 				case Cursed: add(id, -(1 + quality), interactive); break;
 				case Blessed:
 					if(id.value == LifePoints)
-						damage(-5 * (chance + quality * chance), Magic, 0, interactive);
+						damage(-5 * (v + quality * v), Magic, 0, interactive);
 					else
-						paymana(-5 * (chance + quality * chance), interactive);
+						paymana(-5 * (v + quality * v), interactive);
 					break;
 				default:
 					if(id.value == LifePoints)
-						damage(-(chance + quality * chance), Magic, 0, interactive);
+						damage(-(v + quality * v), Magic, 0, interactive);
 					else
-						paymana(-(chance + quality * chance), interactive);
+						paymana(-(v + quality * v), interactive);
 					break;
 				}
-				return true;
 			} else {
-				chance = -chance;
+				v = -v;
 				switch(magic) {
-				case Blessed: case Artifact: return false;
-				case Cursed: damage(5 * (chance + quality * chance), Magic, 0, interactive); break;
-				default: damage(chance + quality * chance, Magic, 0, interactive); break;
+				case Blessed: case Artifact: break;
+				case Cursed: damage(5 * (v + quality * v), Magic, 0, interactive); break;
+				default: damage(v + quality * v, Magic, 0, interactive); break;
 				}
-				return true;
 			}
 			break;
-		case AttackMelee: case AttackRanged: case Protection: case Deflect:
-			if(chance >= 0) {
+		case AttackMelee: case AttackRanged:
+		case Protection: case Deflect:
+		case DamageMelee: case DamageRanged:
+			if(v >= 0) {
 				switch(magic) {
 				case Artifact: add(id, (1 + quality) * 3, interactive); break;
-				case Cursed: add(id, -(20 + quality * 5), minutes * 10, interactive); break;
-				case Blessed: add(id, 20 + quality * 5, minutes * 10, interactive); break;
-				default: add(id, 5 + quality * 3, minutes, interactive); break;
+				case Cursed: add(id, -v, 5 * (minutes + minutes*quality), interactive); break;
+				case Blessed: add(id, v, 5 * (minutes + minutes*quality), interactive); break;
+				default: add(id, v, minutes + minutes*quality, interactive); break;
 				}
 				break;
 			} else {
 				switch(magic) {
-				case Blessed: case Artifact: return false;
-				case Cursed: add(id, -(20 + quality * 5), minutes * 10, interactive); break;
-				default: add(id, -(5 + quality * 3), minutes, interactive); break;
+				case Blessed: case Artifact: break;
+				case Cursed: add(id, v, 5 * (minutes + minutes*quality), interactive); break;
+				default: add(id, v, minutes + minutes*quality, interactive); break;
 				}
 				break;
 			}
 			break;
 		default:
-			if(chance >= 0) {
+			if(v >= 0) {
 				switch(magic) {
 				case Artifact: add(id, 1 + quality, interactive); break;
 				case Cursed: add(id, -(1 + quality), interactive); break;
-				case Blessed: add(id, xrand(1, 3), 10 * minutes * (1 + quality), interactive); break;
-				default: add(id, xrand(1, 3), minutes * (1 + quality), interactive); break;
+				case Blessed: add(id, v + xrand(1, 3), 5 * (minutes + minutes*quality), interactive); break;
+				default: add(id, v, minutes + minutes*quality, interactive); break;
 				}
 			} else {
 				switch(magic) {
-				case Artifact: return false;
-				case Cursed: add(id, -(2 + quality), interactive); break;
-				case Blessed: add(id, 1, minutes - (1 + quality)*minutes / 5, interactive); break;
-				default: add(id, -xrand(1, 3), minutes * (1 + quality), interactive); break;
+				case Artifact: case Blessed: break;
+				case Cursed: add(id, -(1 + quality), interactive); break;
+				default: add(id, v, minutes + minutes*quality, interactive); break;
 				}
 			}
 			break;
@@ -1317,12 +1321,13 @@ bool creature::apply(variant id, int chance, bool interactive, item_type_s magic
 	case State:
 		break;
 	}
-	return true;
 }
 
-bool creature::aiuse(bool interactive, const char* title, slot_s slot) {
+bool creature::aiuse(bool interactive, const char* title, slot_s slot, variant effect) {
 	itema source; source.selectb(*this);
 	source.match(slot);
+	if(effect)
+		source.matchboost(effect);
 	auto pi = source.choose(interactive, title, 0, NoSlotName);
 	if(pi)
 		return use(*pi, interactive);
@@ -1330,11 +1335,11 @@ bool creature::aiuse(bool interactive, const char* title, slot_s slot) {
 }
 
 void creature::drink() {
-	aiuse(isactive(), "Чего хотите выпить?", Drinkable);
+	aiuse(isactive(), "Чего хотите выпить?", Drinkable, {});
 }
 
 void creature::eat() {
-	aiuse(isactive(), "Что хотите съесть?", Edible);
+	aiuse(isactive(), "Что хотите съесть?", Edible, {});
 }
 
 void creature::backpack() {

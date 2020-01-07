@@ -239,6 +239,10 @@ bool item::match(variant v) const {
 		if(type != v.value)
 			return false;
 		break;
+	case ItemType:
+		if(magic != v.value)
+			return false;
+		break;
 	}
 	return true;
 }
@@ -253,5 +257,5 @@ variant item::geteffect() const {
 	auto& ei = getitem();
 	if(ei.effects.getcount()>0)
 		return ei.effects[effect];
-	return NoVariant;
+	return variant();
 }
