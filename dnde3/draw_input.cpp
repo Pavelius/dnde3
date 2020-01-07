@@ -1248,7 +1248,7 @@ static void render_item(int x, int y, int width, const item& e) {
 	if(!e)
 		return;
 	auto ps_fore = fore;
-	if(e.isidentified()) {
+	if(e.is(KnownMagic)) {
 		switch(e.getmagic()) {
 		case Cursed: fore = colors::red; break;
 		case Blessed: fore = colors::green; break;
@@ -1259,9 +1259,11 @@ static void render_item(int x, int y, int width, const item& e) {
 	e.getname(sb, false);
 	szupper(temp, 1);
 	text(x, y, temp);
-	sb.clear();
-	e.getstatistic(sb);
-	text(x + width - 160, y, temp);
+	if(e.is(KnownStats)) {
+		sb.clear();
+		e.getstatistic(sb);
+		text(x + width - 160, y, temp);
+	}
 	fore = ps_fore;
 	//line(x + width, y, x + width, y + 10, colors::red);
 }

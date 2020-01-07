@@ -54,7 +54,7 @@ void foodi::apply(creature* player, const item it, bool interactive) const {
 
 bool item::isboost(variant id) const {
 	// Simple case, when item have effect
-	if(isidentified()) {
+	if(is(KnownPower)) {
 		auto e = geteffect();
 		if(e == id)
 			return true;

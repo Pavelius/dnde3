@@ -14,13 +14,13 @@ static creature* create(location& loc, role_s type) {
 
 static void create(creature* p1, item_s type) {
 	item it(type, 3, 20, 6, 30);
-	it.setidentify(1);
+	it.set(KnownPower);
 	p1->add(it, true, false);
 }
 
 static void create(creature* p1, item_s type, variant effect) {
 	item it(type, 5, 20, 6, 40);
-	it.setidentify(1);
+	it.set(KnownPower);
 	it.seteffect(effect);
 	p1->add(it, true, false);
 }
@@ -65,7 +65,7 @@ static void modify_weapon(creature* p1) {
 	pi->seteffect(Attack);
 	pi->set(Cursed);
 	pi->setquality(3);
-	pi->setidentify(1);
+	//pi->setidentify(1);
 }
 
 static void test_indoor() {

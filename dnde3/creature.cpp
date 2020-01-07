@@ -195,6 +195,8 @@ void creature::raise(skill_s value) {
 }
 
 void creature::equip(item it, slot_s id) {
+	if(id >= Head && id <= Amunitions)
+		it.set(KnownStats);
 	dressoff();
 	wears[id] = it;
 	dresson();
@@ -252,6 +254,7 @@ bool creature::equip(item& v1, item& v2, bool run) {
 	v1 = v2;
 	v2 = v;
 	dresson();
+	v1.set(KnownStats);
 	return true;
 }
 
@@ -559,9 +562,8 @@ bool creature::remove(item& e, bool run, bool talk) {
 				"Мое сокровище! Моя прелесть!",
 			};
 			say(maprnd(text));
+			e.set(KnownPower);
 		}
-		if(run)
-			e.setidentify(true);
 		return false;
 	} else if(e.is(Natural)) {
 		if(talk) {

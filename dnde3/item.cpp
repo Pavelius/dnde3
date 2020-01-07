@@ -208,16 +208,16 @@ void item::getstatistic(stringbuilder& sb) const {
 void item::getname(stringbuilder& sb, bool show_cab) const {
 	auto& ei = getitem();
 	if(show_cab) {
-		if(isidentified())
+		if(is(KnownMagic))
 			sb.adds(bsmeta<item_typei>::elements[getmagic()].name[ei.gender]);
 	}
 	sb.adds("%-1", getname());
-	if(isidentified()) {
+	if(is(KnownPower)) {
 		int q = quality;
 		if(ei.slot >= Head && ei.slot <= Amunitions)
 			q = getbonus();
-		auto effect = geteffect();
 		const char* format = "%+1i";
+		auto effect = geteffect();
 		if(effect) {
 			if(q < 0)
 				sb.adds(effect.getnameofc());
@@ -296,10 +296,7 @@ int	item::getbonus() const {
 		m = 1 + quality;
 		break;
 	case Cursed:
-		if(isidentified())
-			return -1 - (int)quality;
-		else
-			return 1 + quality;
+		return -1 - (int)quality;
 	default:
 		m = quality;
 		break;
@@ -354,13 +351,15 @@ void item::set(item_type_s v) {
 		p->dresson();
 }
 
-void item::setidentify(int v) {
-	auto p = getwearer();
-	if(p)
-		p->dressoff();
-	identify = v;
-	if(p)
-		p->dresson();
+void item::set(identify_s v) {
+	if(!v || v > identify) {
+		auto p = getwearer();
+		if(p)
+			p->dressoff();
+		identify = v;
+		if(p)
+			p->dresson();
+	}
 }
 
 void item::setquality(int v) {

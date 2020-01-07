@@ -199,6 +199,9 @@ enum formula_s : unsigned char {
 enum slot_mode_s : unsigned char {
 	NoSlotName, SlotName, SlotWhere
 };
+enum identify_s : unsigned char {
+	Unknown, KnownStats, KnownMagic, KnownPower,
+};
 typedef short unsigned indext;
 typedef flagable<1 + Chaotic / 8> alignmenta;
 typedef flagable<1 + LastState / 8> statea;
@@ -391,7 +394,7 @@ class item {
 	//
 	item_type_s			magic : 2;
 	unsigned char		quality : 2;
-	unsigned char		identify : 1;
+	identify_s			identify : 2;
 	unsigned char		forsale : 1;
 	//
 	unsigned char		count : 6;
@@ -399,7 +402,7 @@ class item {
 	//
 	unsigned char		effect;
 public:
-	constexpr item() : type(NoItem), effect(0), count(0), magic(Mundane), quality(0), identify(0), forsale(0), damaged(0) {}
+	constexpr item() : type(NoItem), effect(0), count(0), magic(Mundane), quality(0), identify(Unknown), forsale(0), damaged(0) {}
 	item(item_s type);
 	item(item_s type, int chance_artifact, int chance_magic, int chance_cursed, int chance_quality);
 	explicit operator bool() const { return type != NoItem; }
@@ -430,6 +433,7 @@ public:
 	int					getweightsingle() const { return getitem().weight; }
 	int					getweight() const { return getweightsingle()*getcount(); }
 	bool				is(slot_s v) const;
+	bool				is(identify_s v) const { return v ? identify >= v : (v == identify); }
 	bool				is(item_flag_s v) const { return getitem().flags.is(v); }
 	bool				isartifact() const { return magic == Artifact; }
 	bool				isboost(variant id) const;
@@ -438,17 +442,16 @@ public:
 	bool				iscursed() const { return magic == Cursed; }
 	bool				isdamaged() const { return damaged != 0; }
 	bool				isforsale() const { return forsale != 0; }
-	bool				isidentified() const { return identify != 0; }
 	bool				ismagical() const { return magic != Mundane; }
 	bool				isunbreakable() const { return magic != Mundane; }
 	void				loot();
 	bool				match(variant v) const;
 	void				repair(int level);
 	void				set(item_type_s v);
+	void				set(identify_s v);
 	void				setcharges(int v);
 	void				setcount(int v);
 	void				seteffect(variant v);
-	void				setidentify(int v);
 	void				setquality(int v);
 	void				setsale(int v) { forsale = v; }
 	bool				use();
