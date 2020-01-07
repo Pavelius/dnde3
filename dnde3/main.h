@@ -51,25 +51,6 @@ enum slot_s : unsigned char {
 	Backpack, Edible, Readable, Drinkable, LastBackpack = Backpack + 31,
 	Head, Neck, Melee, OffHand, TorsoBack, Torso, RightFinger, LeftFinger, Elbows, Legs, Ranged, Amunitions,
 };
-enum enchantment_s : unsigned char {
-	NoEffect,
-	OfArmor,
-	OfCharisma, OfCold, OfConstitution,
-	OfDefence, OfDexterity,
-	OfHoliness,
-	OfFire,
-	OfIntellegence,
-	OfMana, OfMissileDeflection,
-	OfOrcSlying,
-	OfParalize, OfPoison, OfPrecision,
-	OfRegeneration,
-	OfSickness, OfSharping, OfSlowing, OfSmashing, OfSpeed, OfStrenght, OfSustenance,
-	OfVampirism, OfWeakness, OfWisdow,
-	// Resistances
-	OfAcidResistance, OfCharmResistance, OfColdResistance, OfFireResistance, OfParalizeResistance,
-	OfElectricityResistance, OfPoisonResistance, OfWaterproof,
-	LastEnchantment = OfWaterproof,
-};
 enum race_s : unsigned char {
 	Human, Dwarf, Elf, Halfling,
 	Goblin, Kobold, Orc, Gnoll,
@@ -231,7 +212,6 @@ struct variant {
 	constexpr variant(diety_s v) : type(God), value(v) {}
 	constexpr variant(range_s v) : type(Range), value(v) {}
 	constexpr variant(race_s v) : type(Race), value(v) {}
-	constexpr variant(enchantment_s v) : type(Enchantment), value(v) {}
 	constexpr variant(formula_s v) : type(Formula), value(v) {}
 	constexpr variant(item_s v) : type(Item), value(v) {}
 	constexpr variant(item_type_s v) : type(ItemType), value(v) {}
@@ -411,7 +391,7 @@ class item {
 	//
 	unsigned char		effect;
 public:
-	constexpr item() : type(NoItem), effect(NoEffect), count(0), magic(Mundane), quality(0), identify(0), forsale(0), damaged(0) {}
+	constexpr item() : type(NoItem), effect(0), count(0), magic(Mundane), quality(0), identify(0), forsale(0), damaged(0) {}
 	item(item_s type);
 	item(item_s type, int chance_artifact, int chance_magic, int chance_cursed, int chance_quality);
 	explicit operator bool() const { return type != NoItem; }
@@ -454,14 +434,14 @@ public:
 	void				loot();
 	bool				match(variant v) const;
 	void				repair(int level);
-	item&				set(item_type_s value) { magic = value; return *this; }
-	item&				set(enchantment_s value) { effect = value; return *this; }
-	item&				setcharges(int count);
-	item&				setcount(int count);
-	item&				setforsale() { forsale = 1; return *this; }
-	item&				setidentify(bool v) { identify = v; return *this; }
-	item&				setsold() { forsale = 0;  return *this; }
-	item&				setquality(unsigned char value) { quality = value; return *this; }
+	void				set(item_type_s v) { magic = v; }
+	void				setcharges(int v);
+	void				setcount(int v);
+	void				seteffect(variant v);
+	void				setforsale() { forsale = 1; }
+	void				setidentify(int v) { identify = v; }
+	void				setquality(unsigned char v) { quality = v; }
+	void				setsale(int v) { forsale = v; }
 	bool				use();
 };
 class itema : public adat<item*> {
@@ -559,7 +539,7 @@ class creature : public nameable, public posable {
 	unsigned			experience;
 	unsigned			money;
 	//
-	void				addboost(variant id, int modifier, unsigned rounds);
+	void				addx(variant id, int modifier, unsigned rounds);
 	bool				aiuse(bool interactive, const char* title, slot_s slot, variant effect);
 	void				aimove();
 	void				aiturn();
@@ -582,9 +562,9 @@ public:
 	//
 	void				activate();
 	void				add(variant id, int v, bool interactive);
-	bool				add(item v, bool run, bool interactive);
 	void				add(variant id, int v, bool interactive, unsigned minutes);
 	void				add(variant id, int v, bool interactive, item_type_s magic, int quality, int damage, int minutes);
+	bool				add(item v, bool run, bool interactive);
 	void				addexp(int count);
 	bool				alertness();
 	bool				askyn(creature* opponent, const char* format, ...);
@@ -607,7 +587,6 @@ public:
 	void				drink();
 	void				dropdown();
 	void				eat();
-	bool				eat(item it, bool interactive);
 	bool				equip(item value);
 	bool				equip(item& v1, item& v2, bool run);
 	void				enslave();
@@ -624,6 +603,7 @@ public:
 	int					getaward() const { return 10 + 15 * get(Level); }
 	int					getbasic(ability_s value) const;
 	int					getbasic(skill_s v) const { return skills[v]; }
+	int					getboost(variant id) const;
 	const classi&		getclass() const { return bsmeta<classi>::elements[kind]; }
 	direction_s			getdirection() const { return direction; }
 	encumbrance_s		getencumbrance() const { return encumbrance; }
@@ -685,7 +665,6 @@ public:
 	void				setcharmer(const creature* p) { charmer = p->getid(); }
 	void				setguard(short unsigned value) { guard = value; }
 	void				sethorror(const creature* p) { horror = p->getid(); }
-	void				setlos();
 	void				setmoney(int value) { money = value; }
 	void				shoot();
 	void				testweapons();
@@ -698,7 +677,6 @@ public:
 };
 class creaturea : public adat<creature*> {
 public:
-	void				add(const creature* e);
 	creature*			choose(bool interactive, const char* title);
 	void				match(state_s i);
 	void				match(const alignmenta& v);
@@ -859,7 +837,7 @@ class gamei {
 	void				playactive();
 public:
 	void				applyboost();
-	int					getrouns() const { return rounds; }
+	int					getrounds() const { return rounds; }
 	void				intialize();
 	static void			help();
 	void				play();

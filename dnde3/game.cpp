@@ -37,6 +37,7 @@ void gamei::playactive() {
 				need_continue = false;
 		}
 		rounds++; // One round is one minute
+		applyboost();
 	}
 }
 

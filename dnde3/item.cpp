@@ -129,7 +129,7 @@ item::item(item_s item_type, int chance_artifact, int chance_magic, int chance_c
 			magic = Artifact;
 	}
 	quality = 0;
-	if(chance_quality && d100() < chance_quality) {
+	if(chance_quality && (d100() < chance_quality)) {
 		static char quality_chances[] = {1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3};
 		quality = maprnd(quality_chances);
 	}
@@ -215,21 +215,34 @@ void item::getname(stringbuilder& sb, bool show_cab) const {
 		sb.adds("%1iøò.", n);
 }
 
-item& item::setcount(int count) {
-	if(!count) {
-		auto p = getwearer();
-		if(p)
-			p->dressoff();
+void item::seteffect(variant v) {
+	auto p = getwearer();
+	if(p)
+		p->dressoff();
+	auto source = getitem().effects;
+	if(source) {
+		auto n = source.indexof(v);
+		if(n != -1)
+			effect = n;
+	}
+	if(p)
+		p->dresson();
+}
+
+void item::setcount(int count) {
+	auto p = getwearer();
+	if(p)
+		p->dressoff();
+	if(!count)
 		clear();
-		if(p)
-			p->dresson();
-	} else if(iscountable()) {
+	else if(iscountable()) {
 		auto mc = getitem().count;
 		if(count > mc)
 			count = mc;
 		this->count = count - 1;
 	}
-	return *this;
+	if(p)
+		p->dresson();
 }
 
 bool item::use() {

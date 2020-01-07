@@ -14,7 +14,14 @@ static creature* create(location& loc, role_s type) {
 
 static void create(creature* p1, item_s type) {
 	item it(type, 5, 20, 6, 40);
-	it.setidentify(true);
+	it.setidentify(1);
+	p1->add(it, true, false);
+}
+
+static void create(creature* p1, item_s type, variant effect) {
+	item it(type, 5, 20, 6, 40);
+	it.setidentify(1);
+	it.seteffect(effect);
 	p1->add(it, true, false);
 }
 
@@ -92,6 +99,7 @@ static void test_indoor() {
 	p1->activate();
 	p1->damage(6, Bludgeon, 100);
 	create(p1, Potion1);
+	create(p1, Potion1, Dexterity);
 	create(p1, BracersLeather);
 	create(p1, Boot1);
 	create(p1, Helmet);
@@ -132,7 +140,7 @@ int main(int argc, char* argv[]) {
 }
 
 int __stdcall WinMain(void* ci, void* pi, char* cmd, int sw) {
-	//srand((unsigned)time(0));
-	srand(12200);
+	srand((unsigned)time(0));
+	//srand(12200);
 	return main(0, 0);
 }

@@ -56,7 +56,7 @@ void creature::add(variant id, int v, bool interactive) {
 	}
 }
 
-void creature::addboost(variant id, int modifier, unsigned rounds) {
+void creature::addx(variant id, int modifier, unsigned rounds) {
 	auto p = bsmeta<boosti>::add();
 	p->id = id;
 	p->modifier = modifier;
@@ -414,7 +414,7 @@ attacki creature::getattack(slot_s id, const item& weapon) const {
 }
 
 int creature::getbasic(ability_s id) const {
-	return abilities[id];
+	return abilities[id] + getboost(id);
 }
 
 void creature::activate() {
@@ -1193,7 +1193,7 @@ bool creature::match(variant id) const {
 
 void creature::add(variant id, int v, bool interactive, unsigned minutes) {
 	add(id, v, interactive);
-	addboost(id, -v, game.getrouns() + minutes);
+	addx(id, -v, game.getrounds() + minutes);
 }
 
 static int getchance(int chance, bool hostile, int quality, int damage) {
@@ -1294,16 +1294,16 @@ void creature::add(variant id, int v, bool interactive, item_type_s magic, int q
 			if(v >= 0) {
 				switch(magic) {
 				case Artifact: add(id, (1 + quality) * 2, interactive); break;
-				case Cursed: add(id, -v, 5 * (minutes + minutes*quality), interactive); break;
-				case Blessed: add(id, v, 5 * (minutes + minutes*quality), interactive); break;
-				default: add(id, v, minutes + minutes*quality, interactive); break;
+				case Cursed: add(id, -v, interactive, 5 * (minutes + minutes*quality)); break;
+				case Blessed: add(id, v, interactive, 5 * (minutes + minutes*quality)); break;
+				default: add(id, v, interactive, minutes + minutes*quality); break;
 				}
 				break;
 			} else {
 				switch(magic) {
 				case Blessed: case Artifact: break;
-				case Cursed: add(id, v, 5 * (minutes + minutes*quality), interactive); break;
-				default: add(id, v, minutes + minutes*quality, interactive); break;
+				case Cursed: add(id, v, interactive, 5 * (minutes + minutes*quality)); break;
+				default: add(id, v, interactive, minutes + minutes*quality); break;
 				}
 				break;
 			}
@@ -1313,14 +1313,14 @@ void creature::add(variant id, int v, bool interactive, item_type_s magic, int q
 				switch(magic) {
 				case Artifact: add(id, 1 + quality, interactive); break;
 				case Cursed: add(id, -(1 + quality), interactive); break;
-				case Blessed: add(id, v + xrand(1, 3), 5 * (minutes + minutes*quality), interactive); break;
-				default: add(id, v, minutes + minutes*quality, interactive); break;
+				case Blessed: add(id, v + xrand(1, 3), interactive, 5 * (minutes + minutes*quality)); break;
+				default: add(id, v, interactive, minutes + minutes*quality); break;
 				}
 			} else {
 				switch(magic) {
 				case Artifact: case Blessed: break;
 				case Cursed: add(id, -(1 + quality), interactive); break;
-				default: add(id, v, minutes + minutes*quality, interactive); break;
+				default: add(id, v, interactive, minutes + minutes*quality); break;
 				}
 			}
 			break;
@@ -1353,4 +1353,14 @@ void creature::eat() {
 void creature::backpack() {
 	itema source; source.selectb(*this);
 	source.choose(true, "аўъчръ", 0, NoSlotName);
+}
+
+int	creature::getboost(variant id) const {
+	auto owner = getid();
+	auto result = 0;
+	for(auto& e : bsmeta<boosti>()) {
+		if(e.owner == owner && e.id == id)
+			result += e.modifier;
+	}
+	return result;
 }
