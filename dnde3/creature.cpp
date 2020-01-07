@@ -555,7 +555,7 @@ void creature::inventory() {
 bool creature::remove(item& e, bool run, bool talk) {
 	if(!e)
 		return false;
-	if(e.iscursed()) {
+	if(e.is(Cursed)) {
 		if(talk) {
 			static const char* text[] = {
 				"Уберите руки! Это мое!",

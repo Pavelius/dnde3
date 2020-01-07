@@ -1,5 +1,13 @@
 #include "main.h"
 
+const int basic_enchantment_cost = 100;
+
+static const char* power_text[][3] = {{"обычное", "обычный", "обычная"},
+{"улучшенное", "улучшенный", "улучшенная"},
+{"сильное", "сильный", "сильная"},
+{"могущественное", "могущественный", "могущественная"},
+};
+
 static variant common_potions[] = {Dexterity, Wisdow, Charisma,
 LifePoints, ManaPoints,
 LifePoints, ManaPoints};
@@ -90,14 +98,14 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, NoGender, Organic, {0, 3, {1, 
 {"Книга", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
 {"Книга", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
 {"Книга", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
-{"Книга", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
-{"Книга", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+{"Мануал", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
+{"Том", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
 //
 {"Зелье", 15, 20 * GP, NoGender, Glass, {}, {}, common_potions, {}, Drinkable},
 {"Зелье", 20, 30 * GP, NoGender, Glass, {}, {}, common_potions, {}, Drinkable},
 {"Зелье", 10, 40 * GP, NoGender, Glass, {}, {}, uncommon_potions, {}, Drinkable},
-{"Зелье", 10, 45 * GP, NoGender, Glass, {}, {}, rare_potions, {}, Drinkable},
-{"Зелье", 5, 50 * GP, NoGender, Glass, {}, {}, rare_potions, {}, Drinkable},
+{"Экстракт", 10, 45 * GP, Male, Glass, {}, {}, rare_potions, {}, Drinkable},
+{"Элексир", 5, 50 * GP, Male, Glass, {}, {}, rare_potions, {}, Drinkable},
 //
 {"Кольцо", 1, 35 * GP, NoGender, Iron, {}, {}, ring_enchanments, {}, RightFinger},
 {"Кольцо", 1, 40 * GP, NoGender, Iron, {}, {}, ring_enchanments, {}, RightFinger},
@@ -207,15 +215,17 @@ void item::getstatistic(stringbuilder& sb) const {
 
 void item::getname(stringbuilder& sb, bool show_cab) const {
 	auto& ei = getitem();
+	int q = quality;
+	if(ei.slot >= Head && ei.slot <= Amunitions)
+		q = getbonus();
+	else if(is(Cursed))
+
 	if(show_cab) {
 		if(is(KnownMagic))
 			sb.adds(bsmeta<item_typei>::elements[getmagic()].name[ei.gender]);
 	}
 	sb.adds("%-1", getname());
 	if(is(KnownPower)) {
-		int q = quality;
-		if(ei.slot >= Head && ei.slot <= Amunitions)
-			q = getbonus();
 		const char* format = "%+1i";
 		auto effect = geteffect();
 		if(effect) {
@@ -375,6 +385,19 @@ void item::loot() {
 	set(Unknown);
 }
 
+unsigned getenchantcost(variant id, item_type_s magic, int quality) {
+	static int power_cost[] = {0, 0, 1, 10};
+	auto m = 2;
+	switch(id.type) {
+	case Ability: m += bsmeta<abilityi>::elements[id.value].cost; break;
+	case Skill: m += 1; break;
+	}
+	m += power_cost[magic];
+	m += quality;
+	return m * basic_enchantment_cost;
+}
+
 unsigned item::getcost() const {
-	return 0;
+	return bsmeta<itemi>::elements[type].cost
+		+ getenchantcost(geteffect(), getmagic(), quality);
 }

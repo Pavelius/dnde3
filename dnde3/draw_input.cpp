@@ -1502,7 +1502,7 @@ static hotkey adventure_keys[] = {{F1, "Выбрать первого героя", change_player, 0
 {Alpha + 'V', "Рюкзак", &creature::backpack},
 {Ctrl + Alpha + 'D', "Выпить что-то", &creature::drink},
 {Ctrl + Alpha + 'E', "Чъесть что-то", &creature::eat},
-{Ctrl + Alpha + 'B', "Выпить что-то", &creature::enslave},
+{Ctrl + Alpha + 'B', "Поработить для отладки", &creature::enslave},
 {Ctrl + Alpha + 'W', "Тестировать оружие", &creature::testweapons},
 {}};
 

@@ -11,7 +11,6 @@ const short unsigned mmx = 96;
 const short unsigned mmy = 96;
 const unsigned short Blocked = 0xFFFF;
 const int StandartEnergyCost = 1000;
-const int enchantment_cost_gp = 100;
 
 enum dice_s : unsigned char {
 	NoDice,
@@ -286,6 +285,7 @@ struct abilityi {
 	varianta			formula;
 	char				bonus_base, bonus_multiplier;
 	const char*			format;
+	char				cost;
 	//
 	ability_s			getid() const;
 	int					getbonus(int v) const;
@@ -434,14 +434,11 @@ public:
 	bool				is(slot_s v) const;
 	bool				is(identify_s v) const { return v ? identify >= v : (v == identify); }
 	bool				is(item_flag_s v) const { return getitem().flags.is(v); }
-	bool				isartifact() const { return magic == Artifact; }
+	bool				is(item_type_s v) const { return magic == v; }
 	bool				isboost(variant id) const;
 	bool				ischargeable() const { return getitem().charges > 0; }
 	bool				iscountable() const { return getitem().count > 0; }
-	bool				iscursed() const { return magic == Cursed; }
 	bool				isdamaged() const { return damaged != 0; }
-	bool				isforsale() const { return forsale != 0; }
-	bool				ismagical() const { return magic != Mundane; }
 	bool				isunbreakable() const { return magic != Mundane; }
 	void				loot();
 	bool				match(variant v) const;
