@@ -1483,7 +1483,7 @@ void location::minimap(int x, int y, point camera) const {
 	color stairs = colors::red.darken().darken();
 	color water = colors::blue;
 	color road = color::create(94, 70, 51).mix(floor, 192);
-	color border = color::create(128, 128, 128);
+	color border = colors::white;
 	for(int y1 = 0; y1 < mmy; y1++) {
 		int x3 = x;
 		for(int x1 = 0; x1 < mmx; x1++, x3 += mmaps) {

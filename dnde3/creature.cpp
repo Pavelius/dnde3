@@ -199,6 +199,10 @@ void creature::equip(item it, slot_s id) {
 }
 
 bool creature::add(item v, bool run, bool talk) {
+	if(v.is(Coinable)) {
+		money += v.getcost();
+		return true;
+	}
 	// Second place item to backpack
 	for(auto i = Backpack; i <= LastBackpack; i = (slot_s)(i + 1)) {
 		if(wears[i])
@@ -321,25 +325,27 @@ static spell_s choose_spells(creature* p) {
 	return source[rand() % count];
 }
 
+void creature::add(variant id, int v) {
+	add(id, v, false);
+	if(id.type==Item) {
+		auto& ei = bsmeta<itemi>::elements[id.value];
+		if(ei.weapon.ammunition) {
+			item it(ei.weapon.ammunition, v);
+			it.setcount(xrand(10, 20));
+			equip(it);
+		}
+	}
+}
+
 static void start_equipment(creature& e) {
 	for(auto& ei : bsmeta<equipmenti>()) {
 		if((!ei.race || ei.race == e.getrace()) && e.is(ei.type)) {
-			for(auto ef : ei.features) {
-				e.add(ef, 1, false);
-				switch(ef.type) {
-				case Item:
-					if(true) {
-						auto& ei = bsmeta<itemi>::elements[ef.value];
-						if(ei.weapon.ammunition)
-							e.add(ei.weapon.ammunition, 1, false);
-					}
-					break;
-				}
-			}
+			for(auto v : ei.features)
+				e.add(v, 3);
 			break;
 		}
 	}
-	e.equip(Ration);
+	e.equip(item(Ration, 2));
 	e.setmoney(e.getmoney() + xrand(3, 18)*GP);
 }
 

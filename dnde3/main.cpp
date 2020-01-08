@@ -75,9 +75,9 @@ static void test_indoor() {
 	loc.positions[1] = loc.get(3, 3);
 	loc.building(loc.get(5, 5), 7, 5);
 	loc.lake(10, 10, 20, 20);
-	loc.drop(loc.get(5, 4), SwordShort);
-	loc.drop(loc.get(4, 6), SwordTwoHanded);
-	loc.drop(loc.get(3, 3), Staff);
+	loc.drop(loc.get(5, 4), item(SwordShort, 5));
+	loc.drop(loc.get(4, 6), item(SwordTwoHanded, 10));
+	loc.drop(loc.get(3, 3), item(Staff, 20));
 	loc.set(loc.get(4, 3), Tree);
 	loc.set(loc.get(2, 6), Hill);
 	loc.set(loc.get(3, 7), Hill);

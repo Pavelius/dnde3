@@ -143,6 +143,8 @@ void location::clear() {
 	memset(this, 0, sizeof(*this));
 	for(auto& e : random)
 		e = rand() % 256;
+	for(auto& e : monsters)
+		e = Character;
 }
 
 static void correct(rect& rc) {
@@ -658,4 +660,16 @@ bool location::ismatch(indext index, const rect& rectangle) const {
 	if(x < rectangle.x1 || x >= rectangle.x2 || y < rectangle.y1 || y >= rectangle.y2)
 		return false;
 	return true;
+}
+
+creature* location::adventurer(indext index) {
+	static race_s races[] = {Human, Elf, Halfling, Dwarf};
+	static gender_s genders[] = {Male, Female, Male};
+	static class_s classes[] = {Cleric, Cleric, Fighter, Fighter, Mage, Mage, Paladin, Ranger, Theif, Theif};
+	return add(index, maprnd(races), maprnd(genders), maprnd(classes));
+}
+
+creature* location::monster(indext index) {
+	static char indecies[] = {0, 0, 0, 0, 1, 1, 1, 2, 2, 3, 4, 5};
+	return add(index, monsters[maprnd(indecies)]);
 }

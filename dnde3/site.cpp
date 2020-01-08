@@ -33,13 +33,6 @@ creature* site::add(role_s type) {
 	return loc.add(location::center(*this), type);
 }
 
-creature* site::adventurer() {
-	static race_s races[] = {Human, Elf, Halfling, Dwarf};
-	static gender_s genders[] = {Male, Female, Male};
-	static class_s classes[] = {Cleric, Cleric, Fighter, Fighter, Mage, Mage, Paladin, Ranger, Theif, Theif};
-	return add(maprnd(races), maprnd(genders), maprnd(classes));
-}
-
 indext site::getposition() const {
 	return location::center(*this);
 }
@@ -70,7 +63,7 @@ void site::create(int x, int y, int w, int h, site_s type) {
 	case Tavern:
 		setowner(add(Bartender));
 		for(auto i = xrand(1, 3); i > 0; i--)
-			adventurer();
+			loc.adventurer(getposition());
 		break;
 	case ShopWeaponAndArmor:
 		setowner(shopkeeper());

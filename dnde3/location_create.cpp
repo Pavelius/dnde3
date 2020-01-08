@@ -10,7 +10,7 @@ static unsigned char	stack_put, stack_get;
 static direction_s		connectors_side[] = {Up, Left, Right, Down};
 
 static slot_s slots_weapons_armor[] = {Melee, Ranged, OffHand, Head, Elbows, Legs, Torso};
-static item_s item_treasure[] = {Coin, Coin, Coin, Coin, RingRed};
+static item_s item_treasure[] = {Coin, Coin, Coin, Coin, Coin, Coin, Coin, CoinSP, CoinSP, CoinSP, CoinGP};
 static item_s item_food[] = {Ration, Ration, Ration, BreadEvlen, BreadHalflings, BreadDwarven, Sausage};
 static item_s item_potion_scrolls[] = {Scroll1, Scroll2, Scroll3,
 Scroll1, Scroll2, Scroll3,
@@ -48,22 +48,6 @@ static void show_minimap_step(short unsigned index, bool visualize) {
 		loc.minimap(index);
 }
 
-static void create_objects(int x, int y, int w, int h, int count, tile_s object) {
-	for(int i = 0; i < count; i++) {
-		int x1 = xrand(x, x + w);
-		int y1 = xrand(y, y + h);
-		loc.set(loc.get(x1, y1), object);
-	}
-}
-
-static void create_objects(int x, int y, int w, int h, int count, map_object_s object) {
-	for(int i = 0; i < count; i++) {
-		int x1 = xrand(x, x + w);
-		int y1 = xrand(y, y + h);
-		loc.set(loc.get(x1, y1), object);
-	}
-}
-
 static void create_big_rooms(int x, int y, int w, int h, rooma& rooms, bool visualize) {
 	if(h < max_building_size * 2 && w < max_building_size * 2) {
 		auto dw = xrand(max_building_size - 4 - 6, max_building_size - 4);
@@ -93,16 +77,14 @@ static void create_item(indext index, item_s type, int level, bool forsale, iden
 	auto chance_magic = imax(0, 5 + level);
 	it.create(type, chance_artifact, chance_magic, chance_curse, chance_quality);
 	it.set(identify);
-	if(type == Coin) {
-		auto count = xrand(1, 5) * level;
-		if(count > 64)
-			count = 64;
-		it.setcount(count);
+	if(it.is(Coinable))
+		it.setcount(xrand(1 * level, 10 * level));
+	else {
+		if(forsale)
+			it.setsale(1);
+		if(it.is(Artifact))
+			loc.artifacts++;
 	}
-	if(forsale)
-		it.setsale(1);
-	if(it.is(Artifact))
-		loc.artifacts++;
 	loc.drop(index, it);
 }
 
@@ -116,11 +98,12 @@ static void create_trap(indext index) {
 }
 
 static void create_treasure(indext index) {
-	create_item(index, Coin, loc.level, false);
+	create_item(index, maprnd(item_treasure), loc.level, false);
 }
 
 static void create_monster(indext index) {
-	//game::spawn(index);
+	auto p = loc.monster(index);
+	p->add(Hostile, 1, false);
 }
 
 static void create_door(indext index) {
@@ -130,11 +113,8 @@ static void create_door(indext index) {
 }
 
 static void create_corridor_content(indext index) {
-	static gentileproc chances[] = {create_trap,
-		create_treasure, create_treasure,
-		//create_door,
-		create_monster, create_monster,
-		create_dungeon_item, create_dungeon_item,
+	static gentileproc chances[] = {create_trap, create_treasure, create_dungeon_item,
+		create_monster, create_monster, create_monster, create_monster,
 	};
 	maprnd(chances)(index);
 }
@@ -207,9 +187,9 @@ static void indoor_floor() {
 }
 
 static void outdoor_floor() {
-	create_objects(0, 0, mmx - 1, mmy - 1, xrand(10, 20), Hill);
-	create_objects(0, 0, mmx - 1, mmy - 1, xrand(4, 12), Swamp);
-	create_objects(0, 0, mmx - 1, mmy - 1, mmx*mmy*dense_forest / 100, Tree);
+	loc.create({0, 0, mmx - 1, mmy - 1}, xrand(10, 20), Hill);
+	loc.create({0, 0, mmx - 1, mmy - 1}, xrand(4, 12), Swamp);
+	loc.create({0, 0, mmx - 1, mmy - 1}, mmx*mmy*dense_forest / 100, Tree);
 }
 
 static void create_corridor(int x, int y, int w, int h, direction_s dir) {
@@ -258,6 +238,12 @@ static void create_dungeon_content(rooma& rooms, bool visualize) {
 
 void location::create(bool explored, bool visualize) {
 	stack_get = stack_put = 0;
+	monsters[0] = GoblinWarrior;
+	monsters[1] = GoblinRockthrower;
+	monsters[2] = GnollWarrior;
+	monsters[3] = KobolWarrior;
+	monsters[4] = KoboldShaman;
+	monsters[5] = Skeleton;
 	// Explore all map
 	if(explored) {
 		auto count = mmx * mmy;

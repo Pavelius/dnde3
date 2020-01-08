@@ -186,7 +186,7 @@ enum target_s : unsigned char {
 	SingleTarget, RandomTarget, AllTargets,
 };
 enum item_flag_s : unsigned char {
-	TwoHanded, Versatile, Light, Natural,
+	Coinable, Countable, TwoHanded, Versatile, Light, Natural,
 };
 enum variant_s : unsigned char {
 	NoVariant,
@@ -392,24 +392,27 @@ struct itemi {
 	cflags<item_flag_s>	flags;
 	slot_s				slot;
 	skill_s				skill;
-	unsigned char		count;
-	unsigned char		charges;
 };
 class item {
-	item_s				type;
-	//
-	item_type_s			magic : 2;
-	unsigned char		quality : 2;
-	identify_s			identify : 2;
-	unsigned char		forsale : 1;
-	//
-	unsigned char		count : 6;
-	unsigned char		damaged : 2;
-	//
-	unsigned char		effect;
+	union {
+		struct {
+			item_s			type;
+			//
+			item_type_s		magic : 2;
+			unsigned char	quality : 2;
+			identify_s		identify : 2;
+			unsigned char	forsale : 1;
+			//
+			unsigned char	charge : 6;
+			unsigned char	damaged : 2;
+			//
+			unsigned char	effect;
+		};
+		short unsigned		us[2];
+		int					i;
+	};
 public:
-	constexpr item() : type(NoItem), effect(0), count(0), magic(Mundane), quality(0), identify(Unknown), forsale(0), damaged(0) {}
-	item(item_s type);
+	item() = default;
 	item(item_s type, int level);
 	explicit operator bool() const { return type != NoItem; }
 	void				act(const char* format, ...) const;
@@ -422,8 +425,8 @@ public:
 	attacki				getattack() const;
 	int					getbonus() const;
 	unsigned			getcost() const;
-	int					getcount() const { return count + 1; }
-	int					getdamage() const { return damaged; }
+	int					getcount() const;
+	int					getdamage() const;
 	variant				geteffect() const;
 	const itemi&		getitem() const { return bsmeta<itemi>::elements[type]; }
 	gender_s			getgender() const { return getitem().gender; }
@@ -443,9 +446,9 @@ public:
 	bool				is(item_flag_s v) const { return getitem().flags.is(v); }
 	bool				is(item_type_s v) const { return magic == v; }
 	bool				isboost(variant id) const;
-	bool				ischargeable() const { return getitem().charges > 0; }
-	bool				iscountable() const { return getitem().count > 0; }
-	bool				isdamaged() const { return damaged != 0; }
+	bool				ischargeable() const { return false; }
+	bool				iscountable() const { return is(Countable); }
+	bool				isdamaged() const { return getdamage() > 0; }
 	bool				isunbreakable() const { return magic != Mundane; }
 	void				loot();
 	bool				match(variant v) const;
@@ -500,7 +503,6 @@ public:
 	operator bool() const { return x1 != x2; }
 	creature*			add(race_s race, gender_s gender, class_s type);
 	creature*			add(role_s type);
-	creature*			adventurer();
 	void				create(int x, int y, int w, int h, site_s type);
 	static site*		find(indext index);
 	void				getname(stringbuilder& sb) const;
@@ -583,6 +585,7 @@ public:
 	explicit operator bool() const { return hp > 0; }
 	//
 	void				activate();
+	void				add(variant id, int v);
 	void				add(variant id, int v, bool interactive);
 	void				add(variant id, int v, bool interactive, unsigned minutes);
 	void				add(variant id, int v, bool interactive, item_type_s magic, int quality, int damage, int minutes);
@@ -790,7 +793,7 @@ class location : public statistici {
 	map_object_s		objects[mmx*mmy];
 	unsigned char		random[mmx*mmy];
 	flagable<1>			flags[mmx*mmy];
-	bool				visualize;
+	role_s				monsters[6];
 	//
 	indext				bpoint(indext index, int w, int h, direction_s dir) const;
 	bool				isdungeon() const { return true; }
@@ -804,6 +807,7 @@ public:
 	creature*			add(indext index, role_s role);
 	creature*			add(indext index, race_s race, gender_s gender, class_s type);
 	void				addinfo(indext i, stringbuilder& sb) const;
+	creature*			adventurer(indext index);
 	void				blockcreatures();
 	void				blockwalls(bool water = true);
 	indext				building(indext i, int width, int height, direction_s dir = Center);
@@ -841,6 +845,7 @@ public:
 	void				makewave(indext index);
 	void				minimap(int x, int y, point camera) const;
 	void				minimap(indext index) const;
+	creature*			monster(indext index);
 	bool				read(const char* url);
 	void				remove(indext i, map_flag_s v) { flags[i].remove(v); }
 	void				set(indext i, map_flag_s v) { flags[i].set(v); }

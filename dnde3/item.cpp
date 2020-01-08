@@ -44,16 +44,16 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, NoGender, Organic, {0, 3, {1, 
 {"Короткий меч", 700, 8 * GP, Male, Iron, {-3, 3, {1, 6}, Slashing, 0, 2}, {}, swords_enchanments, {Light}, Melee, FocusSwords},
 {"Двуручный меч", 700, 8 * GP, Male, Iron, {-9, 3, {2, 12}, Slashing, -2, 2}, {}, swords_enchanments, {TwoHanded}, Melee, FocusTwohanded},
 //
-{"Арбалет", 700, 40 * GP, Male, Wood, {-3, 3, {1, 8}, Piercing, -2, Bolt}, {}, {}, {}, Ranged},
-{"Тяжелый арбалет", 1200, 80 * GP, Male, Wood, {-10, 3, {1, 12}, Piercing, -6, Bolt}, {}, {}, {}, Ranged},
-{"Длинный лук", 500, 60 * GP, Male, Wood, {-10, 3, {1, 8}, Piercing, 1, Arrow}, {}, {}, {}, Ranged, FocusBows},
-{"Короткий лук", 300, 30 * GP, Male, Wood, {-6, 3, {1, 6}, Piercing, 1, Arrow}, {}, {}, {}, Ranged, FocusBows},
+{"Арбалет", 700, 40 * GP, Male, Wood, {-3, 3, {1, 8}, Piercing, -2, 0, Bolt}, {}, {}, {}, Ranged},
+{"Тяжелый арбалет", 1200, 80 * GP, Male, Wood, {-10, 3, {1, 12}, Piercing, -6, 0, Bolt}, {}, {}, {}, Ranged},
+{"Длинный лук", 500, 60 * GP, Male, Wood, {-10, 3, {1, 8}, Piercing, 1, 0, Arrow}, {}, {}, {}, Ranged, FocusBows},
+{"Короткий лук", 300, 30 * GP, Male, Wood, {-6, 3, {1, 6}, Piercing, 1, 0, Arrow}, {}, {}, {}, Ranged, FocusBows},
 {"Дарт", 30, 1 * SP, Male, Wood, {-4, 3, {1, 3}, Piercing, 3}, {}, {}, {}, Ranged},
 {"Праща", 50, 1 * SP, Female, Leather, {-6, 3, {1, 4}, Bludgeon, 0, Rock}, {}, {}, {}, Ranged},
 //
-{"Камни", 20, 0, Male, Stone, {}, {}, {}, {}, Amunitions, Bargaining, 30},
-{"Стрелы", 3, 2 * CP, Female, Wood, {}, {}, {}, {}, Amunitions, Bargaining, 20},
-{"Болты", 2, 1 * CP, Male, Iron, {}, {}, {}, {}, Amunitions, Bargaining, 20},
+{"Камни", 20, 0, Male, Stone, {}, {}, {}, {Countable}, Amunitions, Bargaining},
+{"Стрелы", 3, 2 * CP, Female, Wood, {}, {}, {}, {Countable}, Amunitions, Bargaining},
+{"Болты", 2, 1 * CP, Male, Iron, {}, {}, {}, {Countable}, Amunitions, Bargaining},
 //
 {"Кожанная броня", 1000, 5 * GP, Female, Leather, {-5}, {10, 1, 15}, {}, {}, Torso},
 {"Клепанная броня", 1500, 15 * GP, Female, Leather, {-7}, {15, 1, 15}, {}, {}, Torso},
@@ -122,9 +122,9 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, NoGender, Organic, {0, 3, {1, 
 //
 {"Ключ", 0, 0 * GP, NoGender, Iron, {}, {}, {}, {}},
 //
-{"Монета", 0, 0 * GP, NoGender, Iron, {}, {}, {}, {}},
-{"Серебрянная монета", 0, 0 * GP, NoGender, Iron, {}, {}, {}, {}},
-{"Золотая монета", 0, 0 * GP, NoGender, Iron, {}, {}, {}, {}},
+{"Монеты", 0, 1 * CP, NoGender, Iron, {}, {}, {}, {Coinable, Countable}},
+{"Серебрянные монеты", 0, 1 * SP, NoGender, Iron, {}, {}, {}, {Coinable, Countable}},
+{"Золотые монеты", 0, 1 * GP, NoGender, Iron, {}, {}, {}, {Coinable, Countable}},
 //
 {"Когти", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {Natural}, Melee},
 {"Кулаки", 0, 0 * GP, NoGender, Organic, {}, {}, {}, {Natural}, Melee},
@@ -136,14 +136,6 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, NoGender, Organic, {0, 3, {1, 
 };
 assert_enum(item, ManyItems);
 static_assert(sizeof(item) == sizeof(int), "Struct 'item' must be sizeof(int)");
-
-item::item(item_s type) {
-	clear();
-	this->type = type;
-	auto& ei = getitem();
-	if(ei.count > 0)
-		setcount(ei.count);
-}
 
 item::item(item_s type, int level) {
 	auto chance_artifact = level / 3;
@@ -173,7 +165,7 @@ void item::create(item_s item_type, int chance_artifact, int chance_magic, int c
 		static char quality_chances[] = {1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3};
 		quality = maprnd(quality_chances);
 	}
-	if(ei.effects) {
+	if(!iscountable() && ei.effects) {
 		if(ei.effects[0])
 			effect = rand() % ei.effects.getcount();
 		else if(ei.effects[1]) {
@@ -183,8 +175,6 @@ void item::create(item_s item_type, int chance_artifact, int chance_magic, int c
 				effect = 0;
 		}
 	}
-	if(ei.count > 0)
-		setcount(ei.count);
 }
 
 creature* item::getwearer() const {
@@ -250,9 +240,11 @@ void item::getname(stringbuilder& sb, bool show_cab) const {
 		if(ei.slot >= Head && ei.slot <= Amunitions && q != 0)
 			sb.adds(format, q);
 	}
-	auto n = getcount();
-	if(n > 1)
-		sb.adds("%1iшт.", n);
+	if(iscountable()) {
+		auto n = getcount();
+		if(n > 1)
+			sb.adds("%1iшт.", n);
+	}
 }
 
 void item::seteffect(variant v) {
@@ -269,17 +261,24 @@ void item::seteffect(variant v) {
 		p->dresson();
 }
 
+int	item::getcount() const {
+	if(!iscountable())
+		return 1;
+	return us[1] + 1;
+}
+
 void item::setcount(int count) {
+	if(!iscountable() && count)
+		return;
 	auto p = getwearer();
 	if(p)
 		p->dressoff();
 	if(!count)
 		clear();
-	else if(iscountable()) {
-		auto mc = getitem().count;
-		if(count > mc)
-			count = mc;
-		this->count = count - 1;
+	else {
+		if(count > 256 * 256)
+			count = 256 * 256;
+		us[1] = count - 1;
 	}
 	if(p)
 		p->dresson();
@@ -327,6 +326,8 @@ int	item::getbonus() const {
 }
 
 variant item::geteffect() const {
+	if(is(Countable))
+		return variant();
 	auto& ei = getitem();
 	if(ei.effects.getcount() > 0)
 		return ei.effects[effect];
@@ -335,7 +336,7 @@ variant item::geteffect() const {
 
 armori item::getarmor() const {
 	auto result = getitem().armor;
-	auto b = getbonus() - damaged;
+	auto b = getbonus() - getdamage();
 	result.protection += b*result.protection_bonus;
 	result.armor += b*result.armor_bonus;
 	if(result.armor < 0)
@@ -346,7 +347,7 @@ armori item::getarmor() const {
 attacki item::getattack() const {
 	auto& ei = getitem();
 	auto result = ei.weapon;
-	auto b = getbonus() - damaged;
+	auto b = getbonus() - getdamage();
 	result.attack += b * ei.weapon.attack_bonus;
 	if(ei.weapon.damage_bonus) {
 		result.dice.min += b / ei.weapon.damage_bonus;
@@ -405,6 +406,13 @@ unsigned getenchantcost(variant id, item_type_s magic, int quality) {
 }
 
 unsigned item::getcost() const {
-	return bsmeta<itemi>::elements[type].cost
-		+ getenchantcost(geteffect(), getmagic(), quality);
+	if(iscountable())
+		return bsmeta<itemi>::elements[type].cost*getcount();
+	return bsmeta<itemi>::elements[type].cost;
+}
+
+int	item::getdamage() const {
+	if(is(Countable))
+		return 0;
+	return damaged;
 }
