@@ -51,9 +51,9 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, NoGender, Organic, {0, 3, {1, 
 {"Дарт", 30, 1 * SP, Male, Wood, {-4, 3, {1, 3}, Piercing, 3}, {}, {}, {}, Ranged},
 {"Праща", 50, 1 * SP, Female, Leather, {-6, 3, {1, 4}, Bludgeon, 0, Rock}, {}, {}, {}, Ranged},
 //
-{"Камни", 20, 0, Male, Stone, {}, {}, {}, {Countable}, Amunitions, Bargaining},
-{"Стрелы", 3, 2 * CP, Female, Wood, {}, {}, {}, {Countable}, Amunitions, Bargaining},
-{"Болты", 2, 1 * CP, Male, Iron, {}, {}, {}, {Countable}, Amunitions, Bargaining},
+{"Камни", 20, 0, NoGender, Stone, {}, {}, {}, {Countable}, Amunitions},
+{"Стрелы", 3, 2 * CP, NoGender, Wood, {}, {}, {}, {Countable}, Amunitions},
+{"Болты", 2, 1 * CP, NoGender, Iron, {}, {}, {}, {Countable}, Amunitions},
 //
 {"Кожанная броня", 1000, 5 * GP, Female, Leather, {-5}, {10, 1, 15}, {}, {}, Torso},
 {"Клепанная броня", 1500, 15 * GP, Female, Leather, {-7}, {15, 1, 15}, {}, {}, Torso},

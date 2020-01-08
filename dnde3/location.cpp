@@ -164,6 +164,21 @@ tile_s location::gettile(indext i) const {
 	return tiles[i];
 }
 
+trap_s location::gettrap(indext i) const {
+	if(i == Blocked)
+		return NoTrap;
+	if(objects[i] == Trap)
+		return (trap_s)getrand(i);
+	return NoTrap;
+}
+
+void location::set(indext i, trap_s v) {
+	if(i == Blocked)
+		return;
+	objects[i] = Trap;
+	random[i] = v;
+}
+
 void location::drop(indext i, item v) {
 	itemground* pi = 0;
 	for(auto& e : bsmeta<itemground>()) {
@@ -196,13 +211,21 @@ void location::addinfo(indext i, stringbuilder& sb) const {
 		}
 		sb.adds("%-1.", getstr(t));
 	}
-	auto o = getobject(i);
-	if(o)
-		sb.adds("Здесь находится %1.", getstr(o));
+	addobject(i, sb);
 	auto p = creature::find(i);
 	if(p)
 		sb.adds("Здесь стоит %1.", p->getname());
 	additems(i, sb);
+}
+
+void location::addobject(indext i, stringbuilder& sb) const {
+	if(is(i, Hidden))
+		return;
+	auto o = getobject(i);
+	if(o == Trap)
+		sb.adds("Тут %-1.", bsmeta<trapi>::elements[gettrap(i)].name);
+	else if(o)
+		sb.adds("Здесь находится %-1.", getstr(o));
 }
 
 int location::getitemscount(indext i) const {
@@ -219,14 +242,14 @@ void location::additems(indext i, stringbuilder& sb) const {
 	auto maximum_count = getitemscount(i);
 	auto count = 0;
 	for(auto& e : bsmeta<itemground>()) {
-		if(!e || e.index!=i)
+		if(!e || e.index != i)
 			continue;
 		if(!count) {
-			if(maximum_count == 1 && e.getcount()>1)
-				sb.adds("Здесь лежат");
+			if(maximum_count > 1 || e.getcount() > 1)
+				sb.adds("На полу лежат");
 			else
-				sb.adds("Здесь лежит");
-		} else if((count+1)==maximum_count)
+				sb.adds("На полу лежит");
+		} else if((count + 1) == maximum_count)
 			sb.adds("и");
 		else
 			sb.add(",");
@@ -493,14 +516,18 @@ creature* location::add(indext index, role_s role) {
 	auto p = bsmeta<creature>::addz();
 	p->create(role);
 	p->setposition(getfree(index));
-	return p;
+	if(*p)
+		return p;
+	return 0;
 }
 
 creature* location::add(indext index, race_s race, gender_s gender, class_s type) {
 	auto p = bsmeta<creature>::addz();
 	p->create(race, gender, type);
 	p->setposition(getfree(index));
-	return p;
+	if(*p)
+		return p;
+	return 0;
 }
 
 int	location::getrange(indext i1, indext i2) {
@@ -527,10 +554,10 @@ void location::makewave(indext index) {
 	movements[start] = 0;
 	while(push != pop) {
 		auto n = stack[pop++];
-		auto w = ((n==start) ? 0 : movements[n]) + 1;
+		auto w = ((n == start) ? 0 : movements[n]) + 1;
 		for(auto d : all_aroud) {
 			auto i = to(n, d);
-			if(i==Blocked || movements[i] == Blocked)
+			if(i == Blocked || movements[i] == Blocked)
 				continue;
 			if(!movements[i] || movements[i] > w) {
 				movements[i] = w;
@@ -573,7 +600,7 @@ indext location::stepto(indext index) {
 	auto current_value = Blocked;
 	for(auto d : all_aroud) {
 		auto i = to(index, d);
-		if(i==Blocked || movements[i]==Blocked || !movements[i])
+		if(i == Blocked || movements[i] == Blocked || !movements[i])
 			continue;
 		if(movements[i] < current_value) {
 			current_value = movements[i];

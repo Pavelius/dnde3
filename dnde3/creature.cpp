@@ -51,6 +51,19 @@ void creature::add(variant id, int v, bool interactive) {
 	case Item:
 		equip(item(item_s(id.value), v));
 		break;
+	case Harm:
+		switch(id.value) {
+		case Piercing:
+		case Slashing:
+		case Bludgeon:
+			if(roll(Acrobatics)) {
+				act("%герой отскачил%а в сторону.");
+				return;
+			}
+			break;
+		}
+		damage(v, attack_s(id.value), 0, interactive);
+		break;
 	}
 }
 
@@ -661,6 +674,13 @@ void creature::look(indext index) {
 		direction = d1;
 }
 
+void creature::lookaround() {
+	if(isactive()) {
+		loc.addobject(getposition(), sb);
+		loc.additems(getposition(), sb);
+	}
+}
+
 void creature::move(indext index) {
 	if(index == Blocked) {
 		cantmovehere();
@@ -731,8 +751,31 @@ void creature::move(indext index) {
 	}
 	setposition(index);
 	wait();
-	if(isactive())
-		loc.additems(index, sb);
+}
+
+void creature::usetrap() {
+	auto i = getposition();
+	if(i == Blocked)
+		return;
+	auto t = loc.gettrap(i);
+	if(!t)
+		return;
+	auto& ei = bsmeta<trapi>::elements[t];
+	auto bonus = ei.modifier;
+	if(loc.is(i, Hidden))
+		bonus -= 30;
+	else
+		bonus += 15;
+	if(roll(Alertness, bonus)) {
+		if(loc.is(i, Hidden) && is(Friendly)) {
+			act("%герой обнаружил%а ловушку.");
+			loc.remove(i, Hidden);
+		}
+	} else {
+		loc.remove(i, Hidden);
+		act(ei.text_use);
+		add(ei.effect, ei.damage.roll(), true);
+	}
 }
 
 creature* creature::find(indext i) {
@@ -746,7 +789,8 @@ creature* creature::find(indext i) {
 }
 
 void creature::consume(int v) {
-	restore_energy -= v;
+	if(*this)
+		restore_energy -= v;
 }
 
 void creature::attack(creature& enemy, const attacki& ai, int bonus) {
@@ -802,7 +846,8 @@ bool creature::isenemy(const creature* target) const {
 }
 
 void creature::say(const char* format, ...) const {
-	sayv(sb, format, xva_start(format));
+	if(*this)
+		sayv(sb, format, xva_start(format));
 }
 
 void creature::aimove() {
@@ -983,6 +1028,8 @@ void creature::dropitems() {
 	for(auto i = Backpack; i <= Amunitions; i = (slot_s)(i + 1)) {
 		auto& e = wears[i];
 		if(!e)
+			continue;
+		if(e.is(Natural))
 			continue;
 		if(e.getmagic() == Mundane) {
 			if(d100() >= chance_drop_item)
@@ -1412,4 +1459,16 @@ int	creature::getboost(variant id) const {
 
 void creature::minimap() {
 	loc.minimap(getposition());
+}
+
+void creature::setposition(indext v) {
+	if(!*this)
+		return;
+	if(getposition() != v) {
+		posable::setposition(v);
+		usetrap();
+		if(!(*this))
+			return;
+		lookaround();
+	}
 }

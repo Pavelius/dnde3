@@ -93,7 +93,14 @@ static void create_dungeon_item(indext index) {
 }
 
 static void create_trap(indext index) {
-	loc.set(index, Trap);
+	static trap_s trap_normal[] = {TrapAnimal,
+		TrapAcid, TrapCorrupt, TrapCorrosion,
+		TrapElectricity, TrapFire, TrapLight, TrapWater,
+		TrapArrow, TrapArrow, TrapArrow,
+		TrapSpear, TrapSpear,
+		TrapPit, TrapPit, TrapPit,
+		TrapSpikedPit, TrapBleed};
+	loc.set(index, maprnd(trap_normal));
 	loc.set(index, Hidden);
 }
 
@@ -114,8 +121,9 @@ static void create_door(indext index) {
 }
 
 static void create_corridor_content(indext index) {
+	//static gentileproc chances[] = {create_trap};
 	static gentileproc chances[] = {create_trap, create_treasure, create_dungeon_item,
-		create_monster, create_monster, create_monster, create_monster,
+		create_monster, create_monster, create_monster,
 	};
 	maprnd(chances)(index);
 }

@@ -190,8 +190,8 @@ enum item_flag_s : unsigned char {
 };
 enum variant_s : unsigned char {
 	NoVariant,
-	Ability, Alignment, Creature, Enchantment, Formula,
-	God, Item, ItemType,
+	Ability, Alignment, Creature, Enchantment, Formula, God, Harm,
+	Item, ItemType,
 	Number, Race, Range, Role, Skill, Spell, State, Target,
 	Variant,
 };
@@ -219,12 +219,13 @@ struct variant {
 	constexpr variant() : type(NoVariant), value(0) {}
 	constexpr variant(ability_s v) : type(Ability), value(v) {}
 	constexpr variant(alignment_s v) : type(Alignment), value(v) {}
+	constexpr variant(attack_s v) : type(Harm), value(v) {}
 	constexpr variant(diety_s v) : type(God), value(v) {}
-	constexpr variant(range_s v) : type(Range), value(v) {}
-	constexpr variant(race_s v) : type(Race), value(v) {}
 	constexpr variant(formula_s v) : type(Formula), value(v) {}
 	constexpr variant(item_s v) : type(Item), value(v) {}
 	constexpr variant(item_type_s v) : type(ItemType), value(v) {}
+	constexpr variant(range_s v) : type(Range), value(v) {}
+	constexpr variant(race_s v) : type(Race), value(v) {}
 	constexpr variant(role_s v) : type(Role), value(v) {}
 	constexpr variant(skill_s v) : type(Skill), value(v) {}
 	constexpr variant(spell_s v) : type(Spell), value(v) {}
@@ -377,8 +378,10 @@ struct attacki {
 };
 struct trapi {
 	const char*			name;
+	char				modifier;
+	char				multiplier;
 	dicei				damage;
-	variant				type;
+	variant				effect;
 	const char*			text_use;
 };
 struct item_typei {
@@ -587,6 +590,7 @@ class creature : public nameable, public posable {
 	void				finish();
 	void				move(indext index, bool runaway);
 	bool				remove(item& it, bool run, bool talk);
+	void				usetrap();
 public:
 	explicit operator bool() const { return hp > 0; }
 	//
@@ -668,6 +672,7 @@ public:
 	bool				isvisible() const;
 	void				kill();
 	void				look(indext index);
+	void				lookaround();
 	void				makemove();
 	bool				match(variant id) const;
 	void				meleeattack(creature& enemy, int bonus = 0);
@@ -700,6 +705,7 @@ public:
 	void				setguard(short unsigned value) { guard = value; }
 	void				sethorror(const creature* p) { horror = p->getid(); }
 	void				setmoney(int value) { money = value; }
+	void				setposition(indext v);
 	void				shoot();
 	void				testweapons();
 	void				trapeffect();
@@ -814,6 +820,7 @@ public:
 	creature*			add(indext index, race_s race, gender_s gender, class_s type);
 	void				addinfo(indext i, stringbuilder& sb) const;
 	void				additems(indext i, stringbuilder& sb) const;
+	void				addobject(indext i, stringbuilder& sb) const;
 	creature*			adventurer(indext index);
 	void				blockcreatures();
 	void				blockwalls(bool water = true);
@@ -840,7 +847,7 @@ public:
 	int					getitemscount(indext i) const;
 	map_object_s		getobject(indext i) const { return objects[i]; }
 	tile_s				gettile(indext i) const;
-	trap_s				gettrap(indext i) const { return NoTrap; }
+	trap_s				gettrap(indext i) const;
 	static int			getrange(indext i1, indext i2);
 	int					getrand(indext i) const { return random[i]; }
 	void				indoor(point camera, bool show_fow = true, const picture* effects = 0);
@@ -859,6 +866,7 @@ public:
 	void				set(indext i, map_flag_s v) { flags[i].set(v); }
 	void				set(indext i, tile_s v) { tiles[i] = v; }
 	void				set(indext i, tile_s v, int width, int height);
+	void				set(indext i, trap_s v);
 	void				set(indext i, map_object_s v) { objects[i] = v; }
 	static void			setcamera(short x, short y);
 	static void			setcamera(indext i);
