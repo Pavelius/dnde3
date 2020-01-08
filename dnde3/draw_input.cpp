@@ -23,6 +23,7 @@ color				fow;
 }
 const int			gui_border = 8;
 const int			gui_padding = 4;
+const int			mmaps = 5;
 static bool			show_gui_panel = true;
 static eventproc	current_background;
 static indext		current_index;
@@ -1454,6 +1455,124 @@ indext location::choose(bool allow_cancel) {
 	return getresult();
 }
 
+static void pixel(int x, int y, color c1) {
+	color* p = (color*)draw::ptr(x, y);
+	for(int j = 0; j < mmaps; j++) {
+		for(int i = 0; i < mmaps; i++)
+			p[i] = c1;
+		p += draw::canvas->scanline / sizeof(color);
+	}
+}
+
+void location::minimap(int x, int y, point camera) const {
+	if(x < 8)
+		x = 8;
+	if(y < 64)
+		y = 64;
+	int y3 = y;
+	auto is_dungeon = isdungeon();
+	color floor = colors::gray;
+	if(!is_dungeon)
+		floor = color::create(51, 140, 29);
+	color floor1 = floor.darken();
+	color object = colors::gray;
+	if(!is_dungeon)
+		object = floor1.darken();
+	color wall = colors::black.lighten();
+	color door = colors::red;
+	color stairs = colors::red.darken().darken();
+	color water = colors::blue;
+	color road = color::create(94, 70, 51).mix(floor, 192);
+	color border = color::create(128, 128, 128);
+	for(int y1 = 0; y1 < mmy; y1++) {
+		int x3 = x;
+		for(int x1 = 0; x1 < mmx; x1++, x3 += mmaps) {
+			auto i = get(x1, y1);
+			if(!is(i, Explored))
+				continue;
+			switch(gettile(i)) {
+			case Hill:
+			case Foothills:
+			case Swamp:
+				pixel(x3, y3, object);
+				break;
+			case Plain:
+				pixel(x3, y3, floor);
+				break;
+			case Floor:
+				pixel(x3, y3, floor1);
+				break;
+			case Water:
+			case Sea:
+				pixel(x3, y3, water);
+				break;
+			case Wall:
+			case CloudPeaks:
+				pixel(x3, y3, wall);
+				break;
+			case Road:
+				pixel(x3, y3, road);
+				break;
+			}
+			switch(getobject(i)) {
+			case Door:
+				pixel(x3, y3, door);
+				break;
+			case Tree:
+				pixel(x3, y3, object);
+				break;
+			case StairsDown:
+			case StairsUp:
+				pixel(x3, y3, stairs);
+				break;
+			}
+		}
+		y3 += mmaps;
+	}
+	// Camera rectangle
+	int mmx1 = mmx * mmaps;
+	int mmy1 = mmy * mmaps;
+	int scx = mmx * elx;
+	int scy = mmy * ely;
+	int xs1 = camera.x;
+	int ys1 = camera.y;
+	if(xs1 < 0)
+		xs1 = 0;
+	if(ys1 < 0)
+		ys1 = 0;
+	if(xs1 + viewport.x > scx)
+		xs1 = scx - viewport.x;
+	if(ys1 + viewport.y > scy)
+		ys1 = scy - viewport.y;
+	rect cm;
+	cm.x1 = x + xs1 * mmx1 / scx;
+	cm.y1 = y + ys1 * mmy1 / scy;
+	cm.x2 = x + (xs1 + viewport.x)*mmx1 / scx;
+	cm.y2 = y + (ys1 + viewport.y)*mmy1 / scy;
+	draw::rectb(cm, border);
+	//view_legends(x, y, map::size.x*mmaps + metrics::padding);
+}
+
+void creature::minimap() {
+	char temp[128]; stringbuilder sb(temp);
+	int w = mmx * mmaps + 280;
+	int h = mmy * mmaps;
+	while(ismodal()) {
+		draw::rectf({0, 0, draw::getwidth(), draw::getheight()}, colors::form);
+		if(loc.level)
+			sb.add("Уровень %1i", loc.level);
+		//view_dialog(bsgets(Minimap, Name), temp, 1);
+		loc.minimap((draw::getwidth() - w) / 2, (draw::getheight() - h) / 2, camera);
+		domodal();
+		switch(hot.key) {
+		case KeyEscape:
+		case KeySpace:
+			breakmodal(0);
+			break;
+		}
+	}
+}
+
 void location::setcamera(short x, short y) {
 	camera.x = x*elx - getwidth() / 2 + elx / 2;
 	camera.y = y*ely - getheight() / 2 + ely / 2;
@@ -1481,6 +1600,7 @@ static hotkey adventure_keys[] = {{F1, "Выбрать первого героя", change_player, 0
 {Alpha + 'P', "Поднять пердмет", &creature::pickup},
 {Alpha + 'Q', "Стрелять по врагу", &creature::shoot},
 {Alpha + 'V', "Рюкзак", &creature::backpack},
+{Alpha + 'M', "Карта местности", &creature::minimap},
 {Ctrl + Alpha + 'D', "Выпить что-то", &creature::drink},
 {Ctrl + Alpha + 'E', "Чъесть что-то", &creature::eat},
 {Ctrl + Alpha + 'B', "Поработить для отладки", &creature::enslave},

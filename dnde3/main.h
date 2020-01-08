@@ -646,6 +646,7 @@ public:
 	void				makemove();
 	bool				match(variant id) const;
 	void				meleeattack(creature& enemy, int bonus = 0);
+	void				minimap();
 	void				move(indext index);
 	void				moveaway(indext index) { move(index, true); }
 	void				moveto(indext index) { move(index, false); }
@@ -763,7 +764,8 @@ struct manual {
 	const char*			getname() const;
 };
 struct statistici {
-	indext				positions[2];
+	short				level;
+	indext				positions[4];
 };
 class location : public statistici {
 	typedef bool(location::*procis)(indext i) const;
@@ -777,6 +779,7 @@ class location : public statistici {
 	void				connector(indext index, direction_s dir, const rect& correct);
 	void				corridor(const rect& rc, direction_s dir);
 	void				dungeonc(rooma& rooms);
+	bool				isdungeon() const { return false; }
 	indext				getfree(indext i, procis proc, int radius_maximum) const;
 	void				room(const rect& rc);
 	bool				linelos(int x0, int y0, int x1, int y1) const;
@@ -821,6 +824,7 @@ public:
 	bool				ismatch(indext index, const rect& rectanle) const;
 	void				lake(int x, int y, int w, int h);
 	void				makewave(indext index);
+	void				minimap(int x, int y, point camera) const;
 	bool				read(const char* url);
 	void				remove(indext i, map_flag_s v) { flags[i].remove(v); }
 	void				set(indext i, map_flag_s v) { flags[i].set(v); }
