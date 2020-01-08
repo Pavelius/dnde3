@@ -26,17 +26,11 @@ site* site::find(indext index) {
 }
 
 creature* site::add(race_s race, gender_s gender, class_s type) {
-	auto loc = location::getactive();
-	if(!loc)
-		return 0;
-	return loc->add(loc->center(*this), race, gender, type);
+	return loc.add(location::center(*this), race, gender, type);
 }
 
 creature* site::add(role_s type) {
-	auto loc = location::getactive();
-	if(!loc)
-		return 0;
-	return loc->add(loc->center(*this), type);
+	return loc.add(location::center(*this), type);
 }
 
 indext site::getposition() const {

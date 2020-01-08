@@ -128,8 +128,7 @@ static void standart_domodal() {
 	hot.key = draw::rawinput();
 	switch(hot.key) {
 	case 0:
-		if(location::getactive())
-			location::getactive()->write("overland.map");
+		//loc.write("overland.map");
 		exit(0);
 		break;
 	}
@@ -523,15 +522,12 @@ static void setbackground(eventproc proc) {
 }
 
 static int render_info(int x, int y, int width) {
-	auto p = location::getactive();
-	if(!p)
-		return 0;
 	auto y0 = y;
 	char temp[512]; stringbuilder sb(temp);
-	auto tile = p->gettile(current_index);
+	auto tile = loc.gettile(current_index);
 	sb.adds("Это %1.", getstr(tile));
 	sb.adds("Кординаты %1i,%2i (индекс %3i).",
-		p->getx(current_index), p->gety(current_index), current_index);
+		loc.getx(current_index), loc.gety(current_index), current_index);
 	y += detail(x, y, width, sb);
 	return y - y0;
 }
@@ -541,7 +537,7 @@ static void help() {
 }
 
 static void put_tile() {
-	location::getactive()->set(current_index, current_tile);
+	loc.set(current_index, current_tile);
 }
 
 static void choose_tile() {
@@ -583,10 +579,7 @@ static void render_bottom() {
 }
 
 static void render_editor() {
-	auto p = location::getactive();
-	if(!p)
-		return;
-	p->worldmap(camera, true);
+	loc.worldmap(camera, true);
 	picture effects[1]; effects[0].setcursor(current_index, 1);
 	render(effects);
 	render_bottom();
@@ -730,13 +723,10 @@ static void render_message(const char* press_key = 0) {
 }
 
 static void render_indoor() {
-	auto p = location::getactive();
-	if(!p)
-		return;
 	picture effects[2] = {};
 	if(current_index != Blocked)
 		effects[0].setcursor(current_index, 1);
-	p->indoor(camera, true, effects);
+	loc.indoor(camera, true, effects);
 	auto player = creature::getactive();
 	if(player)
 		render_info(*player);
@@ -747,7 +737,6 @@ static void controls() {
 }
 
 void location::editor() {
-	activate();
 	read("overland.map");
 	setbackground(render_editor);
 	while(ismodal()) {
@@ -1402,29 +1391,22 @@ item* itema::choose(bool interactive, const char* title, const char* format, slo
 int indexa::choose(bool interactive, const char* format) {
 	if(!*this)
 		return -1;
-	auto p = location::getactive();
-	if(!p)
-		return -1;
 	auto index = 0;
 	while(ismodal()) {
 		if(current_index != data[index]) {
 			current_index = data[index];
-			p->setcamera(current_index);
+			loc.setcamera(current_index);
 		}
 		current_background();
 		if(true) {
 			char temp[512]; string sb(temp);
-			p->addinfo(current_index, sb);
+			loc.addinfo(current_index, sb);
 			sb.adds(format);
 			if(sb)
 				windowf(sb, 0);
 		}
 		domodal();
 		switch(hot.key) {
-		//case KeyEscape:
-		//	if(allow_cancel)
-		//		breakmodal(Blocked);
-		//	break;
 		case KeyEnter:
 		case KeySpace:
 			breakmodal(index);
@@ -1444,7 +1426,6 @@ int indexa::choose(bool interactive, const char* format) {
 }
 
 indext location::choose(bool allow_cancel) {
-	activate();
 	current_index = gets2i(camera);
 	setbackground(render_indoor);
 	while(ismodal()) {

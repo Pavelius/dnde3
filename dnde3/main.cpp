@@ -28,29 +28,29 @@ static void create(creature* p1, item_s type, variant effect) {
 }
 
 static void test_worldmap() {
-	location e;
-	e.clear();
-	indext position = e.get(10, 10);
-	auto i0 = e.get(5, 4);
-	auto i1 = e.get(5, 5);
-	auto i2 = e.get(5, 6);
-	e.set(e.get(0, 0), Sea, mmx, 2);
-	e.set(e.get(0, 0), Sea, 2, mmy);
-	e.set(e.get(mmx - 2, 0), Sea, 2, mmy);
-	e.set(e.get(0, mmy - 2), Sea, mmx, 2);
-	e.set(i0, Mountains);
-	e.set(i0 + 1, Mountains);
-	e.set(i1, Sea);
-	e.set(i1 + 1, Sea);
-	e.set(i1 - 1, Sea);
-	e.set(i2, Sea);
-	e.write("test.loc");
-	e.editor();
+	location loc;
+	loc.clear();
+	indext position = loc.get(10, 10);
+	auto i0 = loc.get(5, 4);
+	auto i1 = loc.get(5, 5);
+	auto i2 = loc.get(5, 6);
+	loc.set(loc.get(0, 0), Sea, mmx, 2);
+	loc.set(loc.get(0, 0), Sea, 2, mmy);
+	loc.set(loc.get(mmx - 2, 0), Sea, 2, mmy);
+	loc.set(loc.get(0, mmy - 2), Sea, mmx, 2);
+	loc.set(i0, Mountains);
+	loc.set(i0 + 1, Mountains);
+	loc.set(i1, Sea);
+	loc.set(i1 + 1, Sea);
+	loc.set(i1 - 1, Sea);
+	loc.set(i2, Sea);
+	loc.write("test.loc");
+	loc.editor();
 }
 
 static bool test_spells() {
-	auto& e = bsmeta<spelli>::elements[0];
-	return e.target.type != Creature;
+	auto& loc = bsmeta<spelli>::elements[0];
+	return loc.target.type != Creature;
 }
 
 static void test_answers() {
@@ -71,33 +71,31 @@ static void modify_weapon(creature* p1) {
 }
 
 static void test_indoor() {
-	location e;
-	e.clear();
-	e.building(e.get(5, 5), 7, 5);
-	e.lake(10, 10, 20, 20);
-	e.drop(e.get(5, 4), SwordShort);
-	e.drop(e.get(4, 6), SwordTwoHanded);
-	e.drop(e.get(3, 3), Staff);
-	e.drop(e.get(3, 3), LeatherArmor);
-	e.set(e.get(2, 2), Tree);
-	e.set(e.get(4, 3), Tree);
-	e.set(e.get(2, 6), Hill);
-	e.set(e.get(3, 7), Hill);
-	e.set(e.get(3, 8), Water);
-	e.set(e.get(4, 8), Water);
-	//e.set(e.get(5, 8), Water);
-	e.set(e.get(3, 7), Hill);
-	e.set(e.get(3, 8), Altar);
-	e.set(e.get(3, 5), Plants);
-	e.set(e.get(2, 6), Blooded); e.set(e.get(3, 6), Blooded); e.set(e.get(4, 6), Blooded);
-	e.set(e.get(3, 6), Webbed); e.set(e.get(4, 6), Webbed); e.set(e.get(4, 7), Webbed);
-	auto p1 = create(e, Human, Male, Ranger);
-	auto p2 = create(e, Dwarf, Male, Cleric);
-	auto p3 = create(e, Elf, Male, Fighter);
-	create(e, GoblinWarrior);
-	create(e, GoblinWarrior);
-	create(e, GnollWarrior);
-	e.activate();
+	loc.clear();
+	loc.building(loc.get(5, 5), 7, 5);
+	loc.lake(10, 10, 20, 20);
+	loc.drop(loc.get(5, 4), SwordShort);
+	loc.drop(loc.get(4, 6), SwordTwoHanded);
+	loc.drop(loc.get(3, 3), Staff);
+	loc.drop(loc.get(3, 3), LeatherArmor);
+	loc.set(loc.get(2, 2), Tree);
+	loc.set(loc.get(4, 3), Tree);
+	loc.set(loc.get(2, 6), Hill);
+	loc.set(loc.get(3, 7), Hill);
+	loc.set(loc.get(3, 8), Water);
+	loc.set(loc.get(4, 8), Water);
+	//loc.set(loc.get(5, 8), Water);
+	loc.set(loc.get(3, 7), Hill);
+	loc.set(loc.get(3, 8), Altar);
+	loc.set(loc.get(3, 5), Plants);
+	loc.set(loc.get(2, 6), Blooded); loc.set(loc.get(3, 6), Blooded); loc.set(loc.get(4, 6), Blooded);
+	loc.set(loc.get(3, 6), Webbed); loc.set(loc.get(4, 6), Webbed); loc.set(loc.get(4, 7), Webbed);
+	auto p1 = create(loc, Human, Male, Ranger);
+	auto p2 = create(loc, Dwarf, Male, Cleric);
+	auto p3 = create(loc, Elf, Male, Fighter);
+	create(loc, GoblinWarrior);
+	create(loc, GoblinWarrior);
+	create(loc, GnollWarrior);
 	p1->activate();
 	p1->damage(6, Bludgeon, 100);
 	modify_weapon(p1);

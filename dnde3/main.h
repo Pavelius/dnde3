@@ -784,7 +784,6 @@ class location : public statistici {
 	bool				wget(short unsigned i, direction_s direction, tile_s value, bool default_result) const;
 	bool				xget(short unsigned i, direction_s direction) const;
 public:
-	void				activate();
 	creature*			add(indext index, role_s role);
 	creature*			add(indext index, race_s race, gender_s gender, class_s type);
 	void				addinfo(indext i, stringbuilder& sb) const;
@@ -803,7 +802,6 @@ public:
 	void				editor();
 	void				ellipse(rect rc, tile_s object);
 	static indext		get(short x, short y) { return y * mmx + x; }
-	static location*	getactive();
 	static direction_s	getdirection(indext from, indext to);
 	static direction_s	getdirection(point from, point to);
 	indext				getfree(indext i) const { return getfree(i, &location::isfreenc, 5); }
@@ -862,6 +860,7 @@ public:
 	void				play();
 };
 extern gamei			game;
+extern location			loc;
 extern stringbuilder	sb;
 DECLENUM(class);
 DECLENUM(item);

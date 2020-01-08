@@ -528,12 +528,9 @@ void creature::select(itema& a, slot_s i1, slot_s i2, bool filled_only) {
 void creature::dropdown(item& item) {
 	if(!remove(item, false, true))
 		return;
-	auto loc = location::getactive();
-	if(loc) {
-		loc->drop(getposition(), item);
-		remove(item, true, true);
-		consume(StandartEnergyCost / 4);
-	}
+	loc.drop(getposition(), item);
+	remove(item, true, true);
+	consume(StandartEnergyCost / 4);
 }
 
 void creature::dropdown() {
@@ -663,25 +660,22 @@ void creature::look(indext index) {
 }
 
 void creature::move(indext index) {
-	auto loc = location::getactive();
-	if(!loc)
-		return;
 	if(index == Blocked) {
 		cantmovehere();
 		return;
 	}
 	look(index);
-	if(loc->gettile(index) == Wall) {
+	if(loc.gettile(index) == Wall) {
 		cantmovehere();
 		return;
 	}
-	switch(loc->getobject(index)) {
+	switch(loc.getobject(index)) {
 	case Door:
-		if(!loc->is(index, Opened)) {
-			if(loc->is(index, Sealed))
+		if(!loc.is(index, Opened)) {
+			if(loc.is(index, Sealed))
 				say("Здесь заперто.");
 			else
-				loc->set(index, Opened);
+				loc.set(index, Opened);
 			wait();
 			return;
 		}
@@ -809,12 +803,9 @@ void creature::say(const char* format, ...) const {
 
 void creature::aimove() {
 	// Need active location
-	auto loc = location::getactive();
-	if(!loc)
-		return;
 	auto d = (direction_s)xrand(Left, RightDown);
-	auto i = loc->to(getposition(), d);
-	if(loc->isfreenw(i))
+	auto i = loc.to(getposition(), d);
+	if(loc.isfreenw(i))
 		move(i);
 	else
 		wait();
@@ -830,13 +821,9 @@ bool creature::needrestore(ability_s id) const {
 }
 
 void creature::aiturn() {
-	// Need active location
-	auto loc = location::getactive();
-	if(!loc)
-		return;
 	// If horror are near run away
 	auto horror = gethorror();
-	if(horror && loc->getrange(horror->getposition(), getposition()) <= getlos() + 1) {
+	if(horror && loc.getrange(horror->getposition(), getposition()) <= getlos() + 1) {
 		moveaway(horror->getposition());
 		return;
 	}
@@ -849,7 +836,7 @@ void creature::aiturn() {
 		// Combat situation - need eliminate enemy
 		enemies.sort(getposition());
 		auto enemy = enemies[0];
-		if(loc->getrange(enemy->getposition(), getposition()) > 1
+		if(loc.getrange(enemy->getposition(), getposition()) > 1
 			&& canshoot(false)) {
 			rangeattack(*enemy);
 			return;
@@ -879,7 +866,7 @@ void creature::aiturn() {
 		// If creature have a leader don't move far away from him
 		auto leader = getleader();
 		if(leader) {
-			if(loc->getrange(leader->getposition(), getposition()) > 2) {
+			if(loc.getrange(leader->getposition(), getposition()) > 2) {
 				moveto(leader->getposition());
 				return;
 			}
@@ -984,16 +971,10 @@ void creature::applyaward() const {
 }
 
 void creature::bloodstain() const {
-	auto loc = location::getactive();
-	if(!loc)
-		return;
-	loc->set(getposition(), Blooded);
+	loc.set(getposition(), Blooded);
 }
 
 void creature::dropitems() {
-	auto loc = location::getactive();
-	if(!loc)
-		return;
 	auto index = getposition();
 	for(auto i = Backpack; i <= Amunitions; i = (slot_s)(i + 1)) {
 		auto& e = wears[i];
@@ -1004,7 +985,7 @@ void creature::dropitems() {
 				continue;
 		}
 		e.loot();
-		loc->drop(index, e);
+		loc.drop(index, e);
 		e.clear();
 	}
 }
@@ -1072,17 +1053,14 @@ void creature::move(indext index, bool runaway) {
 	if(index == pos)
 		return;
 	if(location::getrange(pos, index) > 1) {
-		auto loc = location::getactive();
-		if(!loc)
-			return;
-		loc->clearblock();
-		loc->blockwalls();
-		loc->blockcreatures();
-		loc->makewave(index);
+		loc.clearblock();
+		loc.blockwalls();
+		loc.blockcreatures();
+		loc.makewave(index);
 		if(runaway)
-			index = loc->stepfrom(pos);
+			index = loc.stepfrom(pos);
 		else
-			index = loc->stepto(pos);
+			index = loc.stepto(pos);
 		if(index == Blocked)
 			return;
 	}
@@ -1123,17 +1101,11 @@ creature* creature::getleader() const {
 }
 
 bool creature::isvisible() const {
-	auto loc = location::getactive();
-	if(!loc)
-		return false;
-	return loc->is(getposition(), Visible);
+	return loc.is(getposition(), Visible);
 }
 
 bool creature::cansee(indext i) const {
-	auto loc = location::getactive();
-	if(!loc)
-		return false;
-	return loc->cansee(getposition(), i);
+	return loc.cansee(getposition(), i);
 }
 
 bool creature::canshoot(bool talk) const {

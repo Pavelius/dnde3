@@ -1,6 +1,6 @@
 #include "main.h"
 
-static location*		current_location;
+location				loc;
 static short unsigned	movements[mmx*mmy];
 static short unsigned	stack[256 * 256];
 static direction_s		all_aroud[] = {Left, Right, Up, Down, LeftDown, LeftUp, RightDown, RightUp};
@@ -14,14 +14,6 @@ static const direction_s orientations_7b7[49] = {
 	LeftDown, LeftDown, LeftDown, Down, RightDown, RightDown, RightDown,
 	LeftDown, LeftDown, Down, Down, Down, RightDown, RightDown,
 };
-
-void location::activate() {
-	current_location = this;
-}
-
-location* location::getactive() {
-	return current_location;
-}
 
 int location::getindex(indext i, tile_s e) const {
 	static direction_s dir[] = {Up, Down, Left, Right};
@@ -575,10 +567,10 @@ static bool linelossv(int x0, int y0, int x1, int y1) {
 	int err = (dx > dy ? dx : -dy) / 2, e2;
 	for(;;) {
 		if(x0 >= 0 && x0 < mmx && y0 >= 0 && y0 < mmy) {
-			auto i = current_location->get(x0, y0);
-			current_location->set(i, Visible);
-			current_location->set(i, Explored);
-			if(!current_location->isfree(i))
+			auto i = loc.get(x0, y0);
+			loc.set(i, Visible);
+			loc.set(i, Explored);
+			if(!loc.isfree(i))
 				return false;
 		}
 		if(x0 == x1 && y0 == y1)

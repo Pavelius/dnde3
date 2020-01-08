@@ -81,18 +81,15 @@ void creaturea::select(state_s v) {
 }
 
 void creaturea::select(indext start, int distance) {
-	auto loc = location::getactive();
-	if(!loc)
-		return;
 	auto ps = data;
 	auto pe = endof();
 	for(auto& e : bsmeta<creature>()) {
 		if(!e)
 			continue;
 		auto i = e.getposition();
-		if(loc->getrange(i, start) > distance)
+		if(loc.getrange(i, start) > distance)
 			continue;
-		if(!loc->cansee(i, start))
+		if(!loc.cansee(i, start))
 			continue;
 		if(ps < pe)
 			*ps++ = &e;

@@ -6,14 +6,11 @@ static void update_los() {
 	auto player = creature::getactive();
 	if(!player)
 		return;
-	auto loc = location::getactive();
-	if(!loc)
-		return;
 	// Set fog of war
 	auto max_count = mmx * mmy;
 	for(auto i = 0; i < max_count; i++)
-		loc->remove(i, Visible);
-	loc->setlos(player->getposition(), player->getlos());
+		loc.remove(i, Visible);
+	loc.setlos(player->getposition(), player->getlos());
 }
 
 static void move_creatures() {
