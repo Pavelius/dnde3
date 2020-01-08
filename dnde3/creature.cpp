@@ -763,13 +763,14 @@ void creature::usetrap() {
 	auto& ei = bsmeta<trapi>::elements[t];
 	auto bonus = ei.modifier;
 	if(loc.is(i, Hidden))
-		bonus -= 30;
+		bonus -= 20;
 	else
 		bonus += 15;
 	if(roll(Alertness, bonus)) {
 		if(loc.is(i, Hidden) && is(Friendly)) {
 			act("%герой обнаружил%а ловушку.");
 			loc.remove(i, Hidden);
+			addexp(10);
 		}
 	} else {
 		loc.remove(i, Hidden);

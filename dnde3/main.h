@@ -192,7 +192,7 @@ enum variant_s : unsigned char {
 	NoVariant,
 	Ability, Alignment, Creature, Enchantment, Formula, God, Harm,
 	Item, ItemType,
-	Number, Race, Range, Role, Skill, Spell, State, Target,
+	Number, Race, Range, Role, Skill, Spell, State, Target, TrapVariant,
 	Variant,
 };
 enum formula_s : unsigned char {
