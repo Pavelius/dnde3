@@ -27,7 +27,7 @@ bool foodi::match(const creature* player, const item it) const {
 		return false;
 	if(!player->match(condition))
 		return false;
-	if(!it.match(condition))
+	if(!it.ismatch(condition))
 		return false;
 	return true;
 }

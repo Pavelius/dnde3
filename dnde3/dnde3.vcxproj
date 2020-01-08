@@ -114,6 +114,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ability.cpp" />
+    <ClCompile Include="analize.cpp" />
     <ClCompile Include="answer.cpp" />
     <ClCompile Include="archive.cpp" />
     <ClCompile Include="boost.cpp" />
@@ -130,6 +131,7 @@
     <ClCompile Include="draw_text.cpp" />
     <ClCompile Include="draw_textf.cpp" />
     <ClCompile Include="equipment.cpp" />
+    <ClCompile Include="indexa.cpp" />
     <ClCompile Include="trap.cpp" />
     <ClCompile Include="use.cpp" />
     <ClCompile Include="game.cpp" />
@@ -159,7 +161,6 @@
     <ClCompile Include="string.cpp" />
     <ClCompile Include="stringbuilder.cpp" />
     <ClCompile Include="szdup.cpp" />
-    <ClCompile Include="target.cpp" />
     <ClCompile Include="tile.cpp" />
     <ClCompile Include="variant.cpp" />
     <ClCompile Include="win_draw.cpp" />

@@ -175,24 +175,21 @@ enum encumbrance_s : unsigned char {
 	NoEncumbered,
 	Encumbered, HeavilyEncumbered,
 };
-enum speech_s : unsigned char {
-	NoTalking,
-	Answer, Action, Speech,
-};
 enum range_s : unsigned char {
 	You, Close, Reach, Near, Far
 };
 enum target_s : unsigned char {
-	SingleTarget, RandomTarget, AllTargets,
+	SingleTarget, NearestTarget, RandomTarget, AllTargets,
 };
 enum item_flag_s : unsigned char {
 	Coinable, Countable, TwoHanded, Versatile, Light, Natural,
 };
 enum variant_s : unsigned char {
 	NoVariant,
-	Ability, Alignment, Creature, Enchantment, Formula, God, Harm,
+	Ability, Alignment, Creature, Formula, God, Harm,
 	Item, ItemType,
-	Number, Race, Range, Role, Skill, Spell, State, Target, TrapVariant,
+	Number, Object, Race, Range, Role,
+	Skill, Slot, Spell, State, Target, Tile,
 	Variant,
 };
 enum formula_s : unsigned char {
@@ -224,10 +221,12 @@ struct variant {
 	constexpr variant(formula_s v) : type(Formula), value(v) {}
 	constexpr variant(item_s v) : type(Item), value(v) {}
 	constexpr variant(item_type_s v) : type(ItemType), value(v) {}
+	constexpr variant(map_object_s v) : type(Object), value(v) {}
 	constexpr variant(range_s v) : type(Range), value(v) {}
 	constexpr variant(race_s v) : type(Race), value(v) {}
 	constexpr variant(role_s v) : type(Role), value(v) {}
 	constexpr variant(skill_s v) : type(Skill), value(v) {}
+	constexpr variant(slot_s v) : type(Slot), value(v) {}
 	constexpr variant(spell_s v) : type(Spell), value(v) {}
 	constexpr variant(state_s v) : type(State), value(v) {}
 	constexpr variant(target_s v) : type(Target), value(v) {}
@@ -307,6 +306,7 @@ struct skilli {
 	const char*			name_tome;
 	ability_s			abilities[2];
 	weaponi				weapon;
+	varianta			usable;
 	//
 	skill_s				getid() const;
 	const char*			getusetext() const;
@@ -405,20 +405,20 @@ struct itemi {
 class item {
 	union {
 		struct {
-			item_s			type;
+			item_s		type;
 			//
-			item_type_s		magic : 2;
-			unsigned char	quality : 2;
-			identify_s		identify : 2;
-			unsigned char	forsale : 1;
+			item_type_s	magic : 2;
+			unsigned char quality : 2;
+			identify_s	identify : 2;
+			unsigned char forsale : 1;
 			//
-			unsigned char	charge : 6;
-			unsigned char	damaged : 2;
+			unsigned char charge : 6;
+			unsigned char damaged : 2;
 			//
-			unsigned char	effect;
+			unsigned char effect;
 		};
-		short unsigned		us[2];
-		int					i;
+		short unsigned	us[2];
+		int				i;
 	};
 public:
 	item() = default;
@@ -460,7 +460,7 @@ public:
 	bool				isdamaged() const { return getdamage() > 0; }
 	bool				isunbreakable() const { return magic != Mundane; }
 	void				loot();
-	bool				match(variant v) const;
+	bool				ismatch(variant v) const;
 	void				repair(int level);
 	void				set(item_type_s v);
 	void				set(identify_s v);
@@ -476,8 +476,9 @@ public:
 	item*				chooses(bool interactive, const char* title, const char* format, slot_mode_s mode);
 	item*				choose(bool interactive, const char* title, const char* format, slot_mode_s mode);
 	void				footer(stringbuilder& sb) const;
-	void				match(slot_s v);
+	void				match(variant v);
 	void				matchboost(variant v);
+	void				remove(variant v);
 	void				select(creature& e);
 	void				select(indext index);
 	void				selecta(creature& e);
@@ -669,6 +670,7 @@ public:
 	bool				isallow(item_s v) const;
 	bool				isenemy(const creature* target) const;
 	bool				isguard() const { return guard != Blocked; }
+	bool				ismatch(variant v) const;
 	bool				isvisible() const;
 	void				kill();
 	void				look(indext index);
@@ -717,35 +719,30 @@ public:
 };
 class creaturea : public adat<creature*> {
 public:
+	creaturea() = default;
+	creaturea(const creature& v) { select(v.getposition(), v.getlos()); }
 	creature*			choose(bool interactive, const char* title);
-	void				match(state_s i);
-	void				match(const alignmenta& v);
-	void				match(const racea& v);
+	void				match(variant v);
+	void				match(indext index, int range);
 	void				matchenemy(const creature* v);
+	void				remove(variant v);
 	void				select();
 	void				select(indext start, int distance);
 	void				select(state_s v);
 	void				sort(indext start);
-	void				remove(state_s v);
 };
 class indexa : public adat<indext> {
 public:
 	int					choose(bool interactive, const char* title);
-};
-struct targeti {
-	variant_s			type;
-	range_s				range;
-	target_s			target;
-	alignmenta			alignments;
-	statea				states;
-	racea				races;
-	constexpr targeti() : type(Creature), range(You), target(SingleTarget) {}
-	targeti(const targeti& e) = default;
-	targeti(const std::initializer_list<variant>& source);
+	void				match(variant v);
+	void				match(indext index, int range);
+	void				remove(variant v);
+	void				select(indext index, int distance);
+	void				sort(indext start);
 };
 struct spelli {
 	const char*			name;
-	const targeti		target;
+	varianta			effect;
 };
 struct itemground : item {
 	short unsigned		index;
@@ -799,6 +796,23 @@ struct statistici {
 	short				level;
 	indext				positions[4];
 };
+class analize {
+	target_s			target;
+	variant_s			type;
+	creature&			player;
+	itema				items;
+	indexa				indecies;
+	creaturea			creatures;
+	//
+	void				set(variant_s v);
+public:
+	analize(creature& player);
+	analize(creature& player, creaturea& opponents);
+	void				apply(const varianta& source, int value);
+	void				match(variant v);
+	void				remove(variant v);
+	variant				select(const varianta& source);
+};
 class location : public statistici {
 	typedef bool(location::*procis)(indext i) const;
 	tile_s				tiles[mmx*mmy];
@@ -806,9 +820,10 @@ class location : public statistici {
 	unsigned char		random[mmx*mmy];
 	flagable<1>			flags[mmx*mmy];
 	role_s				monsters[6];
+	bool				is_dungeon;
 	//
 	indext				bpoint(indext index, int w, int h, direction_s dir) const;
-	bool				isdungeon() const { return true; }
+	bool				isdungeon() const { return is_dungeon; }
 	indext				getfree(indext i, procis proc, int radius_maximum) const;
 	void				room(const rect& rc);
 	bool				linelos(int x0, int y0, int x1, int y1) const;
@@ -856,6 +871,8 @@ public:
 	bool				isfreenc(indext i) const;
 	bool				isfreenw(indext i) const;
 	bool				ismatch(indext index, const rect& rectanle) const;
+	bool				ismatch(indext index, const aref<variant>& v) const;
+	bool				ismatch(indext index, variant v) const;
 	void				lake(int x, int y, int w, int h);
 	void				makewave(indext index);
 	void				minimap(int x, int y, point camera) const;
@@ -870,6 +887,7 @@ public:
 	void				set(indext i, map_object_s v) { objects[i] = v; }
 	static void			setcamera(short x, short y);
 	static void			setcamera(indext i);
+	void				setdungeon(bool v) { is_dungeon = v; }
 	indext				setiwh(int x, int y, int s, tile_s o, map_object_s r, bool locked_doors);
 	indext				setiwv(int x, int y, int s, tile_s o, map_object_s r, bool locked_doors);
 	void				setlos(indext index, int r);

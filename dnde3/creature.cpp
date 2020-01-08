@@ -340,7 +340,7 @@ static spell_s choose_spells(creature* p) {
 
 void creature::add(variant id, int v) {
 	add(id, v, false);
-	if(id.type==Item) {
+	if(id.type == Item) {
 		auto& ei = bsmeta<itemi>::elements[id.value];
 		if(ei.weapon.ammunition) {
 			item it(ei.weapon.ammunition, v);
@@ -1472,4 +1472,26 @@ void creature::setposition(indext v) {
 			return;
 		lookaround();
 	}
+}
+
+bool creature::ismatch(variant v) const {
+	switch(v.type) {
+	case Ability:
+		switch(v.value) {
+		case LifePoints:
+			if(hp >= get(LifePoints))
+				return false;
+			break;
+		case ManaPoints:
+			if(mp >= get(ManaPoints))
+				return false;
+			break;
+		}
+		break;
+	case State:
+		if(is((state_s)v.value))
+			return true;
+		break;
+	}
+	return false;
 }

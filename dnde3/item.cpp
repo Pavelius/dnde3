@@ -292,15 +292,19 @@ bool item::use() {
 	return c > 1;
 }
 
-bool item::match(variant v) const {
+bool item::ismatch(variant v) const {
 	switch(v.type) {
 	case Item:
-		if(type != v.value)
-			return false;
+		if(type == v.value)
+			return true;
 		break;
 	case ItemType:
-		if(magic != v.value)
-			return false;
+		if(magic == v.value)
+			return true;
+		break;
+	case Slot:
+		if(is((slot_s)v.value))
+			return true;
 		break;
 	}
 	return true;
@@ -395,7 +399,7 @@ void item::loot() {
 	set(Unknown);
 }
 
-unsigned getenchantcost(variant id, item_type_s magic, int quality) {
+static unsigned getenchantcost(variant id, item_type_s magic, int quality) {
 	static int power_cost[] = {0, 0, 1, 10};
 	auto m = 2;
 	switch(id.type) {

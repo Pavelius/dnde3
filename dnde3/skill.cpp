@@ -15,7 +15,7 @@ skilli bsmeta<skilli>::elements[] = {{"Торговля", "торговли", {Charisma, Intelle
 {"Убийство", "убийства", {Dexterity, Dexterity}},
 {"Лазание", "лазания", {Dexterity, Strenght}},
 {"Концентрация", "концетрации", {Wisdow, Wisdow}},
-{"Обезвредить ловушки", "ловушек", {Dexterity, Intellegence}},
+{"Обезвредить ловушки", "ловушек", {Dexterity, Intellegence}, {Trap}},
 {"Удар в уязвимое место", "боевых трюков", {Dexterity, Intellegence}},
 {"Слышать звуки", "слуха", {Wisdow, Intellegence}},
 {"Прятаться в тени", "скрытности", {Dexterity, Dexterity}},

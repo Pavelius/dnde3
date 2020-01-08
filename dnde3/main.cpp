@@ -1,13 +1,13 @@
 #include "main.h"
 
-static creature* create(location& loc, race_s race, gender_s gender, class_s cls) {
+static creature* create(race_s race, gender_s gender, class_s cls) {
 	auto p = loc.add(loc.positions[1], race, gender, cls);
 	p->add(Friendly, 1, false);
 	return p;
 }
 
-static creature* create(location& loc, role_s type) {
-	auto p = loc.add(loc.get(10, 10), type);
+static creature* create(role_s type) {
+	auto p = loc.add(loc.positions[2], type);
 	p->add(Hostile, 1, false);
 	return p;
 }
@@ -48,11 +48,6 @@ static void test_worldmap() {
 	loc.editor();
 }
 
-static bool test_spells() {
-	auto& loc = bsmeta<spelli>::elements[0];
-	return loc.target.type != Creature;
-}
-
 static void test_answers() {
 	sb.addn("##Создание персонажа");
 	sb.addn("У вас есть преимущество при выборе данных этого элемента.");
@@ -70,9 +65,10 @@ static void modify_weapon(creature* p1) {
 	//pi->setidentify(1);
 }
 
-static void test_indoor() {
+static creature* create_indoor() {
 	loc.clear();
 	loc.positions[1] = loc.get(3, 3);
+	loc.positions[2] = loc.get(2, 6);
 	loc.building(loc.get(5, 5), 7, 5);
 	loc.lake(10, 10, 20, 20);
 	loc.drop(loc.get(5, 4), item(SwordShort, 5));
@@ -89,12 +85,12 @@ static void test_indoor() {
 	loc.set(loc.get(3, 5), Plants);
 	loc.set(loc.get(2, 6), Blooded); loc.set(loc.get(3, 6), Blooded); loc.set(loc.get(4, 6), Blooded);
 	loc.set(loc.get(3, 6), Webbed); loc.set(loc.get(4, 6), Webbed); loc.set(loc.get(4, 7), Webbed);
-	auto p1 = create(loc, Human, Male, Ranger);
-	auto p2 = create(loc, Dwarf, Male, Cleric);
-	auto p3 = create(loc, Elf, Male, Fighter);
-	create(loc, GoblinWarrior);
-	create(loc, GoblinWarrior);
-	create(loc, GnollWarrior);
+	auto p1 = create(Human, Male, Ranger);
+	auto p2 = create(Dwarf, Male, Cleric);
+	auto p3 = create(Elf, Male, Fighter);
+	create(GoblinWarrior);
+	create(GoblinWarrior);
+	create(GnollWarrior);
 	p1->activate();
 	p1->damage(6, Bludgeon, 100);
 	modify_weapon(p1);
@@ -106,16 +102,27 @@ static void test_indoor() {
 	create(p1, RingRed);
 	create(p1, RingBlue);
 	modify_weapon(p1);
+	return p1;
+}
+
+static void test_indoor() {
+	create_indoor();
 	game.play();
+}
+
+static void test_analize() {
+	auto p1 = create_indoor();
+	analize a1(*p1);
+	a1.apply(bsmeta<spelli>::elements[0].effect, 2);
 }
 
 static void test_dungeon() {
 	loc.clear();
 	loc.level = 5;
 	loc.create(false, false);
-	auto p1 = create(loc, Human, Male, Ranger);
-	auto p2 = create(loc, Dwarf, Male, Cleric);
-	auto p3 = create(loc, Elf, Male, Fighter);
+	auto p1 = create(Human, Male, Ranger);
+	auto p2 = create(Dwarf, Male, Cleric);
+	auto p3 = create(Elf, Male, Fighter);
 	p3->activate();
 	modify_weapon(p1);
 	create(p1, Potion1);
@@ -145,6 +152,7 @@ static bool test_formula() {
 }
 
 int main(int argc, char* argv[]) {
+	auto size = sizeof(analize);
 	auto s1 = sizeof(outdoor);
 	auto s2 = sizeof(creature);
 	auto s3 = sizeof(item);
@@ -153,12 +161,12 @@ int main(int argc, char* argv[]) {
 	game.intialize();
 	//game.setnextlayer(test_worldmap);
 	//game.layer();
-	test_spells();
 	//test_answers();
 	//item_choose();
 	//test_worldmap();
 	//test_indoor();
-	test_dungeon();
+	test_analize();
+	//test_dungeon();
 }
 
 int __stdcall WinMain(void* ci, void* pi, char* cmd, int sw) {

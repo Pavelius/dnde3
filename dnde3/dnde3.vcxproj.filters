@@ -85,9 +85,6 @@
     <ClCompile Include="creaturea.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="target.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
     <ClCompile Include="spell.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
@@ -152,6 +149,12 @@
       <Filter>Логика</Filter>
     </ClCompile>
     <ClCompile Include="trap.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="indexa.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="analize.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
   </ItemGroup>

@@ -733,3 +733,25 @@ creature* location::monster(indext index) {
 	static char indecies[] = {0, 0, 0, 0, 1, 1, 1, 2, 2, 3, 4, 5};
 	return add(index, monsters[maprnd(indecies)]);
 }
+
+bool location::ismatch(indext index, variant v) const {
+	switch(v.type) {
+	case Object:
+		if(objects[index] == v.value)
+			return true;
+		break;
+	case Tile:
+		if(tiles[index] == v.value)
+			return true;
+		break;
+	}
+	return false;
+}
+
+bool location::ismatch(indext index, const aref<variant>& source) const {
+	for(auto v : source) {
+		if(ismatch(index, v))
+			return true;
+	}
+	return false;
+}
