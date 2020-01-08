@@ -1,7 +1,7 @@
 #include "main.h"
 
 static creature* create(location& loc, race_s race, gender_s gender, class_s cls) {
-	auto p = loc.add(loc.get(3,3), race, gender, cls);
+	auto p = loc.add(loc.positions[1], race, gender, cls);
 	p->add(Friendly, 1, false);
 	return p;
 }
@@ -72,13 +72,12 @@ static void modify_weapon(creature* p1) {
 
 static void test_indoor() {
 	loc.clear();
+	loc.positions[1] = loc.get(3, 3);
 	loc.building(loc.get(5, 5), 7, 5);
 	loc.lake(10, 10, 20, 20);
 	loc.drop(loc.get(5, 4), SwordShort);
 	loc.drop(loc.get(4, 6), SwordTwoHanded);
 	loc.drop(loc.get(3, 3), Staff);
-	loc.drop(loc.get(3, 3), LeatherArmor);
-	loc.set(loc.get(2, 2), Tree);
 	loc.set(loc.get(4, 3), Tree);
 	loc.set(loc.get(2, 6), Hill);
 	loc.set(loc.get(3, 7), Hill);
@@ -107,6 +106,25 @@ static void test_indoor() {
 	create(p1, RingRed);
 	create(p1, RingBlue);
 	modify_weapon(p1);
+	game.play();
+}
+
+static void test_dungeon() {
+	loc.clear();
+	loc.level = 5;
+	loc.create(true, false);
+	auto p1 = create(loc, Human, Male, Ranger);
+	auto p2 = create(loc, Dwarf, Male, Cleric);
+	auto p3 = create(loc, Elf, Male, Fighter);
+	p1->activate();
+	modify_weapon(p1);
+	create(p1, Potion1);
+	create(p1, Potion1, Dexterity);
+	create(p1, BracersLeather);
+	create(p1, Boot1);
+	create(p1, Helmet);
+	create(p1, RingRed);
+	create(p1, RingBlue);
 	game.play();
 }
 
@@ -139,7 +157,8 @@ int main(int argc, char* argv[]) {
 	//test_answers();
 	//item_choose();
 	//test_worldmap();
-	test_indoor();
+	//test_indoor();
+	test_dungeon();
 }
 
 int __stdcall WinMain(void* ci, void* pi, char* cmd, int sw) {

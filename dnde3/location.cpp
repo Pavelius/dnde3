@@ -509,6 +509,8 @@ void location::blockcreatures() {
 	for(auto& e : bsmeta<creature>()) {
 		if(!e)
 			continue;
+		if(e.is(Friendly))
+			continue;
 		auto i = e.getposition();
 		if(i == Blocked)
 			continue;

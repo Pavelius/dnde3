@@ -7,10 +7,24 @@
 const int GP = 100;
 const int SP = 10;
 const int CP = 1;
+
 const short unsigned mmx = 96;
 const short unsigned mmy = 96;
 const unsigned short Blocked = 0xFFFF;
+
 const int StandartEnergyCost = 1000;
+
+const int chance_corridor_content = 10;
+const int chance_door_closed = 30;
+const int chance_generate_room = 40;
+const int chance_special_area = 5;
+const int dense_forest = 5;
+const int max_building_size = 15;
+
+const int chance_act = 40;
+const int chance_blood_when_dead = 70;
+const int chance_drop_item = 40;
+const int restore_points_percent = 75;
 
 enum item_s : unsigned char {
 	NoItem,
@@ -98,7 +112,7 @@ enum tile_s : unsigned char {
 	Plain, Water, Floor, Wall, Road,
 	Swamp, Hill,
 	Sea, Foothills, Mountains, CloudPeaks, Forest,
-	City,
+	City
 };
 enum site_s : unsigned char {
 	EmpthyRoom, TreasureRoom,
@@ -473,7 +487,7 @@ public:
 	void				setcap(skill_s i, int v) { cap[i] = v; }
 	void				setcaps();
 };
-class site : rect {
+class site : public rect {
 	site_s				type;
 	unsigned char		name[2];
 	diety_s				diety;
@@ -486,6 +500,8 @@ public:
 	operator bool() const { return x1 != x2; }
 	creature*			add(race_s race, gender_s gender, class_s type);
 	creature*			add(role_s type);
+	creature*			adventurer();
+	void				create(int x, int y, int w, int h, site_s type);
 	static site*		find(indext index);
 	void				getname(stringbuilder& sb) const;
 	creature*			getowner() const;
@@ -764,6 +780,7 @@ struct manual {
 	const char*			getname() const;
 };
 struct statistici {
+	short				artifacts;
 	short				level;
 	indext				positions[4];
 };
@@ -776,10 +793,7 @@ class location : public statistici {
 	bool				visualize;
 	//
 	indext				bpoint(indext index, int w, int h, direction_s dir) const;
-	void				connector(indext index, direction_s dir, const rect& correct);
-	void				corridor(const rect& rc, direction_s dir);
-	void				dungeonc(rooma& rooms);
-	bool				isdungeon() const { return false; }
+	bool				isdungeon() const { return true; }
 	indext				getfree(indext i, procis proc, int radius_maximum) const;
 	void				room(const rect& rc);
 	bool				linelos(int x0, int y0, int x1, int y1) const;
@@ -799,6 +813,7 @@ public:
 	indext				choose(bool allow_cancel);
 	void				clear();
 	static void			clearblock();
+	void				create(bool explored, bool visualize);
 	void				create(const rect& rc, int count, map_object_s object);
 	void				create(const rect& rc, int count, tile_s v);
 	void				drop(indext i, item v);
@@ -825,6 +840,7 @@ public:
 	void				lake(int x, int y, int w, int h);
 	void				makewave(indext index);
 	void				minimap(int x, int y, point camera) const;
+	void				minimap(indext index) const;
 	bool				read(const char* url);
 	void				remove(indext i, map_flag_s v) { flags[i].remove(v); }
 	void				set(indext i, map_flag_s v) { flags[i].set(v); }
@@ -836,6 +852,7 @@ public:
 	indext				setiwh(int x, int y, int s, tile_s o, map_object_s r, bool locked_doors);
 	indext				setiwv(int x, int y, int s, tile_s o, map_object_s r, bool locked_doors);
 	void				setlos(indext index, int r);
+	static void			show(rooma& rooms);
 	indext				stepto(indext index);
 	indext				stepfrom(indext index);
 	static indext		to(indext index, direction_s v);

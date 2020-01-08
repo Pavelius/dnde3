@@ -871,7 +871,7 @@ bool location::wget(short unsigned i, direction_s direction, tile_s value, bool 
 void location::indoor(point camera, bool show_fow, const picture* effects) {
 	creature* units[scrx*scry];
 	auto night_percent = 0;
-	auto is_dungeon = false;
+	auto is_dungeon = isdungeon();
 	const sprite *floor, *walls;
 	if(is_dungeon) {
 		floor = gres(ResDungeon);
@@ -1553,10 +1553,11 @@ void location::minimap(int x, int y, point camera) const {
 	//view_legends(x, y, map::size.x*mmaps + metrics::padding);
 }
 
-void creature::minimap() {
+void location::minimap(indext index) const {
 	char temp[128]; stringbuilder sb(temp);
 	int w = mmx * mmaps + 280;
 	int h = mmy * mmaps;
+	point camera = {getx(index)*elx - viewport.x/2, gety(index)*ely - viewport.y/2};
 	while(ismodal()) {
 		draw::rectf({0, 0, draw::getwidth(), draw::getheight()}, colors::form);
 		if(loc.level)
@@ -1654,6 +1655,29 @@ void creature::pause() {
 	while(ismodal()) {
 		current_background();
 		render_message("Пробел");
+		domodal();
+		switch(hot.key) {
+		case KeySpace:
+		case KeyEscape:
+			breakmodal(1);
+			hot.key = 0;
+			break;
+		}
+	}
+}
+
+void location::show(rooma& rooms) {
+	while(ismodal()) {
+		rectf({0, 0, getwidth(), getheight()}, colors::form);
+		auto x0 = mmaps, y0 = mmaps;
+		for(auto& e : rooms) {
+			rect rc;
+			rc.x1 = x0 + e.x1*mmaps;
+			rc.x2 = x0 + e.x2*mmaps;
+			rc.y1 = x0 + e.y1*mmaps;
+			rc.y2 = x0 + e.y2*mmaps;
+			rectb(rc, colors::white);
+		}
 		domodal();
 		switch(hot.key) {
 		case KeySpace:

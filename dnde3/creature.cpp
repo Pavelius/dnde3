@@ -6,10 +6,6 @@ static int			skill_level[] = {10, 40, 60, 80};
 static dicei		skill_raise[] = {{2, 12}, {1, 6}, {1, 4}, {1, 1}};
 static const char*	skill_names[] = {"Начальный", "Продвинутый", "Экспертный", "Мастерский"};
 static creature*	current_player;
-const int			restore_points_percent = 75;
-const int			chance_act = 40;
-const int			chance_blood_when_dead = 70;
-const int			chance_drop_item = 40;
 
 void creature::clear() {
 	memset(this, 0, sizeof(*this));
@@ -1404,4 +1400,8 @@ int	creature::getboost(variant id) const {
 			result += e.modifier;
 	}
 	return result;
+}
+
+void creature::minimap() {
+	loc.minimap(getposition());
 }
