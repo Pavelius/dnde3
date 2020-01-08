@@ -145,7 +145,17 @@ item::item(item_s type) {
 		setcount(ei.count);
 }
 
-item::item(item_s item_type, int chance_artifact, int chance_magic, int chance_cursed, int chance_quality) {
+item::item(item_s type, int level) {
+	auto chance_artifact = level / 3;
+	auto chance_magic = level;
+	auto chance_cursed = 5;
+	auto chance_quality = 15 + level;
+	if(chance_quality > 70)
+		chance_quality = 70;
+	create(type, chance_artifact, chance_magic, chance_cursed, chance_quality);
+}
+
+void item::create(item_s item_type, int chance_artifact, int chance_magic, int chance_cursed, int chance_quality) {
 	clear();
 	type = item_type;
 	auto& ei = getitem();
@@ -218,11 +228,7 @@ void item::getstatistic(stringbuilder& sb) const {
 
 void item::getname(stringbuilder& sb, bool show_cab) const {
 	auto& ei = getitem();
-	int q = quality;
-	if(ei.slot >= Head && ei.slot <= Amunitions)
-		q = getbonus();
-	else if(is(Cursed))
-
+	auto q = getbonus();
 	if(show_cab) {
 		if(is(KnownMagic))
 			sb.adds(bsmeta<item_typei>::elements[getmagic()].name[ei.gender]);
@@ -241,7 +247,7 @@ void item::getname(stringbuilder& sb, bool show_cab) const {
 				q = bsmeta<abilityi>::elements[effect.value].getbonus(q);
 			}
 		}
-		if(q != 0)
+		if(ei.slot >= Head && ei.slot <= Amunitions && q != 0)
 			sb.adds(format, q);
 	}
 	auto n = getcount();
@@ -300,7 +306,7 @@ bool item::match(variant v) const {
 }
 
 int	item::getbonus() const {
-	int m = 0;
+	auto m = 0;
 	switch(magic) {
 	case Artifact:
 		m = 2 + quality;
@@ -309,15 +315,13 @@ int	item::getbonus() const {
 		m = 1 + quality;
 		break;
 	case Cursed:
-		return -1 - (int)quality;
+		return -1 - quality;
 	default:
 		m = quality;
 		break;
 	}
 	auto& ei = getitem();
-	if(!ei.effects.count)
-		return m;
-	if(effect || ei.effects.data[0])
+	if(ei.effects.count && (effect || ei.effects.data[0]))
 		m++;
 	return m;
 }

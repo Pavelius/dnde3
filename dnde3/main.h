@@ -12,15 +12,6 @@ const short unsigned mmy = 96;
 const unsigned short Blocked = 0xFFFF;
 const int StandartEnergyCost = 1000;
 
-enum dice_s : unsigned char {
-	NoDice,
-	D1n3, D1n4,
-	D1n6, D2n7,
-	D1n8,
-	D1n10,
-	D1n12,
-	D2n12,
-};
 enum item_s : unsigned char {
 	NoItem,
 	AxeBattle, Club, Dagger, HammerWar, Mace,
@@ -405,10 +396,11 @@ class item {
 public:
 	constexpr item() : type(NoItem), effect(0), count(0), magic(Mundane), quality(0), identify(Unknown), forsale(0), damaged(0) {}
 	item(item_s type);
-	item(item_s type, int chance_artifact, int chance_magic, int chance_cursed, int chance_quality);
+	item(item_s type, int level);
 	explicit operator bool() const { return type != NoItem; }
 	void				act(const char* format, ...) const;
 	void				clear() { memset(this, 0, sizeof(*this)); }
+	void				create(item_s type, int chance_artifact, int chance_magic, int chance_cursed, int chance_quality);
 	bool				damageb();
 	void				damage();
 	item_s				getammo() const { return getitem().weapon.ammunition; }
@@ -559,6 +551,8 @@ class creature : public nameable, public posable {
 	void				attack(creature& enemy, const attacki& ai, int bonus);
 	const variant*		calculate(const variant* formula, int& result) const;
 	void				cantmovehere() const;
+	bool				cantakeoff(slot_s id, bool interactive);
+	bool				canuse(const item& e, bool talk) const;
 	void				clearboost() const;
 	void				dress(int m);
 	void				dresssk(int m);
@@ -632,7 +626,7 @@ public:
 	int					getmana() const { return mp; }
 	int					getmoney() const { return money; }
 	static creature*	getobject(short unsigned v);
-	dice_s				getraise(skill_s id) const;
+	dicei				getraise(skill_s id) const;
 	role_s				getrole() const { return (role_s)value; }
 	site*				getsite() const { return 0; }
 	slot_s				getwearerslot(const item* p) const;
@@ -664,6 +658,8 @@ public:
 	void				raiseskills(int number);
 	void				raiseskills() { raiseskills(get(Intellegence) / 2); }
 	void				rangeattack(creature& enemy, int bonus = 0);
+	bool				roll(ability_s v) const { return rollv(get(v), 0); }
+	bool				roll(ability_s v, int bonus) const { return rollv(get(v) + bonus, 0); }
 	bool				roll(skill_s v) const { return rollv(get(v), 0); }
 	bool				roll(skill_s v, int bonus) const { return rollv(get(v) + bonus, 0); }
 	bool				roll(skill_s v, int bonus, int divider) const;

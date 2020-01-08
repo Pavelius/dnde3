@@ -2,7 +2,8 @@
 
 DECLDATA(creature, 256);
 
-static int			skill_level[] = {20, 50, 75, 90};
+static int			skill_level[] = {10, 40, 60, 80};
+static dicei		skill_raise[] = {{2, 12}, {1, 6}, {1, 4}, {1, 1}};
 static const char*	skill_names[] = {"Начальный", "Продвинутый", "Экспертный", "Мастерский"};
 static creature*	current_player;
 const int			restore_points_percent = 75;
@@ -52,7 +53,7 @@ void creature::add(variant id, int v, bool interactive) {
 		}
 		break;
 	case Item:
-		equip(item_s(id.value));
+		equip(item(item_s(id.value), v));
 		break;
 	}
 }
@@ -184,15 +185,13 @@ int creature::getlevel(skill_s v) const {
 	return n;
 }
 
-dice_s creature::getraise(skill_s v) const {
-	dice_s source[] = {D2n12, D1n6, D1n4};
+dicei creature::getraise(skill_s v) const {
 	auto n = getlevel(v);
-	return maptbl(source, n);
+	return maptbl(skill_raise, n);
 }
 
 void creature::raise(skill_s value) {
-	const auto& dice = bsmeta<dicei>::elements[getraise(value)];
-	skills[value] += dice.roll();
+	skills[value] += getraise(value).roll();
 }
 
 void creature::equip(item it, slot_s id) {
@@ -238,9 +237,9 @@ bool creature::equip(item v) {
 	return add(v, true, false);
 }
 
-bool creature::equip(item& v1, item& v2, bool run) {
-	if(!isallow(v2.getkind())) {
-		if(run) {
+bool creature::canuse(const item& e, bool talk) const {
+	if(!isallow(e.getkind())) {
+		if(talk) {
 			static const char* text[] = {
 				"Да ну, это не мой размер.",
 				"Я не знаю как этим пользоваться.",
@@ -250,6 +249,42 @@ bool creature::equip(item& v1, item& v2, bool run) {
 		}
 		return false;
 	}
+	return true;
+}
+
+bool creature::cantakeoff(slot_s id, bool talk) {
+	if(id >= Head && id <= Amunitions) {
+		auto& e = wears[id];
+		if(e.is(Cursed)) {
+			if(talk) {
+				static const char* text[] = {
+					"Уберите руки! Это мое!",
+					"Нет, я это не отдам.",
+					"Мое сокровище! Моя прелесть!",
+				};
+				say(maprnd(text));
+				e.set(KnownPower);
+			}
+			return false;
+		} else if(e.is(Natural)) {
+			if(talk) {
+				static const char* text[] = {
+					"Это часть меня!",
+					"Как я это сниму? Отрежу?",
+					"Ты в своем уме?",
+					"Это приросло ко мне намертво.",
+				};
+				say(maprnd(text));
+			}
+			return false;
+		}
+	}
+	return true;
+}
+
+bool creature::equip(item& v1, item& v2, bool run) {
+	if(!canuse(v2, true))
+		return false;
 	dressoff();
 	auto v = v1;
 	v1 = v2;
@@ -1339,16 +1374,16 @@ void creature::add(variant id, int v, bool interactive, item_type_s magic, int q
 		default:
 			if(v >= 0) {
 				switch(magic) {
-				case Artifact: add(id, 1 + quality, interactive); break;
-				case Cursed: add(id, -(1 + quality), interactive); break;
-				case Blessed: add(id, v + xrand(1, 3), interactive, 5 * (minutes + minutes*quality)); break;
-				default: add(id, v, interactive, minutes + minutes*quality); break;
+				case Artifact: add(id, v + quality, interactive); break;
+				case Cursed: add(id, -(v + quality), interactive); break;
+				case Blessed: add(id, v + quality, interactive, 5 * minutes); break;
+				default: add(id, v + quality, interactive, minutes); break;
 				}
 			} else {
 				switch(magic) {
 				case Artifact: case Blessed: break;
-				case Cursed: add(id, -(1 + quality), interactive); break;
-				default: add(id, v, interactive, minutes + minutes*quality); break;
+				case Cursed: add(id, v - quality, interactive); break;
+				default: add(id, v - quality, interactive, minutes); break;
 				}
 			}
 			break;

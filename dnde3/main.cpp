@@ -13,13 +13,15 @@ static creature* create(location& loc, role_s type) {
 }
 
 static void create(creature* p1, item_s type) {
-	item it(type, 3, 20, 6, 30);
+	item it;
+	it.create(type, 3, 20, 6, 30);
 	it.set(KnownPower);
 	p1->add(it, true, false);
 }
 
 static void create(creature* p1, item_s type, variant effect) {
-	item it(type, 5, 20, 6, 40);
+	item it;
+	it.create(type, 5, 20, 6, 40);
 	it.set(KnownPower);
 	it.seteffect(effect);
 	p1->add(it, true, false);
@@ -64,7 +66,7 @@ static void modify_weapon(creature* p1) {
 	item* pi = (item*)&p1->get(Melee);
 	pi->seteffect(Attack);
 	pi->set(Cursed);
-	pi->setquality(3);
+	//pi->setquality(3);
 	//pi->setidentify(1);
 }
 

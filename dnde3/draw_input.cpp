@@ -1318,9 +1318,9 @@ static int text(int x, int y, int width, int value, const char* format = "%1i") 
 	return width + 8;
 }
 
-static int text(int x, int y, int width, dice_s v, const char* format = "+ %1i-%2i") {
+static int text(int x, int y, int width, dicei v, const char* format = "+ %1i-%2i") {
 	char temp[32]; stringbuilder sb(temp);
-	sb.add(format, bsmeta<dicei>::elements[v].min, bsmeta<dicei>::elements[v].max);
+	sb.add(format, v.min, v.max);
 	text(x + width - textw(temp), y, temp);
 	return width + 8;
 }
