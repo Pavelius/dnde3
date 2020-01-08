@@ -62,10 +62,10 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, NoGender, Organic, {0, 3, {1, 
 {"Бахрец", 3000, 200 * GP, Male, Iron, {-15}, {30, 4, 35}, {}, {}, Torso},
 {"Латы", 3500, 800 * GP, Female, Iron, {-20}, {40, 5, 35}, {}, {}, Torso},
 //
-{"Щит", 800, 0 * GP, Female, Iron, {-5, 1}, {10, 0, 25}, {}, {}, OffHand},
-{"Шлем", 100, 0 * GP, Female, Iron, {-1}, {5, 0, 20}, {}, {}, Head},
-{"Наручи", 70, 0 * GP, Female, Iron, {-1}, {5, 0, 15}, {}, {}, Elbows},
-{"Железные наручи", 110, 0 * GP, Female, Iron, {-3}, {5, 1, 20}, {}, {}, Elbows},
+{"Щит", 800, 0 * GP, Male, Iron, {-5, 1}, {10, 0, 25, 5}, {}, {}, OffHand},
+{"Шлем", 100, 0 * GP, Male, Iron, {-1}, {5, 0, 20, 3}, {}, {}, Head},
+{"Наручи", 70, 0 * GP, NoGender, Iron, {-1}, {5, 0, 15, 2}, {}, {}, Elbows},
+{"Железные наручи", 110, 0 * GP, NoGender, Iron, {-3}, {5, 1, 20, 2}, {}, {}, Elbows},
 //
 {"Плащ", 30, 10 * SP, Male, Leather, {}, {3, 0, 2}, {}, {}, TorsoBack},
 {"Плащ", 30, 15 * GP, Male, Leather, {}, {3, 0, 2}, {}, {}, TorsoBack},
@@ -220,8 +220,10 @@ void item::getname(stringbuilder& sb, bool show_cab) const {
 	auto& ei = getitem();
 	auto q = getbonus();
 	if(show_cab) {
-		if(is(KnownMagic))
-			sb.adds(bsmeta<item_typei>::elements[getmagic()].name[ei.gender]);
+		if(is(KnownMagic)) {
+			if(getmagic())
+				sb.adds(bsmeta<item_typei>::elements[getmagic()].name[ei.gender]);
+		}
 	}
 	sb.adds("%-1", getname());
 	if(is(KnownPower)) {
@@ -242,8 +244,8 @@ void item::getname(stringbuilder& sb, bool show_cab) const {
 	}
 	if(iscountable()) {
 		auto n = getcount();
-		if(n > 1)
-			sb.adds("%1iшт.", n);
+		if(n>1)
+			sb.adds("%1i шт", getcount());
 	}
 }
 

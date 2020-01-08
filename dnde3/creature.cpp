@@ -731,6 +731,8 @@ void creature::move(indext index) {
 	}
 	setposition(index);
 	wait();
+	if(isactive())
+		loc.additems(index, sb);
 }
 
 creature* creature::find(indext i) {

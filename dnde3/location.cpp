@@ -202,6 +202,39 @@ void location::addinfo(indext i, stringbuilder& sb) const {
 	auto p = creature::find(i);
 	if(p)
 		sb.adds("Здесь стоит %1.", p->getname());
+	additems(i, sb);
+}
+
+int location::getitemscount(indext i) const {
+	auto result = 0;
+	for(auto& e : bsmeta<itemground>()) {
+		if(!e || e.index != i)
+			continue;
+		result++;
+	}
+	return result;
+}
+
+void location::additems(indext i, stringbuilder& sb) const {
+	auto maximum_count = getitemscount(i);
+	auto count = 0;
+	for(auto& e : bsmeta<itemground>()) {
+		if(!e || e.index!=i)
+			continue;
+		if(!count) {
+			if(maximum_count == 1 && e.getcount()>1)
+				sb.adds("Здесь лежат");
+			else
+				sb.adds("Здесь лежит");
+		} else if((count+1)==maximum_count)
+			sb.adds("и");
+		else
+			sb.add(",");
+		e.getname(sb, true);
+		count++;
+	}
+	if(count > 0)
+		sb.add(".");
 }
 
 direction_s	location::getdirection(point s, point d) {

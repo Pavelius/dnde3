@@ -16,7 +16,7 @@ static void create(creature* p1, item_s type) {
 	item it;
 	it.create(type, 3, 20, 6, 30);
 	it.set(KnownPower);
-	p1->add(it, true, false);
+	p1->equip(it);
 }
 
 static void create(creature* p1, item_s type, variant effect) {
@@ -112,15 +112,15 @@ static void test_indoor() {
 static void test_dungeon() {
 	loc.clear();
 	loc.level = 5;
-	loc.create(true, false);
+	loc.create(false, false);
 	auto p1 = create(loc, Human, Male, Ranger);
 	auto p2 = create(loc, Dwarf, Male, Cleric);
 	auto p3 = create(loc, Elf, Male, Fighter);
-	p1->activate();
+	p3->activate();
 	modify_weapon(p1);
 	create(p1, Potion1);
 	create(p1, Potion1, Dexterity);
-	create(p1, BracersLeather);
+	create(p3, BracersLeather);
 	create(p1, Boot1);
 	create(p1, Helmet);
 	create(p1, RingRed);

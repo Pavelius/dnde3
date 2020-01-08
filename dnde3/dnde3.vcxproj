@@ -130,6 +130,7 @@
     <ClCompile Include="draw_text.cpp" />
     <ClCompile Include="draw_textf.cpp" />
     <ClCompile Include="equipment.cpp" />
+    <ClCompile Include="trap.cpp" />
     <ClCompile Include="use.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="io.cpp" />

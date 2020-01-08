@@ -104,6 +104,7 @@ static void create_treasure(indext index) {
 static void create_monster(indext index) {
 	auto p = loc.monster(index);
 	p->add(Hostile, 1, false);
+	p->setguard(index);
 }
 
 static void create_door(indext index) {

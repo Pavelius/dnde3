@@ -375,6 +375,12 @@ struct attacki {
 	item_s				ammunition;
 	int					getenergy() const { return StandartEnergyCost - speed * 50; }
 };
+struct trapi {
+	const char*			name;
+	dicei				damage;
+	variant				type;
+	const char*			text_use;
+};
 struct item_typei {
 	const char*			id;
 	const char*			name[3];
@@ -658,7 +664,7 @@ public:
 	bool				isactive() const { return getactive() == this; }
 	bool				isallow(item_s v) const;
 	bool				isenemy(const creature* target) const;
-	bool				isguard() const { return guard != 0xFFFF; }
+	bool				isguard() const { return guard != Blocked; }
 	bool				isvisible() const;
 	void				kill();
 	void				look(indext index);
@@ -807,6 +813,7 @@ public:
 	creature*			add(indext index, role_s role);
 	creature*			add(indext index, race_s race, gender_s gender, class_s type);
 	void				addinfo(indext i, stringbuilder& sb) const;
+	void				additems(indext i, stringbuilder& sb) const;
 	creature*			adventurer(indext index);
 	void				blockcreatures();
 	void				blockwalls(bool water = true);
@@ -830,6 +837,7 @@ public:
 	static short		getx(indext i) { return i % mmx; }
 	static short		gety(indext i) { return i / mmx; }
 	int					getindex(indext i, tile_s e) const;
+	int					getitemscount(indext i) const;
 	map_object_s		getobject(indext i) const { return objects[i]; }
 	tile_s				gettile(indext i) const;
 	trap_s				gettrap(indext i) const { return NoTrap; }
