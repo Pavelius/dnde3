@@ -1,40 +1,58 @@
 #include "main.h"
 
-void creaturea::remove(variant v) {
+void creaturea::match(creature& player, variant v, bool remove) {
 	auto ps = data;
 	for(auto p : *this) {
-		if(p->ismatch(v))
-			continue;
+		if(v.type == State && v.value == Hostile) {
+			if(remove) {
+				if(player.isenemy(p))
+					continue;
+			} else {
+				if(!player.isenemy(p))
+					continue;
+			}
+		} else if(v.type == State && v.value == Friendly) {
+			if(remove) {
+				if(!player.isenemy(p))
+					continue;
+			} else {
+				if(player.isenemy(p))
+					continue;
+			}
+		} else {
+			if(remove) {
+				if(p->ismatch(v))
+					continue;
+			} else {
+				if(!p->ismatch(v))
+					continue;
+			}
+		}
 		*ps++ = p;
 	}
 	count = ps - data;
 }
 
-void creaturea::match(variant v) {
+void creaturea::match(variant v, bool remove) {
 	auto ps = data;
 	for(auto p : *this) {
-		if(!p->ismatch(v))
-			continue;
+		if(remove) {
+			if(p->ismatch(v))
+				continue;
+		} else {
+			if(!p->ismatch(v))
+				continue;
+		}
 		*ps++ = p;
 	}
 	count = ps - data;
 }
 
-void creaturea::match(indext index, int range) {
+void creaturea::matchr(indext index, int range) {
 	auto ps = data;
 	for(auto p : *this) {
 		auto i = p->getposition();
 		if(loc.getrange(i, index) > range)
-			continue;
-		*ps++ = p;
-	}
-	count = ps - data;
-}
-
-void creaturea::matchenemy(const creature* player) {
-	auto ps = data;
-	for(auto p : *this) {
-		if(!p->isenemy(player))
 			continue;
 		*ps++ = p;
 	}

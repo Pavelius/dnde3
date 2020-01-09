@@ -34,7 +34,7 @@ void analize::match(variant v) {
 	case Range:
 		switch(type) {
 		case Creature:
-			creatures.match(player.getposition(), range_value[v.value]);
+			creatures.matchr(player.getposition(), range_value[v.value]);
 			break;
 		case Object:
 			indecies.match(player.getposition(), range_value[v.value]);
@@ -45,33 +45,17 @@ void analize::match(variant v) {
 		target = (target_s)v.value;
 		break;
 	case State:
-		switch(v.value) {
-		case Hostile:
-			if(player.is(Hostile))
-				creatures.remove(Hostile);
-			else
-				creatures.match(Hostile);
-			break;
-		case Friendly:
-			if(player.is(Hostile))
-				creatures.match(Hostile);
-			else
-				creatures.remove(Hostile);
-			break;
-		default:
-			creatures.match(v);
-			break;
-		}
+		creatures.match(player, v, false);
 		break;
 	case Slot:
 	case Item:
 	case ItemType:
 		set(Item);
-		items.match(v);
+		items.match(v, false);
 		break;
 	case Object:
 		set(Object);
-		indecies.match(v);
+		indecies.match(v, false);
 		break;
 	}
 }
@@ -79,39 +63,23 @@ void analize::match(variant v) {
 void analize::remove(variant v) {
 	switch(v.type) {
 	case State:
-		switch(v.value) {
-		case Hostile:
-			if(player.is(Hostile))
-				creatures.match(Hostile);
-			else
-				creatures.remove(Hostile);
-			break;
-		case Friendly:
-			if(player.is(Hostile))
-				creatures.remove(Hostile);
-			else
-				creatures.match(Hostile);
-			break;
-		default:
-			creatures.remove(v);
-			break;
-		}
+		creatures.match(player, v, true);
 		break;
 	case Slot:
 	case Item:
 	case ItemType:
 		set(Item);
-		items.remove(v);
+		items.match(v, true);
 		break;
 	case Object:
 		set(Object);
-		indecies.remove(v);
+		indecies.match(v, true);
 		break;
 	default:
 		switch(type) {
-		case Creature: creatures.remove(v); break;
-		case Item: items.remove(v); break;
-		case Object: indecies.remove(v); break;
+		case Creature: creatures.match(v, true); break;
+		case Item: items.match(v, true); break;
+		case Object: indecies.match(v, true); break;
 		}
 		break;
 	}

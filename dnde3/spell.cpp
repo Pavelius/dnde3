@@ -1,4 +1,4 @@
 #include "main.h"
 
-spelli bsmeta<spelli>::elements[] = {{"Благословение", {Friendly, Reach, AllTargets, BlessSpell}}
+spelli bsmeta<spelli>::elements[] = {{"Благословение", {Creature, Reach, AllTargets, Friendly}}
 };

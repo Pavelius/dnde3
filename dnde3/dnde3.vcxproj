@@ -132,6 +132,7 @@
     <ClCompile Include="draw_textf.cpp" />
     <ClCompile Include="equipment.cpp" />
     <ClCompile Include="indexa.cpp" />
+    <ClCompile Include="target.cpp" />
     <ClCompile Include="trap.cpp" />
     <ClCompile Include="use.cpp" />
     <ClCompile Include="game.cpp" />

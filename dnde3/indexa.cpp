@@ -26,27 +26,22 @@ void indexa::select(indext index, int distance) {
 	count = ps - data;
 }
 
-void indexa::match(variant v) {
+void indexa::match(variant v, bool remove) {
 	auto ps = data;
 	for(auto i : *this) {
-		if(!loc.ismatch(i, v))
-			continue;
+		if(remove) {
+			if(loc.ismatch(i, v))
+				continue;
+		} else {
+			if(!loc.ismatch(i, v))
+				continue;
+		}
 		*ps++ = i;
 	}
 	count = ps - data;
 }
 
-void indexa::remove(variant v) {
-	auto ps = data;
-	for(auto i : *this) {
-		if(loc.ismatch(i, v))
-			continue;
-		*ps++ = i;
-	}
-	count = ps - data;
-}
-
-void indexa::match(indext index, int range) {
+void indexa::matchr(indext index, int range) {
 	auto ps = data;
 	for(auto i : *this) {
 		if(loc.getrange(i, index)>range)

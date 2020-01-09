@@ -112,8 +112,6 @@ static void test_indoor() {
 
 static void test_analize() {
 	auto p1 = create_indoor();
-	analize a1(*p1);
-	a1.apply(bsmeta<spelli>::elements[0].effect, 2);
 }
 
 static void test_dungeon() {
@@ -164,8 +162,8 @@ int main(int argc, char* argv[]) {
 	//test_answers();
 	//item_choose();
 	//test_worldmap();
-	//test_indoor();
-	test_analize();
+	test_indoor();
+	//test_analize();
 	//test_dungeon();
 }
 

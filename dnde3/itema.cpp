@@ -38,21 +38,16 @@ void itema::matchboost(variant v) {
 	count = ps - data;
 }
 
-void itema::match(variant v) {
+void itema::match(variant v, bool remove) {
 	auto ps = data;
 	for(auto p : *this) {
-		if(!p->ismatch(v))
-			continue;
-		*ps++ = p;
-	}
-	count = ps - data;
-}
-
-void itema::remove(variant v) {
-	auto ps = data;
-	for(auto p : *this) {
-		if(p->ismatch(v))
-			continue;
+		if(remove) {
+			if(p->ismatch(v))
+				continue;
+		} else {
+			if(!p->ismatch(v))
+				continue;
+		}
 		*ps++ = p;
 	}
 	count = ps - data;

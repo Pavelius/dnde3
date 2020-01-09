@@ -588,7 +588,7 @@ void creature::inventory() {
 			if(slot >= Head && slot <= Amunitions) {
 				items.clear();
 				items.selectb(*this);
-				items.match(slot);
+				items.match(slot, false);
 				auto p2 = items.choose(true, "Рюкзак", 0, NoSlotName);
 				if(p2) {
 					if(!equip(*pi, *p2, true))
@@ -881,7 +881,7 @@ void creature::aiturn() {
 	creaturea source;
 	source.select(getposition(), getlos());
 	creaturea enemies = source;
-	enemies.matchenemy(this);
+	enemies.match(*this, Hostile, false);
 	if(enemies) {
 		// Combat situation - need eliminate enemy
 		enemies.sort(getposition());
@@ -1094,7 +1094,7 @@ void creature::addexp(int v) {
 void creature::enslave() {
 	creaturea source;
 	source.select();
-	source.match(Hostile);
+	source.match(*this, Hostile, false);
 	auto p = source.choose(true, "В кого хотите вселиться?");
 	p->activate();
 	wait();
@@ -1202,7 +1202,7 @@ void creature::shoot() {
 		return;
 	creaturea enemies;
 	enemies.select(getposition(), getlos());
-	enemies.matchenemy(this);
+	enemies.match(*this, Hostile, false);
 	enemies.sort(getposition());
 	if(!enemies) {
 		static const char* text[] = {
@@ -1426,7 +1426,7 @@ void creature::add(variant id, int v, bool interactive, item_type_s magic, int q
 
 bool creature::aiuse(bool interactive, const char* title, slot_s slot, variant effect) {
 	itema source; source.selectb(*this);
-	source.match(slot);
+	source.match(slot, false);
 	if(effect)
 		source.matchboost(effect);
 	auto pi = source.choose(interactive, title, 0, NoSlotName);

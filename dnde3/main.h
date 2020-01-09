@@ -476,9 +476,8 @@ public:
 	item*				chooses(bool interactive, const char* title, const char* format, slot_mode_s mode);
 	item*				choose(bool interactive, const char* title, const char* format, slot_mode_s mode);
 	void				footer(stringbuilder& sb) const;
-	void				match(variant v);
+	void				match(variant v, bool remove);
 	void				matchboost(variant v);
-	void				remove(variant v);
 	void				select(creature& e);
 	void				select(indext index);
 	void				selecta(creature& e);
@@ -722,10 +721,9 @@ public:
 	creaturea() = default;
 	creaturea(const creature& v) { select(v.getposition(), v.getlos()); }
 	creature*			choose(bool interactive, const char* title);
-	void				match(variant v);
-	void				match(indext index, int range);
-	void				matchenemy(const creature* v);
-	void				remove(variant v);
+	void				match(variant v, bool remove);
+	void				match(creature& player, variant v, bool remove);
+	void				matchr(indext index, int range);
 	void				select();
 	void				select(indext start, int distance);
 	void				select(state_s v);
@@ -734,15 +732,22 @@ public:
 class indexa : public adat<indext> {
 public:
 	int					choose(bool interactive, const char* title);
-	void				match(variant v);
-	void				match(indext index, int range);
-	void				remove(variant v);
+	void				match(variant v, bool remove);
+	void				matchr(indext index, int range);
 	void				select(indext index, int distance);
 	void				sort(indext start);
 };
+struct targeti {
+	variant_s			type;
+	range_s				range;
+	target_s			target;
+	variant				conditions[3];
+	void				match(creature& player, creaturea& creatures, itema& items, indexa& indecies) const;
+	void				select(creature& player, creaturea& creatures, itema& items, indexa& indecies) const;
+};
 struct spelli {
 	const char*			name;
-	varianta			effect;
+	targeti				effect;
 };
 struct itemground : item {
 	short unsigned		index;
