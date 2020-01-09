@@ -485,8 +485,8 @@ public:
 };
 class itema : public adat<item*> {
 public:
-	item*				chooses(bool interactive, const char* title, const char* format, slot_mode_s mode);
-	item*				choose(bool interactive, const char* title, const char* format, slot_mode_s mode);
+	item*				chooses(const char* interactive, const char* title, const char* format, slot_mode_s mode);
+	item*				choose(const char* interactive, const char* title, const char* format, slot_mode_s mode, bool show_always = false);
 	void				footer(stringbuilder& sb) const;
 	void				match(variant v, bool remove);
 	void				matcha(creature& player, variant id, int v);
@@ -584,7 +584,7 @@ class creature : public nameable {
 	unsigned			money;
 	//
 	void				addx(variant id, variant source, int modifier, unsigned rounds);
-	bool				aiuse(bool interactive, const char* title, slot_s slot, variant effect);
+	bool				aiuse(const char* interactive, const char* title, slot_s slot, variant effect);
 	void				aimove();
 	void				aiturn();
 	void				applyabilities();

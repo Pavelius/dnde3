@@ -1361,12 +1361,18 @@ skill_s skillu::choose(bool interactive, const char* title, bool* cancel_result)
 	return (skill_s)getresult();
 }
 
-item* itema::choose(bool interactive, const char* title, const char* format, slot_mode_s mode) {
-	if(!interactive) {
-		if(!count)
+item* itema::choose(const char* interactive, const char* title, const char* format, slot_mode_s mode, bool show_always) {
+	if(!count) {
+		if(interactive) {
+			if(!show_always) {
+				sb.add(interactive);
+				return 0;
+			}
+		} else
 			return 0;
-		return data[rand() % count];
 	}
+	if(!interactive)
+		return data[rand() % count];
 	const int width = 600;
 	while(ismodal()) {
 		current_background();
@@ -1393,7 +1399,8 @@ item* itema::choose(bool interactive, const char* title, const char* format, slo
 				y += texth() + 4;
 			}
 			y += texth();
-		}
+		} else if(interactive)
+			y += textf(x, y, width, interactive) + texth() + 4;
 		render(x, y, width, *this);
 		domodal();
 	}

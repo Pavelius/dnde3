@@ -566,14 +566,14 @@ void creature::dropdown(item& item) {
 
 void creature::dropdown() {
 	itema items; items.selectb(*this);
-	auto pi = items.choose(true, "Выбросить предмет", 0, NoSlotName);
+	auto pi = items.choose("В рюкзаке пусто.", "Выбросить предмет", 0, NoSlotName);
 	if(pi)
 		dropdown(*pi);
 }
 
 void creature::pickup() {
 	itema items; items.select(getposition());
-	auto pi = items.choose(true, "Поднять предмет", 0, NoSlotName);
+	auto pi = items.choose("На земле ничего нету.", "Поднять предмет", 0, NoSlotName);
 	if(pi) {
 		if(add(*pi, true, true)) {
 			pi->clear();
@@ -585,7 +585,7 @@ void creature::pickup() {
 void creature::inventory() {
 	while(true) {
 		itema items; items.select(*this);
-		auto pi = items.choose(true, "Инвенторий", 0, SlotName);
+		auto pi = items.choose("У вас ничего нету.", "Инвенторий", 0, SlotName);
 		if(!pi)
 			break;
 		auto slot = pi->getwearerslot();
@@ -605,7 +605,7 @@ void creature::inventory() {
 				items.clear();
 				items.selectb(*this);
 				items.match(slot, false);
-				auto p2 = items.choose(true, "Рюкзак", 0, NoSlotName);
+				auto p2 = items.choose("У вас нету подходящих предметов.", "Рюкзак", 0, NoSlotName, true);
 				if(p2) {
 					if(!equip(*pi, *p2, true))
 						pause();
@@ -1475,7 +1475,7 @@ void creature::add(variant id, variant source, int v, bool interactive, item_typ
 	}
 }
 
-bool creature::aiuse(bool interactive, const char* title, slot_s slot, variant effect) {
+bool creature::aiuse(const char* interactive, const char* title, slot_s slot, variant effect) {
 	itema source; source.selectb(*this);
 	source.match(slot, false);
 	if(effect)
@@ -1487,16 +1487,16 @@ bool creature::aiuse(bool interactive, const char* title, slot_s slot, variant e
 }
 
 void creature::drink() {
-	aiuse(isactive(), "Чего хотите выпить?", Drinkable, {});
+	aiuse("В рюкзаке нет ничего, что можно выпить.", "Чего хотите выпить?", Drinkable, {});
 }
 
 void creature::eat() {
-	aiuse(isactive(), "Что хотите съесть?", Edible, {});
+	aiuse("В рюкзаке нет ничего съедобного.", "Что хотите съесть?", Edible, {});
 }
 
 void creature::backpack() {
 	itema source; source.selectb(*this);
-	source.choose(true, "Рюкзак", 0, NoSlotName);
+	source.choose("В рюкзаке пусто.", "Рюкзак", 0, NoSlotName);
 }
 
 int	creature::getboost(variant id) const {

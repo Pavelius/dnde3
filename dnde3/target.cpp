@@ -53,15 +53,18 @@ void targeti::use(creature& player, creaturea& source, creaturea& creatures, ite
 		break;
 	case SingleTarget:
 		if(maximum_count > 1) {
+			const char* interactive = 0;
+			if(player.isactive())
+				interactive = "Нет подходящей цели";
 			// Allow interactive choose
 			if(type == Creature) {
-				auto p = creatures.choose(player.isactive(), "Выбирайте цель");
+				auto p = creatures.choose(interactive, "Выбирайте цель");
 				if(p) {
 					auto i = creatures.indexof(p);
 					iswap(creatures[0], creatures[i]);
 				}
 			} else if(type == Item) {
-				auto p = items.choose(player.isactive(), "Выбирайте цель", 0, NoSlotName);
+				auto p = items.choose(interactive, "Выбирайте цель", 0, NoSlotName);
 				if(p) {
 					auto i = items.indexof(p);
 					iswap(items[0], items[i]);
