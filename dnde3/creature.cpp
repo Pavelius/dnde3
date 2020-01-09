@@ -416,7 +416,7 @@ void creature::applyabilities() {
 		raise(e);
 	// Class spells
 	for(auto e : ci.spells)
-		set(e, 1);
+		add(e, 1);
 	// Hits
 	if(abilities[Level] > 0) {
 		abilities[LifePoints] += getclass().hp;
@@ -694,6 +694,18 @@ void creature::useskills() {
 		return;
 	auto ps = bsmeta<skilli>::elements[s].getusetext();
 	sb.add(ps);
+}
+
+void creature::usespells() {
+	bool cancel = false;
+	spella source;
+	source.select(*this);
+	//source.sort();
+	auto s = source.choose(true, "Какое заклинание использовать?", &cancel, this);
+	if(cancel)
+		return;
+	creaturea creatures(*this);
+	cast(creatures, s, get(s), 0);
 }
 
 void creature::cantmovehere() const {
@@ -1559,13 +1571,22 @@ bool creature::apply(creature& player, variant id, int v, int order, bool run) {
 	case Spell:
 		switch(id.value) {
 		case ArmorSpell:
-			if(run)
+			if(player.isenemy(this))
+				return false;
+			if(run) {
 				player.add(Armor, 1, false, 30 * v);
+				player.act("%герой озарил%ась белым сиянием.");
+			}
 			break;
 		case BlessSpell:
+			if(player.is(this))
+				return false;
+			if(player.isenemy(this))
+				return false;
 			if(run) {
 				player.add(Attack, v * 3, false, 30);
 				player.add(Damage, 1, false, 30);
+				player.act("%герой испытал%а небывалый прилив сил.");
 			}
 			break;
 		}

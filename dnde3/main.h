@@ -155,7 +155,7 @@ enum spell_s : unsigned char {
 	Identify, Invisibility, LightSpell, MagicMissile,
 	Repair, RemovePoisonSpell, RemoveSickSpell,
 	ShieldSpell, ShokingGrasp, Sleep, SlowMonster,
-	FirstSpell = Armor, LastSpell = SlowMonster
+	FirstSpell = ArmorSpell, LastSpell = SlowMonster
 };
 enum map_flag_s : unsigned char {
 	Visible, Hidden, Opened, Sealed, Explored, Webbed, Blooded,
@@ -514,7 +514,8 @@ class site : public rect {
 	unsigned			recoil;
 public:
 	constexpr site() : rect({0, 0, 0, 0}), type(EmpthyRoom), diety(NoGod),
-		name(), owner_id(Blocked), found(0), recoil(0) {}
+		name(), owner_id(Blocked), found(0), recoil(0) {
+	}
 	operator bool() const { return x1 != x2; }
 	creature*			add(race_s race, gender_s gender, class_s type);
 	creature*			add(role_s type);
@@ -560,7 +561,7 @@ struct rolei {
 };
 class creature : public nameable {
 	char				abilities[ManaRate + 1];
-	unsigned char		skills[LastResist + 1];
+	unsigned char		skills[LastSkill + 1];
 	unsigned char		spells[LastSpell + 1];
 	item				wears[Amunitions + 1];
 	int					restore_energy, restore_hits, restore_mana;
@@ -638,7 +639,9 @@ public:
 	static creature*	find(indext i);
 	boosti*				find(variant id) const;
 	int					get(ability_s v) const { return abilities[v]; }
-	int					get(spell_s v) const { return spells[v]; }
+	int					get(spell_s v) const {
+		return spells[v];
+	}
 	int					get(skill_s v) const;
 	const item&			get(slot_s v) const { return wears[v]; }
 	static creature*	getactive();
@@ -675,6 +678,7 @@ public:
 	bool				is(class_s v) const { return kind == v; }
 	bool				is(state_s v) const { return states.is(v); }
 	bool				is(encumbrance_s value) const { return encumbrance == value; }
+	bool				is(const creature* p) const { return this == p; }
 	bool				isactive() const { return getactive() == this; }
 	bool				isallow(item_s v) const;
 	bool				isenemy(const creature* target) const;
@@ -710,7 +714,6 @@ public:
 	void				select(itema& a, slot_s i1, slot_s i2, bool filled_only);
 	void				select(skilla& e) const;
 	void				set(ability_s id, int v);
-	void				set(spell_s id, int v) { spells[id] = v; }
 	void				set(skill_s id, int v);
 	void				setcharmer(const creature* p) { charmer = p->getid(); }
 	void				setguard(short unsigned value) { guard = value; }
@@ -724,6 +727,7 @@ public:
 	bool				use(item& it, bool interactive);
 	static bool			usechance(int chance, bool hostile, item_type_s magic, int quality, int damaged);
 	void				useskills();
+	void				usespells();
 	void				wait() { consume(StandartEnergyCost); }
 };
 class creaturea : public adat<creature*> {
@@ -748,6 +752,11 @@ public:
 	void				matchr(indext index, int range);
 	void				select(indext index, int distance);
 	void				sort(indext start);
+};
+class spella : public adat<spell_s, LastSpell + 1> {
+public:
+	spell_s				choose(bool interactive, const char* title, bool* cancel_result, const creature* player) const;
+	void				select(const creature& player);
 };
 struct targeti {
 	variant_s			type;
@@ -934,4 +943,5 @@ DECLENUM(skill);
 DECLENUM(tile);
 DECLENUM(race);
 DECLENUM(slot);
+DECLENUM(spell);
 DECLENUM(state);

@@ -157,6 +157,9 @@
     <ClCompile Include="target.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="spella.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="answer.h">

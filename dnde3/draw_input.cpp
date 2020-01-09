@@ -1455,6 +1455,37 @@ indext location::choose(bool allow_cancel) {
 	return getresult();
 }
 
+spell_s spella::choose(bool interactive, const char* title, bool* cancel_result, const creature* player) const {
+	int x, y, y1;
+	const int width = 400;
+	while(ismodal()) {
+		current_background();
+		dialogw(x, y, width, 300, title, &y1);
+		auto x1 = x;
+		auto x2 = x + width;
+		if(cancel_result)
+			button(x1, y1, "Отмена", KeyEscape, breakparam, 0);
+		auto index = 0;
+		for(auto e : *this) {
+			auto x0 = x;
+			if(button(x0, y, 0, Alpha + answeri::getkey(index), 0))
+				execute(breakparam, (int)e);
+			x0 += 22;
+			if((index + 1) % 2)
+				rectf({x, y, x + width, y + texth() + 1}, colors::white, 4);
+			text(x0, y, getstr(e)); x0 += 220;
+			if(player)
+				x0 += text(x0, y, 46, player->get(e), "%1i ранг");
+			x0 += text(x0, y, 100, bsmeta<spelli>::elements[e].mp, "%1i маны");
+			index++;
+			y += texth() + 4;
+		}
+		y += texth();
+		domodal();
+	}
+	return (spell_s)getresult();
+}
+
 static void pixel(int x, int y, color c1) {
 	color* p = (color*)draw::ptr(x, y);
 	for(int j = 0; j < mmaps; j++) {
@@ -1602,6 +1633,7 @@ static hotkey adventure_keys[] = {{F1, "Выбрать первого героя", change_player, 0
 {Alpha + 'Q', "Стрелять по врагу", &creature::shoot},
 {Alpha + 'V', "Рюкзак", &creature::backpack},
 {Alpha + 'M', "Карта местности", &creature::minimap},
+{Alpha + 'S', "Создать заклинание", &creature::usespells},
 {Ctrl + Alpha + 'D', "Выпить что-то", &creature::drink},
 {Ctrl + Alpha + 'E', "Чъесть что-то", &creature::eat},
 {Ctrl + Alpha + 'B', "Поработить для отладки", &creature::enslave},
