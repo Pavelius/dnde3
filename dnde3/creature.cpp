@@ -25,7 +25,7 @@ short unsigned creature::getid() const {
 	return this - bsmeta<creature>::elements;
 }
 
-bool creature::usei(indext index, variant id, int v, bool run) {
+bool creature::apply(indext index, variant id, int v, int order, bool run) {
 	switch(id.type) {
 	case Object:
 		if(run) {
@@ -67,6 +67,7 @@ void creature::add(variant id, int v, bool interactive) {
 		}
 		break;
 	case State:
+		dressoff();
 		if(v > 0)
 			states.set(id.value);
 		else {
@@ -74,6 +75,7 @@ void creature::add(variant id, int v, bool interactive) {
 			if(interactive)
 				act(bsmeta<statei>::elements[id.value].remove);
 		}
+		dresson();
 		break;
 	case Item:
 		equip(item(item_s(id.value), v));
@@ -90,6 +92,10 @@ void creature::add(variant id, int v, bool interactive) {
 			break;
 		}
 		damage(v, attack_s(id.value), 0, interactive);
+		break;
+	case Spell:
+		if(v > 0)
+			spells[id.value] += v;
 		break;
 	}
 }
@@ -1338,14 +1344,16 @@ void creature::paymana(int value, bool interactive) {
 		if(value <= 0)
 			return;
 		mp += value;
-		act("%герой восстановил%а %1i маны.", value);
+		if(interactive)
+			act("%герой восстановил%а %1i маны.", value);
 	} else {
 		if(value > mp)
 			value = mp;
 		if(value == 0)
 			return;
 		mp -= value;
-		act("%герой потерял%а %1i маны.", value);
+		if(interactive)
+			act("%герой потерял%а %1i маны.", value);
 	}
 }
 
@@ -1503,22 +1511,110 @@ void creature::setposition(indext v) {
 
 bool creature::ismatch(variant v) const {
 	switch(v.type) {
-	case Ability:
-		switch(v.value) {
-		case LifePoints:
-			if(hp >= get(LifePoints))
-				return false;
-			break;
-		case ManaPoints:
-			if(mp >= get(ManaPoints))
-				return false;
-			break;
-		}
-		break;
+	case Alignment:
+		return true;
+	case Gender:
+		return getgender() == v.value;
+	case Race:
+		return getrace() == v.value;
+	case Role:
+		return getrole() == v.value;
 	case State:
 		if(is((state_s)v.value))
 			return true;
 		break;
 	}
 	return false;
+}
+
+bool creature::apply(creature& player, variant id, int v, int order, bool run) {
+	switch(id.type) {
+	case Ability:
+		switch(id.value) {
+		case LifePoints:
+			if(player.hp >= player.get(LifePoints))
+				return false;
+			if(run)
+				player.damage(-v, Magic, 0, true);
+			break;
+		case ManaPoints:
+			if(player.mp >= player.get(ManaPoints))
+				return false;
+			if(run)
+				player.paymana(-v, true);
+			break;
+		}
+		break;
+	case State:
+		if(v > 0) {
+			if(player.is((state_s)id.value))
+				return false;
+		} else {
+			if(!player.is((state_s)id.value))
+				return false;
+		}
+		if(run)
+			player.add((state_s)id.value, v, false);
+		break;
+	case Spell:
+		switch(id.value) {
+		case ArmorSpell:
+			if(run)
+				player.add(Armor, 1, false, 30 * v);
+			break;
+		case BlessSpell:
+			if(run) {
+				player.add(Attack, v * 3, false, 30);
+				player.add(Damage, 1, false, 30);
+			}
+			break;
+		}
+		break;
+	}
+	return true;
+}
+
+bool creature::cast(creaturea& source, spell_s id, int level, item* magic_source) {
+	auto& ei = bsmeta<spelli>::elements[id];
+	if(!magic_source) {
+		if(mp < ei.mp)
+			return false;
+	}
+	variant effect = id;
+	auto v = ei.bonus.roll();
+	if(ei.multiplier)
+		v += level*ei.multiplier / 100;
+	creaturea creatures = source;
+	itema items;
+	indexa indecies;
+	if(!ei.effect.prepare(*this, creatures, items, indecies, id, v))
+		return false;
+	if(magic_source)
+		act("%герой выставил%а вперед %1.", magic_source->getname());
+	else
+		act("%герой крикнул%а волшебную формулу.");
+	ei.effect.use(*this, source, creatures, items, indecies, id, v);
+	if(!magic_source)
+		paymana(ei.mp, false);
+	return true;
+}
+
+bool creature::apply(item& target, variant id, int v, int order, bool run) {
+	switch(id.type) {
+	case ItemType:
+		if(target.getmagic() == id.value)
+			return false;
+		if(run)
+			target.set((item_type_s)id.value);
+		break;
+	case ItemIdentify:
+		if(target.is((identify_s)id.value))
+			return false;
+		if(run)
+			target.set((identify_s)id.value);
+		break;
+	case Spell:
+		break;
+	}
+	return true;
 }

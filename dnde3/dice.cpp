@@ -3,7 +3,7 @@
 int	dicei::roll() const {
 	auto d = max - min;
 	if(d <= 0)
-		return max;
+		return min;
 	return min + rand() % d;
 }
 

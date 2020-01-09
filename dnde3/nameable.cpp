@@ -91,6 +91,19 @@ const char* nameable::getname() const {
 void nameable::actv(stringbuilder& st, const char* format, const char* param) const {
 	if(!format)
 		return;
+	auto player = creature::getactive();
+	if(player && player!=this) {
+		auto start = player->getposition();
+		if(start == Blocked)
+			return;
+		auto target = getposition();
+		if(target == Blocked)
+			return;
+		if(loc.getrange(start, target) > player->getlos())
+			return;
+		if(!loc.cansee(start, target))
+			return;
+	}
 	string sb = st;
 	sb.name = getname();
 	sb.gender = getgender();

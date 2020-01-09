@@ -74,3 +74,15 @@ item* itema::chooses(bool interactive, const char* title, const char* format, sl
 		return data[0];
 	return choose(interactive, title, format, mode);
 }
+
+void itema::matcha(creature& player, variant id, int v) {
+	if(!id)
+		return;
+	auto ps = data;
+	for(auto i : *this) {
+		if(!player.apply(*i, id, v, 0, false))
+			continue;
+		*ps++ = i;
+	}
+	count = ps - data;
+}

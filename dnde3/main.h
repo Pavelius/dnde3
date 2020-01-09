@@ -151,7 +151,6 @@ enum img_s : unsigned char {
 	ResPCmar, ResPCmbd, ResPCmac
 };
 enum spell_s : unsigned char {
-	NoSpell,
 	ArmorSpell, BlessSpell, BlessItem, CharmPerson, DetectEvil, DetectMagic, Fear, HealingSpell,
 	Identify, Invisibility, LightSpell, MagicMissile,
 	Repair, RemovePoisonSpell, RemoveSickSpell,
@@ -186,8 +185,8 @@ enum item_flag_s : unsigned char {
 };
 enum variant_s : unsigned char {
 	NoVariant,
-	Ability, Alignment, Creature, Formula, God, Harm,
-	Item, ItemType,
+	Ability, Alignment, Creature, Formula, Gender, God, Harm,
+	Item, ItemIdentify, ItemType,
 	Number, Object, ObjectFlags, Race, Range, Role,
 	Skill, Slot, Spell, State, Target, Tile,
 	Variant,
@@ -210,6 +209,7 @@ typedef flagable<1 + LastState / 8> statea;
 typedef flagable<1 + LastRace / 8> racea;
 typedef casev<ability_s> abilityv;
 class creature;
+class creaturea;
 struct variant {
 	variant_s			type;
 	unsigned char		value;
@@ -219,6 +219,8 @@ struct variant {
 	constexpr variant(attack_s v) : type(Harm), value(v) {}
 	constexpr variant(diety_s v) : type(God), value(v) {}
 	constexpr variant(formula_s v) : type(Formula), value(v) {}
+	constexpr variant(gender_s v) : type(Gender), value(v) {}
+	constexpr variant(identify_s v) : type(ItemIdentify), value(v) {}
 	constexpr variant(item_s v) : type(Item), value(v) {}
 	constexpr variant(item_type_s v) : type(ItemType), value(v) {}
 	constexpr variant(map_object_s v) : type(Object), value(v) {}
@@ -426,6 +428,8 @@ public:
 	item(item_s type, int level);
 	explicit operator bool() const { return type != NoItem; }
 	void				act(const char* format, ...) const;
+	void				add(variant id, int v, bool interactive);
+	bool				apply(creature& player, variant id, int v, bool run);
 	void				clear() { memset(this, 0, sizeof(*this)); }
 	void				create(item_s type, int chance_artifact, int chance_magic, int chance_cursed, int chance_quality);
 	bool				damageb();
@@ -478,6 +482,7 @@ public:
 	item*				choose(bool interactive, const char* title, const char* format, slot_mode_s mode);
 	void				footer(stringbuilder& sb) const;
 	void				match(variant v, bool remove);
+	void				matcha(creature& player, variant id, int v);
 	void				matchboost(variant v);
 	void				select(creature& e);
 	void				select(indext index);
@@ -530,7 +535,7 @@ public:
 	constexpr indext	getposition() const { return index; }
 	constexpr void		setposition(indext v) { index = v; }
 };
-class nameable : public variant {
+class nameable : public variant, public posable {
 	short unsigned		name;
 public:
 	void				act(const char* format, ...) const;
@@ -553,7 +558,7 @@ struct rolei {
 	varianta			features;
 	role_s				minions[4];
 };
-class creature : public nameable, public posable {
+class creature : public nameable {
 	char				abilities[ManaRate + 1];
 	unsigned char		skills[LastResist + 1];
 	unsigned char		spells[LastSpell + 1];
@@ -603,6 +608,9 @@ public:
 	bool				add(item v, bool run, bool interactive);
 	void				addexp(int count);
 	bool				alertness();
+	bool				apply(creature& target, variant id, int v, int order, bool run);
+	bool				apply(item& target, variant id, int v, int order, bool run);
+	bool				apply(indext index, variant id, int v, int order, bool run);
 	bool				askyn(creature* opponent, const char* format, ...);
 	void				athletics(bool interactive);
 	void				backpack();
@@ -611,6 +619,7 @@ public:
 	bool				canhear(short unsigned index) const;
 	bool				cansee(indext i) const;
 	bool				canshoot(bool talk) const;
+	bool				cast(creaturea& creatures, spell_s id, int level, item* magic_source = 0);
 	void				chat(creature* opponent);
 	void				create(race_s race, gender_s gender, class_s type);
 	void				create(role_s type);
@@ -713,7 +722,6 @@ public:
 	void				trapeffect();
 	void				unlink();
 	bool				use(item& it, bool interactive);
-	bool				usei(indext index, variant id, int v, bool run);
 	static bool			usechance(int chance, bool hostile, item_type_s magic, int quality, int damaged);
 	void				useskills();
 	void				wait() { consume(StandartEnergyCost); }
@@ -725,6 +733,7 @@ public:
 	creature*			choose(bool interactive, const char* title);
 	void				match(variant v, bool remove);
 	void				match(creature& player, variant v, bool remove);
+	void				matcha(creature& player, variant id, int v, bool remove);
 	void				matchr(indext index, int range);
 	void				select();
 	void				select(indext start, int distance);
@@ -735,23 +744,26 @@ class indexa : public adat<indext> {
 public:
 	int					choose(bool interactive, const char* title);
 	void				match(variant v, bool remove);
-	void				match(creature& player, variant id, int v);
+	void				matcha(creature& player, variant id, int v);
 	void				matchr(indext index, int range);
 	void				select(indext index, int distance);
 	void				sort(indext start);
 };
 struct targeti {
 	variant_s			type;
-	range_s				range;
 	target_s			target;
-	variant				conditions[3];
-	bool				apply(creature& player, creaturea& source, variant id, int v) const;
+	range_s				range;
 	unsigned			getcount(creaturea& creatures, itema& items, indexa& indecies) const;
-	void				select(creature& player, creaturea& creatures, itema& items, indexa& indecies, variant id, int v) const;
+	bool				prepare(creature& player, creaturea& source, itema& items, indexa& indecies, variant id, int v) const;
+	bool				use(creature& player, creaturea& source, variant id, int v) const;
+	void				use(creature& player, creaturea& source, creaturea& creatures, itema& items, indexa& indecies, variant id, int v) const;
 };
 struct spelli {
 	const char*			name;
+	unsigned char		mp;
 	targeti				effect;
+	dicei				bonus;
+	short				multiplier;
 };
 struct itemground : item {
 	short unsigned		index;

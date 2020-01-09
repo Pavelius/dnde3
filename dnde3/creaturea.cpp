@@ -52,6 +52,23 @@ void creaturea::match(variant v, bool remove) {
 	count = ps - data;
 }
 
+void creaturea::matcha(creature& player, variant id, int v, bool remove) {
+	if(!v)
+		return;
+	auto ps = data;
+	for(auto p : *this) {
+		if(remove) {
+			if(player.apply(*p, id, v, 0, false))
+				continue;
+		} else {
+			if(!player.apply(*p, id, v, 0, false))
+				continue;
+		}
+		*ps++ = p;
+	}
+	count = ps - data;
+}
+
 void creaturea::matchr(indext index, int range) {
 	auto ps = data;
 	for(auto p : *this) {
