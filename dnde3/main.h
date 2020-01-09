@@ -576,6 +576,7 @@ class creature : public nameable {
 	void				addx(variant id, variant source, int modifier, unsigned rounds);
 	bool				aiuse(const char* interactive, const char* title, slot_s slot, variant effect);
 	void				aimove();
+	bool				aiskills(creaturea& creatures);
 	void				aiturn();
 	void				applyabilities();
 	void				applyaward() const;
@@ -714,11 +715,12 @@ public:
 	void				sethorror(const creature* p) { horror = p->getid(); }
 	void				setmoney(int value) { money = value; }
 	void				setposition(indext v);
+	void				skillfail();
 	void				shoot();
 	void				testweapons();
-	void				trapeffect();
 	void				unlink();
 	bool				use(item& it, bool interactive);
+	bool				use(creaturea& source, skill_s id);
 	static bool			usechance(int chance, bool hostile, item_type_s magic, int quality, int damaged);
 	void				useskills();
 	void				usespells();
@@ -757,6 +759,7 @@ struct targeti {
 	cflags<target_flag_s> flags;
 	target_s			target;
 	range_s				range;
+	explicit constexpr operator bool() const { return type != NoVariant; }
 	unsigned			getcount(creaturea& creatures, itema& items, indexa& indecies) const;
 	bool				prepare(creature& player, creaturea& creatures, itema& items, indexa& indecies, variant id, int v) const;
 	bool				use(creature& player, creaturea& source, variant id, int v) const;
@@ -773,7 +776,6 @@ struct skilli {
 	ability_s			abilities[2];
 	weaponi				weapon;
 	targeti				effect;
-	short				experience;
 	//
 	skill_s				getid() const;
 	const char*			getusetext() const;

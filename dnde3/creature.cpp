@@ -5,6 +5,10 @@ DECLDATA(creature, 256);
 static int			skill_level[] = {10, 40, 60, 80};
 static dicei		skill_raise[] = {{2, 12}, {1, 6}, {1, 4}, {1, 1}};
 static const char*	skill_names[] = {"Начальный", "Продвинутый", "Экспертный", "Мастерский"};
+static const char*	talk_subjects[] = {"гномов", "хоббитов", "эльфов", "рыцарей", "троллей", "дракона", "колдуна", "трех друзей"};
+static const char*	talk_object[] = {"сокровище", "волшебное кольцо", "проклятый артефакт", "гору", "истинную любовь", "прекрасную куртизанку"};
+static const char*	talk_location[] = {"библиотеку", "ратушу", "магазин", "таверну", "храм"};
+static const char*	talk_games[] = {"кубики", "карты", "наперстки", "шарады"};
 static creature*	current_player;
 
 void creature::clear() {
@@ -675,8 +679,12 @@ void creature::useskills() {
 	auto s = source.choose(true, "Какой навык использовать?", &cancel);
 	if(cancel)
 		return;
-	auto ps = bsmeta<skilli>::elements[s].getusetext();
-	sb.add(ps);
+	if(bsmeta<skilli>::elements[s].effect) {
+		creaturea source(*this);
+		use(source, s);
+	}
+	else
+		sb.add(bsmeta<skilli>::elements[s].getusetext());
 }
 
 void creature::usespells() {
@@ -899,6 +907,16 @@ bool creature::needrestore(ability_s id) const {
 	return false;
 }
 
+bool creature::aiskills(creaturea& creatures) {
+	skilla source;
+	source.select(*this);
+	for(auto s : source) {
+		if(use(creatures, s))
+			return true;
+	}
+	return false;
+}
+
 void creature::aiturn() {
 	// If horror are near run away
 	auto horror = gethorror();
@@ -907,9 +925,9 @@ void creature::aiturn() {
 		return;
 	}
 	// Get nearest creatures
-	creaturea source;
-	source.select(getposition(), getlos());
-	creaturea enemies = source;
+	creaturea creatures;
+	creatures.select(getposition(), getlos());
+	creaturea enemies = creatures;
 	enemies.match(*this, Hostile, false);
 	if(enemies) {
 		// Combat situation - need eliminate enemy
@@ -936,6 +954,8 @@ void creature::aiturn() {
 				if(aiuse(false, 0, Edible, ManaPoints))
 					return;
 			}
+			if(aiskills(creatures))
+				return;
 		}
 		// If creature guard some square move to guard position
 		if(guard != Blocked) {
@@ -1634,4 +1654,32 @@ bool creature::cast(creaturea& source, spell_s id, int level, item* magic_source
 		paymana(ei.mp, false);
 	wait();
 	return true;
+}
+
+bool creature::use(creaturea& source, skill_s id) {
+	auto v = get(id);
+	if(v <= 0)
+		return false;
+	auto& ei = bsmeta<skilli>::elements[id];
+	creaturea creatures = source;
+	itema items;
+	indexa indecies;
+	if(!ei.effect.prepare(*this, creatures, items, indecies, id, get(id))) {
+		if(isactive())
+			sb.add("Не могу найти подходящие цели.");
+		return false;
+	}
+	ei.effect.use(*this, source, creatures, items, indecies, id, v);
+	wait();
+	return true;
+}
+
+void creature::skillfail() {
+	if(d100() < 90) {
+		act("%герой приш%ла в не себя от злости.");
+		add(Anger, 1, false);
+	} else if(d100() < 70) {
+		act("Вы убили кучу времени, но все было тщетно.");
+		consume(StandartEnergyCost*xrand(2, 4));
+	}
 }

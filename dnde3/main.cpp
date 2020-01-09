@@ -65,7 +65,7 @@ static void modify_weapon(creature* p1) {
 	//pi->setidentify(1);
 }
 
-static creature* create_indoor() {
+static creature* create_indoor(bool enemies = true) {
 	loc.clear();
 	loc.positions[1] = loc.get(3, 3);
 	loc.positions[2] = loc.get(2, 6);
@@ -88,9 +88,11 @@ static creature* create_indoor() {
 	auto p1 = create(Human, Male, Ranger);
 	auto p2 = create(Dwarf, Male, Cleric);
 	auto p3 = create(Elf, Male, Fighter);
-	create(GoblinWarrior);
-	create(GoblinWarrior);
-	create(GnollWarrior);
+	if(enemies) {
+		create(GoblinWarrior);
+		create(GoblinWarrior);
+		create(GnollWarrior);
+	}
 	p1->activate();
 	p1->damage(6, Bludgeon, 100);
 	modify_weapon(p1);
@@ -105,8 +107,8 @@ static creature* create_indoor() {
 	return p1;
 }
 
-static void test_indoor() {
-	create_indoor();
+static void test_indoor(bool enemies = true) {
+	create_indoor(enemies);
 	game.play();
 }
 
@@ -161,7 +163,7 @@ int main(int argc, char* argv[]) {
 	//test_answers();
 	//item_choose();
 	//test_worldmap();
-	test_indoor();
+	test_indoor(false);
 	//test_analize();
 	//test_dungeon();
 }

@@ -439,6 +439,16 @@ bool item::apply(creature& player, variant id, int v, int order, bool run) {
 		break;
 	case Spell:
 		break;
+	case Skill:
+		switch(id.value) {
+		case Literacy:
+			if(!is(Readable))
+				return false;
+			if(run) {
+			}
+			break;
+		}
+		break;
 	}
 	return true;
 }

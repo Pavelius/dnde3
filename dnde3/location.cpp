@@ -750,25 +750,48 @@ bool location::ismatch(indext index, variant v) const {
 
 bool location::apply(creature& player, indext index, variant id, int v, int order, bool run) {
 	switch(id.type) {
-	case Object:
-		if(run) {
-			set(index, (map_object_s)id.value);
-			random[index] = v;
-		}
-		break;
-	case ObjectFlags:
-		if(v > 0) {
-			if(is(index, (map_flag_s)id.value))
+	case Skill:
+		switch(id.value) {
+		case Athletics:
+			if(getobject(index) != Door || !is(index, Sealed) || is(index, Opened) || is(index, Hidden))
 				return false;
-		} else {
-			if(!is(index, (map_flag_s)id.value))
+			if(run) {
+				// Random bonus for door to open
+				if(!player.roll((skill_s)id.value, (getrand(index) % 21) - 10)) {
+					player.act("%герой ударил%а двери, но те не поддались.");
+					player.skillfail();
+					return false;
+				}
+				player.act("%герой разнес%ла двери в щепки.");
+				set(index, NoTileObject);
+				player.addexp(20);
+			}
+			break;
+		case DisarmTraps:
+			if(getobject(index) != Trap || is(index, Hidden))
 				return false;
-		}
-		if(run) {
-			if(v > 0)
-				set(index, (map_flag_s)id.value);
-			else
-				remove(index, (map_flag_s)id.value);
+			if(run) {
+				if(!player.roll((skill_s)id.value)) {
+					player.act("%герой попытал%ась обезвредить ловушку, но что-то пошло не так.");
+					player.skillfail();
+					return false;
+				}
+				player.act("%герой обезвреди%ла ловушку.");
+				set(index, NoTileObject);
+				player.addexp(50);
+			}
+			break;
+		case Lockpicking:
+			if(getobject(index) != Door || !is(index, Sealed) || is(index, Opened) || is(index, Hidden))
+				return false;
+			if(run) {
+				if(!player.roll((skill_s)id.value, (getrand(index) % 31) - 15))
+					return false;
+				player.act("%герой взлома%ла замок.");
+				remove(index, Sealed);
+				player.addexp(100);
+			}
+			break;
 		}
 		break;
 	}

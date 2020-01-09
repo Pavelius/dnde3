@@ -1408,8 +1408,10 @@ item* itema::choose(const char* interactive, const char* title, const char* form
 }
 
 int indexa::choose(bool interactive, const char* format) {
-	if(!*this)
+	if(!count)
 		return -1;
+	if(!interactive)
+		return rand() % count;
 	auto index = 0;
 	while(ismodal()) {
 		if(current_index != data[index]) {
@@ -1435,7 +1437,7 @@ int indexa::choose(bool interactive, const char* format) {
 				index--;
 			break;
 		case KeyRight:
-			if(index < getcount()-1)
+			if(index < getcount() - 1)
 				index++;
 			break;
 		}
@@ -1618,7 +1620,7 @@ void location::minimap(indext index) const {
 	char temp[128]; stringbuilder sb(temp);
 	int w = mmx * mmaps + 280;
 	int h = mmy * mmaps;
-	point camera = {getx(index)*elx - viewport.x/2, gety(index)*ely - viewport.y/2};
+	point camera = {getx(index)*elx - viewport.x / 2, gety(index)*ely - viewport.y / 2};
 	while(ismodal()) {
 		draw::rectf({0, 0, draw::getwidth(), draw::getheight()}, colors::form);
 		if(loc.level)
