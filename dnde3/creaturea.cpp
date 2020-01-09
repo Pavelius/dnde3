@@ -58,10 +58,10 @@ void creaturea::matcha(creature& player, variant id, int v, bool remove) {
 	auto ps = data;
 	for(auto p : *this) {
 		if(remove) {
-			if(player.apply(*p, id, v, 0, false))
+			if(p->apply(player, id, v, 0, false))
 				continue;
 		} else {
-			if(!player.apply(*p, id, v, 0, false))
+			if(!p->apply(player, id, v, 0, false))
 				continue;
 		}
 		*ps++ = p;

@@ -26,6 +26,12 @@ bool targeti::prepare(creature& player, creaturea& creatures, itema& items, inde
 		break;
 	case Creature:
 		creatures.matchr(player.getposition(), r);
+		if(flags.is(Enemies))
+			creatures.match(player, Hostile, false);
+		else if(flags.is(Friends))
+			creatures.match(player, Friendly, false);
+		if(flags.is(NotYou))
+			creatures.remove(creatures.indexof(&player), 1);
 		creatures.matcha(player, id, v, false);
 		creatures.sort(player.getposition());
 		break;
@@ -40,11 +46,9 @@ void targeti::use(creature& player, creaturea& source, creaturea& creatures, ite
 	case AllTargets:
 		count = maximum_count;
 		break;
-	case RandomTarget:
+	case NearestTarget:
 		switch(type) {
 		case Item: items.shuffle(); break;
-		case Creature: creatures.shuffle(); break;
-		default: indecies.shuffle(); break;
 		}
 		break;
 	case SingleTarget:
@@ -71,15 +75,15 @@ void targeti::use(creature& player, creaturea& source, creaturea& creatures, ite
 	switch(type) {
 	case Creature:
 		for(unsigned i = 0; i < count; i++)
-			player.apply(*creatures[i], id, v, i, true);
+			creatures[i]->apply(player, id, v, i, true);
 		break;
 	case Item:
 		for(unsigned i = 0; i < count; i++)
-			player.apply(*items[i], id, v, i, true);
+			items[i]->apply(player, id, v, i, true);
 		break;
 	default:
 		for(unsigned i = 0; i < count; i++)
-			player.apply(indecies[i], id, v, i, true);
+			loc.apply(player, indecies[i], id, v, i, true);
 		break;
 	}
 }

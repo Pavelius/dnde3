@@ -422,3 +422,23 @@ int	item::getdamage() const {
 		return 0;
 	return damaged;
 }
+
+bool item::apply(creature& player, variant id, int v, int order, bool run) {
+	switch(id.type) {
+	case ItemType:
+		if(getmagic() == id.value)
+			return false;
+		if(run)
+			set((item_type_s)id.value);
+		break;
+	case ItemIdentify:
+		if(is((identify_s)id.value))
+			return false;
+		if(run)
+			set((identify_s)id.value);
+		break;
+	case Spell:
+		break;
+	}
+	return true;
+}

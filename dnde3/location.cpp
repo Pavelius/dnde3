@@ -748,10 +748,29 @@ bool location::ismatch(indext index, variant v) const {
 	return false;
 }
 
-bool location::ismatch(indext index, const aref<variant>& source) const {
-	for(auto v : source) {
-		if(ismatch(index, v))
-			return true;
+bool location::apply(creature& player, indext index, variant id, int v, int order, bool run) {
+	switch(id.type) {
+	case Object:
+		if(run) {
+			set(index, (map_object_s)id.value);
+			random[index] = v;
+		}
+		break;
+	case ObjectFlags:
+		if(v > 0) {
+			if(is(index, (map_flag_s)id.value))
+				return false;
+		} else {
+			if(!is(index, (map_flag_s)id.value))
+				return false;
+		}
+		if(run) {
+			if(v > 0)
+				set(index, (map_flag_s)id.value);
+			else
+				remove(index, (map_flag_s)id.value);
+		}
+		break;
 	}
-	return false;
+	return true;
 }

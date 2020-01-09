@@ -25,33 +25,6 @@ short unsigned creature::getid() const {
 	return this - bsmeta<creature>::elements;
 }
 
-bool creature::apply(indext index, variant id, int v, int order, bool run) {
-	switch(id.type) {
-	case Object:
-		if(run) {
-			loc.set(index, (map_object_s)id.value);
-			loc.setr(index, v);
-		}
-		break;
-	case ObjectFlags:
-		if(v > 0) {
-			if(loc.is(index, (map_flag_s)id.value))
-				return false;
-		} else {
-			if(!loc.is(index, (map_flag_s)id.value))
-				return false;
-		}
-		if(run) {
-			if(v > 0)
-				loc.set(index, (map_flag_s)id.value);
-			else
-				loc.remove(index, (map_flag_s)id.value);
-		}
-		break;
-	}
-	return true;
-}
-
 void creature::add(variant id, int v, bool interactive) {
 	switch(id.type) {
 	case Ability:
@@ -100,9 +73,23 @@ void creature::add(variant id, int v, bool interactive) {
 	}
 }
 
-void creature::addx(variant id, int modifier, unsigned rounds) {
+void creature::dispell(variant source, bool interactive) {
+	auto owner = getid();
+	auto ps = bsmeta<boosti>::elements;
+	for(auto& e : bsmeta<boosti>()) {
+		if(e.owner == owner || e.source == source) {
+			add(e.id, e.modifier, interactive);
+			continue;
+		}
+		*ps++ = e;
+	}
+	bsmeta<boosti>::source.setcount(ps - bsmeta<boosti>::elements);
+}
+
+void creature::addx(variant id, variant source, int modifier, unsigned rounds) {
 	auto p = bsmeta<boosti>::add();
 	p->id = id;
+	p->source = source;
 	p->modifier = modifier;
 	p->time = rounds;
 	p->owner = getid();
@@ -506,10 +493,6 @@ attacki creature::getattack(slot_s id, const item& weapon) const {
 	return result;
 }
 
-int creature::getbasic(ability_s id) const {
-	return abilities[id] + getboost(id);
-}
-
 void creature::activate() {
 	current_player = this;
 }
@@ -701,11 +684,12 @@ void creature::usespells() {
 	spella source;
 	source.select(*this);
 	//source.sort();
-	auto s = source.choose(true, " акое заклинание использовать?", &cancel, this);
+	auto s = source.choose("” вас нет ни одного заклинани€.", " акое заклинание использовать?", &cancel, this);
 	if(cancel)
 		return;
 	creaturea creatures(*this);
-	cast(creatures, s, get(s), 0);
+	if(!cast(creatures, s, get(s), 0))
+		sb.add("¬округ нет подход€щей цели.");
 }
 
 void creature::cantmovehere() const {
@@ -1303,6 +1287,15 @@ boosti*	creature::find(variant id) const {
 	return 0;
 }
 
+boosti*	creature::finds(variant source) const {
+	auto owner_id = getid();
+	for(auto& e : bsmeta<boosti>()) {
+		if(e.owner == owner_id && e.source == source)
+			return &e;
+	}
+	return 0;
+}
+
 bool creature::match(variant id) const {
 	switch(id.type) {
 	case Race:
@@ -1325,9 +1318,20 @@ bool creature::match(variant id) const {
 	return true;
 }
 
-void creature::add(variant id, int v, bool interactive, unsigned minutes) {
+void creature::add(variant id, variant source, int v, bool interactive, unsigned minutes) {
+	switch(id.type) {
+	case State:
+		if(v >= 0) {
+			if(is(state_s(id.value)))
+				return;
+		} else {
+			if(!is(state_s(id.value)))
+				return;
+		}
+		break;
+	}
 	add(id, v, interactive);
-	addx(id, -v, game.getrounds() + minutes);
+	addx(id, source, -v, game.getrounds() + minutes);
 }
 
 static int getchance(int chance, bool hostile, int quality, int damage) {
@@ -1391,7 +1395,7 @@ bool creature::usechance(int chance, bool hostile, item_type_s magic, int qualit
 	return d100() < chance;
 }
 
-void creature::add(variant id, int v, bool interactive, item_type_s magic, int quality, int damaged, int minutes) {
+void creature::add(variant id, variant source, int v, bool interactive, item_type_s magic, int quality, int damaged, int minutes) {
 	switch(id.type) {
 	case Ability:
 		switch(id.value) {
@@ -1428,16 +1432,16 @@ void creature::add(variant id, int v, bool interactive, item_type_s magic, int q
 			if(v >= 0) {
 				switch(magic) {
 				case Artifact: add(id, (1 + quality) * 2, interactive); break;
-				case Cursed: add(id, -v, interactive, 5 * (minutes + minutes*quality)); break;
-				case Blessed: add(id, v, interactive, 5 * (minutes + minutes*quality)); break;
-				default: add(id, v, interactive, minutes + minutes*quality); break;
+				case Cursed: add(id, source, -v, interactive, 5 * (minutes + minutes*quality)); break;
+				case Blessed: add(id, source, v, interactive, 5 * (minutes + minutes*quality)); break;
+				default: add(id, source, v, interactive, minutes + minutes*quality); break;
 				}
 				break;
 			} else {
 				switch(magic) {
 				case Blessed: case Artifact: break;
-				case Cursed: add(id, v, interactive, 5 * (minutes + minutes*quality)); break;
-				default: add(id, v, interactive, minutes + minutes*quality); break;
+				case Cursed: add(id, source, v, interactive, 5 * (minutes + minutes*quality)); break;
+				default: add(id, source, v, interactive, minutes + minutes*quality); break;
 				}
 				break;
 			}
@@ -1447,14 +1451,14 @@ void creature::add(variant id, int v, bool interactive, item_type_s magic, int q
 				switch(magic) {
 				case Artifact: add(id, v + quality, interactive); break;
 				case Cursed: add(id, -(v + quality), interactive); break;
-				case Blessed: add(id, v + quality, interactive, 5 * minutes); break;
-				default: add(id, v + quality, interactive, minutes); break;
+				case Blessed: add(id, source, v + quality, interactive, 5 * minutes); break;
+				default: add(id, source, v + quality, interactive, minutes); break;
 				}
 			} else {
 				switch(magic) {
 				case Artifact: case Blessed: break;
 				case Cursed: add(id, v - quality, interactive); break;
-				default: add(id, v - quality, interactive, minutes); break;
+				default: add(id, source, v - quality, interactive, minutes); break;
 				}
 			}
 			break;
@@ -1462,10 +1466,10 @@ void creature::add(variant id, int v, bool interactive, item_type_s magic, int q
 		break;
 	case State:
 		switch(magic) {
-		case Artifact: add(id, v, interactive, 30 * (minutes + minutes*quality)); break;
-		case Cursed: add(id, -v, interactive, (minutes + minutes*quality)); break;
-		case Blessed: add(id, v, interactive, 5 * (minutes + minutes*quality)); break;
-		default: add(id, v, interactive, minutes + minutes*quality); break;
+		case Artifact: add(id, source, v, interactive, 30 * (minutes + minutes*quality)); break;
+		case Cursed: add(id, source, -v, interactive, (minutes + minutes*quality)); break;
+		case Blessed: add(id, source, v, interactive, 5 * (minutes + minutes*quality)); break;
+		default: add(id, source, v, interactive, minutes + minutes*quality); break;
 		}
 		break;
 	}
@@ -1541,53 +1545,38 @@ bool creature::ismatch(variant v) const {
 
 bool creature::apply(creature& player, variant id, int v, int order, bool run) {
 	switch(id.type) {
-	case Ability:
-		switch(id.value) {
-		case LifePoints:
-			if(player.hp >= player.get(LifePoints))
-				return false;
-			if(run)
-				player.damage(-v, Magic, 0, true);
-			break;
-		case ManaPoints:
-			if(player.mp >= player.get(ManaPoints))
-				return false;
-			if(run)
-				player.paymana(-v, true);
-			break;
-		}
-		break;
-	case State:
-		if(v > 0) {
-			if(player.is((state_s)id.value))
-				return false;
-		} else {
-			if(!player.is((state_s)id.value))
-				return false;
-		}
-		if(run)
-			player.add((state_s)id.value, v, false);
-		break;
 	case Spell:
+		if(finds(id))
+			return false; // Not allow two spells be effected
 		switch(id.value) {
 		case ArmorSpell:
-			if(player.isenemy(this))
-				return false;
 			if(run) {
-				player.add(Armor, 1, false, 30 * v);
-				player.act("%герой озарил%ась белым си€нием.");
+				add(Armor, id, 1, false, 30 * v);
+				act("%герой озарил%ась белым си€нием.");
 			}
 			break;
 		case BlessSpell:
-			if(player.is(this))
-				return false;
-			if(player.isenemy(this))
-				return false;
 			if(run) {
-				player.add(Attack, v * 3, false, 30);
-				player.add(Damage, 1, false, 30);
-				player.act("%герой испытал%а небывалый прилив сил.");
+				add(Attack, id, v * 5, false, 30);
+				add(Damage, id, v, false, 30);
+				act("%герой испытал%а небывалый прилив сил.");
 			}
+			break;
+		case HealingSpell:
+			if(hp >= get(LifePoints))
+				return false;
+			if(run)
+				damage(-v, Magic, 0, true);
+			break;
+		case ShieldSpell:
+			if(run) {
+				add(Protection, id, 20 * v, false, 20);
+				act("¬округ %геро€ по€вилось защитное поле.");
+			}
+			break;
+		case ShokingGrasp:
+			if(run)
+				damage(xrand(1, 8) + v * 3, Electricity, 0, true);
 			break;
 		}
 		break;
@@ -1602,9 +1591,7 @@ bool creature::cast(creaturea& source, spell_s id, int level, item* magic_source
 			return false;
 	}
 	variant effect = id;
-	auto v = ei.bonus.roll();
-	if(ei.multiplier)
-		v += level*ei.multiplier / 100;
+	auto v = level;
 	creaturea creatures = source;
 	itema items;
 	indexa indecies;
@@ -1617,25 +1604,6 @@ bool creature::cast(creaturea& source, spell_s id, int level, item* magic_source
 	ei.effect.use(*this, source, creatures, items, indecies, id, v);
 	if(!magic_source)
 		paymana(ei.mp, false);
-	return true;
-}
-
-bool creature::apply(item& target, variant id, int v, int order, bool run) {
-	switch(id.type) {
-	case ItemType:
-		if(target.getmagic() == id.value)
-			return false;
-		if(run)
-			target.set((item_type_s)id.value);
-		break;
-	case ItemIdentify:
-		if(target.is((identify_s)id.value))
-			return false;
-		if(run)
-			target.set((identify_s)id.value);
-		break;
-	case Spell:
-		break;
-	}
+	wait();
 	return true;
 }

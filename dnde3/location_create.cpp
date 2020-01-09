@@ -81,7 +81,7 @@ static void create_item(indext index, item_s type, int level, bool forsale, iden
 		it.setcount(xrand(1 * level, 10 * level));
 	else {
 		if(forsale)
-			it.setsale(1);
+			it.set(Sale100);
 		if(it.is(Artifact))
 			loc.artifacts++;
 	}

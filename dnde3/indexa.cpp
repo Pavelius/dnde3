@@ -48,7 +48,7 @@ void indexa::matcha(creature& player, variant id, int v) {
 		return;
 	auto ps = data;
 	for(auto i : *this) {
-		if(!player.apply(i, id, v, 0, false))
+		if(!loc.apply(player, i, id, v, 0, false))
 			continue;
 		*ps++ = i;
 	}

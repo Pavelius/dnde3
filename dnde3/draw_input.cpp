@@ -593,20 +593,31 @@ static void header(int x, int y, const char* name) {
 	draw::text(x, y, sb);
 }
 
-static int fiela(int x, int y, int w, const char* name, int value, int basic_value) {
-	header(x, y, name);
-	draw::state push;
-	if(value < basic_value)
-		draw::fore = colors::text.mix(colors::red, 96);
-	else if(value > basic_value)
-		draw::fore = colors::text.mix(colors::green, 64);
-	char temp[128]; stringbuilder sb(temp);
-	sb.add("%1i", value);
-	draw::text(x + w, y, sb);
+static int fielw(int x, int y, int v1, int b1, const char* format = "%1i") {
+	auto p_fore = fore;
+	if(b1 > 0)
+		fore = colors::text.mix(colors::red, 96);
+	else if(b1 < 0)
+		fore = colors::text.mix(colors::green, 64);
+	char temp[32]; stringbuilder sb(temp);
+	sb.add(format, v1, b1);
+	draw::text(x, y, sb);
+	fore = p_fore;
+	return textw(sb);
+}
+
+static int fiela(int x, int y, int w, const char* name, int v1, int b1, const char* f1 = "%1i", int v2 = 0, int b2 = 0, const char* f2 = "%1i") {
+	header(x, y, name); x += w;
+	x += fielw(x, y, v1, b1, f1);
+	if(v2) {
+		text(x, y, " è ");
+		x += textw(" è ");
+		fielw(x, y, v2, b2, f2);
+	}
 	return draw::texth();
 }
 
-static int fielp(int x, int y, int w, const char* name, int p1, int p2) {
+static int fielp(int x, int y, int w, const char* name, int p1, int b1, int p2, int b2) {
 	header(x, y, name);
 	char temp[128]; stringbuilder sb(temp);
 	sb.add("%1i%%", p1);
@@ -673,20 +684,20 @@ static void render_info(const creature& e) {
 	y += draw::texth() + 2;
 	int y1 = y;
 	int x1 = x;
-	y += fiela(x, y, tw, "ÑË", e.get(Strenght), e.getbasic(Strenght));
-	y += fiela(x, y, tw, "ÈÍ", e.get(Intellegence), e.getbasic(Intellegence));
+	y += fiela(x, y, tw, "ÑË", e.get(Strenght), e.getboost(Strenght));
+	y += fiela(x, y, tw, "ÈÍ", e.get(Intellegence), e.getboost(Intellegence));
 	x += dx;
 	y = y1;
-	y += fiela(x, y, tw, "ËÂ", e.get(Dexterity), e.getbasic(Dexterity));
-	y += fiela(x, y, tw, "ÌÄ", e.get(Wisdow), e.getbasic(Wisdow));
+	y += fiela(x, y, tw, "ËÂ", e.get(Dexterity), e.getboost(Dexterity));
+	y += fiela(x, y, tw, "ÌÄ", e.get(Wisdow), e.getboost(Wisdow));
 	x += dx;
 	y = y1;
-	y += fiela(x, y, tw, "ÒË", e.get(Constitution), e.getbasic(Constitution));
-	y += fiela(x, y, tw, "ÕÐ", e.get(Charisma), e.getbasic(Charisma));
+	y += fiela(x, y, tw, "ÒË", e.get(Constitution), e.getboost(Constitution));
+	y += fiela(x, y, tw, "ÕÐ", e.get(Charisma), e.getboost(Charisma));
 	x += dx + 6;
 	y = y1;
-	y += fielp(x, y, tw, "ÀÒ", e.getattack(Melee).attack, e.getattack(Ranged).attack);
-	y += fielr(x, y, tw, "ÁÐ", e.get(Protection), e.get(Armor));
+	y += fiela(x, y, tw, "ÀÒ", e.getattack(Melee).attack, e.getboost(Attack), "%1i%%", e.getattack(Ranged).attack, e.getboost(Attack), "%1i%%");
+	y += fiela(x, y, tw, "ÁÐ", e.get(Protection), e.getboost(Protection), "%1i%%", e.get(Armor), e.getboost(Armor));
 	x += dx + 50;
 	y = y1;
 	y += field(x, y, 40, "Õèòû", e.gethits(), e.get(LifePoints));
@@ -698,7 +709,7 @@ static void render_info(const creature& e) {
 	x += dx + 58;
 	y = y1;
 	y += field(x, y, 52, "Âðåìÿ", game.getrounds());
-	y += fielp(x, y, 52, "ÏÁ", e.get(Deflect), 0);
+	y += fiela(x, y, 52, "ÏÁ", e.get(Deflect), e.getboost(Deflect), "%1i%%");
 	x = x1;
 	y = y1 + draw::texth() * 2;
 	// Draw encumbrance
@@ -1455,10 +1466,10 @@ indext location::choose(bool allow_cancel) {
 	return getresult();
 }
 
-spell_s spella::choose(bool interactive, const char* title, bool* cancel_result, const creature* player) const {
+spell_s spella::choose(const char* interactive, const char* title, bool* cancel_result, const creature* player) const {
 	if(!getcount()) {
 		if(interactive)
-			sb.add("Ó âàñ íåòó çàêëèíàíèé.");
+			sb.add(interactive);
 		if(cancel_result)
 			*cancel_result = true;
 		return (spell_s)0;
@@ -1471,7 +1482,7 @@ spell_s spella::choose(bool interactive, const char* title, bool* cancel_result,
 		auto x1 = x;
 		auto x2 = x + width;
 		if(cancel_result)
-			button(x1, y1, "Îòìåíà", KeyEscape, breakparam, 0);
+			button(x1, y1, "Îòìåíà", KeyEscape, breakparam, -1);
 		auto index = 0;
 		for(auto e : *this) {
 			auto x0 = x;
@@ -1490,7 +1501,12 @@ spell_s spella::choose(bool interactive, const char* title, bool* cancel_result,
 		y += texth();
 		domodal();
 	}
-	return (spell_s)getresult();
+	auto r = getresult();
+	if(r == -1) {
+		if(cancel_result)
+			*cancel_result = true;
+	}
+	return (spell_s)r;
 }
 
 static void pixel(int x, int y, color c1) {

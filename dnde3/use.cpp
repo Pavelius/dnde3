@@ -48,7 +48,7 @@ void foodi::apply(creature* player, const item it, bool interactive) const {
 			if(!player->usechance(iabs(e.value), hostile, it.getmagic(), it.getquality(), it.getdamage()))
 				continue;
 		}
-		player->add(e.id, v, interactive, it.getmagic(), it.getquality(), it.getdamage(), 60);
+		player->add(e.id, it.getkind(), v, interactive, it.getmagic(), it.getquality(), it.getdamage(), 60);
 	}
 }
 
@@ -100,7 +100,7 @@ bool creature::use(item& it, bool interactive) {
 					break;
 				}
 			}
-			add(effect, v, true, it.getmagic(), it.getquality(), it.getdamage(), 120);
+			add(effect, it.getkind(), v, true, it.getmagic(), it.getquality(), it.getdamage(), 120);
 		} else {
 			if(interactive)
 				act("Ничего не произошло.");

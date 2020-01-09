@@ -79,10 +79,10 @@ void itema::matcha(creature& player, variant id, int v) {
 	if(!id)
 		return;
 	auto ps = data;
-	for(auto i : *this) {
-		if(!player.apply(*i, id, v, 0, false))
+	for(auto pi : *this) {
+		if(!pi->apply(player, id, v, 0, false))
 			continue;
-		*ps++ = i;
+		*ps++ = pi;
 	}
 	count = ps - data;
 }

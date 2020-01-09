@@ -178,7 +178,7 @@ enum range_s : unsigned char {
 	You, Close, Reach, Near, Far
 };
 enum target_s : unsigned char {
-	SingleTarget, NearestTarget, RandomTarget, AllTargets,
+	SingleTarget, NearestTarget, AllTargets,
 };
 enum item_flag_s : unsigned char {
 	Coinable, Countable, TwoHanded, Versatile, Light, Natural,
@@ -201,6 +201,12 @@ enum slot_mode_s : unsigned char {
 };
 enum identify_s : unsigned char {
 	Unknown, KnownStats, KnownMagic, KnownPower,
+};
+enum sale_s : unsigned char {
+	NotForSale, Sale75, Sale100, Sale150,
+};
+enum target_flag_s : unsigned char {
+	NotYou, Friends, Enemies
 };
 typedef short unsigned indext;
 typedef adat<rect, 64> rooma;
@@ -265,6 +271,7 @@ struct chancei {
 };
 struct boosti {
 	short unsigned		owner;
+	variant				source;
 	variant				id;
 	char				modifier;
 	unsigned			time;
@@ -413,7 +420,7 @@ class item {
 			item_type_s	magic : 2;
 			unsigned char quality : 2;
 			identify_s	identify : 2;
-			unsigned char forsale : 1;
+			sale_s		sale : 2;
 			//
 			unsigned char charge : 6;
 			unsigned char damaged : 2;
@@ -429,7 +436,7 @@ public:
 	explicit operator bool() const { return type != NoItem; }
 	void				act(const char* format, ...) const;
 	void				add(variant id, int v, bool interactive);
-	bool				apply(creature& player, variant id, int v, bool run);
+	bool				apply(creature& player, variant id, int v, int order, bool run);
 	void				clear() { memset(this, 0, sizeof(*this)); }
 	void				create(item_s type, int chance_artifact, int chance_magic, int chance_cursed, int chance_quality);
 	bool				damageb();
@@ -469,11 +476,11 @@ public:
 	void				repair(int level);
 	void				set(item_type_s v);
 	void				set(identify_s v);
+	void				set(sale_s v) { sale = v; }
 	void				setcharges(int v);
 	void				setcount(int v);
 	void				seteffect(variant v);
 	void				setquality(int v);
-	void				setsale(int v) { forsale = v; }
 	bool				use();
 };
 class itema : public adat<item*> {
@@ -576,7 +583,7 @@ class creature : public nameable {
 	unsigned			experience;
 	unsigned			money;
 	//
-	void				addx(variant id, int modifier, unsigned rounds);
+	void				addx(variant id, variant source, int modifier, unsigned rounds);
 	bool				aiuse(bool interactive, const char* title, slot_s slot, variant effect);
 	void				aimove();
 	void				aiturn();
@@ -604,14 +611,12 @@ public:
 	void				activate();
 	void				add(variant id, int v);
 	void				add(variant id, int v, bool interactive);
-	void				add(variant id, int v, bool interactive, unsigned minutes);
-	void				add(variant id, int v, bool interactive, item_type_s magic, int quality, int damage, int minutes);
+	void				add(variant id, variant source, int v, bool interactive, unsigned minutes);
+	void				add(variant id, variant source, int v, bool interactive, item_type_s magic, int quality, int damage, int minutes);
 	bool				add(item v, bool run, bool interactive);
 	void				addexp(int count);
 	bool				alertness();
 	bool				apply(creature& target, variant id, int v, int order, bool run);
-	bool				apply(item& target, variant id, int v, int order, bool run);
-	bool				apply(indext index, variant id, int v, int order, bool run);
 	bool				askyn(creature* opponent, const char* format, ...);
 	void				athletics(bool interactive);
 	void				backpack();
@@ -628,6 +633,7 @@ public:
 	void				consume(int energy_value);
 	void				damage(int count, attack_s type, int pierce = 0, bool interactive = true);
 	void				damagewears(int count, attack_s type);
+	void				dispell(variant source, bool interactive);
 	void				dressoff();
 	void				dresson();
 	void				drink();
@@ -638,10 +644,9 @@ public:
 	void				enslave();
 	static creature*	find(indext i);
 	boosti*				find(variant id) const;
+	boosti*				finds(variant id) const;
 	int					get(ability_s v) const { return abilities[v]; }
-	int					get(spell_s v) const {
-		return spells[v];
-	}
+	int					get(spell_s v) const { return spells[v]; }
 	int					get(skill_s v) const;
 	const item&			get(slot_s v) const { return wears[v]; }
 	static creature*	getactive();
@@ -649,7 +654,6 @@ public:
 	attacki				getattack(slot_s slot, const item& weapon) const;
 	attacki				getattack(slot_s slot) const { return getattack(slot, wears[slot]); }
 	int					getaward() const { return 10 + 15 * get(Level); }
-	int					getbasic(ability_s value) const;
 	int					getbasic(skill_s v) const { return skills[v]; }
 	int					getboost(variant id) const;
 	const classi&		getclass() const { return bsmeta<classi>::elements[kind]; }
@@ -755,15 +759,16 @@ public:
 };
 class spella : public adat<spell_s, LastSpell + 1> {
 public:
-	spell_s				choose(bool interactive, const char* title, bool* cancel_result, const creature* player) const;
+	spell_s				choose(const char* interactive, const char* title, bool* cancel_result, const creature* player) const;
 	void				select(const creature& player);
 };
 struct targeti {
 	variant_s			type;
+	cflags<target_flag_s> flags;
 	target_s			target;
 	range_s				range;
 	unsigned			getcount(creaturea& creatures, itema& items, indexa& indecies) const;
-	bool				prepare(creature& player, creaturea& source, itema& items, indexa& indecies, variant id, int v) const;
+	bool				prepare(creature& player, creaturea& creatures, itema& items, indexa& indecies, variant id, int v) const;
 	bool				use(creature& player, creaturea& source, variant id, int v) const;
 	void				use(creature& player, creaturea& source, creaturea& creatures, itema& items, indexa& indecies, variant id, int v) const;
 };
@@ -771,8 +776,6 @@ struct spelli {
 	const char*			name;
 	unsigned char		mp;
 	targeti				effect;
-	dicei				bonus;
-	short				multiplier;
 };
 struct itemground : item {
 	short unsigned		index;
@@ -850,6 +853,7 @@ public:
 	void				additems(indext i, stringbuilder& sb) const;
 	void				addobject(indext i, stringbuilder& sb) const;
 	creature*			adventurer(indext index);
+	bool				apply(creature& player, indext index, variant id, int v, int order, bool run);
 	void				blockcreatures();
 	void				blockwalls(bool water = true);
 	indext				building(indext i, int width, int height, direction_s dir = Center);
