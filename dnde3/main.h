@@ -163,7 +163,7 @@ enum map_flag_s : unsigned char {
 enum item_type_s : unsigned char {
 	Mundane, Cursed, Blessed, Artifact,
 };
-enum attack_s : unsigned char {
+enum damage_s : unsigned char {
 	Bludgeon, Slashing, Piercing,
 	Acid, Cold, Electricity, Fire, Magic, Poison, WaterAttack
 };
@@ -216,13 +216,14 @@ typedef flagable<1 + LastRace / 8> racea;
 typedef casev<ability_s> abilityv;
 class creature;
 class creaturea;
+struct targeti;
 struct variant {
 	variant_s			type;
 	unsigned char		value;
 	constexpr variant() : type(NoVariant), value(0) {}
 	constexpr variant(ability_s v) : type(Ability), value(v) {}
 	constexpr variant(alignment_s v) : type(Alignment), value(v) {}
-	constexpr variant(attack_s v) : type(Harm), value(v) {}
+	constexpr variant(damage_s v) : type(Harm), value(v) {}
 	constexpr variant(diety_s v) : type(God), value(v) {}
 	constexpr variant(formula_s v) : type(Formula), value(v) {}
 	constexpr variant(gender_s v) : type(Gender), value(v) {}
@@ -306,23 +307,6 @@ struct abilityi {
 	ability_s			getid() const;
 	int					getbonus(int v) const;
 };
-struct skilli {
-	struct weaponi {
-		char			attack;
-		char			damage;
-		char			speed;
-	};
-	const char*			name;
-	const char*			name_tome;
-	ability_s			abilities[2];
-	weaponi				weapon;
-	varianta			usable;
-	//
-	skill_s				getid() const;
-	const char*			getusetext() const;
-	bool				isresist() const { return getid() >= FirstResist; }
-	constexpr bool		isweapon() const { return weapon.attack != 0; }
-};
 struct equipmenti {
 	race_s				race;
 	class_s				type;
@@ -380,11 +364,17 @@ struct armori {
 struct attacki {
 	char				attack, attack_bonus; // Percent bonus to hit
 	dicei				dice;
-	attack_s			type;
+	damage_s			type;
 	char				speed;
 	char				damage_bonus;
 	item_s				ammunition;
 	int					getenergy() const { return StandartEnergyCost - speed * 50; }
+};
+struct damagei {
+	const char*			name;
+	ability_s			resist;
+	char				chance_body;
+	const char*			resist_text;
 };
 struct trapi {
 	const char*			name;
@@ -631,8 +621,8 @@ public:
 	void				create(role_s type);
 	void				clear();
 	void				consume(int energy_value);
-	void				damage(int count, attack_s type, int pierce = 0, bool interactive = true);
-	void				damagewears(int count, attack_s type);
+	void				damage(int count, damage_s type, int pierce = 0, bool interactive = true);
+	void				damagewears(int count, damage_s type);
 	void				dispell(variant source, bool interactive);
 	void				dressoff();
 	void				dresson();
@@ -772,10 +762,31 @@ struct targeti {
 	bool				use(creature& player, creaturea& source, variant id, int v) const;
 	void				use(creature& player, creaturea& source, creaturea& creatures, itema& items, indexa& indecies, variant id, int v) const;
 };
+struct skilli {
+	struct weaponi {
+		char			attack;
+		char			damage;
+		char			speed;
+	};
+	const char*			name;
+	const char*			name_tome;
+	ability_s			abilities[2];
+	weaponi				weapon;
+	targeti				effect;
+	short				experience;
+	//
+	skill_s				getid() const;
+	const char*			getusetext() const;
+	bool				isresist() const { return getid() >= FirstResist; }
+	constexpr bool		isweapon() const { return weapon.attack != 0; }
+};
 struct spelli {
 	const char*			name;
 	unsigned char		mp;
 	targeti				effect;
+	dicei				dice;
+	char				multiplier;
+	variant				bonus;
 };
 struct itemground : item {
 	short unsigned		index;

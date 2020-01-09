@@ -64,7 +64,7 @@ void creature::add(variant id, int v, bool interactive) {
 			}
 			break;
 		}
-		damage(v, attack_s(id.value), 0, interactive);
+		damage(v, damage_s(id.value), 0, interactive);
 		break;
 	case Spell:
 		if(v > 0)
@@ -1081,7 +1081,20 @@ void creature::kill() {
 	clear();
 }
 
-void creature::damage(int value, attack_s type, int pierce, bool interactive) {
+void creature::damage(int value, damage_s type, int pierce, bool interactive) {
+	auto& di = bsmeta<damagei>::elements[type];
+	// Innate resist skills
+	if(di.resist && value > 0) {
+		auto resist_skill = get(di.resist);
+		if(resist_skill < 0)
+			value += -resist_skill * value / 100; // Negative resist increase damage
+		else {
+			if(rollv(resist_skill - value, 0)) {
+				act(di.resist_text, value);
+				return;
+			}
+		}
+	}
 	if(value < 0) {
 		value = -value;
 		auto mhp = get(LifePoints);
@@ -1558,7 +1571,7 @@ bool creature::apply(creature& player, variant id, int v, int order, bool run) {
 		case BlessSpell:
 			if(run) {
 				add(Attack, id, v * 5, false, 30);
-				add(Damage, id, v, false, 30);
+				add(Damage, id, 2, false, 30);
 				act("%герой испытал%а небывалый прилив сил.");
 			}
 			break;
@@ -1574,9 +1587,20 @@ bool creature::apply(creature& player, variant id, int v, int order, bool run) {
 				act("¬округ %геро€ по€вилось защитное поле.");
 			}
 			break;
-		case ShokingGrasp:
-			if(run)
-				damage(xrand(1, 8) + v * 3, Electricity, 0, true);
+		default:
+			if(!bsmeta<spelli>::elements[id.value].bonus)
+				return false;
+			if(run) {
+				auto& ei = bsmeta<spelli>::elements[id.value];
+				switch(ei.bonus.type) {
+				case Harm:
+					damage(v, (damage_s)ei.bonus.value, 0, true);
+					break;
+				default:
+					say("«аклинание [-%1] не работает!", ei.name);
+					break;
+				}
+			}
 			break;
 		}
 		break;
@@ -1591,7 +1615,11 @@ bool creature::cast(creaturea& source, spell_s id, int level, item* magic_source
 			return false;
 	}
 	variant effect = id;
-	auto v = level;
+	auto v = ei.dice.roll();
+	if(ei.multiplier)
+		v += level*ei.multiplier;
+	else
+		v += level;
 	creaturea creatures = source;
 	itema items;
 	indexa indecies;

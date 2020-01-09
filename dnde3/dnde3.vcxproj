@@ -116,6 +116,7 @@
     <ClCompile Include="ability.cpp" />
     <ClCompile Include="answer.cpp" />
     <ClCompile Include="archive.cpp" />
+    <ClCompile Include="damage.cpp" />
     <ClCompile Include="boost.cpp" />
     <ClCompile Include="bstream.cpp" />
     <ClCompile Include="class.cpp" />

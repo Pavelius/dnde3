@@ -9,7 +9,7 @@ unsigned targeti::getcount(creaturea& creatures, itema& items, indexa& indecies)
 }
 
 bool targeti::prepare(creature& player, creaturea& creatures, itema& items, indexa& indecies, variant id, int v) const {
-	static int range_value[] = {0, 1, 3, 5, 7};
+	static int range_value[] = {0, 1, 2, 4, 7};
 	auto r = range_value[range];
 	auto los = player.getlos();
 	if(r > los)
