@@ -1,6 +1,8 @@
 #include "main.h"
 
 void creaturea::match(creature& player, variant v, bool remove) {
+	if(!v)
+		return;
 	auto ps = data;
 	for(auto p : *this) {
 		if(v.type == State && v.value == Hostile) {
@@ -34,6 +36,8 @@ void creaturea::match(creature& player, variant v, bool remove) {
 }
 
 void creaturea::match(variant v, bool remove) {
+	if(!v)
+		return;
 	auto ps = data;
 	for(auto p : *this) {
 		if(remove) {

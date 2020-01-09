@@ -27,6 +27,8 @@ void indexa::select(indext index, int distance) {
 }
 
 void indexa::match(variant v, bool remove) {
+	if(!v)
+		return;
 	auto ps = data;
 	for(auto i : *this) {
 		if(remove) {
@@ -36,6 +38,18 @@ void indexa::match(variant v, bool remove) {
 			if(!loc.ismatch(i, v))
 				continue;
 		}
+		*ps++ = i;
+	}
+	count = ps - data;
+}
+
+void indexa::match(creature& player, variant id, int v) {
+	if(!id)
+		return;
+	auto ps = data;
+	for(auto i : *this) {
+		if(!player.usei(i, id, v, false))
+			continue;
 		*ps++ = i;
 	}
 	count = ps - data;

@@ -188,7 +188,7 @@ enum variant_s : unsigned char {
 	NoVariant,
 	Ability, Alignment, Creature, Formula, God, Harm,
 	Item, ItemType,
-	Number, Object, Race, Range, Role,
+	Number, Object, ObjectFlags, Race, Range, Role,
 	Skill, Slot, Spell, State, Target, Tile,
 	Variant,
 };
@@ -222,6 +222,7 @@ struct variant {
 	constexpr variant(item_s v) : type(Item), value(v) {}
 	constexpr variant(item_type_s v) : type(ItemType), value(v) {}
 	constexpr variant(map_object_s v) : type(Object), value(v) {}
+	constexpr variant(map_flag_s v) : type(ObjectFlags), value(v) {}
 	constexpr variant(range_s v) : type(Range), value(v) {}
 	constexpr variant(race_s v) : type(Race), value(v) {}
 	constexpr variant(role_s v) : type(Role), value(v) {}
@@ -712,6 +713,7 @@ public:
 	void				trapeffect();
 	void				unlink();
 	bool				use(item& it, bool interactive);
+	bool				usei(indext index, variant id, int v, bool run);
 	static bool			usechance(int chance, bool hostile, item_type_s magic, int quality, int damaged);
 	void				useskills();
 	void				wait() { consume(StandartEnergyCost); }
@@ -733,6 +735,7 @@ class indexa : public adat<indext> {
 public:
 	int					choose(bool interactive, const char* title);
 	void				match(variant v, bool remove);
+	void				match(creature& player, variant id, int v);
 	void				matchr(indext index, int range);
 	void				select(indext index, int distance);
 	void				sort(indext start);
@@ -742,8 +745,9 @@ struct targeti {
 	range_s				range;
 	target_s			target;
 	variant				conditions[3];
-	void				match(creature& player, creaturea& creatures, itema& items, indexa& indecies) const;
-	void				select(creature& player, creaturea& creatures, itema& items, indexa& indecies) const;
+	bool				apply(creature& player, creaturea& source, variant id, int v) const;
+	unsigned			getcount(creaturea& creatures, itema& items, indexa& indecies) const;
+	void				select(creature& player, creaturea& creatures, itema& items, indexa& indecies, variant id, int v) const;
 };
 struct spelli {
 	const char*			name;
@@ -800,23 +804,6 @@ struct statistici {
 	short				artifacts;
 	short				level;
 	indext				positions[4];
-};
-class analize {
-	target_s			target;
-	variant_s			type;
-	creature&			player;
-	itema				items;
-	indexa				indecies;
-	creaturea			creatures;
-	//
-	void				set(variant_s v);
-public:
-	analize(creature& player);
-	analize(creature& player, creaturea& opponents);
-	void				apply(const varianta& source, int value);
-	void				match(variant v);
-	void				remove(variant v);
-	variant				select(const varianta& source);
 };
 class location : public statistici {
 	typedef bool(location::*procis)(indext i) const;
@@ -890,6 +877,7 @@ public:
 	void				set(indext i, tile_s v, int width, int height);
 	void				set(indext i, trap_s v);
 	void				set(indext i, map_object_s v) { objects[i] = v; }
+	void				setr(indext i, unsigned char v) { random[i] = v; }
 	static void			setcamera(short x, short y);
 	static void			setcamera(indext i);
 	void				setdungeon(bool v) { is_dungeon = v; }

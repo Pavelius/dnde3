@@ -150,7 +150,6 @@ static bool test_formula() {
 }
 
 int main(int argc, char* argv[]) {
-	auto size = sizeof(analize);
 	auto s1 = sizeof(outdoor);
 	auto s2 = sizeof(creature);
 	auto s3 = sizeof(item);

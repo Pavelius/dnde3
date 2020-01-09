@@ -25,6 +25,33 @@ short unsigned creature::getid() const {
 	return this - bsmeta<creature>::elements;
 }
 
+bool creature::usei(indext index, variant id, int v, bool run) {
+	switch(id.type) {
+	case Object:
+		if(run) {
+			loc.set(index, (map_object_s)id.value);
+			loc.setr(index, v);
+		}
+		break;
+	case ObjectFlags:
+		if(v > 0) {
+			if(loc.is(index, (map_flag_s)id.value))
+				return false;
+		} else {
+			if(!loc.is(index, (map_flag_s)id.value))
+				return false;
+		}
+		if(run) {
+			if(v > 0)
+				loc.set(index, (map_flag_s)id.value);
+			else
+				loc.remove(index, (map_flag_s)id.value);
+		}
+		break;
+	}
+	return true;
+}
+
 void creature::add(variant id, int v, bool interactive) {
 	switch(id.type) {
 	case Ability:

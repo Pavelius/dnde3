@@ -39,6 +39,8 @@ void itema::matchboost(variant v) {
 }
 
 void itema::match(variant v, bool remove) {
+	if(!v)
+		return;
 	auto ps = data;
 	for(auto p : *this) {
 		if(remove) {

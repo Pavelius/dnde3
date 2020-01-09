@@ -307,7 +307,7 @@ bool item::ismatch(variant v) const {
 			return true;
 		break;
 	}
-	return true;
+	return false;
 }
 
 int	item::getbonus() const {

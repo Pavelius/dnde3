@@ -154,9 +154,6 @@
     <ClCompile Include="indexa.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="analize.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
     <ClCompile Include="target.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
