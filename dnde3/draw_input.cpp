@@ -1456,6 +1456,13 @@ indext location::choose(bool allow_cancel) {
 }
 
 spell_s spella::choose(bool interactive, const char* title, bool* cancel_result, const creature* player) const {
+	if(!getcount()) {
+		if(interactive)
+			sb.add("У вас нету заклинаний.");
+		if(cancel_result)
+			*cancel_result = true;
+		return (spell_s)0;
+	}
 	int x, y, y1;
 	const int width = 400;
 	while(ismodal()) {
