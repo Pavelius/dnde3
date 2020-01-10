@@ -69,7 +69,8 @@ static creature* create_indoor(bool enemies = true) {
 	loc.clear();
 	loc.positions[1] = loc.get(3, 3);
 	loc.positions[2] = loc.get(2, 6);
-	loc.building(loc.get(5, 5), 7, 5);
+	auto door = loc.building(loc.get(5, 5), 7, 5);
+	loc.set(door, Sealed);
 	loc.lake(10, 10, 20, 20);
 	loc.drop(loc.get(5, 4), item(SwordShort, 5));
 	loc.drop(loc.get(4, 6), item(SwordTwoHanded, 10));
@@ -78,14 +79,12 @@ static creature* create_indoor(bool enemies = true) {
 	loc.set(loc.get(2, 6), Hill);
 	loc.set(loc.get(3, 7), Hill);
 	loc.set(loc.get(3, 8), Water);
-	loc.set(loc.get(4, 8), Water);
-	//loc.set(loc.get(5, 8), Water);
 	loc.set(loc.get(3, 7), Hill);
 	loc.set(loc.get(3, 8), Altar);
 	loc.set(loc.get(3, 5), Plants);
 	loc.set(loc.get(2, 6), Blooded); loc.set(loc.get(3, 6), Blooded); loc.set(loc.get(4, 6), Blooded);
 	loc.set(loc.get(3, 6), Webbed); loc.set(loc.get(4, 6), Webbed); loc.set(loc.get(4, 7), Webbed);
-	auto p1 = create(Human, Male, Ranger);
+	auto p1 = create(Human, Male, Theif);
 	auto p2 = create(Dwarf, Male, Cleric);
 	auto p3 = create(Elf, Male, Fighter);
 	if(enemies) {
@@ -95,7 +94,7 @@ static creature* create_indoor(bool enemies = true) {
 	}
 	p1->activate();
 	p1->damage(6, Bludgeon, 100);
-	modify_weapon(p1);
+	//modify_weapon(p1);
 	create(p1, Potion1);
 	create(p1, Potion1, Dexterity);
 	create(p1, BracersLeather);
@@ -103,7 +102,6 @@ static creature* create_indoor(bool enemies = true) {
 	create(p1, Helmet);
 	create(p1, RingRed);
 	create(p1, RingBlue);
-	modify_weapon(p1);
 	return p1;
 }
 

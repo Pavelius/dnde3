@@ -116,20 +116,18 @@ struct arem : aref<T> {
 	void					reserve(unsigned count) { rmreserve((void**)&(aref<T>::data), count, count_maximum, sizeof(T)); }
 };
 // Abstract flag storage
-template<unsigned last>
+template<unsigned c>
 class flagable {
-	static constexpr unsigned s = 8;
-	static constexpr unsigned c = 1 + last / s;
 	unsigned char			data[c];
 public:
 	constexpr flagable() : data{0} {}
 	constexpr explicit operator bool() const { for(unsigned i = 0; i < last; i++) if(data[i]) return true; return false; }
 	template<class T> constexpr flagable(const std::initializer_list<T>& v) : data{0} { for(auto e : v) set(e); }
 	void					clear() { memset(this, 0, sizeof(*this)); }
-	constexpr bool			is(short unsigned v) const { return (data[v / s] & (1 << (v%s))) != 0; }
-	constexpr void			remove(short unsigned v) { data[v / s] &= ~(1 << (v%s)); }
+	constexpr bool			is(short unsigned v) const { return (data[v / 8] & (1 << (v%8))) != 0; }
+	constexpr void			remove(short unsigned v) { data[v / 8] &= ~(1 << (v%8)); }
 	constexpr void			set(const flagable& e) { for(unsigned i = 0; i < c; i++) data[i] |= e.data[i]; }
-	constexpr void			set(short unsigned v) { data[v / s] |= 1 << (v%s); }
+	constexpr void			set(short unsigned v) { data[v / 8] |= 1 << (v%8); }
 	constexpr void			set(short unsigned v, bool activate) { if(activate) set(v); else remove(v); }
 };
 // Abstract value collection

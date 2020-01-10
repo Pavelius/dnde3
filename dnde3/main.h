@@ -103,7 +103,7 @@ enum skill_s : unsigned char {
 	FirstSkill = Bargaining, LastSkill = TwoWeaponFighting,
 };
 enum state_s : unsigned char {
-	Anger, Dazzled, Drunken, Friendly, Hostile, Hunger,
+	Anger, Dazzled, Drunken, Friendly, Hostile,
 	Invisible, Poisoned, Sick, Sleeped,
 	Wounded,
 	LastState = Wounded,
@@ -213,6 +213,8 @@ typedef adat<rect, 64> rooma;
 typedef flagable<1 + Chaotic / 8> alignmenta;
 typedef flagable<1 + LastState / 8> statea;
 typedef flagable<1 + LastRace / 8> racea;
+typedef flagable<1 + ManyItems / 8>	itemf;
+typedef flagable<1 + Blooded / 8> mapflf;
 typedef casev<ability_s> abilityv;
 class creature;
 class creaturea;
@@ -289,7 +291,7 @@ struct classi {
 	weaponi				weapon;
 	adat<skill_s, 8>	skills;
 	adat<spell_s, 6>	spells;
-	flagable<ManyItems>	restricted;
+	itemf				restricted;
 };
 struct abilityi {
 	const char*			id;
@@ -340,7 +342,8 @@ struct statei {
 	const char*			name;
 	const char*			nameof;
 	bool				hostile;
-	const char*			remove;
+	const char*			text_set;
+	const char*			text_remove;
 };
 struct racei {
 	const char*			name;
@@ -633,6 +636,7 @@ public:
 	bool				equip(item value);
 	bool				equip(item& v1, item& v2, bool run);
 	void				enslave();
+	void				fail(skill_s id);
 	static creature*	find(indext i);
 	boosti*				find(variant id) const;
 	boosti*				finds(variant id) const;
@@ -715,7 +719,6 @@ public:
 	void				sethorror(const creature* p) { horror = p->getid(); }
 	void				setmoney(int value) { money = value; }
 	void				setposition(indext v);
-	void				skillfail();
 	void				shoot();
 	void				testweapons();
 	void				unlink();
@@ -779,7 +782,7 @@ struct skilli {
 	//
 	skill_s				getid() const;
 	const char*			getusetext() const;
-	bool				isresist() const { return getid() >= FirstResist; }
+	constexpr bool		is(ability_s v) const { return abilities[0] == v || abilities[1] == v; }
 	constexpr bool		isweapon() const { return weapon.attack != 0; }
 };
 struct spelli {
@@ -847,7 +850,7 @@ class location : public statistici {
 	tile_s				tiles[mmx*mmy];
 	map_object_s		objects[mmx*mmy];
 	unsigned char		random[mmx*mmy];
-	flagable<1>			flags[mmx*mmy];
+	mapflf				flags[mmx*mmy];
 	role_s				monsters[6];
 	bool				is_dungeon;
 	//

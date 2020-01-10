@@ -44,15 +44,23 @@ void creature::add(variant id, int v, bool interactive) {
 		}
 		break;
 	case State:
-		dressoff();
-		if(v > 0)
+		if(v > 0) {
+			if(states.is(id.value))
+				return;
+			dressoff();
 			states.set(id.value);
-		else {
-			states.remove(id.value);
+			dresson();
 			if(interactive)
-				act(bsmeta<statei>::elements[id.value].remove);
+				act(bsmeta<statei>::elements[id.value].text_set);
+		} else {
+			if(!states.is(id.value))
+				return;
+			dressoff();
+			states.remove(id.value);
+			dresson();
+			if(interactive)
+				act(bsmeta<statei>::elements[id.value].text_remove);
 		}
-		dresson();
 		break;
 	case Item:
 		equip(item(item_s(id.value), v));
@@ -91,6 +99,10 @@ void creature::dispell(variant source, bool interactive) {
 }
 
 void creature::addx(variant id, variant source, int modifier, unsigned rounds) {
+	switch(id.type) {
+	case State:
+		return;
+	}
 	auto p = bsmeta<boosti>::add();
 	p->id = id;
 	p->source = source;
@@ -1352,17 +1364,6 @@ bool creature::match(variant id) const {
 }
 
 void creature::add(variant id, variant source, int v, bool interactive, unsigned minutes) {
-	switch(id.type) {
-	case State:
-		if(v >= 0) {
-			if(is(state_s(id.value)))
-				return;
-		} else {
-			if(!is(state_s(id.value)))
-				return;
-		}
-		break;
-	}
 	add(id, v, interactive);
 	addx(id, source, -v, game.getrounds() + minutes);
 }
@@ -1498,12 +1499,7 @@ void creature::add(variant id, variant source, int v, bool interactive, item_typ
 		}
 		break;
 	case State:
-		switch(magic) {
-		case Artifact: add(id, source, v, interactive, 30 * (minutes + minutes*quality)); break;
-		case Cursed: add(id, source, -v, interactive, (minutes + minutes*quality)); break;
-		case Blessed: add(id, source, v, interactive, 5 * (minutes + minutes*quality)); break;
-		default: add(id, source, v, interactive, minutes + minutes*quality); break;
-		}
+		add(id, v, interactive);
 		break;
 	}
 }
@@ -1577,6 +1573,7 @@ bool creature::ismatch(variant v) const {
 }
 
 bool creature::apply(creature& player, variant id, int v, int order, bool run) {
+	spelli* si;
 	switch(id.type) {
 	case Spell:
 		if(finds(id))
@@ -1608,21 +1605,26 @@ bool creature::apply(creature& player, variant id, int v, int order, bool run) {
 			}
 			break;
 		default:
-			if(!bsmeta<spelli>::elements[id.value].bonus)
+			si = bsmeta<spelli>::elements + id.value;
+			if(!si->bonus)
 				return false;
-			if(run) {
-				auto& ei = bsmeta<spelli>::elements[id.value];
-				switch(ei.bonus.type) {
-				case Harm:
-					damage(v, (damage_s)ei.bonus.value, 0, true);
-					break;
-				default:
-					say("Заклинание [-%1] не работает!", ei.name);
-					break;
-				}
-			}
-			break;
+			return apply(player, si->bonus, v, order, true);
 		}
+		break;
+	case Harm:
+		if(run)
+			damage(v, (damage_s)id.value, 0, true);
+		break;
+	case State:
+		if(v >= 0) {
+			if(is((state_s)id.value))
+				return false;
+		} else {
+			if(!is((state_s)id.value))
+				return false;
+		}
+		if(run)
+			add(id, v, true);
 		break;
 	}
 	return true;
@@ -1674,12 +1676,23 @@ bool creature::use(creaturea& source, skill_s id) {
 	return true;
 }
 
-void creature::skillfail() {
-	if(d100() < 90) {
-		act("%герой приш%ла в не себя от злости.");
-		add(Anger, 1, false);
-	} else if(d100() < 70) {
-		act("Вы убили кучу времени, но все было тщетно.");
+void creature::fail(skill_s id) {
+	const int chance_fail = 30;
+	auto& ei = bsmeta<skilli>::elements[id];
+	if(ei.is(Strenght) && d100() < chance_fail) {
+		act("%герой растянул%а мышцу.");
+		damage(1, Bludgeon, 100, false);
+	} else if((ei.is(Intellegence) || ei.is(Wisdow)) && d100() < chance_fail) {
+		act("%герой почуствовал%а моральное переутомление.");
+		paymana(1, false);
+	} else if(ei.is(Dexterity) && d100() < chance_fail) {
+		act("%герой испытал%а мышечный спазм.");
+		damage(1, Bludgeon, 100, false);
+	} else if(!is(Anger) && d100() < chance_fail)
+		add(Anger, 1, true);
+	else if(d100() < chance_fail) {
+		if(isactive())
+			act("Вы убили кучу времени, но все было тщетно.");
 		consume(StandartEnergyCost*xrand(2, 4));
 	}
 }

@@ -10,8 +10,6 @@ static void choose_children(stringbuilder& sb, manual& mn, answeri& an) {
 static void ability_skills(stringbuilder& sb, manual& mn, answeri& an) {
 	skilla source;
 	for(auto& e : bsmeta<skilli>()) {
-		if(e.isresist())
-			continue;
 		if(e.abilities[0] == mn.value.value || e.abilities[1] == mn.value.value)
 			source.add(e.getid());
 	}

@@ -5,12 +5,12 @@ void indexa::select(indext index, int distance) {
 	auto pe = endof();
 	auto x0 = loc.getx(index);
 	auto y0 = loc.gety(index);
-	for(auto y = y0 - distance; y <= y + distance; y++) {
+	for(auto y = y0 - distance; y <= y0 + distance; y++) {
 		if(y < 0)
 			continue;
 		if(y >= mmy)
 			break;
-		for(auto x = x0 - distance; x <= x + distance; x++) {
+		for(auto x = x0 - distance; x <= x0 + distance; x++) {
 			if(x < 0)
 				continue;
 			if(x >= mmx)

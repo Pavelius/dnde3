@@ -759,7 +759,7 @@ bool location::apply(creature& player, indext index, variant id, int v, int orde
 				// Random bonus for door to open
 				if(!player.roll((skill_s)id.value, (getrand(index) % 21) - 10)) {
 					player.act("%герой ударил%а двери, но те не поддались.");
-					player.skillfail();
+					player.fail((skill_s)id.value);
 					return false;
 				}
 				player.act("%герой разнес%ла двери в щепки.");
@@ -773,10 +773,10 @@ bool location::apply(creature& player, indext index, variant id, int v, int orde
 			if(run) {
 				if(!player.roll((skill_s)id.value)) {
 					player.act("%герой попытал%ась обезвредить ловушку, но что-то пошло не так.");
-					player.skillfail();
+					player.fail((skill_s)id.value);
 					return false;
 				}
-				player.act("%герой обезвреди%ла ловушку.");
+				player.act("%герой обезвредил%а ловушку.");
 				set(index, NoTileObject);
 				player.addexp(50);
 			}
@@ -785,9 +785,12 @@ bool location::apply(creature& player, indext index, variant id, int v, int orde
 			if(getobject(index) != Door || !is(index, Sealed) || is(index, Opened) || is(index, Hidden))
 				return false;
 			if(run) {
-				if(!player.roll((skill_s)id.value, (getrand(index) % 31) - 15))
+				if(!player.roll((skill_s)id.value, (getrand(index) % 31) - 15)) {
+					player.act("%герой не смог%ла вскрыть замок.");
+					player.fail((skill_s)id.value);
 					return false;
-				player.act("%герой взлома%ла замок.");
+				}
+				player.act("%герой взломал%а замок.");
 				remove(index, Sealed);
 				player.addexp(100);
 			}
