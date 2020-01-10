@@ -138,7 +138,7 @@ static void test_dungeon() {
 	create(p1, RingRed);
 	create(p1, RingBlue);
 	create(p1, Scroll1, BlessItem);
-	create(p1, Wand1, FearSpell);
+	create(p1, Wand1, Invisibility);
 	create(p3, BracersLeather);
 	create(p3, Wand1);
 	//test_stack(p2);

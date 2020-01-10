@@ -31,7 +31,8 @@ LifePoints, ManaPoints, Speed};
 static variant boots_enchanments[] = {{}, ResistElectricity, ResistParalize, ResistWater,
 Dexterity, Constitution,
 Armor, Speed};
-static variant wand_enchanments[] = {MagicMissile, ShokingGrasp, HealingSpell, ArmorSpell, CharmPerson, FearSpell};
+static variant wand_enchanments[] = {MagicMissile, ShokingGrasp, HealingSpell, ArmorSpell,
+CharmPerson, FearSpell, Invisibility};
 static variant common_scroll[] = {BlessItem, DetectEvil, DetectMagic, Identify};
 
 itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, NoGender, Organic, {0, 3, {1, 3}, Bludgeon, 4, 2}, {}, {}, {}, Melee},

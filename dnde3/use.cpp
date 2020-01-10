@@ -282,6 +282,14 @@ bool creature::apply(creature& player, variant id, int v, int order, bool run) {
 			if(run)
 				damage(-v, Magic, 0, true);
 			break;
+		case Invisibility:
+			if(isboost(Invisibility))
+				return false;
+			if(run) {
+				add(Invisible, 1, true);
+				add(Invisible, Invisibility, 0, true, v * 30);
+			}
+			break;
 		case ShieldSpell:
 			if(run) {
 				add(Protection, id, 20 * v, false, 20);

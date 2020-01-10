@@ -1077,6 +1077,13 @@ void creature::makemove() {
 			return;
 		}
 	}
+	if(!is(Invisible)) {
+		// Персонаж под действием заклинения невидимости
+		// должен быть становиться невидимым в начале своего хода
+		// и если он оглушен, то он видимый, но если спит, то невидимый!!!
+		if(isboost(Invisibility))
+			add(Invisible, 1, false);
+	}
 	// Sleeped creature don't move
 	if(is(Sleeped))
 		return;
@@ -1427,8 +1434,13 @@ bool creature::match(variant id) const {
 }
 
 void creature::add(variant id, variant source, int v, bool interactive, unsigned minutes) {
-	add(id, v, interactive);
-	addx(id, source, -v, game.getrounds() + minutes);
+	if(v != 0) {
+		add(id, v, interactive);
+		addx(id, source, -v, game.getrounds() + minutes);
+	} else {
+		// Special case when need set spell effect
+		addx({}, source, 0, game.getrounds() + minutes);
+	}
 }
 
 static int getchance(int chance, bool hostile, int quality, int damage) {

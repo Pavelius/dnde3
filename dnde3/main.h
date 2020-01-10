@@ -690,6 +690,7 @@ public:
 	bool				is(const creature* p) const { return this == p; }
 	bool				isactive() const { return getactive() == this; }
 	bool				isallow(item_s v) const;
+	bool				isboost(spell_s v) const { return finds(v)!=0; }
 	bool				isenemy(const creature* target) const;
 	bool				isguard() const { return guard != Blocked; }
 	bool				ismatch(variant v) const;
