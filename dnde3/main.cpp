@@ -60,7 +60,8 @@ static void test_answers() {
 static void modify_weapon(creature* p1) {
 	item* pi = (item*)&p1->get(Melee);
 	pi->seteffect(Attack);
-	pi->set(Cursed);
+	pi->decoy(true);
+	//pi->set(Cursed);
 	//pi->setquality(3);
 	//pi->setidentify(1);
 }
@@ -94,7 +95,6 @@ static creature* create_indoor(bool enemies = true) {
 	}
 	p1->activate();
 	p1->damage(6, Bludgeon, 100);
-	//modify_weapon(p1);
 	create(p1, Potion1);
 	create(p1, Potion1, Dexterity);
 	create(p1, BracersLeather);
@@ -143,6 +143,7 @@ static void test_dungeon() {
 	create(p1, Wand1, Invisibility);
 	create(p3, BracersLeather);
 	create(p3, Wand1);
+	modify_weapon(p1);
 	//test_stack(p2);
 	game.play();
 }

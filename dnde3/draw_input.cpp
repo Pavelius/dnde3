@@ -1248,7 +1248,7 @@ int	answeri::dialogv(bool allow_cancel, const char* title, const char* format) c
 	return getresult();
 }
 
-static void render_item(int x, int y, int width, const item& e) {
+static void render_item(int x, int y, int width, const item& e, bool show_damage = false) {
 	if(!e)
 		return;
 	auto ps_fore = fore;
@@ -1267,6 +1267,11 @@ static void render_item(int x, int y, int width, const item& e) {
 		sb.clear();
 		e.getstatistic(sb);
 		text(x + width - 160, y, temp);
+	}
+	if(show_damage) {
+		auto p = e.getdamagetext();
+		if(p && p[0])
+			text(x + width - 170 - textw(p), y, p);
 	}
 	fore = ps_fore;
 	//line(x + width, y, x + width, y + 10, colors::red);
@@ -1402,7 +1407,7 @@ item* itema::choose(const char* interactive, const char* title, const char* form
 				if((index + 1) % 2)
 					rectf({x, y, x + width, y + texth() + 1}, colors::white, 4);
 				render(x0, y, 110, *e, mode);
-				render_item(x0, y, x2 - x0 - 72, *e);
+				render_item(x0, y, x2 - x0 - 72, *e, mode==NoSlotName);
 				render_weight(x0, y, x2 - x0, *e);
 				index++;
 				y += texth() + 4;

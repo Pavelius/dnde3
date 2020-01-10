@@ -381,7 +381,8 @@ struct materiali {
 struct damagei {
 	const char*			name;
 	ability_s			resist;
-	char				chance_body;
+	char				damage_wears;
+	char				damage_chance;
 	const char*			resist_text;
 };
 struct trapi {
@@ -406,6 +407,7 @@ struct itemi {
 	const char*			name;
 	int					weight;
 	int					cost;
+	int					quality_bonus;
 	gender_s			gender;
 	material_s			material;
 	attacki				weapon;
@@ -444,6 +446,7 @@ public:
 	void				clear() { memset(this, 0, sizeof(*this)); }
 	void				create(item_s type, int chance_artifact, int chance_magic, int chance_cursed, int chance_quality);
 	void				damage(int count, damage_s type, bool interactive);
+	void				decoy(bool interactive);
 	void				destroy();
 	item_s				getammo() const { return getitem().weapon.ammunition; }
 	armori				getarmor() const;
@@ -453,6 +456,7 @@ public:
 	unsigned			getcost() const;
 	int					getcount() const;
 	int					getdamage() const;
+	const char*			getdamagetext() const;
 	variant				geteffect() const;
 	const itemi&		getitem() const { return bsmeta<itemi>::elements[type]; }
 	gender_s			getgender() const { return getitem().gender; }

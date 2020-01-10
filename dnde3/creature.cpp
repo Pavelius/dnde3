@@ -926,8 +926,6 @@ void creature::attack(creature& enemy, const attacki& ai, int bonus, int danger)
 	auto dv = ai.dice.roll();
 	dv = dv * danger / 100;
 	enemy.damage(dv, ai.type, pierce);
-	if(d100() < 20)
-		enemy.damagewears(dv, ai.type, 1);
 }
 
 void creature::meleeattack(creature& enemy, int bonus) {
@@ -1208,6 +1206,13 @@ void creature::damage(int value, damage_s type, int pierce, bool interactive) {
 			act("%герой восстановил%а [+%1i] повреждений.", value);
 		hp += value;
 	} else {
+		if(di.damage_wears != 0 && di.damage_chance!=0) {
+			auto count = di.damage_wears;
+			if(count < 0)
+				count = value / -count;
+			if(d100()<di.damage_chance)
+				damagewears(value, type, count);
+		}
 		auto armor = get(Armor);
 		if(armor > 0 && pierce > 0) {
 			if(pierce > armor)
