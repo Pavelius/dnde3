@@ -31,6 +31,7 @@ LifePoints, ManaPoints, Speed};
 static variant boots_enchanments[] = {{}, ResistElectricity, ResistParalize, ResistWater,
 Dexterity, Constitution,
 Armor, Speed};
+static variant wand_enchanments[] = {MagicMissile, ShokingGrasp, HealingSpell, Identify};
 
 itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, NoGender, Organic, {0, 3, {1, 3}, Bludgeon, 4, 2}, {}, {}, {}, Melee},
 {"Боевой топор", 850, 5 * GP, Male, Iron, {-4, 3, {1, 8}, Slashing, 0, 2}, {}, {}, {Versatile}, Melee, FocusAxes},
@@ -92,11 +93,11 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, NoGender, Organic, {0, 3, {1, 
 {"Свиток", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}, Readable},
 {"Свиток", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}, Readable},
 //
-{"Жезл", 0, 0 * GP, NoGender, Wood, {}, {}, {}, {}},
-{"Жезл", 0, 0 * GP, NoGender, Wood, {}, {}, {}, {}},
-{"Жезл", 0, 0 * GP, NoGender, Iron, {}, {}, {}, {}},
-{"Жезл", 0, 0 * GP, NoGender, Iron, {}, {}, {}, {}},
-{"Жезл", 0, 0 * GP, NoGender, Iron, {}, {}, {}, {}},
+{"Жезл", 10, 100 * GP, NoGender, Wood, {}, {}, wand_enchanments, {Chargeable}, Zapable},
+{"Жезл", 10, 120 * GP, NoGender, Wood, {}, {}, wand_enchanments, {Chargeable}, Zapable},
+{"Жезл", 20, 150 * GP, NoGender, Iron, {}, {}, wand_enchanments, {Chargeable}, Zapable},
+{"Жезл", 20, 160 * GP, NoGender, Iron, {}, {}, wand_enchanments, {Chargeable}, Zapable},
+{"Жезл", 30, 180 * GP, NoGender, Iron, {}, {}, wand_enchanments, {Chargeable}, Zapable},
 //
 {"Книга", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
 {"Книга", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}},
@@ -175,6 +176,8 @@ void item::create(item_s item_type, int chance_artifact, int chance_magic, int c
 				effect = 0;
 		}
 	}
+	if(ischargeable())
+		charge = xrand(3, 18) + quality * 3;
 }
 
 creature* item::getwearer() const {
@@ -244,7 +247,7 @@ void item::getname(stringbuilder& sb, bool show_cab) const {
 	}
 	if(iscountable()) {
 		auto n = getcount();
-		if(n>1)
+		if(n > 1)
 			sb.adds("%1i шт", getcount());
 	}
 }
@@ -290,6 +293,24 @@ bool item::use() {
 	auto c = getcount();
 	setcount(getcount() - 1);
 	return c > 1;
+}
+
+void item::usecharge() {
+	if(!charge || !ischargeable())
+		return;
+	if(charge == 1) {
+		if(d100() < chance_turn_chargeable_to_dust) {
+			auto p = getwearer();
+			if(p) {
+				p->act("%1 рассыпался в прах.", getname());
+				p->dressoff();
+			}
+			clear();
+			if(p)
+				p->dresson();
+		}
+	} else
+		charge--;
 }
 
 bool item::ismatch(variant v) const {
@@ -440,6 +461,16 @@ bool item::apply(creature& player, variant id, int v, int order, bool run) {
 			set((identify_s)id.value);
 		break;
 	case Spell:
+		switch(id.value) {
+		case Identify:
+			if(!is(KnownPower))
+				return false;
+			if(run) {
+				act("%герой засветил%ась белыми огоньками.");
+				set(KnownPower);
+			}
+			break;
+		}
 		break;
 	case Skill:
 		switch(id.value) {
@@ -453,4 +484,31 @@ bool item::apply(creature& player, variant id, int v, int order, bool run) {
 		break;
 	}
 	return true;
+}
+
+indext item::getposition() const {
+	auto p = getwearer();
+	if(p)
+		return p->getposition();
+	return Blocked;
+}
+
+void item::act(const char* format, ...) const {
+	actv(sb, format, xva_start(format));
+}
+
+void item::actv(stringbuilder& st, const char* format, const char* format_param) const {
+	auto p = creature::getactive();
+	if(p) {
+		auto i1 = getposition();
+		auto i2 = p->getposition();
+		if(i1==Blocked || i2 == Blocked)
+			return;
+	}
+	string sb = st;
+	sb.name = getname();
+	sb.gender = getgender();
+	sb.addsep(' ');
+	sb.addv(format, format_param);
+	st = sb;
 }

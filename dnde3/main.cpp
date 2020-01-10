@@ -118,18 +118,18 @@ static void test_dungeon() {
 	loc.clear();
 	loc.level = 5;
 	loc.create(false, false);
-	auto p1 = create(Human, Male, Ranger);
+	auto p1 = create(Human, Male, Theif);
 	auto p2 = create(Dwarf, Male, Cleric);
 	auto p3 = create(Elf, Male, Fighter);
 	p3->activate();
-	modify_weapon(p1);
 	create(p1, Potion1);
 	create(p1, Potion1, Dexterity);
-	create(p3, BracersLeather);
 	create(p1, Boot1);
 	create(p1, Helmet);
 	create(p1, RingRed);
 	create(p1, RingBlue);
+	create(p3, BracersLeather);
+	create(p3, Wand1);
 	game.play();
 }
 
@@ -161,9 +161,9 @@ int main(int argc, char* argv[]) {
 	//test_answers();
 	//item_choose();
 	//test_worldmap();
-	test_indoor(true);
+	//test_indoor(true);
 	//test_analize();
-	//test_dungeon();
+	test_dungeon();
 }
 
 int __stdcall WinMain(void* ci, void* pi, char* cmd, int sw) {

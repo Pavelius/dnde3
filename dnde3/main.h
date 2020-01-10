@@ -25,6 +25,7 @@ const int chance_act = 40;
 const int chance_blood_when_dead = 70;
 const int chance_drop_item = 40;
 const int chance_scarry_cry = 20;
+const int chance_turn_chargeable_to_dust = 70;
 const int restore_points_percent = 75;
 
 enum item_s : unsigned char {
@@ -54,7 +55,7 @@ enum diety_s : unsigned char {
 	GodBane, GodBhaal, GodGruumsh, GodHelm, GodMistra, GodTempus, GodTyr
 };
 enum slot_s : unsigned char {
-	Backpack, Edible, Readable, Drinkable, LastBackpack = Backpack + 31,
+	Backpack, Edible, Readable, Drinkable, Zapable, LastBackpack = Backpack + 31,
 	Head, Neck, Melee, OffHand, TorsoBack, Torso, RightFinger, LeftFinger, Elbows, Legs, Ranged, Amunitions,
 };
 enum race_s : unsigned char {
@@ -182,7 +183,7 @@ enum target_s : unsigned char {
 	SingleTarget, NearestTarget, AllTargets,
 };
 enum item_flag_s : unsigned char {
-	Coinable, Countable, TwoHanded, Versatile, Light, Natural,
+	Chargeable, Coinable, Countable, TwoHanded, Versatile, Light, Natural,
 };
 enum variant_s : unsigned char {
 	NoVariant,
@@ -429,6 +430,7 @@ public:
 	item(item_s type, int level);
 	explicit operator bool() const { return type != NoItem; }
 	void				act(const char* format, ...) const;
+	void				actv(stringbuilder& st, const char* format, const char* format_param) const;
 	void				add(variant id, int v, bool interactive);
 	bool				apply(creature& player, variant id, int v, int order, bool run);
 	void				clear() { memset(this, 0, sizeof(*this)); }
@@ -439,6 +441,7 @@ public:
 	armori				getarmor() const;
 	attacki				getattack() const;
 	int					getbonus() const;
+	int					getcharges() const { return charge; }
 	unsigned			getcost() const;
 	int					getcount() const;
 	int					getdamage() const;
@@ -450,6 +453,7 @@ public:
 	material_s			getmaterial() const { return getitem().material; }
 	const char*			getname() const { return getitem().name; }
 	void				getname(stringbuilder& sb, bool show_cab) const;
+	indext				getposition() const;
 	int					getquality() const { return quality; }
 	void				getstatistic(stringbuilder& sb) const;
 	creature*			getwearer() const;
@@ -461,7 +465,7 @@ public:
 	bool				is(item_flag_s v) const { return getitem().flags.is(v); }
 	bool				is(item_type_s v) const { return magic == v; }
 	bool				isboost(variant id) const;
-	bool				ischargeable() const { return false; }
+	bool				ischargeable() const { return is(Chargeable); }
 	bool				iscountable() const { return is(Countable); }
 	bool				isdamaged() const { return getdamage() > 0; }
 	bool				isunbreakable() const { return magic != Mundane; }
@@ -476,6 +480,7 @@ public:
 	void				seteffect(variant v);
 	void				setquality(int v);
 	bool				use();
+	void				usecharge();
 };
 class itema : public adat<item*> {
 public:
@@ -621,6 +626,7 @@ public:
 	bool				canhear(short unsigned index) const;
 	bool				cansee(indext i) const;
 	bool				canshoot(bool talk) const;
+	bool				cast(spell_s id, int level, item* magic_source = 0);
 	bool				cast(creaturea& creatures, spell_s id, int level, item* magic_source = 0);
 	void				chat(creature* opponent);
 	void				create(race_s race, gender_s gender, class_s type);
@@ -726,6 +732,7 @@ public:
 	static bool			usechance(int chance, bool hostile, item_type_s magic, int quality, int damaged);
 	void				useskills();
 	void				usespells();
+	void				usewands();
 	void				wait() { consume(StandartEnergyCost); }
 	void				wait(int n) { consume(StandartEnergyCost * n); }
 };
@@ -787,6 +794,7 @@ struct skilli {
 };
 struct spelli {
 	const char*			name;
+	const char*			nameof;
 	unsigned char		mp;
 	targeti				effect;
 	dicei				dice;

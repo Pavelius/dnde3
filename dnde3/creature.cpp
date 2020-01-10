@@ -698,9 +698,11 @@ void creature::usespells() {
 	auto s = source.choose("У вас нет ни одного заклинания.", "Какое заклинание использовать?", &cancel, this);
 	if(cancel)
 		return;
-	creaturea creatures(*this);
-	if(!cast(creatures, s, get(s), 0))
+	if(!cast(s, get(s), 0)) {
 		sb.add("Вокруг нет подходящей цели.");
+		return;
+	}
+	wait();
 }
 
 void creature::cantmovehere() const {
@@ -807,7 +809,7 @@ void creature::move(indext index) {
 		setposition(index);
 		usestealth();
 		usetrap();
-		if(!(*this))
+		if((*this))
 			lookaround();
 	}
 }
@@ -1561,6 +1563,10 @@ void creature::eat() {
 	aiuse("В рюкзаке нет ничего съедобного.", "Что хотите съесть?", Edible, {});
 }
 
+void creature::usewands() {
+	aiuse("В рюкзаке нет никаких волшебных предметов.", "Использовать какой предмет?", Zapable, {});
+}
+
 void creature::backpack() {
 	itema source; source.selectb(*this);
 	source.choose("В рюкзаке пусто.", "Рюкзак", 0, NoSlotName);
@@ -1677,9 +1683,17 @@ bool creature::apply(creature& player, variant id, int v, int order, bool run) {
 	return true;
 }
 
+bool creature::cast(spell_s id, int level, item* magic_source) {
+	creaturea creatures(*this);
+	return cast(creatures, id, level, magic_source);
+}
+
 bool creature::cast(creaturea& source, spell_s id, int level, item* magic_source) {
 	auto& ei = bsmeta<spelli>::elements[id];
-	if(!magic_source) {
+	if(magic_source) {
+		if(magic_source->getcharges() <= 0)
+			return false;
+	} else {
 		if(mp < ei.mp)
 			return false;
 	}
@@ -1695,13 +1709,14 @@ bool creature::cast(creaturea& source, spell_s id, int level, item* magic_source
 	if(!ei.effect.prepare(*this, creatures, items, indecies, id, v))
 		return false;
 	if(magic_source)
-		act("%герой выставил%а вперед %1.", magic_source->getname());
+		act("%герой выставил%а вперед %-1.", magic_source->getname());
 	else
 		act("%герой крикнул%а волшебную формулу.");
 	ei.effect.use(*this, source, creatures, items, indecies, id, v);
-	if(!magic_source)
+	if(magic_source)
+		magic_source->usecharge();
+	else
 		paymana(ei.mp, false);
-	wait();
 	return true;
 }
 

@@ -17,6 +17,7 @@ bool targeti::prepare(creature& player, creaturea& creatures, itema& items, inde
 	switch(type) {
 	case Item:
 		items.select(player);
+		items.selectb(player);
 		items.matcha(player, id, v);
 		break;
 	case Object:

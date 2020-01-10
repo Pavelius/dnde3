@@ -1669,6 +1669,7 @@ static hotkey adventure_keys[] = {{F1, "Выбрать первого героя", change_player, 0
 {Alpha + 'V', "Рюкзак", &creature::backpack},
 {Alpha + 'M', "Карта местности", &creature::minimap},
 {Alpha + 'S', "Создать заклинание", &creature::usespells},
+{Alpha + 'Z', "Использовать волшебный жезл", &creature::usewands},
 {Ctrl + Alpha + 'D', "Выпить что-то", &creature::drink},
 {Ctrl + Alpha + 'E', "Чъесть что-то", &creature::eat},
 {Ctrl + Alpha + 'B', "Поработить для отладки", &creature::enslave},

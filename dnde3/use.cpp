@@ -106,6 +106,24 @@ bool creature::use(item& it, bool interactive) {
 				act("Ничего не произошло.");
 		}
 		break;
+	case Zapable:
+		consume = false;
+		if(true) {
+			auto v = it.geteffect();
+			if(v.type == Spell) {
+				auto level = it.getbonus();
+				if(level > 0) {
+					if(cast((spell_s)v.value, level, &it))
+						it.set(KnownPower);
+					else
+						act("%герой направил%а %1, но ничего не произошло.", it.getname());
+				} else {
+					it.act("%герой превратился в пыль и рассыпался");
+					it.clear();
+				}
+			}
+		}
+		break;
 	}
 	if(consume) {
 		dressoff();
