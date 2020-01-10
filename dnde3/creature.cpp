@@ -398,6 +398,7 @@ void creature::applyabilities() {
 		raise(e);
 	for(auto e : ci.skills)
 		raise(e);
+	states.set(ri.states);
 	// Class spells
 	for(auto e : ci.spells)
 		add(e, 1, false);
@@ -1639,55 +1640,6 @@ bool creature::ismatch(variant v) const {
 	return false;
 }
 
-bool creature::cast(spell_s id, int level, item* magic_source) {
-	creaturea creatures(*this);
-	return cast(creatures, id, level, magic_source);
-}
-
-bool creature::cast(creaturea& source, spell_s id, int level, item* magic_source) {
-	auto& ei = bsmeta<spelli>::elements[id];
-	if(magic_source) {
-		if(magic_source->ischargeable() && magic_source->getcharges() <= 0)
-			return false;
-	} else {
-		if(mp < ei.mp)
-			return false;
-	}
-	variant effect = id;
-	auto v = ei.dice.roll();
-	if(ei.multiplier)
-		v += level*ei.multiplier;
-	else
-		v += level;
-	creaturea creatures = source;
-	itema items;
-	indexa indecies;
-	if(!ei.target.prepare(*this, creatures, items, indecies, id, v))
-		return false;
-	if(magic_source) {
-		if(ei.target.type == Creature && ei.target.range != You)
-			act("%герой выставил%а %-1 перед собой.", magic_source->getname());
-		else if(magic_source->is(Readable))
-			act("%герой достал%а %-1 и громко прочитал%а.", magic_source->getname());
-		else
-			act("%герой достал%а %-1 и взмахнула несколько раз.", magic_source->getname());
-	} else
-		act("%герой крикнул%а волшебную формулу.");
-	if(ei.throw_text) {
-		if(magic_source)
-			act("С кончика %1.", ei.throw_text);
-		else
-			act("С кончика пальце %1.", ei.throw_text);
-	}
-	ei.target.use(*this, source, creatures, items, indecies, id, v);
-	if(magic_source) {
-		if(magic_source->ischargeable())
-			magic_source->usecharge();
-	} else
-		paymana(ei.mp, false);
-	return true;
-}
-
 void creature::fail(skill_s id) {
 	const int chance_fail = 30;
 	auto& ei = bsmeta<skilli>::elements[id];
@@ -1729,4 +1681,12 @@ bool creature::charmresist(int bonus) const {
 		return true;
 	}
 	return false;
+}
+
+int creature::getlos() const {
+	int v = abilities[Visibility];
+	int b = loc.getlight();
+	if(b < 0 && !is(Darkvision))
+		v += b;
+	return imax(1, imin(7, v));
 }

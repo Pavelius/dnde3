@@ -105,7 +105,7 @@ enum skill_s : unsigned char {
 	FirstSkill = Bargaining, LastSkill = TwoWeaponFighting,
 };
 enum state_s : unsigned char {
-	Anger, Dazzled, Drunken, Fear, Friendly, Hostile,
+	Anger, Darkvision, Dazzled, Drunken, Fear, Friendly, Hostile,
 	Invisible, Poisoned, Sick, Sleeped,
 	Unaware, Wounded,
 	LastState = Wounded,
@@ -349,6 +349,7 @@ struct racei {
 	char				abilities[6];
 	skill_s				skills[3];
 	adat<abilityv, 8>	abilityvs;
+	statea				states;
 };
 struct dicei {
 	char				min;
@@ -673,7 +674,7 @@ public:
 	creature*			getleader() const;
 	int					getlevel(skill_s v) const;
 	const char*			getlevelname(skill_s v) const;
-	int					getlos() const { return abilities[Visibility]; }
+	int					getlos() const;
 	int					getmana() const { return mp; }
 	int					getmoney() const { return money; }
 	static creature*	getobject(short unsigned v);
@@ -875,6 +876,7 @@ class location : public statistici {
 	mapflf				flags[mmx*mmy];
 	role_s				monsters[6];
 	bool				is_dungeon;
+	char				light_level;
 	//
 	indext				bpoint(indext index, int w, int h, direction_s dir) const;
 	bool				isdungeon() const { return is_dungeon; }
@@ -908,6 +910,7 @@ public:
 	void				editor();
 	void				ellipse(rect rc, tile_s object);
 	static indext		get(short x, short y) { return y * mmx + x; }
+	int					getlight() const { return light_level; }
 	static direction_s	getdirection(indext from, indext to);
 	static direction_s	getdirection(point from, point to);
 	indext				getfree(indext i) const { return getfree(i, &location::isfreenc, 5); }
@@ -926,7 +929,7 @@ public:
 	bool				isfreenc(indext i) const;
 	bool				isfreenw(indext i) const;
 	bool				ismatch(indext index, const rect& rectanle) const;
-	bool				ismatch(indext index, const aref<variant>& v) const;
+	//bool				ismatch(indext index, const aref<variant>& v) const;
 	bool				ismatch(indext index, variant v) const;
 	void				lake(int x, int y, int w, int h);
 	void				makewave(indext index);
@@ -946,6 +949,7 @@ public:
 	void				setdungeon(bool v) { is_dungeon = v; }
 	indext				setiwh(int x, int y, int s, tile_s o, map_object_s r, bool locked_doors);
 	indext				setiwv(int x, int y, int s, tile_s o, map_object_s r, bool locked_doors);
+	void				setlight(int v) { light_level = v; }
 	void				setlos(indext index, int r);
 	static void			show(rooma& rooms);
 	indext				stepto(indext index);
