@@ -12,6 +12,9 @@ void creaturea::match(creature& player, variant v, bool remove) {
 			} else {
 				if(!player.isenemy(p))
 					continue;
+				// Insisible enemies can't be target
+				if(p->is(Invisible))
+					continue;
 			}
 		} else if(v.type == State && v.value == Friendly) {
 			if(remove) {

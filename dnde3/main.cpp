@@ -68,7 +68,7 @@ static void modify_weapon(creature* p1) {
 static creature* create_indoor(bool enemies = true) {
 	loc.clear();
 	loc.positions[1] = loc.get(3, 3);
-	loc.positions[2] = loc.get(2, 6);
+	loc.positions[2] = loc.get(12, 12);
 	auto door = loc.building(loc.get(5, 5), 7, 5);
 	loc.set(door, Sealed);
 	loc.lake(10, 10, 20, 20);
@@ -161,7 +161,7 @@ int main(int argc, char* argv[]) {
 	//test_answers();
 	//item_choose();
 	//test_worldmap();
-	test_indoor(false);
+	test_indoor(true);
 	//test_analize();
 	//test_dungeon();
 }

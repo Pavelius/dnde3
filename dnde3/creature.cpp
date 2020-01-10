@@ -35,8 +35,6 @@ void creature::add(variant id, int v, bool interactive) {
 		if(v != 0) {
 			dressoff();
 			abilities[id.value] += v;
-			if(abilities[id.value] < 0)
-				abilities[id.value] = 0;
 			dresson();
 			if(interactive)
 				act("%герой почувстовал%а себя %1.",
@@ -64,6 +62,12 @@ void creature::add(variant id, int v, bool interactive) {
 		break;
 	case Item:
 		equip(item(item_s(id.value), v));
+		if(bsmeta<itemi>::elements[id.value].weapon.ammunition) {
+			// Free ammunitons for items
+			item it(bsmeta<itemi>::elements[id.value].weapon.ammunition, v);
+			it.setcount(xrand(10, 20));
+			equip(it);
+		}
 		break;
 	case Harm:
 		switch(id.value) {
@@ -374,23 +378,11 @@ static spell_s choose_spells(creature* p) {
 	return source[rand() % count];
 }
 
-void creature::add(variant id, int v) {
-	add(id, v, false);
-	if(id.type == Item) {
-		auto& ei = bsmeta<itemi>::elements[id.value];
-		if(ei.weapon.ammunition) {
-			item it(ei.weapon.ammunition, v);
-			it.setcount(xrand(10, 20));
-			equip(it);
-		}
-	}
-}
-
 static void start_equipment(creature& e) {
 	for(auto& ei : bsmeta<equipmenti>()) {
 		if((!ei.race || ei.race == e.getrace()) && e.is(ei.type)) {
 			for(auto v : ei.features)
-				e.add(v, 3);
+				e.add(v, 3, false);
 			break;
 		}
 	}
@@ -419,7 +411,7 @@ void creature::applyabilities() {
 		raise(e);
 	// Class spells
 	for(auto e : ci.spells)
-		add(e, 1);
+		add(e, 1, false);
 	// Hits
 	if(abilities[Level] > 0) {
 		abilities[LifePoints] += getclass().hp;
@@ -691,11 +683,10 @@ void creature::useskills() {
 	auto s = source.choose(true, "Какой навык использовать?", &cancel);
 	if(cancel)
 		return;
-	if(bsmeta<skilli>::elements[s].effect) {
+	if(bsmeta<skilli>::elements[s].target) {
 		creaturea source(*this);
 		use(source, s);
-	}
-	else
+	} else
 		sb.add(bsmeta<skilli>::elements[s].getusetext());
 }
 
@@ -843,7 +834,14 @@ void creature::consume(int v) {
 		restore_energy -= v;
 }
 
-void creature::attack(creature& enemy, const attacki& ai, int bonus) {
+void creature::attack(creature& enemy, const attacki& ai, int bonus, int danger) {
+	if(is(Invisible)) {
+		appear();
+		// Attack from invisible state
+		// increase danger and chance to hit
+		bonus += get(Backstabbing);
+		danger += get(Backstabbing) * 3;
+	}
 	bonus += ai.attack;
 	bonus -= enemy.get(Protection);
 	if(bonus < 5)
@@ -853,11 +851,10 @@ void creature::attack(creature& enemy, const attacki& ai, int bonus) {
 		act("%герой промазал%а.");
 		return;
 	}
-	auto dv = ai.dice.roll();
 	auto pierce = 0;
 	auto deflect = enemy.get(Deflect);
 	if(roll(FindWeakness, -deflect)) {
-		auto danger = 30;
+		danger += 30;
 		switch(ai.type) {
 		case Piercing:
 			danger += 10;
@@ -874,20 +871,19 @@ void creature::attack(creature& enemy, const attacki& ai, int bonus) {
 			enemy.add(Dazzled, 1, false);
 			break;
 		}
-		auto damage_bonus = dv * danger / 100;
-		if(damage_bonus < 1)
-			damage_bonus = 1;
-		dv += damage_bonus;
 	} else
 		act("%герой попал%а.");
+	// Calculate damage from danger
+	auto dv = ai.dice.roll();
+	dv = dv * danger / 100;
 	enemy.damage(dv, ai.type, pierce);
 }
 
 void creature::meleeattack(creature& enemy, int bonus) {
 	auto am = getattack(Melee, wears[Melee]);
-	attack(enemy, am, bonus);
+	attack(enemy, am, bonus, 100);
 	if(wears[OffHand] && wears[OffHand].is(Light))
-		attack(enemy, getattack(OffHand), bonus);
+		attack(enemy, getattack(OffHand), bonus, 100);
 	consume(am.getenergy());
 }
 
@@ -922,6 +918,8 @@ bool creature::needrestore(ability_s id) const {
 bool creature::aiskills(creaturea& creatures) {
 	skilla source;
 	source.select(*this);
+	source.removent();
+	source.shuffle();
 	for(auto s : source) {
 		if(use(creatures, s))
 			return true;
@@ -1231,10 +1229,6 @@ creature* creature::getleader() const {
 	return 0;
 }
 
-bool creature::isvisible() const {
-	return loc.is(getposition(), Visible);
-}
-
 bool creature::cansee(indext i) const {
 	return loc.cansee(getposition(), i);
 }
@@ -1306,7 +1300,7 @@ void creature::shoot() {
 
 void creature::rangeattack(creature& enemy, int bonus) {
 	auto ai = getattack(Ranged);
-	attack(enemy, ai, 0);
+	attack(enemy, ai, 0, 100);
 	if(wears[Ranged].getammo())
 		wears[Amunitions].use();
 	consume(ai.getenergy());
@@ -1579,6 +1573,7 @@ bool creature::ismatch(variant v) const {
 
 bool creature::apply(creature& player, variant id, int v, int order, bool run) {
 	spelli* si;
+	skilli* sk;
 	switch(id.type) {
 	case Spell:
 		if(finds(id))
@@ -1631,6 +1626,33 @@ bool creature::apply(creature& player, variant id, int v, int order, bool run) {
 		if(run)
 			add(id, v, true);
 		break;
+	case Skill:
+		sk = bsmeta<skilli>::elements + id.value;
+		if(run) {
+			// Appear when do some activity
+			if(is(Invisible)) {
+				if(id.value != Backstabbing && sk->target.type == Creature && sk->target.range != You)
+					appear();
+			}
+		}
+		switch(id.value) {
+		case Diplomacy:
+			break;
+		case HideInShadow:
+			if(is(Invisible))
+				return false;
+			if(run) {
+				if(!player.roll((skill_s)id.value)) {
+					if(isactive())
+						sb.add("Попытка не удалась.");
+					wait(xrand(2, 6));
+					return false;
+				}
+				add(Invisible, 1, true);
+			}
+			break;
+		}
+		break;
 	}
 	return true;
 }
@@ -1671,12 +1693,12 @@ bool creature::use(creaturea& source, skill_s id) {
 	creaturea creatures = source;
 	itema items;
 	indexa indecies;
-	if(!ei.effect.prepare(*this, creatures, items, indecies, id, get(id))) {
+	if(!ei.target.prepare(*this, creatures, items, indecies, id, get(id))) {
 		if(isactive())
 			sb.add("Не могу найти подходящие цели.");
 		return false;
 	}
-	ei.effect.use(*this, source, creatures, items, indecies, id, v);
+	ei.target.use(*this, source, creatures, items, indecies, id, v);
 	wait();
 	return true;
 }
@@ -1698,6 +1720,10 @@ void creature::fail(skill_s id) {
 	else if(d100() < chance_fail) {
 		if(isactive())
 			act("Вы убили кучу времени, но все было тщетно.");
-		consume(StandartEnergyCost*xrand(2, 4));
+		wait(xrand(2, 4));
 	}
+}
+
+void creature::appear() {
+	add(Invisible, -1, true);
 }

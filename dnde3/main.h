@@ -493,6 +493,7 @@ public:
 class skilla :public adat<skill_s, 64> {
 public:
 	bool				choose(bool interactive, const char* title, const char* format, skill_s& result) const;
+	void				removent();
 	void				select(const creature& e);
 	void				sort();
 };
@@ -584,7 +585,7 @@ class creature : public nameable {
 	void				aiturn();
 	void				applyabilities();
 	void				applyaward() const;
-	void				attack(creature& enemy, const attacki& ai, int bonus);
+	void				attack(creature& enemy, const attacki& ai, int bonus, int multiplier);
 	const variant*		calculate(const variant* formula, int& result) const;
 	void				cantmovehere() const;
 	bool				cantakeoff(slot_s id, bool interactive);
@@ -603,13 +604,13 @@ public:
 	explicit operator bool() const { return hp > 0; }
 	//
 	void				activate();
-	void				add(variant id, int v);
 	void				add(variant id, int v, bool interactive);
 	void				add(variant id, variant source, int v, bool interactive, unsigned minutes);
 	void				add(variant id, variant source, int v, bool interactive, item_type_s magic, int quality, int damage, int minutes);
 	bool				add(item v, bool run, bool interactive);
 	void				addexp(int count);
 	bool				alertness();
+	void				appear();
 	bool				apply(creature& target, variant id, int v, int order, bool run);
 	bool				askyn(creature* opponent, const char* format, ...);
 	void				athletics(bool interactive);
@@ -683,7 +684,7 @@ public:
 	bool				isenemy(const creature* target) const;
 	bool				isguard() const { return guard != Blocked; }
 	bool				ismatch(variant v) const;
-	bool				isvisible() const;
+	//bool				isvisible() const;
 	void				kill();
 	void				look(indext index);
 	void				lookaround();
@@ -727,6 +728,7 @@ public:
 	void				useskills();
 	void				usespells();
 	void				wait() { consume(StandartEnergyCost); }
+	void				wait(int n) { consume(StandartEnergyCost * n); }
 };
 class creaturea : public adat<creature*> {
 public:
@@ -777,7 +779,7 @@ struct skilli {
 	const char*			name_tome;
 	ability_s			abilities[2];
 	weaponi				weapon;
-	targeti				effect;
+	targeti				target;
 	//
 	skill_s				getid() const;
 	const char*			getusetext() const;

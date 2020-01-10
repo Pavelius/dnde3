@@ -1105,26 +1105,28 @@ void location::indoor(point camera, bool show_fow, const picture* effects) {
 			int i1 = mget(rc.x1, rc.y1, mx, my);
 			if(i1 != -1) {
 				auto pc = units[i1];
-				if(pc && pc->isvisible()) {
-					unsigned flags;
-					switch(pc->getdirection()) {
-					case Left:
-					case LeftUp:
-					case LeftDown:
-						flags = ImageMirrorH;
-						break;
-					default:
-						flags = 0;
-						break;
+				if(pc && (loc.is(i, Visible) || pc->isactive())) {
+					if(!pc->is(Invisible) || pc->is(Friendly) || pc->isactive()) {
+						unsigned flags;
+						switch(pc->getdirection()) {
+						case Left:
+						case LeftUp:
+						case LeftDown:
+							flags = ImageMirrorH;
+							break;
+						default:
+							flags = 0;
+							break;
+						}
+						// Показываем юниты только когда они видимы игроку
+						unsigned char alpha = 0xFF;
+						if(pc->is(Invisible))
+							alpha = 0x80;
+						if(pc->ischaracter())
+							avatar(x, y, *pc, flags, alpha);
+						else
+							image(x, y, gres(ResMonsters), pc->getrole(), flags, alpha);
 					}
-					// Показываем юниты только когда они видимы игроку
-					unsigned char alpha = 0xFF;
-					if(pc->is(Invisible))
-						alpha = 0x80;
-					if(pc->ischaracter())
-						avatar(x, y, *pc, flags, alpha);
-					else
-						image(x, y, gres(ResMonsters), pc->getrole(), flags, alpha);
 				}
 			}
 			// Прозрачные стены

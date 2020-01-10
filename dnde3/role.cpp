@@ -37,7 +37,7 @@ void creature::create(role_s type) {
 	abilities[Level] = ei.level;
 	applyabilities();
 	for(auto v : ei.features)
-		add(v, 4);
+		add(v, 4, false);
 	for(auto i = 1; i < abilities[Level]; i++) {
 		if(ci.hp)
 			abilities[LifePoints] += xrand(ci.hp/2, ci.hp);
