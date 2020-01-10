@@ -52,11 +52,15 @@ static void create_big_rooms(int x, int y, int w, int h, rooma& rooms, bool visu
 	if(h < max_building_size * 2 && w < max_building_size * 2) {
 		auto dw = xrand(max_building_size - 4 - 6, max_building_size - 4);
 		auto dh = xrand(max_building_size - 4 - 6, max_building_size - 4);
-		auto x1 = x + 1 + rand() % (w - dw - 2);
-		auto y1 = y + 1 + rand() % (h - dh - 2);
-		rooms.add({x1, y1, x1 + dw, y1 + dh});
-		if(visualize)
-			loc.show(rooms);
+		auto dws = (w - dw - 2);
+		auto dhs = (h - dh - 2);
+		if(dws && dhs) {
+			auto x1 = x + 1 + rand() % dws;
+			auto y1 = y + 1 + rand() % dhs;
+			rooms.add({x1, y1, x1 + dw, y1 + dh});
+			if(visualize)
+				loc.show(rooms);
+		}
 	} else if(w > h) {
 		auto w1 = w / 2 + (rand() % 8) - 4;
 		create_big_rooms(x, y, w1, h, rooms, visualize);

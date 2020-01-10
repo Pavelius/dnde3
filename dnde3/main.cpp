@@ -129,7 +129,7 @@ static void test_dungeon() {
 	create(p1, RingRed);
 	create(p1, RingBlue);
 	create(p3, BracersLeather);
-	create(p3, Wand1);
+	create(p3, Wand1, ShokingGrasp);
 	game.play();
 }
 

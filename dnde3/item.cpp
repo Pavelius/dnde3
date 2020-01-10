@@ -89,9 +89,9 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, NoGender, Organic, {0, 3, {1, 
 {"Колбаса", 60, 8 * SP, NoGender, Organic, {}, {}, {}, {}, Edible},
 {"Мясо", 80, 5 * CP, NoGender, Organic, {}, {}, {}, {}, Edible},
 //
-{"Свиток", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}, Readable},
-{"Свиток", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}, Readable},
-{"Свиток", 0, 0 * GP, NoGender, Paper, {}, {}, {}, {}, Readable},
+{"Свиток", 1, 10 * GP, NoGender, Paper, {}, {}, {}, {SingleUse}, Readable},
+{"Свиток", 1, 12 * GP, NoGender, Paper, {}, {}, {}, {SingleUse}, Readable},
+{"Свиток", 1, 15 * GP, NoGender, Paper, {}, {}, {}, {SingleUse}, Readable},
 //
 {"Жезл", 10, 100 * GP, NoGender, Wood, {}, {}, wand_enchanments, {Chargeable}, Zapable},
 {"Жезл", 10, 120 * GP, NoGender, Wood, {}, {}, wand_enchanments, {Chargeable}, Zapable},
@@ -462,8 +462,32 @@ bool item::apply(creature& player, variant id, int v, int order, bool run) {
 		break;
 	case Spell:
 		switch(id.value) {
+		case BlessItem:
+			if(!is(KnownMagic) && !is(Mundane))
+				return false;
+			if(run) {
+				act("%герой заискрился многими желтыми огоньками.");
+				set(Blessed);
+			}
+			break;
+		case DetectMagic:
+			if(is(KnownMagic) || !is(Blessed))
+				return false;
+			if(run) {
+				act("%герой засветил%ась синим светом.");
+				set(KnownMagic);
+			}
+			break;
+		case DetectEvil:
+			if(is(KnownMagic) || !is(Cursed))
+				return false;
+			if(run) {
+				act("%герой засветил%ась [-красным] светом.");
+				set(KnownPower);
+			}
+			break;
 		case Identify:
-			if(!is(KnownPower))
+			if(is(KnownPower))
 				return false;
 			if(run) {
 				act("%герой засветил%ась белыми огоньками.");

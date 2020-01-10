@@ -362,32 +362,16 @@ void creature::raiseskills(int number) {
 	}
 }
 
-static spell_s choose_spells(creature* p) {
-	spell_s source[64];
-	auto pb = source;
-	auto pe = pb + sizeof(source) / sizeof(source[0]);
-	for(auto e = FirstSpell; e <= LastSpell; e = (spell_s)(e + 1)) {
-		if(p->get(e))
-			continue;
-		if(pb < pe)
-			*pb++ = e;
-	}
-	auto count = pb - source;
-	if(!count)
-		FirstSpell;
-	return source[rand() % count];
-}
-
-static void start_equipment(creature& e) {
+void creature::randomequip() {
 	for(auto& ei : bsmeta<equipmenti>()) {
-		if((!ei.race || ei.race == e.getrace()) && e.is(ei.type)) {
+		if((!ei.race || ei.race == getrace()) && is(ei.type)) {
 			for(auto v : ei.features)
-				e.add(v, 3, false);
+				add(v, 3, false);
 			break;
 		}
 	}
-	e.equip(item(Ration, 2));
-	e.setmoney(e.getmoney() + xrand(3, 18)*GP);
+	equip(item(Ration, 2));
+	money += xrand(3, 18)*GP;
 }
 
 void creature::applyabilities() {
@@ -437,7 +421,7 @@ void creature::create(race_s race, gender_s gender, class_s type) {
 	if(abilities[Intellegence] >= 9)
 		raise(Literacy);
 	raiseskills();
-	start_equipment(*this);
+	randomequip();
 	finish();
 }
 
@@ -804,7 +788,7 @@ void creature::move(indext index) {
 			}
 		}
 	}
-	wait();
+	movecost(index);
 	if(getposition() != index) {
 		setposition(index);
 		usestealth();
@@ -812,6 +796,14 @@ void creature::move(indext index) {
 		if((*this))
 			lookaround();
 	}
+}
+
+void creature::movecost(indext index) {
+	auto v = StandartEnergyCost;
+	v -= (StandartEnergyCost / 20) * abilities[Movement];
+	if(v < StandartEnergyCost / 20)
+		v = StandartEnergyCost / 20;
+	consume(v);
 }
 
 void creature::usestealth() {
@@ -1077,6 +1069,8 @@ void creature::makemove() {
 	// Sleeped creature don't move
 	if(is(Sleeped))
 		return;
+	if(is(Unaware))
+		add(Unaware, -1, true);
 	if(isactive()) {
 		auto start = restore_energy;
 		while(start == restore_energy) {
@@ -1637,11 +1631,15 @@ bool creature::apply(creature& player, variant id, int v, int order, bool run) {
 				act("¬округ %геро€ по€вилось защитное поле.");
 			}
 			break;
+		case SlowMonster:
+			if(run) {
+				add(Movement, id, v, false, 60);
+			}
 		default:
 			si = bsmeta<spelli>::elements + id.value;
 			if(!si->bonus)
 				return false;
-			return apply(player, si->bonus, v, order, true);
+			return apply(player, si->bonus, v, order, run);
 		}
 		break;
 	case Harm:
@@ -1706,13 +1704,22 @@ bool creature::cast(creaturea& source, spell_s id, int level, item* magic_source
 	creaturea creatures = source;
 	itema items;
 	indexa indecies;
-	if(!ei.effect.prepare(*this, creatures, items, indecies, id, v))
+	if(!ei.target.prepare(*this, creatures, items, indecies, id, v))
 		return false;
-	if(magic_source)
-		act("%герой выставил%а вперед %-1.", magic_source->getname());
-	else
+	if(magic_source) {
+		if(ei.target.type==Creature && ei.target.range!=You)
+			act("%герой выставил%а %-1 перед собой.", magic_source->getname());
+		else
+			act("%герой достал%а %-1 и взмахнула несколько раз.", magic_source->getname());
+	} else
 		act("%герой крикнул%а волшебную формулу.");
-	ei.effect.use(*this, source, creatures, items, indecies, id, v);
+	if(ei.throw_text) {
+		if(magic_source)
+			act("— кончика %1.", ei.throw_text);
+		else
+			act("— кончика пальце %1.", ei.throw_text);
+	}
+	ei.target.use(*this, source, creatures, items, indecies, id, v);
 	if(magic_source)
 		magic_source->usecharge();
 	else

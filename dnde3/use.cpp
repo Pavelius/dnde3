@@ -116,10 +116,10 @@ bool creature::use(item& it, bool interactive) {
 					if(cast((spell_s)v.value, level, &it))
 						it.set(KnownPower);
 					else
-						act("%герой направил%а %1, но ничего не произошло.", it.getname());
+						act("%герой вытащил%а %-1 и махнул%а несколько раз. Ничего не произошло.", it.getname());
 				} else {
-					it.act("%герой превратился в пыль и рассыпался");
-					it.clear();
+					it.act("%герой превратил%ась в пыль и рассыпал%ась.");
+					consume = true;
 				}
 			}
 		}

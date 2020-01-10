@@ -88,7 +88,7 @@ enum alignment_s : unsigned char {
 enum ability_s : unsigned char {
 	Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
 	Attack, Damage,
-	Pierce, Protection, Armor, Deflect, Speed, Visibility,
+	Pierce, Protection, Armor, Deflect, Speed, Movement, Visibility,
 	ResistAcid, ResistCharm, ResistCold, ResistElectricity,
 	ResistFire, ResistParalize, ResistPoison, ResistWater,
 	FirstResist = ResistAcid, LastResist = ResistWater,
@@ -107,7 +107,7 @@ enum skill_s : unsigned char {
 enum state_s : unsigned char {
 	Anger, Dazzled, Drunken, Fear, Friendly, Hostile,
 	Invisible, Poisoned, Sick, Sleeped,
-	Wounded,
+	Unaware, Wounded,
 	LastState = Wounded,
 };
 enum tile_s : unsigned char {
@@ -180,10 +180,10 @@ enum range_s : unsigned char {
 	You, Close, Reach, Near, Far
 };
 enum target_s : unsigned char {
-	SingleTarget, NearestTarget, AllTargets,
+	SingleTarget, NearestTarget, RandomTarget, AllTargets,
 };
 enum item_flag_s : unsigned char {
-	Chargeable, Coinable, Countable, TwoHanded, Versatile, Light, Natural,
+	Chargeable, Coinable, Countable, SingleUse, TwoHanded, Versatile, Light, Natural,
 };
 enum variant_s : unsigned char {
 	NoVariant,
@@ -461,7 +461,7 @@ public:
 	int					getweightsingle() const { return getitem().weight; }
 	int					getweight() const { return getweightsingle()*getcount(); }
 	bool				is(slot_s v) const;
-	bool				is(identify_s v) const { return v ? identify >= v : (v == identify); }
+	bool				is(identify_s v) const { return v ? identify >= v : (identify==Unknown); }
 	bool				is(item_flag_s v) const { return getitem().flags.is(v); }
 	bool				is(item_type_s v) const { return magic == v; }
 	bool				isboost(variant id) const;
@@ -603,6 +603,8 @@ class creature : public nameable {
 	void				equip(item it, slot_s id);
 	void				finish();
 	void				move(indext index, bool runaway);
+	void				movecost(indext index);
+	void				randomequip();
 	bool				remove(item& it, bool run, bool talk);
 	void				usestealth();
 	void				usetrap();
@@ -796,10 +798,11 @@ struct spelli {
 	const char*			name;
 	const char*			nameof;
 	unsigned char		mp;
-	targeti				effect;
+	targeti				target;
 	dicei				dice;
 	char				multiplier;
 	variant				bonus;
+	const char*			throw_text;
 };
 struct itemground : item {
 	short unsigned		index;
