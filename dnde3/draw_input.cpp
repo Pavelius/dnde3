@@ -721,9 +721,10 @@ static void render_info(const creature& e) {
 	for(auto i = Anger; i <= LastState; i = (state_s)(i + 1)) {
 		if(!e.is(i))
 			continue;
-		auto pt = getstr(i);
-		draw::text(x, y, pt);
-		x += draw::textw(pt) + 4;
+		auto& ei = bsmeta<statei>::elements[i];
+		if(ei.flags.is(Friendly))
+			continue;
+		x += texth(x, y, ei.name, ei.flags.is(Hostile) ? 2 : 0);
 	}
 }
 

@@ -40,7 +40,7 @@ void foodi::apply(creature* player, const item it, bool interactive) const {
 		else {
 			auto hostile = false;
 			if(e.id.type == State)
-				hostile = bsmeta<statei>::elements[e.id.value].hostile;
+				hostile = bsmeta<statei>::elements[e.id.value].flags.is(Hostile);
 			if(v >= 0)
 				v = 1;
 			else

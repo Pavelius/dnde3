@@ -342,7 +342,7 @@ struct statei {
 	const char*			id;
 	const char*			name;
 	const char*			nameof;
-	bool				hostile;
+	statea				flags;
 	const char*			text_set;
 	const char*			text_remove;
 };
@@ -684,7 +684,6 @@ public:
 	bool				isenemy(const creature* target) const;
 	bool				isguard() const { return guard != Blocked; }
 	bool				ismatch(variant v) const;
-	//bool				isvisible() const;
 	void				kill();
 	void				look(indext index);
 	void				lookaround();
@@ -718,7 +717,6 @@ public:
 	void				setcharmer(const creature* p) { charmer = p->getid(); }
 	void				setguard(short unsigned value) { guard = value; }
 	void				setmoney(int value) { money = value; }
-	void				setposition(indext v);
 	void				shoot();
 	void				testweapons();
 	void				unlink();

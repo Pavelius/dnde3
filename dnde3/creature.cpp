@@ -761,6 +761,7 @@ void creature::move(indext index) {
 				"Здесь не пройти.",
 				"Не толкайся, я не отойду.",
 			};
+			appear();
 			p->say(maprnd(talk));
 			wait();
 			return;
@@ -774,23 +775,38 @@ void creature::move(indext index) {
 					"Держи руки на виду.",
 					"Я за тобой слежу",
 				};
+				appear();
 				p->say(maprnd(talk));
 				return;
 			}
 			p->setposition(getposition());
 			p->wait();
 			if(d100() < 50) {
-				static const char* talk[] = {
-					"Эй! Не толкайся.",
-					"Давай, проходи.",
-					"Куда ты так спешишь?",
-				};
-				p->say(maprnd(talk));
+				if(is(Invisible)) {
+					static const char* talk[] = {
+						"Кто здесь?",
+						"Не понял.",
+						"Что происходит?",
+					};
+					p->say(maprnd(talk));
+				} else {
+					static const char* talk[] = {
+						"Эй! Не толкайся.",
+						"Давай, проходи.",
+						"Куда ты так спешишь?",
+					};
+					p->say(maprnd(talk));
+				}
 			}
 		}
 	}
-	setposition(index);
 	wait();
+	if(getposition() != index) {
+		setposition(index);
+		usetrap();
+		if(!(*this))
+			lookaround();
+	}
 }
 
 void creature::usetrap() {
@@ -1541,18 +1557,6 @@ void creature::minimap() {
 	loc.minimap(getposition());
 }
 
-void creature::setposition(indext v) {
-	if(!*this)
-		return;
-	if(getposition() != v) {
-		posable::setposition(v);
-		usetrap();
-		if(!(*this))
-			return;
-		lookaround();
-	}
-}
-
 bool creature::ismatch(variant v) const {
 	switch(v.type) {
 	case Alignment:
@@ -1628,13 +1632,6 @@ bool creature::apply(creature& player, variant id, int v, int order, bool run) {
 		break;
 	case Skill:
 		sk = bsmeta<skilli>::elements + id.value;
-		if(run) {
-			// Appear when do some activity
-			if(is(Invisible)) {
-				if(id.value != Backstabbing && sk->target.type == Creature && sk->target.range != You)
-					appear();
-			}
-		}
 		switch(id.value) {
 		case Diplomacy:
 			break;
@@ -1699,6 +1696,11 @@ bool creature::use(creaturea& source, skill_s id) {
 		return false;
 	}
 	ei.target.use(*this, source, creatures, items, indecies, id, v);
+	// Appear when do some activity
+	if(is(Invisible)) {
+		if(ei.target.range != You)
+			appear();
+	}
 	wait();
 	return true;
 }
