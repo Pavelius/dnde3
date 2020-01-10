@@ -128,7 +128,7 @@ static void test_dungeon() {
 	create(p1, Helmet);
 	create(p1, RingRed);
 	create(p1, RingBlue);
-	create(p1, Scroll1, Identify);
+	create(p1, Scroll1, BlessItem);
 	create(p3, BracersLeather);
 	create(p3, Wand1);
 	game.play();

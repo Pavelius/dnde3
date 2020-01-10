@@ -32,7 +32,7 @@ static variant boots_enchanments[] = {{}, ResistElectricity, ResistParalize, Res
 Dexterity, Constitution,
 Armor, Speed};
 static variant wand_enchanments[] = {MagicMissile, ShokingGrasp, HealingSpell, ArmorSpell};
-static variant common_scroll[] = {DetectEvil, DetectMagic, Identify};
+static variant common_scroll[] = {BlessItem, DetectEvil, DetectMagic, Identify};
 
 itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, NoGender, Organic, {0, 3, {1, 3}, Bludgeon, 4, 2}, {}, {}, {}, Melee},
 {"Боевой топор", 850, 5 * GP, Male, Iron, {-4, 3, {1, 8}, Slashing, 0, 2}, {}, {}, {Versatile}, Melee, FocusAxes},
@@ -445,113 +445,6 @@ int	item::getdamage() const {
 	if(is(Countable))
 		return 0;
 	return damaged;
-}
-
-bool item::apply(creature& player, variant id, int v, int order, bool run) {
-	switch(id.type) {
-	case ItemType:
-		if(getmagic() == id.value)
-			return false;
-		if(run)
-			set((item_type_s)id.value);
-		break;
-	case ItemIdentify:
-		if(is((identify_s)id.value))
-			return false;
-		if(run)
-			set((identify_s)id.value);
-		break;
-	case Spell:
-		switch(id.value) {
-		case BlessItem:
-			if(!is(KnownMagic) && !is(Mundane))
-				return false;
-			if(run) {
-				act("%герой заискрил%ась многими желтыми огоньками.");
-				set(Blessed);
-			}
-			break;
-		case DetectMagic:
-			if(is(KnownMagic) || !is(Blessed))
-				return false;
-			if(run) {
-				act("%герой засветил%ась синим светом.");
-				set(KnownMagic);
-			}
-			break;
-		case DetectEvil:
-			if(is(KnownMagic) || !is(Cursed))
-				return false;
-			if(run) {
-				act("%герой засветил%ась [-красным] светом.");
-				set(KnownPower);
-			}
-			break;
-		case Identify:
-			if(is(KnownPower))
-				return false;
-			if(run) {
-				act("%герой засветил%ась белыми огоньками.");
-				set(KnownPower);
-				if(player.isactive()) {
-					char temp[260]; stringbuilder st(temp); getname(st, true);
-					sb.adds("Это [%-1].", temp);
-				}
-			}
-			break;
-		}
-		break;
-	case Skill:
-		switch(id.value) {
-		case Literacy:
-			if(!is(Readable))
-				return false;
-			if(run) {
-				auto v = geteffect();
-				auto level = getbonus();
-				auto consume = is(SingleUse);
-				auto b = -level*5;
-				if(is(Unknown))
-					b += 10;
-				if(is(SingleUse))
-					b += 35;
-				auto result = player.roll(Literacy, b);
-				if(is(Unknown)) {
-					player.act("%герой внимательно изучал%а %-1.", getname());
-					if(result) {
-						player.addexp(10);
-						set(KnownPower);
-						if(player.isactive()) {
-							char temp[260]; stringbuilder st(temp); getname(st, true);
-							sb.adds("Вам удалось понять, что это [%-1].", temp);
-						}
-					} else {
-						if(player.isactive())
-							player.act("Однако, вам так и не удалось ничего понять.");
-					}
-					consume = false;
-				} else {
-					switch(v.type) {
-					case Spell:
-						if(is(SingleUse)) {
-							if(is(Blessed) || is(Artifact))
-								result = true;
-						}
-						if(!result || !player.cast((spell_s)v.value, level, this))
-							player.act("%герой вытащил%а %-1 и громко прочитал%а.", getname());
-						break;
-					}
-				}
-				if(consume) {
-					act("%герой превратил%ась в пыль и рассыпал%ась.");
-					clear();
-				}
-			}
-			break;
-		}
-		break;
-	}
-	return true;
 }
 
 indext item::getposition() const {

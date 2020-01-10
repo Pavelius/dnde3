@@ -42,36 +42,35 @@ bool targeti::prepare(creature& player, creaturea& creatures, itema& items, inde
 void targeti::use(creature& player, creaturea& source, creaturea& creatures, itema& items, indexa& indecies, variant id, int v) const {
 	auto maximum_count = getcount(creatures, items, indecies);
 	unsigned count = 1;
-	switch(target) {
-	case AllTargets:
+	auto interactive = this->interactive;
+	if(is(AllTargets)) {
 		count = maximum_count;
-		break;
-	case NearestTarget:
+		interactive = 0;
+	}
+	if(is(RandomTargets)) {
 		switch(type) {
+		case Creature: creatures.shuffle(); break;
 		case Item: items.shuffle(); break;
+		default: indecies.shuffle(); break;
 		}
-		break;
-	case SingleTarget:
-		if(maximum_count > 1 || is(AlwaysChoose)) {
-			const char* interactive = 0;
-			if(player.isactive())
-				interactive = "Нет подходящей цели";
-			// Allow interactive choose
-			if(type == Creature) {
-				auto p = creatures.choose(interactive, "Выбирайте цель");
-				if(p) {
-					auto i = creatures.indexof(p);
-					iswap(creatures[0], creatures[i]);
-				}
-			} else if(type == Item) {
-				auto p = items.choose(interactive, "Выбирайте цель", 0, NoSlotName);
-				if(p) {
-					auto i = items.indexof(p);
-					iswap(items[0], items[i]);
-				}
+	}
+	if(interactive && (maximum_count > 1 || is(AlwaysChoose))) {
+		const char* fail_targets = 0;
+		if(player.isactive())
+			fail_targets = "Нет подходящей цели";
+		if(type == Creature) {
+			auto p = creatures.choose(fail_targets, interactive);
+			if(p) {
+				auto i = creatures.indexof(p);
+				iswap(creatures[0], creatures[i]);
+			}
+		} else if(type == Item) {
+			auto p = items.choose(fail_targets, interactive, 0, NoSlotName);
+			if(p) {
+				auto i = items.indexof(p);
+				iswap(items[0], items[i]);
 			}
 		}
-		break;
 	}
 	if(count > maximum_count)
 		count = maximum_count;

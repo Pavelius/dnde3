@@ -1429,8 +1429,24 @@ int indexa::choose(bool interactive, const char* format) {
 		current_background();
 		if(true) {
 			char temp[512]; string sb(temp);
-			loc.addinfo(current_index, sb);
 			sb.adds(format);
+			const char* text_answer = 0;
+			if(!text_answer) {
+				auto p = creature::find(current_index);
+				if(p)
+					text_answer = p->getname();
+			}
+			if(!text_answer) {
+				auto o = loc.getobject(current_index);
+				if(o)
+					text_answer = bsmeta<map_objecti>::elements[o].name;
+			}
+			if(!text_answer) {
+				auto t = loc.gettile(current_index);
+				text_answer = bsmeta<tilei>::elements[t].name;
+			}
+			if(text_answer)
+				sb.adds("[%1].", text_answer);
 			if(sb)
 				windowf(sb, 0);
 		}

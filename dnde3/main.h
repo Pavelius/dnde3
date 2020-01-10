@@ -179,9 +179,6 @@ enum encumbrance_s : unsigned char {
 enum range_s : unsigned char {
 	You, Close, Reach, Near, Far
 };
-enum target_s : unsigned char {
-	SingleTarget, NearestTarget, RandomTarget, AllTargets,
-};
 enum item_flag_s : unsigned char {
 	Chargeable, Coinable, Countable, SingleUse, TwoHanded, Versatile, Light, Natural,
 };
@@ -208,7 +205,7 @@ enum sale_s : unsigned char {
 	NotForSale, Sale75, Sale100, Sale150,
 };
 enum target_flag_s : unsigned char {
-	NotYou, Friends, Enemies, AlwaysChoose,
+	AllTargets, NotYou, Friends, Enemies, AlwaysChoose, RandomTargets,
 };
 typedef short unsigned indext;
 typedef adat<rect, 64> rooma;
@@ -243,7 +240,6 @@ struct variant {
 	constexpr variant(slot_s v) : type(Slot), value(v) {}
 	constexpr variant(spell_s v) : type(Spell), value(v) {}
 	constexpr variant(state_s v) : type(State), value(v) {}
-	constexpr variant(target_s v) : type(Target), value(v) {}
 	constexpr variant(variant_s v) : type(Variant), value(v) {}
 	constexpr variant(int v) : type(Number), value(v) {}
 	variant(const creature* v);
@@ -770,14 +766,22 @@ public:
 struct targeti {
 	variant_s			type;
 	cflags<target_flag_s> flags;
-	target_s			target;
 	range_s				range;
+	const char*			interactive;
 	explicit constexpr operator bool() const { return type != NoVariant; }
 	unsigned			getcount(creaturea& creatures, itema& items, indexa& indecies) const;
 	constexpr bool		is(target_flag_s v) const { return flags.is(v); }
 	bool				prepare(creature& player, creaturea& creatures, itema& items, indexa& indecies, variant id, int v) const;
 	bool				use(creature& player, creaturea& source, variant id, int v) const;
 	void				use(creature& player, creaturea& source, creaturea& creatures, itema& items, indexa& indecies, variant id, int v) const;
+};
+struct foodi {
+	item_s				type;
+	variant				condition;
+	chancev				chances;
+	//
+	void				apply(creature* player, const item it, bool interactive) const;
+	bool				match(const creature* player, const item it) const;
 };
 struct skilli {
 	struct weaponi {
