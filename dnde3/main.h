@@ -205,7 +205,8 @@ enum sale_s : unsigned char {
 	NotForSale, Sale75, Sale100, Sale150,
 };
 enum target_flag_s : unsigned char {
-	AllTargets, NotYou, Friends, Enemies, AlwaysChoose, RandomTargets,
+	NotYou, Friends, Enemies, AlwaysChoose,
+	RandomTargets, TwoTargets, ThreeTargets, AllTargets,
 };
 typedef short unsigned indext;
 typedef adat<rect, 64> rooma;
@@ -347,7 +348,7 @@ struct racei {
 	const char*			name;
 	char				abilities[6];
 	skill_s				skills[3];
-	adat<abilityv, 8>	skillvs;
+	adat<abilityv, 8>	abilityvs;
 };
 struct dicei {
 	char				min;
@@ -584,7 +585,7 @@ class creature : public nameable {
 	bool				aiuse(const char* interactive, const char* title, slot_s slot, variant effect);
 	void				aimove();
 	bool				aiskills(creaturea& creatures);
-	void				aiturn();
+	void				aiturn(creaturea& creatures, creaturea& enemies, creature* enemy);
 	void				applyabilities();
 	void				applyaward() const;
 	void				attack(creature& enemy, const attacki& ai, int bonus, int multiplier);
@@ -628,6 +629,7 @@ public:
 	bool				cast(spell_s id, int level, item* magic_source = 0);
 	bool				cast(creaturea& creatures, spell_s id, int level, item* magic_source = 0);
 	void				chat(creature* opponent);
+	bool				charmresist(int bonus = 0) const;
 	void				create(race_s race, gender_s gender, class_s type);
 	void				create(role_s type);
 	void				clear();

@@ -78,6 +78,8 @@ bool creature::use(item& it, bool interactive) {
 		it.clear();
 		dresson();
 	}
+	if(!(*this))
+		return true;
 	wait();
 	return true;
 }
@@ -222,6 +224,112 @@ bool item::apply(creature& player, variant id, int v, int order, bool run) {
 					act("%герой превратил%ась в пыль и рассыпал%ась.");
 					clear();
 				}
+			}
+			break;
+		}
+		break;
+	}
+	return true;
+}
+
+bool creature::apply(creature& player, variant id, int v, int order, bool run) {
+	spelli* si;
+	skilli* sk;
+	switch(id.type) {
+	case Spell:
+		if(finds(id))
+			return false; // Not allow two spells be effected
+		switch(id.value) {
+		case ArmorSpell:
+			if(run) {
+				add(Armor, id, 1, false, 30 * v);
+				act("%герой озарил%ась белым сиянием.");
+			}
+			break;
+		case BlessSpell:
+			if(run) {
+				add(Attack, id, v * 5, false, 30);
+				add(Damage, id, 2, false, 30);
+				act("%герой испытал%а небывалый прилив сил.");
+			}
+			break;
+		case CharmPerson:
+			if(ismatch(Animal) || get(ResistCharm)>=100)
+				return false;
+			if(run) {
+				if(charmresist())
+					return false;
+				if(player.is(Hostile))
+					add(Hostile, 1, false);
+				else
+					add(Hostile, -1, false);
+				setguard(Blocked);
+				say("%1, друг мой, я тебе помогу!", player.getname());
+			}
+			break;
+		case FearSpell:
+			if(get(ResistCharm) >= 100)
+				return false;
+			if(run) {
+				if(charmresist())
+					return false;
+				add(Fear, 1, true);
+			}
+			break;
+		case HealingSpell:
+			if(hp >= get(LifePoints))
+				return false;
+			if(run)
+				damage(-v, Magic, 0, true);
+			break;
+		case ShieldSpell:
+			if(run) {
+				add(Protection, id, 20 * v, false, 20);
+				act("Вокруг %героя появилось защитное поле.");
+			}
+			break;
+		case SlowMonster:
+			if(run) {
+				add(Movement, id, v, false, 60);
+			}
+		default:
+			si = bsmeta<spelli>::elements + id.value;
+			if(!si->bonus)
+				return false;
+			return apply(player, si->bonus, v, order, run);
+		}
+		break;
+	case Harm:
+		if(run)
+			damage(v, (damage_s)id.value, 0, true);
+		break;
+	case State:
+		if(v >= 0) {
+			if(is((state_s)id.value))
+				return false;
+		} else {
+			if(!is((state_s)id.value))
+				return false;
+		}
+		if(run)
+			add(id, v, true);
+		break;
+	case Skill:
+		sk = bsmeta<skilli>::elements + id.value;
+		switch(id.value) {
+		case Diplomacy:
+			break;
+		case HideInShadow:
+			if(is(Invisible))
+				return false;
+			if(run) {
+				if(!player.roll((skill_s)id.value)) {
+					if(isactive())
+						sb.add("Попытка не удалась.");
+					wait(xrand(2, 6));
+					return false;
+				}
+				add(Invisible, 1, true);
 			}
 			break;
 		}

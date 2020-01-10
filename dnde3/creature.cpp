@@ -387,8 +387,8 @@ void creature::applyabilities() {
 			abilities[i] = 0;
 	}
 	// Generate skills
-	for(auto e : ri.skillvs)
-		skills[e.id] += e.value;
+	for(auto e : ri.abilityvs)
+		abilities[e.id] += e.value;
 	for(auto e : ri.skills)
 		raise(e);
 	for(auto e : ci.skills)
@@ -879,6 +879,14 @@ void creature::attack(creature& enemy, const attacki& ai, int bonus, int danger)
 	}
 	bonus += ai.attack;
 	bonus -= enemy.get(Protection);
+	if(enemy.is(Unaware)) {
+		bonus += 20;
+		danger += 20;
+	}
+	if(enemy.is(Fear)) {
+		bonus += 20;
+		danger += 10;
+	}
 	if(bonus < 5)
 		bonus = 5;
 	look(enemy.getposition());
@@ -959,20 +967,14 @@ bool creature::aiskills(creaturea& creatures) {
 	for(auto s : source) {
 		if(use(creatures, s))
 			return true;
+		if(!(*this))
+			return true;
 	}
 	return false;
 }
 
-void creature::aiturn() {
-	// Get nearest creatures
-	creaturea creatures;
-	creatures.select(getposition(), getlos());
-	creaturea enemies = creatures;
-	enemies.match(*this, Hostile, false);
+void creature::aiturn(creaturea& creatures, creaturea& enemies, creature* enemy) {
 	if(enemies) {
-		// Combat situation - need eliminate enemy
-		enemies.sort(getposition());
-		auto enemy = enemies[0];
 		// Испуганное существо бежит прочь при виде врага
 		if(is(Fear) && loc.getrange(enemy->getposition(), getposition()) <= getlos() + 1) {
 			if(d100() < chance_scarry_cry) {
@@ -982,6 +984,7 @@ void creature::aiturn() {
 			moveaway(enemy->getposition());
 			return;
 		}
+		// Пытаемся стрелять если есть такая возможность
 		if(loc.getrange(enemy->getposition(), getposition()) > 1
 			&& canshoot(false)) {
 			rangeattack(*enemy);
@@ -1074,6 +1077,17 @@ void creature::makemove() {
 		return;
 	if(is(Unaware))
 		add(Unaware, -1, true);
+	// Get nearest creatures
+	creaturea creatures;
+	creatures.select(getposition(), getlos());
+	creaturea enemies = creatures;
+	enemies.match(*this, Hostile, false);
+	creature* enemy = 0;
+	if(enemies) {
+		// Combat situation - need eliminate enemy
+		enemies.sort(getposition());
+		enemy = enemies[0];
+	}
 	if(isactive()) {
 		auto start = restore_energy;
 		while(start == restore_energy) {
@@ -1081,7 +1095,7 @@ void creature::makemove() {
 			playui();
 		}
 	} else
-		aiturn();
+		aiturn(creatures, enemies, enemy);
 }
 
 bool creature::roll(skill_s v, int bonus, int divider) const {
@@ -1601,89 +1615,6 @@ bool creature::ismatch(variant v) const {
 	return false;
 }
 
-bool creature::apply(creature& player, variant id, int v, int order, bool run) {
-	spelli* si;
-	skilli* sk;
-	switch(id.type) {
-	case Spell:
-		if(finds(id))
-			return false; // Not allow two spells be effected
-		switch(id.value) {
-		case ArmorSpell:
-			if(run) {
-				add(Armor, id, 1, false, 30 * v);
-				act("%герой озарил%ась белым сиянием.");
-			}
-			break;
-		case BlessSpell:
-			if(run) {
-				add(Attack, id, v * 5, false, 30);
-				add(Damage, id, 2, false, 30);
-				act("%герой испытал%а небывалый прилив сил.");
-			}
-			break;
-		case HealingSpell:
-			if(hp >= get(LifePoints))
-				return false;
-			if(run)
-				damage(-v, Magic, 0, true);
-			break;
-		case ShieldSpell:
-			if(run) {
-				add(Protection, id, 20 * v, false, 20);
-				act("Вокруг %героя появилось защитное поле.");
-			}
-			break;
-		case SlowMonster:
-			if(run) {
-				add(Movement, id, v, false, 60);
-			}
-		default:
-			si = bsmeta<spelli>::elements + id.value;
-			if(!si->bonus)
-				return false;
-			return apply(player, si->bonus, v, order, run);
-		}
-		break;
-	case Harm:
-		if(run)
-			damage(v, (damage_s)id.value, 0, true);
-		break;
-	case State:
-		if(v >= 0) {
-			if(is((state_s)id.value))
-				return false;
-		} else {
-			if(!is((state_s)id.value))
-				return false;
-		}
-		if(run)
-			add(id, v, true);
-		break;
-	case Skill:
-		sk = bsmeta<skilli>::elements + id.value;
-		switch(id.value) {
-		case Diplomacy:
-			break;
-		case HideInShadow:
-			if(is(Invisible))
-				return false;
-			if(run) {
-				if(!player.roll((skill_s)id.value)) {
-					if(isactive())
-						sb.add("Попытка не удалась.");
-					wait(xrand(2, 6));
-					return false;
-				}
-				add(Invisible, 1, true);
-			}
-			break;
-		}
-		break;
-	}
-	return true;
-}
-
 bool creature::cast(spell_s id, int level, item* magic_source) {
 	creaturea creatures(*this);
 	return cast(creatures, id, level, magic_source);
@@ -1766,4 +1697,12 @@ void creature::readsomething() {
 	}
 	creaturea creatures(*this);
 	use(creatures, Literacy);
+}
+
+bool creature::charmresist(int bonus) const {
+	if(roll(ResistCharm, bonus)) {
+		act("%герой и глазом не моргнул%а.");
+		return true;
+	}
+	return false;
 }

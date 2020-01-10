@@ -43,16 +43,23 @@ void targeti::use(creature& player, creaturea& source, creaturea& creatures, ite
 	auto maximum_count = getcount(creatures, items, indecies);
 	unsigned count = 1;
 	auto interactive = this->interactive;
-	if(is(AllTargets)) {
+	if(is(TwoTargets))
+		count += 1;
+	else if(is(ThreeTargets))
+		count += 2;
+	else if(is(AllTargets)) {
 		count = maximum_count;
 		interactive = 0;
 	}
+	if(count > maximum_count)
+		count = maximum_count;
 	if(is(RandomTargets)) {
 		switch(type) {
 		case Creature: creatures.shuffle(); break;
 		case Item: items.shuffle(); break;
 		default: indecies.shuffle(); break;
 		}
+		interactive = 0;
 	}
 	if(interactive && (maximum_count > 1 || is(AlwaysChoose))) {
 		const char* fail_targets = 0;
@@ -72,8 +79,6 @@ void targeti::use(creature& player, creaturea& source, creaturea& creatures, ite
 			}
 		}
 	}
-	if(count > maximum_count)
-		count = maximum_count;
 	switch(type) {
 	case Creature:
 		for(unsigned i = 0; i < count; i++)
