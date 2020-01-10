@@ -96,7 +96,7 @@ enum ability_s : unsigned char {
 enum skill_s : unsigned char {
 	Bargaining, Bluff, Diplomacy,
 	Acrobatics, Alertness, Athletics, Backstabbing, Climbing, Concetration,
-	DisarmTraps, FindWeakness, HearNoises, HideInShadow, Lockpicking, PickPockets,
+	DisarmTraps, FindWeakness, HearNoises, HideInShadow, Lockpicking, MoveSilently, PickPockets,
 	Alchemy, Dancing, Engineering, Gambling, History, Healing, Herbalism,
 	Literacy, Mining, Riding, Smithing, Survival, Swimming,
 	FocusBows, FocusSwords, FocusAxes, FocusTwohanded,
@@ -599,6 +599,7 @@ class creature : public nameable {
 	void				finish();
 	void				move(indext index, bool runaway);
 	bool				remove(item& it, bool run, bool talk);
+	void				usestealth();
 	void				usetrap();
 public:
 	explicit operator bool() const { return hp > 0; }

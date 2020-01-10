@@ -736,8 +736,10 @@ void creature::move(indext index) {
 		if(!loc.is(index, Opened)) {
 			if(loc.is(index, Sealed))
 				say("Здесь заперто.");
-			else
+			else {
+				//appear();
 				loc.set(index, Opened);
+			}
 			wait();
 			return;
 		}
@@ -803,9 +805,29 @@ void creature::move(indext index) {
 	wait();
 	if(getposition() != index) {
 		setposition(index);
+		usestealth();
 		usetrap();
 		if(!(*this))
 			lookaround();
+	}
+}
+
+void creature::usestealth() {
+	if(!is(Invisible))
+		return;
+	if(roll(MoveSilently))
+		return;
+	creaturea creatures;
+	creatures.select(getposition(), 3); // Can be heard on this distance
+	creatures.match(*this, Hostile, false, true);
+	for(auto p : creatures) {
+		if(p->roll(HearNoises)) {
+			static const char* text[] = {"Вот он!", "Держи его!", "На нас напали!"};
+			appear();
+			p->say(maprnd(text));
+			p->addexp(10);
+			break;
+		}
 	}
 }
 
@@ -908,8 +930,9 @@ bool creature::isenemy(const creature* target) const {
 }
 
 void creature::say(const char* format, ...) const {
-	if(*this)
-		sayv(sb, format, xva_start(format));
+	if(!(*this))
+		return;
+	sayv(sb, format, xva_start(format));
 }
 
 void creature::aimove() {
