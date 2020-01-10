@@ -216,6 +216,7 @@ typedef flagable<1 + LastRace / 8> racea;
 typedef flagable<1 + ManyItems / 8>	itemf;
 typedef flagable<1 + Blooded / 8> mapflf;
 typedef casev<ability_s> abilityv;
+typedef aset<damage_s, 1 + WaterAttack> damagea;
 class creature;
 class creaturea;
 struct targeti;
@@ -373,6 +374,10 @@ struct attacki {
 	item_s				ammunition;
 	int					getenergy() const { return StandartEnergyCost - speed * 50; }
 };
+struct materiali {
+	const char*			name;
+	damagea				resist;
+};
 struct damagei {
 	const char*			name;
 	ability_s			resist;
@@ -391,6 +396,11 @@ struct item_typei {
 	const char*			id;
 	const char*			name[3];
 	char				bonus;
+};
+struct descriptioni {
+	variant				v1, v2;
+	const char*			text;
+	const char*			get(variant v1, variant v2) const;
 };
 struct itemi {
 	const char*			name;
@@ -433,8 +443,7 @@ public:
 	bool				apply(creature& player, variant id, int v, int order, bool run);
 	void				clear() { memset(this, 0, sizeof(*this)); }
 	void				create(item_s type, int chance_artifact, int chance_magic, int chance_cursed, int chance_quality);
-	bool				damageb();
-	void				damage();
+	void				damage(int count, damage_s type, bool interactive);
 	void				destroy();
 	item_s				getammo() const { return getitem().weapon.ammunition; }
 	armori				getarmor() const;
@@ -460,7 +469,7 @@ public:
 	int					getweightsingle() const { return getitem().weight; }
 	int					getweight() const { return getweightsingle()*getcount(); }
 	bool				is(slot_s v) const;
-	bool				is(identify_s v) const { return v ? identify >= v : (identify==Unknown); }
+	bool				is(identify_s v) const { return v ? identify >= v : (identify == Unknown); }
 	bool				is(item_flag_s v) const { return getitem().flags.is(v); }
 	bool				is(item_type_s v) const { return magic == v; }
 	bool				isboost(variant id) const;
@@ -691,7 +700,7 @@ public:
 	bool				is(const creature* p) const { return this == p; }
 	bool				isactive() const { return getactive() == this; }
 	bool				isallow(item_s v) const;
-	bool				isboost(spell_s v) const { return finds(v)!=0; }
+	bool				isboost(spell_s v) const { return finds(v) != 0; }
 	bool				isenemy(const creature* target) const;
 	bool				isguard() const { return guard != Blocked; }
 	bool				ismatch(variant v) const;
@@ -714,12 +723,12 @@ public:
 	void				raiseskills(int number);
 	void				raiseskills() { raiseskills(get(Intellegence) / 2); }
 	void				rangeattack(creature& enemy, int bonus = 0);
-	bool				roll(ability_s v) const { return rollv(get(v), 0); }
-	bool				roll(ability_s v, int bonus) const { return rollv(get(v) + bonus, 0); }
-	bool				roll(skill_s v) const { return rollv(get(v), 0); }
-	bool				roll(skill_s v, int bonus) const { return rollv(get(v) + bonus, 0); }
+	bool				roll(ability_s v) const { return rollv(get(v)); }
+	bool				roll(ability_s v, int bonus) const { return rollv(get(v) + bonus); }
+	bool				roll(skill_s v) const { return rollv(get(v)); }
+	bool				roll(skill_s v, int bonus) const { return rollv(get(v) + bonus); }
 	bool				roll(skill_s v, int bonus, int divider) const;
-	static bool			rollv(int v, int* r);
+	static bool			rollv(int v);
 	void				say(const char* format, ...) const;
 	void				select(itema& a, slot_s i1, slot_s i2, bool filled_only);
 	void				select(skilla& e) const;

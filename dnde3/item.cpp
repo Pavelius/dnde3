@@ -32,7 +32,7 @@ static variant boots_enchanments[] = {{}, ResistElectricity, ResistParalize, Res
 Dexterity, Constitution,
 Armor, Speed};
 static variant wand_enchanments[] = {MagicMissile, ShokingGrasp, HealingSpell, ArmorSpell,
-CharmPerson, FearSpell, Invisibility};
+CharmPerson, FearSpell, Invisibility, Repair};
 static variant common_scroll[] = {BlessItem, DetectEvil, DetectMagic, Identify};
 
 itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, NoGender, Organic, {0, 3, {1, 3}, Bludgeon, 4, 2}, {}, {}, {}, Melee},
@@ -514,4 +514,44 @@ void item::destroy() {
 	clear();
 	if(p)
 		p->dresson();
+}
+
+void item::damage(int count, damage_s type, bool interactive) {
+	if(count < 0)
+		return;
+	if(magic == Artifact)
+		return;
+	if(iscountable())
+		return;
+	if(magic == Blessed && damaged==3)
+		return;
+	auto& ei = bsmeta<itemi>::elements[getkind()];
+	auto chance_resist = 70;
+	chance_resist -= count;
+	chance_resist += bsmeta<materiali>::elements[ei.material].resist.data[type];
+	chance_resist += getbonus() * 4;
+	if(chance_resist < 5)
+		chance_resist = 5;
+	else if(chance_resist > 95)
+		chance_resist = 95;
+	auto roll_result = d100();
+	if(roll_result < chance_resist)
+		return;
+	if(damaged < 3) {
+		damaged++;
+	} else {
+		if(interactive) {
+			static descriptioni damage_text[] = {
+				{Glass, Fire, "%герой расплавил%ась и взорвалась."},
+				{Glass, {}, "%герой разбил%ась вдребезги."},
+				{Wood, Fire, "%герой сгорел%а до тла."},
+				{Paper, Fire, "%герой моментально превратил%ась в пепел."},
+				{{}, Fire, "%герой расплавил%ась."},
+				{{}, Cold, "%герой замерз%ла и разлетел%ась на куски."},
+				{{}, {}, "%герой уничтожен%а."}
+			};
+			act(damage_text->get(ei.material, type));
+		}
+		destroy();
+	}
 }

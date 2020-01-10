@@ -896,7 +896,7 @@ void creature::attack(creature& enemy, const attacki& ai, int bonus, int danger)
 	if(bonus < 5)
 		bonus = 5;
 	look(enemy.getposition());
-	if(!rollv(bonus, 0)) {
+	if(!rollv(bonus)) {
 		act("%герой промазал%а.");
 		return;
 	}
@@ -931,8 +931,13 @@ void creature::attack(creature& enemy, const attacki& ai, int bonus, int danger)
 void creature::meleeattack(creature& enemy, int bonus) {
 	auto am = getattack(Melee, wears[Melee]);
 	attack(enemy, am, bonus, 100);
-	if(wears[OffHand] && wears[OffHand].is(Light))
+	if(wears[Melee] && (d100() < 5))
+		wears[Melee].damage(0, Bludgeon, true);
+	if(wears[OffHand] && wears[OffHand].is(Light)) {
 		attack(enemy, getattack(OffHand), bonus, 100);
+		if(wears[OffHand] && (d100() < 5))
+			wears[OffHand].damage(0, Bludgeon, true);
+	}
 	consume(am.getenergy());
 }
 
@@ -1060,7 +1065,7 @@ void creature::makemove() {
 	}
 	if(is(Wounded)) {
 		// Wounded creature loose 1 hit point each turn
-		if(rollv(get(Constitution) + 5, 0))
+		if(roll(Constitution, 5))
 			add(Wounded, -1, true);
 		else {
 			act("%герой истекает кровью.");
@@ -1071,7 +1076,7 @@ void creature::makemove() {
 	}
 	// Dazzled creature don't make turn
 	if(is(Dazzled)) {
-		if(rollv(get(Constitution) + 8, 0))
+		if(roll(Constitution, 8))
 			add(Dazzled, -1, true);
 		else {
 			wait();
@@ -1119,20 +1124,15 @@ bool creature::roll(skill_s v, int bonus, int divider) const {
 	default: r /= divider; break;
 	}
 	r += bonus;
-	return rollv(r, 0);
+	return rollv(r);
 }
 
-bool creature::rollv(int v, int* r) {
-	if(r)
-		*r = 100;
+bool creature::rollv(int v) {
 	if(v <= 0)
 		return false;
 	if(v < 5)
 		v = 5;
-	auto result = d100();
-	if(r)
-		*r = result;
-	return result < v;
+	return d100() < v;
 }
 
 void creature::applyaward() const {
@@ -1189,7 +1189,7 @@ void creature::damage(int value, damage_s type, int pierce, bool interactive) {
 		if(resist_skill < 0)
 			value += -resist_skill * value / 100; // Negative resist increase damage
 		else {
-			if(rollv(resist_skill - value, 0)) {
+			if(rollv(resist_skill - value)) {
 				act(di.resist_text, value);
 				return;
 			}

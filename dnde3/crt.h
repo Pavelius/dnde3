@@ -135,6 +135,16 @@ template<class T> struct casev {
 	T						id;
 	char					value;
 };
+// Abstract value collection
+template<class T, int N> struct aset {
+	char					data[N];
+	constexpr aset() : data{} {}
+	constexpr aset(const std::initializer_list<casev<T>>& v) : data{} {
+		for(auto e : v)
+			set(e.id, e.value);
+	}
+	constexpr void			set(T id, int v) { data[id] = v; }
+};
 // Abstract flag data bazed on enumerator
 template<typename T, typename DT = unsigned>
 struct cflags {

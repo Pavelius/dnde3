@@ -166,6 +166,14 @@ bool item::apply(creature& player, variant id, int v, int order, bool run) {
 				}
 			}
 			break;
+		case Repair:
+			if(!isdamaged() || getdamage()>v)
+				return false;
+			if(run) {
+				damaged--;
+				act("%герой волшебным образом соединил%а поврежденные части.");
+			}
+			break;
 		}
 		break;
 	case Skill:

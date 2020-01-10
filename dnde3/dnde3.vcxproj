@@ -125,6 +125,7 @@
     <ClCompile Include="creaturea.cpp" />
     <ClCompile Include="crt.cpp" />
     <ClCompile Include="crt_strings.cpp" />
+    <ClCompile Include="description.cpp" />
     <ClCompile Include="dice.cpp" />
     <ClCompile Include="draw.cpp" />
     <ClCompile Include="draw_input.cpp" />
@@ -133,6 +134,7 @@
     <ClCompile Include="equipment.cpp" />
     <ClCompile Include="food.cpp" />
     <ClCompile Include="indexa.cpp" />
+    <ClCompile Include="material.cpp" />
     <ClCompile Include="spella.cpp" />
     <ClCompile Include="target.cpp" />
     <ClCompile Include="trap.cpp" />
