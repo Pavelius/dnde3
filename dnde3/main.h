@@ -24,6 +24,7 @@ const int max_building_size = 15;
 const int chance_act = 40;
 const int chance_blood_when_dead = 70;
 const int chance_drop_item = 40;
+const int chance_scarry_cry = 20;
 const int restore_points_percent = 75;
 
 enum item_s : unsigned char {
@@ -103,7 +104,7 @@ enum skill_s : unsigned char {
 	FirstSkill = Bargaining, LastSkill = TwoWeaponFighting,
 };
 enum state_s : unsigned char {
-	Anger, Dazzled, Drunken, Friendly, Hostile,
+	Anger, Dazzled, Drunken, Fear, Friendly, Hostile,
 	Invisible, Poisoned, Sick, Sleeped,
 	Wounded,
 	LastState = Wounded,
@@ -151,7 +152,7 @@ enum img_s : unsigned char {
 	ResPCmar, ResPCmbd, ResPCmac
 };
 enum spell_s : unsigned char {
-	ArmorSpell, BlessSpell, BlessItem, CharmPerson, DetectEvil, DetectMagic, Fear, HealingSpell,
+	ArmorSpell, BlessSpell, BlessItem, CharmPerson, DetectEvil, DetectMagic, FearSpell, HealingSpell,
 	Identify, Invisibility, LightSpell, MagicMissile,
 	Repair, RemovePoisonSpell, RemoveSickSpell,
 	ShieldSpell, ShokingGrasp, Sleep, SlowMonster,
@@ -567,11 +568,11 @@ class creature : public nameable {
 	int					restore_energy, restore_hits, restore_mana;
 	char				hp, mp;
 	statea				states;
-	short unsigned		charmer, horror;
+	short unsigned		charmer;
 	short unsigned		location_id, site_id;
 	encumbrance_s		encumbrance;
 	class_s				kind;
-	unsigned short		guard;
+	indext				guard;
 	direction_s			direction;
 	unsigned			experience;
 	unsigned			money;
@@ -588,7 +589,6 @@ class creature : public nameable {
 	void				cantmovehere() const;
 	bool				cantakeoff(slot_s id, bool interactive);
 	bool				canuse(const item& e, bool talk) const;
-	void				clearboost() const;
 	void				dress(int m);
 	void				dresssk(int m);
 	void				dresssa(int m);
@@ -627,6 +627,7 @@ public:
 	void				consume(int energy_value);
 	void				damage(int count, damage_s type, int pierce = 0, bool interactive = true);
 	void				damagewears(int count, damage_s type);
+	void				dispell(bool interactive);
 	void				dispell(variant source, bool interactive);
 	void				dressoff();
 	void				dresson();
@@ -658,7 +659,6 @@ public:
 	void				getfullname(stringbuilder& sb) const;
 	short unsigned		getguard() const { return guard; }
 	int					gethits() const { return hp; }
-	creature*			gethorror() const { return getobject(horror); }
 	short unsigned		getid() const;
 	creature*			getleader() const;
 	int					getlevel(skill_s v) const;
@@ -716,7 +716,6 @@ public:
 	void				set(skill_s id, int v);
 	void				setcharmer(const creature* p) { charmer = p->getid(); }
 	void				setguard(short unsigned value) { guard = value; }
-	void				sethorror(const creature* p) { horror = p->getid(); }
 	void				setmoney(int value) { money = value; }
 	void				setposition(indext v);
 	void				shoot();

@@ -13,7 +13,7 @@ static creature*	current_player;
 
 void creature::clear() {
 	memset(this, 0, sizeof(*this));
-	charmer = horror = Blocked;
+	charmer = Blocked;
 	guard = Blocked;
 	location_id = Blocked;
 	site_id = Blocked;
@@ -117,12 +117,14 @@ creature* creature::getobject(short unsigned v) {
 	return bsmeta<creature>::elements + v;
 }
 
-void creature::clearboost() const {
-	auto id = getid();
+void creature::dispell(bool interactive) {
+	auto owner = getid();
 	auto ps = bsmeta<boosti>::elements;
 	for(auto& e : bsmeta<boosti>()) {
-		if(e.owner == id)
+		if(e.owner == owner) {
+			add(e.id, e.modifier, interactive);
 			continue;
+		}
 		*ps++ = e;
 	}
 	bsmeta<boosti>::source.setcount(ps - bsmeta<boosti>::elements);
@@ -135,12 +137,10 @@ void creature::unlink() {
 			continue;
 		if(e.charmer == id)
 			e.charmer = Blocked;
-		if(e.horror == id)
-			e.horror = Blocked;
 	}
 	if(current_player == this)
 		current_player = 0;
-	clearboost();
+	dispell(false);
 }
 
 void creature::dressoff() {
@@ -930,12 +930,6 @@ bool creature::aiskills(creaturea& creatures) {
 }
 
 void creature::aiturn() {
-	// If horror are near run away
-	auto horror = gethorror();
-	if(horror && loc.getrange(horror->getposition(), getposition()) <= getlos() + 1) {
-		moveaway(horror->getposition());
-		return;
-	}
 	// Get nearest creatures
 	creaturea creatures;
 	creatures.select(getposition(), getlos());
@@ -945,6 +939,15 @@ void creature::aiturn() {
 		// Combat situation - need eliminate enemy
 		enemies.sort(getposition());
 		auto enemy = enemies[0];
+		// Испуганное существо бежит прочь при виде врага
+		if(is(Fear) && loc.getrange(enemy->getposition(), getposition()) <= getlos() + 1) {
+			if(d100() < chance_scarry_cry) {
+				static const char* text[] = {"Спасите!", "Помогите!", "Аааа!!!", "Не убивайте!!!"};
+				say(maprnd(text));
+			}
+			moveaway(enemy->getposition());
+			return;
+		}
 		if(loc.getrange(enemy->getposition(), getposition()) > 1
 			&& canshoot(false)) {
 			rangeattack(*enemy);
@@ -952,6 +955,8 @@ void creature::aiturn() {
 		}
 		moveto(enemy->getposition());
 	} else {
+		if(is(Fear))
+			add(Fear, -1, true);
 		// When we try to stand and think
 		if(d100() < chance_act) {
 			if(needrestore(LifePoints)) {
