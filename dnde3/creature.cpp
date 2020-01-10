@@ -1457,15 +1457,15 @@ void creature::add(variant id, variant source, int v, bool interactive, item_typ
 				case Cursed: add(id, -(1 + quality), interactive); break;
 				case Blessed:
 					if(id.value == LifePoints)
-						damage(-5 * (v + quality * v), Magic, 0, interactive);
+						damage(-5 * (v + quality + damaged), Magic, 0, interactive);
 					else
-						paymana(-5 * (v + quality * v), interactive);
+						paymana(-5 * (v + quality + damaged), interactive);
 					break;
 				default:
 					if(id.value == LifePoints)
-						damage(-(v + quality * v), Magic, 0, interactive);
+						damage(-(v + quality + damaged), Magic, 0, interactive);
 					else
-						paymana(-(v + quality * v), interactive);
+						paymana(-(v + quality + damaged), interactive);
 					break;
 				}
 			} else {

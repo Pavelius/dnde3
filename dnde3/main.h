@@ -734,7 +734,7 @@ public:
 	creaturea(const creature& v) { select(v.getposition(), v.getlos()); }
 	creature*			choose(bool interactive, const char* title);
 	void				match(variant v, bool remove);
-	void				match(creature& player, variant v, bool remove);
+	void				match(creature& player, variant v, bool remove, bool target_insivible = false);
 	void				matcha(creature& player, variant id, int v, bool remove);
 	void				matchr(indext index, int range);
 	void				select();

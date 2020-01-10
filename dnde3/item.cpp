@@ -294,6 +294,8 @@ bool item::use() {
 
 bool item::ismatch(variant v) const {
 	switch(v.type) {
+	case NoVariant:
+		return true;
 	case Item:
 		if(type == v.value)
 			return true;

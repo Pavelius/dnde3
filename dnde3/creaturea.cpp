@@ -1,6 +1,6 @@
 #include "main.h"
 
-void creaturea::match(creature& player, variant v, bool remove) {
+void creaturea::match(creature& player, variant v, bool remove, bool target_insivible) {
 	if(!v)
 		return;
 	auto ps = data;
@@ -13,8 +13,10 @@ void creaturea::match(creature& player, variant v, bool remove) {
 				if(!player.isenemy(p))
 					continue;
 				// Insisible enemies can't be target
-				if(p->is(Invisible))
-					continue;
+				if(!target_insivible) {
+					if(p->is(Invisible))
+						continue;
+				}
 			}
 		} else if(v.type == State && v.value == Friendly) {
 			if(remove) {
