@@ -15,7 +15,7 @@ static creature* create(role_s type) {
 static void create(creature* p1, item_s type) {
 	item it;
 	it.create(type, 3, 20, 6, 30);
-	it.set(KnownPower);
+	//it.set(KnownPower);
 	p1->equip(it);
 }
 
@@ -121,15 +121,16 @@ static void test_dungeon() {
 	auto p1 = create(Human, Male, Theif);
 	auto p2 = create(Dwarf, Male, Cleric);
 	auto p3 = create(Elf, Male, Fighter);
-	p3->activate();
+	p1->activate();
 	create(p1, Potion1);
 	create(p1, Potion1, Dexterity);
 	create(p1, Boot1);
 	create(p1, Helmet);
 	create(p1, RingRed);
 	create(p1, RingBlue);
+	create(p1, Scroll1, Identify);
 	create(p3, BracersLeather);
-	create(p3, Wand1, ShokingGrasp);
+	create(p3, Wand1);
 	game.play();
 }
 

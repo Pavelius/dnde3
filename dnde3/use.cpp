@@ -133,3 +133,32 @@ bool creature::use(item& it, bool interactive) {
 	wait();
 	return true;
 }
+
+bool creature::use(creaturea& source, skill_s id) {
+	auto v = get(id);
+	if(v <= 0)
+		return false;
+	auto& ei = bsmeta<skilli>::elements[id];
+	creaturea creatures = source; itema items; indexa indecies;
+	if(!ei.target.prepare(*this, creatures, items, indecies, id, get(id))) {
+		if(isactive()) {
+			switch(id) {
+			case Literacy:
+				sb.add("В рюкзаке нету ничего, что можно почитать.");
+				break;
+			default:
+				sb.add("Не могу найти подходящие цели.");
+				break;
+			}
+		}
+		return false;
+	}
+	ei.target.use(*this, source, creatures, items, indecies, id, v);
+	// Appear when do some activity
+	if(is(Invisible)) {
+		if(ei.target.range != You)
+			appear();
+	}
+	wait();
+	return true;
+}

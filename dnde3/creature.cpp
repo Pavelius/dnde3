@@ -490,10 +490,13 @@ void creature::activate() {
 }
 
 creature* creature::getactive(int n) {
-	auto p = bsmeta<creature>::elements + n;
-	if(!(*p))
+	creaturea creatures;
+	creatures.select(Friendly);
+	if(!creatures)
 		return 0;
-	return p;
+	if(n > creatures.getcount())
+		n = creatures.getcount();
+	return creatures[n];
 }
 
 const variant* creature::calculate(const variant* p, int& result) const {
@@ -1709,6 +1712,8 @@ bool creature::cast(creaturea& source, spell_s id, int level, item* magic_source
 	if(magic_source) {
 		if(ei.target.type==Creature && ei.target.range!=You)
 			act("%герой выставил%а %-1 перед собой.", magic_source->getname());
+		else if(magic_source->is(Readable))
+			act("%герой достал%а %-1 и громко прочитал%а.", magic_source->getname());
 		else
 			act("%герой достал%а %-1 и взмахнула несколько раз.", magic_source->getname());
 	} else
@@ -1724,29 +1729,6 @@ bool creature::cast(creaturea& source, spell_s id, int level, item* magic_source
 		magic_source->usecharge();
 	else
 		paymana(ei.mp, false);
-	return true;
-}
-
-bool creature::use(creaturea& source, skill_s id) {
-	auto v = get(id);
-	if(v <= 0)
-		return false;
-	auto& ei = bsmeta<skilli>::elements[id];
-	creaturea creatures = source;
-	itema items;
-	indexa indecies;
-	if(!ei.target.prepare(*this, creatures, items, indecies, id, get(id))) {
-		if(isactive())
-			sb.add("Не могу найти подходящие цели.");
-		return false;
-	}
-	ei.target.use(*this, source, creatures, items, indecies, id, v);
-	// Appear when do some activity
-	if(is(Invisible)) {
-		if(ei.target.range != You)
-			appear();
-	}
-	wait();
 	return true;
 }
 
@@ -1773,4 +1755,14 @@ void creature::fail(skill_s id) {
 
 void creature::appear() {
 	add(Invisible, -1, true);
+}
+
+void creature::readsomething() {
+	if(!skills[Literacy]) {
+		if(isactive())
+			sb.add("Вы не грамотны. Для начала научитесь читать.");
+		return;
+	}
+	creaturea creatures(*this);
+	use(creatures, Literacy);
 }

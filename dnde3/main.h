@@ -208,7 +208,7 @@ enum sale_s : unsigned char {
 	NotForSale, Sale75, Sale100, Sale150,
 };
 enum target_flag_s : unsigned char {
-	NotYou, Friends, Enemies
+	NotYou, Friends, Enemies, AlwaysChoose,
 };
 typedef short unsigned indext;
 typedef adat<rect, 64> rooma;
@@ -732,6 +732,7 @@ public:
 	bool				use(item& it, bool interactive);
 	bool				use(creaturea& source, skill_s id);
 	static bool			usechance(int chance, bool hostile, item_type_s magic, int quality, int damaged);
+	void				readsomething();
 	void				useskills();
 	void				usespells();
 	void				usewands();
@@ -773,6 +774,7 @@ struct targeti {
 	range_s				range;
 	explicit constexpr operator bool() const { return type != NoVariant; }
 	unsigned			getcount(creaturea& creatures, itema& items, indexa& indecies) const;
+	constexpr bool		is(target_flag_s v) const { return flags.is(v); }
 	bool				prepare(creature& player, creaturea& creatures, itema& items, indexa& indecies, variant id, int v) const;
 	bool				use(creature& player, creaturea& source, variant id, int v) const;
 	void				use(creature& player, creaturea& source, creaturea& creatures, itema& items, indexa& indecies, variant id, int v) const;

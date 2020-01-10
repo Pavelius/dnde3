@@ -52,7 +52,7 @@ void targeti::use(creature& player, creaturea& source, creaturea& creatures, ite
 		}
 		break;
 	case SingleTarget:
-		if(maximum_count > 1) {
+		if(maximum_count > 1 || is(AlwaysChoose)) {
 			const char* interactive = 0;
 			if(player.isactive())
 				interactive = "Нет подходящей цели";

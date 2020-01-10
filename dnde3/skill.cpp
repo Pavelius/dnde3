@@ -29,7 +29,7 @@ skilli bsmeta<skilli>::elements[] = {{"Торговля", "торговли", {Charisma, Intelle
 {"История", "истории", {Intellegence, Intellegence}, {}, {Object, {}, SingleTarget, Reach}},
 {"Заживание ран", "здоровья", {Wisdow, Constitution}},
 {"Травознавство", "травознания", {Wisdow, Intellegence}, {}, {Object, {}, SingleTarget, Close}},
-{"Грамотность", "письма и чтения", {Intellegence, Intellegence}, {}, {Item, {}, SingleTarget}},
+{"Грамотность", "письма и чтения", {Intellegence, Intellegence}, {}, {Item, {AlwaysChoose}, SingleTarget}},
 {"Шахтерское дело", "шахтерского дела", {Strenght, Constitution}, {}, {Object, {}, SingleTarget, Close}},
 {"Езда верхом", "езды верхом", {Dexterity, Constitution}},
 {"Кузнечное дело", "кузнечного дела", {Strenght, Intellegence}, {}, {Object, {}, SingleTarget, Close}},

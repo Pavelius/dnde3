@@ -31,7 +31,8 @@ LifePoints, ManaPoints, Speed};
 static variant boots_enchanments[] = {{}, ResistElectricity, ResistParalize, ResistWater,
 Dexterity, Constitution,
 Armor, Speed};
-static variant wand_enchanments[] = {MagicMissile, ShokingGrasp, HealingSpell, Identify};
+static variant wand_enchanments[] = {MagicMissile, ShokingGrasp, HealingSpell, ArmorSpell};
+static variant common_scroll[] = {DetectEvil, DetectMagic, Identify};
 
 itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, NoGender, Organic, {0, 3, {1, 3}, Bludgeon, 4, 2}, {}, {}, {}, Melee},
 {"Боевой топор", 850, 5 * GP, Male, Iron, {-4, 3, {1, 8}, Slashing, 0, 2}, {}, {}, {Versatile}, Melee, FocusAxes},
@@ -89,9 +90,9 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, NoGender, Organic, {0, 3, {1, 
 {"Колбаса", 60, 8 * SP, NoGender, Organic, {}, {}, {}, {}, Edible},
 {"Мясо", 80, 5 * CP, NoGender, Organic, {}, {}, {}, {}, Edible},
 //
-{"Свиток", 1, 10 * GP, NoGender, Paper, {}, {}, {}, {SingleUse}, Readable},
-{"Свиток", 1, 12 * GP, NoGender, Paper, {}, {}, {}, {SingleUse}, Readable},
-{"Свиток", 1, 15 * GP, NoGender, Paper, {}, {}, {}, {SingleUse}, Readable},
+{"Свиток", 1, 10 * GP, Male, Paper, {}, {}, common_scroll, {SingleUse}, Readable},
+{"Свиток", 1, 12 * GP, Male, Paper, {}, {}, common_scroll, {SingleUse}, Readable},
+{"Свиток", 1, 15 * GP, Male, Paper, {}, {}, common_scroll, {SingleUse}, Readable},
 //
 {"Жезл", 10, 100 * GP, NoGender, Wood, {}, {}, wand_enchanments, {Chargeable}, Zapable},
 {"Жезл", 10, 120 * GP, NoGender, Wood, {}, {}, wand_enchanments, {Chargeable}, Zapable},
@@ -466,7 +467,7 @@ bool item::apply(creature& player, variant id, int v, int order, bool run) {
 			if(!is(KnownMagic) && !is(Mundane))
 				return false;
 			if(run) {
-				act("%герой заискрился многими желтыми огоньками.");
+				act("%герой заискрил%ась многими желтыми огоньками.");
 				set(Blessed);
 			}
 			break;
@@ -502,6 +503,47 @@ bool item::apply(creature& player, variant id, int v, int order, bool run) {
 			if(!is(Readable))
 				return false;
 			if(run) {
+				auto v = geteffect();
+				auto level = getbonus();
+				auto consume = is(SingleUse);
+				auto b = -level*5;
+				if(is(Unknown))
+					b += 10;
+				if(is(SingleUse))
+					b += 35;
+				auto result = player.roll(Literacy, b);
+				if(is(Unknown)) {
+					player.act("%герой внимательно изучал%а %-1.", getname());
+					if(result) {
+						player.addexp(10);
+						set(KnownPower);
+						if(player.isactive()) {
+							char temp[260]; stringbuilder st(temp); getname(st, true);
+							player.act("Вам удалось понять, что это %-1.", temp);
+						}
+					} else {
+						if(player.isactive())
+							player.act("Однако, вам так и не удалось ничего понять.");
+					}
+					consume = false;
+				} else {
+					switch(v.type) {
+					case Spell:
+						if(is(SingleUse)) {
+							if(is(Blessed) || is(Artifact))
+								result = true;
+						}
+						if(result && player.cast((spell_s)v.value, level, this))
+							set(KnownPower);
+						else
+							player.act("%герой вытащил%а %-1 и громко прочитал%а.", getname());
+						break;
+					}
+				}
+				if(consume) {
+					act("%герой превратил%ась в пыль и рассыпал%ась.");
+					clear();
+				}
 			}
 			break;
 		}
@@ -526,7 +568,7 @@ void item::actv(stringbuilder& st, const char* format, const char* format_param)
 	if(p) {
 		auto i1 = getposition();
 		auto i2 = p->getposition();
-		if(i1==Blocked || i2 == Blocked)
+		if(i1 == Blocked || i2 == Blocked)
 			return;
 	}
 	string sb = st;

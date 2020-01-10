@@ -1332,13 +1332,15 @@ static int text(int x, int y, int width, dicei v, const char* format = "+ %1i-%2
 skill_s skillu::choose(bool interactive, const char* title, bool* cancel_result) const {
 	int x, y, y1;
 	const int width = 400;
+	if(cancel_result)
+		*cancel_result = false;
 	while(ismodal()) {
 		current_background();
 		dialogw(x, y, width, 300, title, &y1);
 		auto x1 = x;
 		auto x2 = x + width;
 		if(cancel_result)
-			button(x1, y1, "Отмена", KeyEscape, breakparam, 0);
+			button(x1, y1, "Отмена", KeyEscape, breakparam, -1);
 		auto index = 0;
 		for(auto e : *this) {
 			auto x0 = x;
@@ -1359,9 +1361,12 @@ skill_s skillu::choose(bool interactive, const char* title, bool* cancel_result)
 			y += texth() + 4;
 		}
 		y += texth();
-		domodal();
+		draw::domodal();
 	}
-	return (skill_s)getresult();
+	auto v = getresult();
+	if(cancel_result && v == -1)
+		*cancel_result = true;
+	return (skill_s)v;
 }
 
 item* itema::choose(const char* interactive, const char* title, const char* format, slot_mode_s mode, bool show_always) {
@@ -1671,7 +1676,8 @@ static hotkey adventure_keys[] = {{F1, "Выбрать первого героя", change_player, 0
 {Alpha + 'S', "Создать заклинание", &creature::usespells},
 {Alpha + 'Z', "Использовать волшебный жезл", &creature::usewands},
 {Ctrl + Alpha + 'D', "Выпить что-то", &creature::drink},
-{Ctrl + Alpha + 'E', "Чъесть что-то", &creature::eat},
+{Ctrl + Alpha + 'E', "Съесть что-то", &creature::eat},
+{Ctrl + Alpha + 'R', "Прочитать что-то", &creature::readsomething},
 {Ctrl + Alpha + 'B', "Поработить для отладки", &creature::enslave},
 {Ctrl + Alpha + 'W', "Тестировать оружие", &creature::testweapons},
 {}};
