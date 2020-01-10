@@ -493,6 +493,10 @@ bool item::apply(creature& player, variant id, int v, int order, bool run) {
 			if(run) {
 				act("%герой засветил%ась белыми огоньками.");
 				set(KnownPower);
+				if(player.isactive()) {
+					char temp[260]; stringbuilder st(temp); getname(st, true);
+					sb.adds("Это [%-1].", temp);
+				}
 			}
 			break;
 		}
@@ -519,7 +523,7 @@ bool item::apply(creature& player, variant id, int v, int order, bool run) {
 						set(KnownPower);
 						if(player.isactive()) {
 							char temp[260]; stringbuilder st(temp); getname(st, true);
-							player.act("Вам удалось понять, что это %-1.", temp);
+							sb.adds("Вам удалось понять, что это [%-1].", temp);
 						}
 					} else {
 						if(player.isactive())
@@ -533,9 +537,7 @@ bool item::apply(creature& player, variant id, int v, int order, bool run) {
 							if(is(Blessed) || is(Artifact))
 								result = true;
 						}
-						if(result && player.cast((spell_s)v.value, level, this))
-							set(KnownPower);
-						else
+						if(!result || !player.cast((spell_s)v.value, level, this))
 							player.act("%герой вытащил%а %-1 и громко прочитал%а.", getname());
 						break;
 					}

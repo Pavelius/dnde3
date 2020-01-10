@@ -1692,7 +1692,7 @@ bool creature::cast(spell_s id, int level, item* magic_source) {
 bool creature::cast(creaturea& source, spell_s id, int level, item* magic_source) {
 	auto& ei = bsmeta<spelli>::elements[id];
 	if(magic_source) {
-		if(magic_source->getcharges() <= 0)
+		if(magic_source->ischargeable() && magic_source->getcharges() <= 0)
 			return false;
 	} else {
 		if(mp < ei.mp)
@@ -1725,9 +1725,10 @@ bool creature::cast(creaturea& source, spell_s id, int level, item* magic_source
 			act("С кончика пальце %1.", ei.throw_text);
 	}
 	ei.target.use(*this, source, creatures, items, indecies, id, v);
-	if(magic_source)
-		magic_source->usecharge();
-	else
+	if(magic_source) {
+		if(magic_source->ischargeable())
+			magic_source->usecharge();
+	} else
 		paymana(ei.mp, false);
 	return true;
 }
