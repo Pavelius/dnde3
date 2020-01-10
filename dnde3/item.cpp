@@ -519,7 +519,8 @@ void item::destroy() {
 void item::damage(int count, damage_s type, bool interactive) {
 	if(count < 0)
 		return;
-	if(magic == Artifact)
+	// Артефакты и натуральные предметы не разрушаются вообще
+	if(magic == Artifact || is(Natural))
 		return;
 	if(iscountable())
 		return;

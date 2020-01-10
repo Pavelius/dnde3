@@ -926,6 +926,8 @@ void creature::attack(creature& enemy, const attacki& ai, int bonus, int danger)
 	auto dv = ai.dice.roll();
 	dv = dv * danger / 100;
 	enemy.damage(dv, ai.type, pierce);
+	if(d100() < 20)
+		enemy.damagewears(dv, ai.type, 1);
 }
 
 void creature::meleeattack(creature& enemy, int bonus) {
@@ -1689,4 +1691,15 @@ int creature::getlos() const {
 	if(b < 0 && !is(Darkvision))
 		v += b;
 	return imax(1, imin(7, v));
+}
+
+void creature::damagewears(int count, damage_s type, int item_count) {
+	itema items;
+	select(items, Head, Amunitions, true);
+	items.shuffle();
+	int maximum = items.getcount();
+	if(item_count > maximum)
+		item_count = maximum;
+	for(auto i = 0; i < maximum; i++)
+		items[i]->damage(count, type, true);
 }

@@ -476,7 +476,6 @@ public:
 	bool				ischargeable() const { return is(Chargeable); }
 	bool				iscountable() const { return is(Countable); }
 	bool				isdamaged() const { return getdamage() > 0; }
-	bool				isunbreakable() const { return magic != Mundane; }
 	void				loot();
 	bool				ismatch(variant v) const;
 	void				repair(int level);
@@ -646,7 +645,7 @@ public:
 	void				clear();
 	void				consume(int energy_value);
 	void				damage(int count, damage_s type, int pierce = 0, bool interactive = true);
-	void				damagewears(int count, damage_s type);
+	void				damagewears(int count, damage_s type, int item_count = 1);
 	void				dispell(bool interactive);
 	void				dispell(variant source, bool interactive);
 	void				dressoff();
