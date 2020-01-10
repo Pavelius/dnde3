@@ -481,9 +481,10 @@ public:
 class itema : public adat<item*> {
 public:
 	item*				chooses(const char* interactive, const char* title, const char* format, slot_mode_s mode);
-	item*				choose(const char* interactive, const char* title, const char* format, slot_mode_s mode, bool show_always = false);
+	item*				choose(const char* interactive, const char* title, const char* format, slot_mode_s mode, bool show_always = false, bool cancel = true);
 	void				footer(stringbuilder& sb) const;
 	void				match(variant v, bool remove);
+	void				match(item& v, bool remove);
 	void				matcha(creature& player, variant id, int v);
 	void				matchboost(variant v);
 	void				select(creature& e);

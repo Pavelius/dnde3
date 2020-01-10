@@ -65,7 +65,7 @@ void targeti::use(creature& player, creaturea& source, creaturea& creatures, ite
 				iswap(creatures[0], creatures[i]);
 			}
 		} else if(type == Item) {
-			auto p = items.choose(fail_targets, interactive, 0, NoSlotName);
+			auto p = items.choose(fail_targets, interactive, 0, NoSlotName, false, false);
 			if(p) {
 				auto i = items.indexof(p);
 				iswap(items[0], items[i]);

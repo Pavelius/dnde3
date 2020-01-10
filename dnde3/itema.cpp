@@ -55,6 +55,21 @@ void itema::match(variant v, bool remove) {
 	count = ps - data;
 }
 
+void itema::match(item& v, bool remove) {
+	auto ps = data;
+	for(auto p : *this) {
+		if(remove) {
+			if(p==&v)
+				continue;
+		} else {
+			if(p!=&v)
+				continue;
+		}
+		*ps++ = p;
+	}
+	count = ps - data;
+}
+
 static const char* addweight(stringbuilder& sb, int v) {
 	sb.clear();
 	sb.add("%1i.%2i", v / 100, (v / 10) % 10);

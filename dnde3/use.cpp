@@ -128,27 +128,28 @@ bool item::apply(creature& player, variant id, int v, int order, bool run) {
 	case Spell:
 		switch(id.value) {
 		case BlessItem:
-			if(!is(KnownMagic) || !is(Mundane))
+			if(!is(Mundane) || is(Readable))
 				return false;
 			if(run) {
-				act("%герой заискрил%ась многими желтыми огоньками.");
 				set(Blessed);
+				set(KnownMagic);
+				act("%герой заискрил%ась многими желтыми огоньками.");
 			}
 			break;
 		case DetectMagic:
 			if(is(KnownMagic) || !is(Blessed))
 				return false;
 			if(run) {
-				act("%герой засветил%ась синим светом.");
 				set(KnownMagic);
+				act("%герой засветил%ась синим светом.");
 			}
 			break;
 		case DetectEvil:
 			if(is(KnownMagic) || !is(Cursed))
 				return false;
 			if(run) {
-				act("%герой засветил%ась [-красным] светом.");
 				set(KnownPower);
+				act("%герой засветил%ась [-красным] светом.");
 			}
 			break;
 		case Identify:

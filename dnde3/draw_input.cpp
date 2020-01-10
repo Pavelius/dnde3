@@ -1369,7 +1369,7 @@ skill_s skillu::choose(bool interactive, const char* title, bool* cancel_result)
 	return (skill_s)v;
 }
 
-item* itema::choose(const char* interactive, const char* title, const char* format, slot_mode_s mode, bool show_always) {
+item* itema::choose(const char* interactive, const char* title, const char* format, slot_mode_s mode, bool show_always, bool cancel) {
 	if(!count) {
 		if(interactive) {
 			if(!show_always) {
@@ -1390,7 +1390,8 @@ item* itema::choose(const char* interactive, const char* title, const char* form
 		auto x2 = x + width;
 		if(format)
 			y += textf(x, y, width, format);
-		button(x1, y1, "Отмена", KeyEscape, breakparam, 0);
+		if(cancel)
+			button(x1, y1, "Отмена", KeyEscape, breakparam, 0);
 		if(count > 0) {
 			auto index = 0;
 			for(auto e : *this) {
