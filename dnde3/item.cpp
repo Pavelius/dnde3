@@ -51,7 +51,7 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, NoGender, Organic, {0, 3, {1, 
 {"Длинный лук", 500, 60 * GP, Male, Wood, {-10, 3, {1, 8}, Piercing, 1, 0, Arrow}, {}, {}, {}, Ranged, FocusBows},
 {"Короткий лук", 300, 30 * GP, Male, Wood, {-6, 3, {1, 6}, Piercing, 1, 0, Arrow}, {}, {}, {}, Ranged, FocusBows},
 {"Дарт", 30, 1 * SP, Male, Wood, {-4, 3, {1, 3}, Piercing, 3}, {}, {}, {}, Ranged},
-{"Праща", 50, 1 * SP, Female, Leather, {-6, 3, {1, 4}, Bludgeon, 0, Rock}, {}, {}, {}, Ranged},
+{"Праща", 50, 1 * SP, Female, Leather, {-6, 3, {1, 4}, Bludgeon, 0, 0, Rock}, {}, {}, {}, Ranged},
 //
 {"Камни", 20, 0, NoGender, Stone, {}, {}, {}, {Countable}, Amunitions},
 {"Стрелы", 3, 2 * CP, NoGender, Wood, {}, {}, {}, {Countable}, Amunitions},
@@ -179,6 +179,8 @@ void item::create(item_s item_type, int chance_artifact, int chance_magic, int c
 	}
 	if(ischargeable())
 		charge = xrand(3, 18) + quality * 3;
+	if(iscountable())
+		setcount(xrand(10, 20));
 }
 
 creature* item::getwearer() const {
@@ -472,4 +474,43 @@ void item::actv(stringbuilder& st, const char* format, const char* format_param)
 	sb.addsep(' ');
 	sb.addv(format, format_param);
 	st = sb;
+}
+
+bool item::stack(item& v) {
+	if(!iscountable() || us[0] != v.us[0])
+		return false;
+	int c1 = us[1];
+	int c2 = v.us[1];
+	auto result = false;
+	auto p1 = getwearer();
+	auto p2 = v.getwearer();
+	if(p1 == p2)
+		p2 = 0;
+	if(p1)
+		p1->dressoff();
+	if(p2)
+		p2->dressoff();
+	c1 += c2 + 1;
+	if(c1 <= 0xFFFF) {
+		us[1] = c1;
+		v.clear();
+		result = true;
+	} else {
+		us[1] = 0xFFFF;
+		v.us[1] = c1 - 0xFFFF - 1;
+	}
+	if(p2)
+		p2->dresson();
+	if(p1)
+		p1->dresson();
+	return result;
+}
+
+void item::destroy() {
+	auto p = getwearer();
+	if(p)
+		p->dressoff();
+	clear();
+	if(p)
+		p->dresson();
 }

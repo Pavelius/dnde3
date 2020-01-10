@@ -114,6 +114,15 @@ static void test_analize() {
 	auto p1 = create_indoor();
 }
 
+static void test_stack(creature* p1) {
+	item i1(Arrow, 1);
+	item i2 = i1;
+	i1.setcount(40000);
+	i2.setcount(40000);
+	p1->add(i1, true, false);
+	p1->add(i2, true, false);
+}
+
 static void test_dungeon() {
 	loc.clear();
 	loc.level = 5;
@@ -132,6 +141,7 @@ static void test_dungeon() {
 	create(p1, Wand1, FearSpell);
 	create(p3, BracersLeather);
 	create(p3, Wand1);
+	//test_stack(p2);
 	game.play();
 }
 

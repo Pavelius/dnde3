@@ -434,6 +434,7 @@ public:
 	void				create(item_s type, int chance_artifact, int chance_magic, int chance_cursed, int chance_quality);
 	bool				damageb();
 	void				damage();
+	void				destroy();
 	item_s				getammo() const { return getitem().weapon.ammunition; }
 	armori				getarmor() const;
 	attacki				getattack() const;
@@ -476,6 +477,7 @@ public:
 	void				setcount(int v);
 	void				seteffect(variant v);
 	void				setquality(int v);
+	bool				stack(item& v);
 	bool				use();
 	void				usecharge();
 };
@@ -600,7 +602,6 @@ class creature : public nameable {
 	void				dropitems();
 	void				equip(item it, slot_s id);
 	void				finish();
-	void				move(indext index, bool runaway);
 	void				movecost(indext index);
 	void				randomequip();
 	bool				remove(item& it, bool run, bool talk);
@@ -700,8 +701,8 @@ public:
 	void				meleeattack(creature& enemy, int bonus = 0);
 	void				minimap();
 	void				move(indext index);
-	void				moveaway(indext index) { move(index, true); }
-	void				moveto(indext index) { move(index, false); }
+	void				moveto(indext index);
+	void				moveaway(indext index);
 	bool				needrestore(ability_s id) const;
 	static void			pause();
 	void				paymana(int value, bool interactive);

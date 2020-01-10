@@ -65,7 +65,6 @@ void creature::add(variant id, int v, bool interactive) {
 		if(bsmeta<itemi>::elements[id.value].weapon.ammunition) {
 			// Free ammunitons for items
 			item it(bsmeta<itemi>::elements[id.value].weapon.ammunition, v);
-			it.setcount(xrand(10, 20));
 			equip(it);
 		}
 		break;
@@ -258,8 +257,11 @@ bool creature::add(item v, bool run, bool talk) {
 	}
 	// Second place item to backpack
 	for(auto i = Backpack; i <= LastBackpack; i = (slot_s)(i + 1)) {
-		if(wears[i])
+		if(wears[i]) {
+			if(wears[i].stack(v))
+				return true;
 			continue;
+		}
 		if(run)
 			equip(v, i);
 		return true;
@@ -282,8 +284,11 @@ bool creature::equip(item v) {
 	for(auto i = Head; i <= Amunitions; i = (slot_s)(i + 1)) {
 		if(!v.is(i))
 			continue;
-		if(wears[i])
+		if(wears[i]) {
+			if(wears[i].stack(v))
+				return true;
 			continue;
+		}
 		equip(v, i);
 		return true;
 	}
@@ -1229,7 +1234,7 @@ void creature::enslave() {
 	wait();
 }
 
-void creature::move(indext index, bool runaway) {
+void creature::moveto(indext index) {
 	auto pos = getposition();
 	if(index == pos)
 		return;
@@ -1238,13 +1243,20 @@ void creature::move(indext index, bool runaway) {
 		loc.blockwalls();
 		loc.blockcreatures();
 		loc.makewave(index);
-		if(runaway)
-			index = loc.stepfrom(pos);
-		else
-			index = loc.stepto(pos);
+		index = loc.stepto(pos);
 		if(index == Blocked)
 			return;
 	}
+	move(index);
+}
+
+void creature::moveaway(indext index) {
+	loc.clearblock();
+	loc.blockwalls();
+	loc.makewave(index);
+	index = loc.stepfrom(getposition());
+	if(index == Blocked)
+		return;
 	move(index);
 }
 
@@ -1641,7 +1653,7 @@ bool creature::cast(creaturea& source, spell_s id, int level, item* magic_source
 	if(!ei.target.prepare(*this, creatures, items, indecies, id, v))
 		return false;
 	if(magic_source) {
-		if(ei.target.type==Creature && ei.target.range!=You)
+		if(ei.target.type == Creature && ei.target.range != You)
 			act("%герой выставил%а %-1 перед собой.", magic_source->getname());
 		else if(magic_source->is(Readable))
 			act("%герой достал%а %-1 и громко прочитал%а.", magic_source->getname());
