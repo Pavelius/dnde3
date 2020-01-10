@@ -856,7 +856,21 @@ void creature::usetrap() {
 	} else {
 		loc.remove(i, Hidden);
 		act(ei.text_use);
-		add(ei.effect, ei.damage.roll(), true);
+		auto c = ei.damage.roll();
+		switch(ei.effect.type) {
+		case Role:
+			while(c-- > 0) {
+				auto p = loc.add(i, (role_s)ei.effect.value);
+				if(is(Hostile))
+					p->add(Hostile, -1, false);
+				else
+					p->add(Hostile, 1, false);
+			}
+			break;
+		default:
+			add(ei.effect, c, true);
+			break;
+		}
 	}
 }
 
@@ -1214,6 +1228,12 @@ void creature::damage(int value, damage_s type, int pierce, bool interactive) {
 				damagewears(value, type, count);
 		}
 		auto armor = get(Armor);
+		switch(type) {
+		case WaterAttack: value /= 3; break;
+		case Electricity: pierce += 2; break;
+		}
+		if(value < 0)
+			return;
 		if(armor > 0 && pierce > 0) {
 			if(pierce > armor)
 				armor = 0;

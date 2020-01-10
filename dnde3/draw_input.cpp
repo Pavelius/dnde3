@@ -1674,8 +1674,9 @@ void location::setcamera(short x, short y) {
 }
 
 static void change_player() {
-	auto n = hot.param;
-	auto pn = creature::getactive(n);
+	auto pn = creature::getactive(hot.param);
+	if(!pn)
+		return;
 	auto po = creature::getactive();
 	if(pn != po && pn) {
 		po->wait();
