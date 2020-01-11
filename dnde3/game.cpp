@@ -59,6 +59,10 @@ void gamei::applyboost() {
 	for(auto& e : bsmeta<boosti>()) {
 		if(e.time > rounds) {
 			*ps++ = e;
+			if(!e.id && e.source.type==Spell) {
+				auto player = bsmeta<creature>::elements + e.owner;
+				player->suffer((spell_s)e.source.value);
+			}
 			continue;
 		}
 		auto player = bsmeta<creature>::elements + e.owner;

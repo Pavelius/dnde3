@@ -106,7 +106,7 @@ enum skill_s : unsigned char {
 };
 enum state_s : unsigned char {
 	Anger, Darkvision, Dazzled, Drunken, Fear, Friendly, Hostile,
-	Invisible, Poisoned, Sick, Sleeped,
+	Invisible, Sick, Sleeped,
 	Unaware, Wounded,
 	LastState = Wounded,
 };
@@ -154,7 +154,7 @@ enum img_s : unsigned char {
 };
 enum spell_s : unsigned char {
 	ArmorSpell, BlessSpell, BlessItem, CharmPerson, DetectEvil, DetectMagic, FearSpell, HealingSpell,
-	Identify, Invisibility, LightSpell, MagicMissile,
+	Identify, Invisibility, LightSpell, MagicMissile, Poison,
 	Repair, RemovePoisonSpell, RemoveSickSpell,
 	ShieldSpell, ShokingGrasp, Sleep, SlowMonster,
 	FirstSpell = ArmorSpell, LastSpell = SlowMonster
@@ -167,7 +167,7 @@ enum item_type_s : unsigned char {
 };
 enum damage_s : unsigned char {
 	Bludgeon, Slashing, Piercing,
-	Acid, Cold, Electricity, Fire, Magic, Poison, WaterAttack
+	Acid, Cold, Electricity, Fire, Magic, WaterAttack
 };
 enum material_s : unsigned char {
 	Glass, Iron, Leather, Organic, Paper, Stone, Wood,
@@ -606,6 +606,7 @@ class creature : public nameable {
 	unsigned			experience;
 	unsigned			money;
 	//
+	void				add(spell_s id, unsigned minutes);
 	void				addx(variant id, variant source, int modifier, unsigned rounds);
 	bool				aiuse(const char* interactive, const char* title, slot_s slot, variant effect);
 	void				aimove();
@@ -751,6 +752,7 @@ public:
 	void				setguard(short unsigned value) { guard = value; }
 	void				setmoney(int value) { money = value; }
 	void				shoot();
+	void				suffer(spell_s id);
 	void				testweapons();
 	void				unlink();
 	bool				use(item& it, bool interactive);

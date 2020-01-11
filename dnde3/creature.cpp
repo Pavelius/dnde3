@@ -91,7 +91,12 @@ void creature::dispell(variant source, bool interactive) {
 	auto ps = bsmeta<boosti>::elements;
 	for(auto& e : bsmeta<boosti>()) {
 		if(e.owner == owner || e.source == source) {
-			add(e.id, e.modifier, interactive);
+			if(e.id)
+				add(e.id, e.modifier, interactive);
+			else {
+				if(interactive)
+					act("%герой почувствовал%а себя лучше.");
+			}
 			continue;
 		}
 		*ps++ = e;
@@ -1053,12 +1058,14 @@ void creature::aiturn(creaturea& creatures, creaturea& enemies, creature* enemy)
 
 void creature::makemove() {
 	const auto pc = StandartEnergyCost * 20;
-	if(restore_hits > pc) {
-		if(hp < get(LifePoints))
-			hp++;
-		restore_hits -= pc;
-	} else
-		restore_hits += get(LifeRate);
+	if(!is(Sick)) {
+		if(restore_hits > pc) {
+			if(hp < get(LifePoints))
+				hp++;
+			restore_hits -= pc;
+		} else
+			restore_hits += get(LifeRate);
+	}
 	if(restore_mana > pc) {
 		if(mp < get(ManaPoints))
 			mp++;
@@ -1204,6 +1211,8 @@ void creature::damage(int value, damage_s type, int pierce, bool interactive) {
 	}
 	if(value < 0) {
 		value = -value;
+		if(is(Sick))
+			value /= 3;
 		auto mhp = get(LifePoints);
 		if(hp + value > mhp)
 			value = mhp - hp;
@@ -1213,11 +1222,11 @@ void creature::damage(int value, damage_s type, int pierce, bool interactive) {
 			act("%герой восстановил%а [+%1i] повреждений.", value);
 		hp += value;
 	} else {
-		if(di.damage_wears != 0 && di.damage_chance!=0) {
+		if(di.damage_wears != 0 && di.damage_chance != 0) {
 			auto count = di.damage_wears;
 			if(count < 0)
 				count = value / -count;
-			if(d100()<di.damage_chance)
+			if(d100() < di.damage_chance)
 				damagewears(value, type, count);
 		}
 		auto armor = get(Armor);
@@ -1450,6 +1459,10 @@ bool creature::match(variant id) const {
 		break;
 	}
 	return true;
+}
+
+void creature::add(spell_s id, unsigned minutes) {
+	addx({}, id, 0, game.getrounds() + minutes);
 }
 
 void creature::add(variant id, variant source, int v, bool interactive, unsigned minutes) {

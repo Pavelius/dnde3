@@ -255,17 +255,25 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 			damage(-level, Magic, 0, true);
 		break;
 	case Invisibility:
-		if(isboost(Invisibility))
-			return false;
 		if(run) {
 			add(Invisible, 1, true);
-			add(Invisible, Invisibility, 0, true, level * 30);
+			add(id, level * 30);
 		}
 		break;
 	case LightSpell:
 		if(run) {
 			add(Visibility, id, 1, true, level * 60);
 			act("Около %героя появилась маленькая волшебная сфера света.");
+		}
+		break;
+	case Poison:
+		if(run) {
+			if(roll(ResistPoison)) {
+				act("%герой перенес%ла эффект яда без последствий.");
+				return false;
+			}
+			add(id, 20 * level);
+			act("%герой почувствовал%а отравление.");
 		}
 		break;
 	case ShieldSpell:
@@ -284,6 +292,17 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 		return apply(player, ei.bonus, level, order, run);
 	}
 	return true;
+}
+
+void creature::suffer(spell_s id) {
+	switch(id) {
+	case Poison:
+		if(roll(ResistPoison))
+			return;
+		damage(1, Magic, 100, false);
+		act("%герой страдает от яда.");
+		break;
+	}
 }
 
 bool creature::use(skill_s id, creature& player, int order, bool run) {
@@ -324,10 +343,10 @@ void creature::use(const foodi& fi, const item it, bool interactive) {
 	chance = fi.chance_poison + it.getdamage() * 15;
 	if(chance > 0) {
 		if(d100() < chance)
-			add(Poisoned, 1, interactive);
+			use(Poison, *this, 1, 0, true);
 	} else {
 		if(d100() < -chance)
-			add(Poisoned, -1, interactive);
+			dispell(Poison, true);
 	}
 }
 
