@@ -104,11 +104,11 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, 0, NoGender, Organic, {0, 3, {
 {"Жезл", 20, 160 * GP, 1, NoGender, Iron, {}, {}, wand_enchanments, {Chargeable}, Zapable},
 {"Жезл", 30, 180 * GP, 2, NoGender, Iron, {}, {}, wand_enchanments, {Chargeable}, Zapable},
 //
-{"Книга", 0, 0 * GP, -1, NoGender, Paper, {}, {}, mage_common_spells, {}, Readable},
-{"Книга", 0, 0 * GP, 0, NoGender, Paper, {}, {}, mage_common_spells, {}, Readable},
-{"Книга", 0, 0 * GP, 0, NoGender, Paper, {}, {}, mage_common_spells, {}, Readable},
-{"Мануал", 0, 0 * GP, 1, NoGender, Paper, {}, {}, mage_common_spells, {}, Readable},
-{"Том", 0, 0 * GP, 2, NoGender, Paper, {}, {}, mage_common_spells, {}, Readable},
+{"Книга", 0, 0 * GP, -1, NoGender, Paper, {}, {}, mage_common_spells, {Chargeable}, Readable},
+{"Книга", 0, 0 * GP, 0, NoGender, Paper, {}, {}, mage_common_spells, {Chargeable}, Readable},
+{"Книга", 0, 0 * GP, 0, NoGender, Paper, {}, {}, mage_common_spells, {Chargeable}, Readable},
+{"Мануал", 0, 0 * GP, 1, NoGender, Paper, {}, {}, mage_common_spells, {Chargeable}, Readable},
+{"Том", 0, 0 * GP, 2, NoGender, Paper, {}, {}, mage_common_spells, {Chargeable}, Readable},
 //
 {"Зелье", 15, 20 * GP, -1, NoGender, Glass, {}, {}, common_potions, {}, Drinkable},
 {"Зелье", 20, 30 * GP, 0, NoGender, Glass, {}, {}, common_potions, {}, Drinkable},
@@ -132,9 +132,9 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, 0, NoGender, Organic, {0, 3, {
 {"Серебрянные монеты", 0, 1 * SP, 0, NoGender, Iron, {}, {}, {}, {Coinable, Countable}},
 {"Золотые монеты", 0, 1 * GP, 1, NoGender, Iron, {}, {}, {}, {Coinable, Countable}},
 //
-{"Когти", 0, 0 * GP, 0, NoGender, Organic, {}, {}, {}, {Natural}, Melee},
-{"Кулаки", 0, 0 * GP, 0, NoGender, Organic, {}, {}, {}, {Natural}, Melee},
-{"Укус", 0, 0 * GP, 0, NoGender, Organic, {}, {}, {}, {Natural}, Melee},
+{"Когти", 0, 0 * GP, 0, NoGender, Organic, {-6, 3, {1, 6}, Slashing, 3, 1}, {}, {}, {Natural}, Melee},
+{"Кулаки", 0, 0 * GP, 0, NoGender, Organic, {0, 4, {1, 6}, Bludgeon, 0, 2}, {}, {}, {Natural}, Melee},
+{"Укус", 0, 0 * GP, 0, NoGender, Organic, {0, 2, {2, 5}, Slashing, 0, 1}, {}, {}, {Natural}, Melee},
 {"Хитин", 0, 0 * GP, 0, NoGender, Leather, {-10}, {30, 2, 40}, {}, {Natural}, Torso},
 {"Мех", 0, 0 * GP, 0, NoGender, Leather, {-3}, {20, 0, 20}, {}, {Natural}, Torso},
 //
@@ -142,6 +142,23 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, 0, NoGender, Organic, {0, 3, {
 };
 assert_enum(item, ManyItems);
 static_assert(sizeof(item) == sizeof(int), "Struct 'item' must be sizeof(int)");
+
+bool itemi::is(slot_s v) const {
+	switch(v) {
+	case Amunitions: return weapon.ammunition_compatible != 0;
+	case LeftFinger: return slot == RightFinger;
+	case OffHand: return slot == OffHand || (slot == Melee && flags.is(Light));
+	default: return slot == v;
+	}
+}
+
+bool itemi::is(const aref<slot_s>& source) const {
+	for(auto v : source) {
+		if(is(v))
+			return true;
+	}
+	return false;
+}
 
 item::item(item_s type, int level) {
 	auto chance_artifact = level / 3;
@@ -196,16 +213,6 @@ creature* item::getwearer() const {
 
 slot_s item::getwearerslot() const {
 	return getwearer()->getwearerslot(this);
-}
-
-bool item::is(slot_s v) const {
-	auto& ei = getitem();
-	switch(v) {
-	case Amunitions: return ei.weapon.ammunition_compatible != 0;
-	case LeftFinger: return ei.slot == RightFinger;
-	case OffHand: return ei.slot == OffHand || (ei.slot == Melee && ei.flags.is(Light));
-	default: return ei.slot == v;
-	}
 }
 
 const char* item::getdamagetext() const {
@@ -567,7 +574,8 @@ void item::damage(int count, damage_s type, bool interactive) {
 void item::breaktest() {
 	if(!(*this))
 		return;
-	if(d100() < 5)
+	auto r = d100();
+	if(r >= 5)
 		return;
-	damage(xrand(1, 6), Bludgeon, true);
+	damage(xrand(0, 5), Bludgeon, true);
 }

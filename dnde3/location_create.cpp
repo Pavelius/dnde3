@@ -88,12 +88,43 @@ static void create_item(indext index, item_s type, int level, bool forsale, iden
 			it.set(Sale100);
 		if(it.is(Artifact))
 			loc.artifacts++;
+		if(it.is(Blessed))
+			loc.magic_items++;
 	}
 	loc.drop(index, it);
 }
 
+static void create_item(indext index, const aref<slot_s>& slots) {
+	itemia source;
+	source.addx(slots);
+	create_item(index, source.random(), loc.level, false);
+}
+
+static void create_weapon(indext index) {
+	static slot_s slots[] = {Melee, Ranged, Amunitions};
+	create_item(index, slots);
+}
+
+static void create_armor(indext index) {
+	static slot_s slots[] = {Head, Torso, Legs, Elbows, OffHand};
+	create_item(index, slots);
+}
+
+static void create_books_and_scrolls(indext index) {
+	static slot_s slots[] = {Readable};
+	create_item(index, slots);
+}
+
+static void create_potions(indext index) {
+	static slot_s slots[] = {Drinkable};
+	create_item(index, slots);
+}
+
 static void create_dungeon_item(indext index) {
-	create_item(index, random(item_potion_scrolls), loc.level, false);
+	static gentileproc chances[] = {create_weapon, create_weapon, create_armor,
+		create_books_and_scrolls, create_potions,
+	};
+	maprnd(chances)(index);
 }
 
 static void create_trap(indext index) {

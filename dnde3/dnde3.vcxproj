@@ -134,6 +134,7 @@
     <ClCompile Include="equipment.cpp" />
     <ClCompile Include="food.cpp" />
     <ClCompile Include="indexa.cpp" />
+    <ClCompile Include="itemia.cpp" />
     <ClCompile Include="material.cpp" />
     <ClCompile Include="spella.cpp" />
     <ClCompile Include="target.cpp" />
@@ -184,6 +185,13 @@
     <ClInclude Include="rect.h" />
     <ClInclude Include="stringbuilder.h" />
     <ClInclude Include="win.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="images.xml">
+      <SubType>Designer</SubType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)xmlimg.exe "$(SolutionDir)dnde3\images.xml"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)art\font.pma</Outputs>
+    </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

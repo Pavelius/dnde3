@@ -1,0 +1,573 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<convert output="d:\projects\dnd3\art" input="d:\resources\adom\gfx\adom">
+  <library output="...\font">
+    <font input="Segoe UI" height="14"/>
+  </library>
+  <library output="...\h1">
+    <font input="Segoe UI" height="22"/>
+  </library>
+  <library output="...\h2">
+    <font input="Segoe UI" height="18"/>
+  </library>
+  <library output="...\h3">
+    <font input="Segoe UI" height="16"/>
+  </library>  
+  <library output="...\toolbar" count="32" ox ="12" oy="12" width="24" height="24">
+    <toolbar input="D:\resources\toolbars\toolbar"/>
+  </library>
+  <library output="...\grass" count="16">
+    <group input="...\maps\outdoor\floors">
+      <png input="...\grass_1"/>
+      <png input="...\grass_2"/>
+      <png input="...\grass_3"/>
+      <png input="...\grass_4"/>
+      <png input="...\floor"/>
+    </group>
+    <group input="...\maps\outdoor\decals" ox="32" oy="24">
+      <png input="...\grass_1"/>
+      <png input="...\grass_2"/>
+      <png input="...\grass_3"/>
+      <png input="...\grass_4"/>
+      <png input="...\grass_5"/>
+      <png input="...\grass_6"/>
+      <png input="...\grass_7"/>
+      <png input="...\grass_8"/>
+      <png input="...\grass_9"/>
+      <png input="...\char_g_1"/>
+      <png input="...\wall_g_1"/>
+    </group>
+  </library>
+  <library output="...\blood" count="18">
+    <group input="...\maps\dungeon\decals\blood">
+      <png input="...\b_s_1"/>
+      <png input="...\b_s_2"/>
+      <png input="...\b_s_3"/>
+      <png input="...\b_s_4"/>
+      <png input="...\b_s_5"/>
+      <png input="...\b_s_6"/>
+      <png input="...\b_m_1"/>
+      <png input="...\b_m_2"/>
+      <png input="...\b_m_3"/>
+      <png input="...\b_m_4"/>
+      <png input="...\b_m_5"/>
+      <png input="...\b_m_6"/>
+      <png input="...\b_l_1"/>
+      <png input="...\b_l_2"/>
+      <png input="...\b_l_3"/>
+      <png input="...\b_l_4"/>
+      <png input="...\b_l_5"/>
+      <png input="...\b_l_6"/>
+    </group>
+  </library>
+  <library output="...\shadow" input="...\maps\dungeon\shadows" count="8">
+    <png input="...\shadow_N"/>
+    <png input="...\shadow_W"/>
+    <png input="...\shadow_S"/>
+    <png input="...\shadow_E"/>
+    <png input="...\c_NE"/>
+    <png input="...\c_NW"/>
+    <png input="...\c_SE"/>
+    <png input="...\c_SW"/>
+  </library>
+  <library output="...\ui" count="2">
+    <group input="...\nterface\cursor">
+      <png input="...\look"/>
+      <png input="...\attack"/>
+    </group>
+  </library>
+  <library output="...\dungeon" count="4">
+    <group input="...\maps\dungeon\floors">
+      <png input="...\floor_1"/>
+      <png input="...\floor_2"/>
+      <png input="...\floor_3"/>
+      <png input="...\floor_4"/>
+    </group>
+  </library>
+  <library output="...\features" count="77">
+    <group input="...\maps\outdoor\features" ox="-1" oy="-32">
+      <png input="...\grave_1" oy="-18"/>
+      <png input="...\grave_2" oy="-18"/>
+      <png input="...\hill"/>
+      <png input="...\swamp"/>
+      <png input="...\tree"/>
+      <png input="...\tree_2"/>
+      <png input="...\tree_4"/>
+    </group>
+    <group input="...\maps\dungeon\features" ox="32" oy="-24">
+      <png input="...\air_c"/>
+      <png input="...\air_o"/>
+      <png input="...\altar_l"/>
+      <png input="...\altar_n"/>
+      <png input="...\altar_c"/>
+      <png input="...\bling_1"/>
+      <png input="...\bling_2"/>
+      <png input="...\bling_3"/>
+      <png input="...\bling_4"/>
+      <png input="...\bridge_1"/>
+      <png input="...\bridge_2"/>
+      <png input="...\cgate_c"/>
+      <png input="...\cgate"/>
+      <png input="...\earth_c"/>
+      <png input="...\earth_o"/>
+      <png input="...\fire_c"/>
+      <png input="...\fire_o"/>
+      <png input="...\forge"/>
+      <png input="...\hive"/>
+      <png input="...\hive_ant"/>
+      <png input="...\hole_c"/>
+      <png input="...\ice"/>
+      <png input="...\lever_c"/>
+      <png input="...\lever_o"/>
+      <png input="...\mana_c"/>
+      <png input="...\mana_o"/>
+      <png input="...\plant_1"/>
+      <png input="...\plant_2"/>
+      <png input="...\plant_3"/>
+      <png input="...\plant_4"/>
+      <png input="...\plant_5"/>
+      <png input="...\plant_6"/>
+      <png input="...\pool_0"/>
+      <png input="...\pool_1"/>
+      <png input="...\pool_2"/>
+      <png input="...\pool_3"/>
+      <png input="...\pool_4"/>
+      <png input="...\pool_5"/>
+      <png input="...\pool_6"/>
+      <png input="...\pool_7"/>
+      <png input="...\pool_8"/>
+      <png input="...\pool_9"/>
+      <png input="...\pool_10"/>
+      <png input="...\pool_11"/>
+      <png input="...\pool_12"/>
+      <png input="...\pool_13"/>
+      <png input="...\pool_14"/>
+      <png input="...\snow"/>
+      <png input="...\portal"/>
+      <png input="...\stairs_d"/>
+      <png input="...\stairs_u"/>
+      <png input="...\statue"/>
+      <png input="...\trap_a"/>
+      <png input="...\trap_ac"/>
+      <png input="...\trap_ar"/>
+      <png input="...\trap_c"/>
+      <png input="...\trap_ce"/>
+      <png input="...\trap_f"/>
+      <png input="...\trap_l"/>
+      <png input="...\trap_p"/>
+      <png input="...\trap_pc"/>
+      <png input="...\trap_s"/>
+      <png input="...\trap_st"/>
+      <png input="...\trap_t"/>
+      <png input="...\trap_w"/>
+      <png input="...\water_c"/>
+      <png input="...\water_o"/>
+      <png input="...\web_1"/>
+      <png input="...\web_2"/>
+      <png input="...\web_3"/>
+    </group>
+  </library>
+  <library output="...\grass_w" count="13">
+    <group input="...\maps\outdoor\walls">
+      <png input="...\empty"/>
+      <png input="...\wall_N"/>
+      <png input="...\wall_W"/>
+      <png input="...\wall_S"/>
+      <png input="...\wall_E"/>
+      <png input="...\c_out_NE"/>
+      <png input="...\c_out_NW"/>
+      <png input="...\c_out_SE"/>
+      <png input="...\c_out_SW"/>
+      <png input="...\c_in_NE"/>
+      <png input="...\c_in_NW"/>
+      <png input="...\c_in_SE"/>
+      <png input="...\c_in_SW"/>
+    </group>
+  </library>
+  <library output="...\dungeon_w" count="16">
+    <group input="...\maps\dungeon\walls">
+      <png input="...\empty"/>
+      <png input="...\wall_N_2"/>
+      <png input="...\wall_W"/>
+      <png input="...\wall_S"/>
+      <png input="...\wall_E"/>
+      <png input="...\c_out_NE"/>
+      <png input="...\c_out_NW"/>
+      <png input="...\c_out_SE"/>
+      <png input="...\c_out_SW"/>
+      <png input="...\c_in_NE"/>
+      <png input="...\c_in_NW"/>
+      <png input="...\c_in_SE"/>
+      <png input="...\c_in_SW"/>
+      <png input="...\wall_N_1"/>
+      <png input="...\wall_N_3"/>
+    </group>
+  </library>
+  <library output="...\water" count="20">
+    <group input="...\maps\outdoor\water">
+      <png input="...\water_0"/>
+      <png input="...\water_1"/>
+      <png input="...\water_2"/>
+      <png input="...\water_3"/>
+      <png input="...\water_4"/>
+      <png input="...\water_5"/>
+      <png input="...\water_6"/>
+      <png input="...\water_7"/>
+      <png input="...\water_8"/>
+      <png input="...\water_9"/>
+      <png input="...\water_10"/>
+      <png input="...\water_11"/>
+      <png input="...\water_12"/>
+      <png input="...\water_13"/>
+      <png input="...\water_14"/>
+      <png input="...\water_15"/>
+      <png input="...\c_NE"/>
+      <png input="...\c_NW"/>
+      <png input="...\c_SE"/>
+      <png input="...\c_SW"/>
+    </group>
+  </library>
+  <library output="...\road" count="20">
+    <group input="...\maps\outdoor\road">
+      <png input="...\road_0"/>
+      <png input="...\road_1"/>
+      <png input="...\road_2"/>
+      <png input="...\road_3"/>
+      <png input="...\road_4"/>
+      <png input="...\road_5"/>
+      <png input="...\road_6"/>
+      <png input="...\road_7"/>
+      <png input="...\road_8"/>
+      <png input="...\road_9"/>
+      <png input="...\road_10"/>
+      <png input="...\road_11"/>
+      <png input="...\road_12"/>
+      <png input="...\road_13"/>
+      <png input="...\road_14"/>
+      <png input="...\road_15"/>
+      <png input="...\c_NE"/>
+      <png input="...\c_NW"/>
+      <png input="...\c_SE"/>
+      <png input="...\c_SW"/>
+    </group>
+  </library>
+  <library output="...\items" input="...\items" count="128" ox="32" oy="24">
+    <png input="...\item-1"/>
+
+    <png input="...\item5"/>
+    <png input="...\item1"/>
+    <png input="...\item0"/>
+    <png input="...\item42"/>
+    <png input="...\item7"/>
+
+    <png input="...\item60"/>
+    <png input="...\item6"/>
+
+    <png input="...\item4"/>
+    <png input="...\item2"/>
+    <png input="...\item190"/>
+
+    <png input="...\item33"/>
+    <png input="...\item67"/>
+    <png input="...\item76"/>
+    <png input="...\item50"/>
+    <png input="...\item34"/>
+    <png input="...\item52"/>
+
+    <png input="...\item53"/>
+    <png input="...\item51"/>
+    <png input="...\item68"/>
+
+    <png input="...\item10"/>
+    <png input="...\item43"/>
+    <png input="...\item11"/>
+    <png input="...\item12"/>
+    <png input="...\item465"/>
+    <png input="...\item13"/>
+
+    <png input="...\item17"/>
+    <png input="...\item28"/>
+    <png input="...\item15"/>
+    <png input="...\item14"/>
+    
+    <png input="...\item38"/>
+    <png input="...\item39"/>
+    <png input="...\item75"/>
+    <png input="...\item314"/>
+    <png input="...\item331"/>
+    
+    <png input="...\item30"/>
+    <png input="...\item27"/>
+    <png input="...\item58"/>
+    <png input="...\item128"/>
+    <png input="...\item149"/>
+
+    <png input="...\item21"/>
+    <png input="...\item55"/>
+    <png input="...\item240"/>
+    <png input="...\item56"/>
+    <png input="...\item57"/>
+    <png input="...\item239"/>
+    <png input="...\item238"/>
+    <png input="...\item22"/>
+
+    <png input="...\item188"/>
+    <png input="...\item185"/>
+    <png input="...\item186"/>
+
+    <png input="...\item231"/>
+    <png input="...\item232"/>
+    <png input="...\item100"/>
+    <png input="...\item229"/>
+    <png input="...\item230"/>
+    
+    <png input="...\item88"/>
+    <png input="...\item200" ox="32" oy="50"/>
+    <png input="...\item514" ox="32" oy="50"/>
+    <png input="...\item680" ox="32" oy="50"/>
+    <png input="...\item649" ox="32" oy="50"/>
+
+    <png input="...\item244"/>
+    <png input="...\item482"/>
+    <png input="...\item49"/>
+    <png input="...\item63"/>
+    <png input="...\item64"/>
+    
+    <png input="...\item204"/>
+    <png input="...\item44"/>
+    <png input="...\item48"/>
+    
+    <png input="...\item166"/>
+    <png input="...\item167"/>
+    <png input="...\item168"/>
+    <png input="...\item170"/>
+    <png input="...\item174"/>
+    
+    <png input="...\item354"/>
+    <png input="...\items37"/>
+    <png input="...\items37"/>
+    <png input="...\items37"/>
+  </library>
+  <library output="...\doors" count="4" ox="32" oy="-2">
+    <png input="...\maps\dungeon\features\door_H_o"/>
+    <png input="...\maps\dungeon\features\door_H_c"/>
+    <png input="...\maps\dungeon\features\door_V_o" oy="56"/>
+    <png input="...\maps\dungeon\features\door_V_c" oy="56"/>
+  </library>
+  <library output="...\pcmbd" input="...\pc\modular\body" count="24" ox="41" oy="87">
+    <png input="...\human_mm.png"/>
+    <png input="...\human_mr.png"/>
+    <png input="...\human_mw.png"/>
+    <png input="...\human_fm.png"/>
+    <png input="...\human_fr.png"/>
+    <png input="...\human_fw.png"/>
+    <png input="...\dwarf_mm.png"/>
+    <png input="...\dwarf_mr.png"/>
+    <png input="...\dwarf_mw.png"/>
+    <png input="...\dwarf_fm.png"/>
+    <png input="...\dwarf_fr.png"/>
+    <png input="...\dwarf_fw.png"/>
+    <png input="...\gelf_mm.png"/>
+    <png input="...\gelf_mr.png"/>
+    <png input="...\gelf_mw.png"/>
+    <png input="...\gelf_fm.png"/>
+    <png input="...\gelf_fr.png"/>
+    <png input="...\gelf_fw.png"/>
+    <png input="...\hurth_mm.png"/>
+    <png input="...\hurth_mr.png"/>
+    <png input="...\hurth_mw.png"/>
+    <png input="...\hurth_fm.png"/>
+    <png input="...\hurth_fr.png"/>
+    <png input="...\hurth_fw.png"/>
+  </library>
+  <library output="...\pcmar" input="...\pc\modular\arms" count="64" ox="41" oy="87">
+    <png input="...\lhand_unarmed.png"/>
+    <png input="...\rhand_unarmed.png"/>
+    <png input="...\2H_left.png"/>
+    <png input="...\lhand_axe.png"/>
+    <png input="...\lhand_club.png"/>
+    <png input="...\lhand_dagger.png"/>
+    <png input="...\lhand_hammer.png"/>
+    <png input="...\lhand_mace.png"/>
+    <png input="...\lhand_spear.png"/>
+    <png input="...\2H_staff.png"/>
+    <png input="...\lhand_sword.png"/>
+    <png input="...\lhand_shortsword.png"/>
+    <png input="...\2H_sword.png"/>
+    <png input="...\rhand_axe.png"/>
+    <png input="...\rhand_club.png"/>
+    <png input="...\rhand_dagger.png"/>
+    <png input="...\rhand_hammer.png"/>
+    <png input="...\rhand_mace.png"/>
+    <png input="...\rhand_spear.png"/>
+    <png input="...\2H_staff.png"/>
+    <png input="...\rhand_sword.png"/>
+    <png input="...\rhand_shortsword.png"/>
+    <png input="...\2H_sword.png"/>
+    <png input="...\rhand_shield_medium.png"/>
+  </library>
+  <library output="...\pcmac" input="...\pc\modular\accessories" count="16" ox="41" oy="87">
+    <png input="...\longbow.png"/>
+    <png input="...\shortbow.png"/>
+    <png input="...\sling.png"/>
+    <png input="...\crossbow.png"/>
+    <png input="...\cloak.png"/>
+    <png input="...\cloak_small.png"/>
+  </library>
+  <library output="...\monsters" input="...\npc" count="64" ox="41" oy="-24">
+    <files input="...\0.png"/>
+    <files input="...\4.png"/>
+    <files input="...\1.png"/>
+    <files input="...\2.png"/>
+    <files input="...\3.png"/>
+    <files input="...\282.png"/>
+    <files input="...\57.png"/>
+    <files input="...\283.png"/>
+    <files input="...\284.png"/>
+    <files input="...\84.png"/>
+    <files input="...\95.png"/>
+    <files input="...\130.png"/>
+    <files input="...\8.png" ox="34"/>
+    <files input="...\16.png"/>
+    <files input="...\5.png"/>
+    <files input="...\14.png"/>
+    <files input="...\6.png"/>
+    <files input="...\7.png"/>
+    <files input="...\9.png"/>
+    <files input="...\10.png"/>
+    <files input="...\11.png"/>
+    <files input="...\12.png"/>
+    <files input="...\13.png"/>
+    <files input="...\15.png"/>
+  </library>
+  <library output="...\ammo" count="6">
+    <files input="...\missiles\*.png"/>
+  </library>
+  <library output="...\fog" input="...\maps\dungeon\fog" count="3">
+    <png input="...\corner"/>
+    <png input="...\horiz"/>
+    <png input="...\vert"/>
+  </library>
+  <library output="...\plain" count="4">
+    <group input="...\maps\world\plains">
+      <png input="...\grass_1"/>
+      <png input="...\grass_2"/>
+      <png input="...\grass_3"/>
+      <png input="...\grass_4"/>
+    </group>
+  </library>
+  <library output="...\sea" count="20">
+    <group input="...\maps\world\water">
+      <png input="...\water_0"/>
+      <png input="...\water_1"/>
+      <png input="...\water_2"/>
+      <png input="...\water_3"/>
+      <png input="...\water_4"/>
+      <png input="...\water_5"/>
+      <png input="...\water_6"/>
+      <png input="...\water_7"/>
+      <png input="...\water_8"/>
+      <png input="...\water_9"/>
+      <png input="...\water_10"/>
+      <png input="...\water_11"/>
+      <png input="...\water_12"/>
+      <png input="...\water_13"/>
+      <png input="...\water_14"/>
+      <png input="...\water_15"/>
+      <png input="...\c_SE"/>
+      <png input="...\c_SW"/>
+      <png input="...\c_NW"/>
+      <png input="...\c_NE"/>
+    </group>
+  </library>
+  <library output="...\mount" count="16">
+    <group input="...\maps\world\mount">
+      <png input="...\mount_0"/>
+      <png input="...\mount_1"/>
+      <png input="...\mount_2"/>
+      <png input="...\mount_3"/>
+      <png input="...\mount_4"/>
+      <png input="...\mount_5"/>
+      <png input="...\mount_6"/>
+      <png input="...\mount_7"/>
+      <png input="...\mount_8"/>
+      <png input="...\mount_9"/>
+      <png input="...\mount_10"/>
+      <png input="...\mount_11"/>
+      <png input="...\mount_12"/>
+      <png input="...\mount_13"/>
+      <png input="...\mount_14"/>
+      <png input="...\mount_15"/>
+    </group>
+  </library>
+  <library output="...\tmount" count="16">
+    <group input="...\maps\world\tmount">
+      <png input="...\tmount_0"/>
+      <png input="...\tmount_1"/>
+      <png input="...\tmount_2"/>
+      <png input="...\tmount_3"/>
+      <png input="...\tmount_4"/>
+      <png input="...\tmount_5"/>
+      <png input="...\tmount_6"/>
+      <png input="...\tmount_7"/>
+      <png input="...\tmount_8"/>
+      <png input="...\tmount_9"/>
+      <png input="...\tmount_10"/>
+      <png input="...\tmount_11"/>
+      <png input="...\tmount_12"/>
+      <png input="...\tmount_13"/>
+      <png input="...\tmount_14"/>
+      <png input="...\tmount_15"/>
+    </group>
+  </library>
+  <library output="...\hills" count="16">
+    <group input="...\maps\world\hills">
+      <png input="...\hills_0"/>
+      <png input="...\hills_1"/>
+      <png input="...\hills_2"/>
+      <png input="...\hills_3"/>
+      <png input="...\hills_4"/>
+      <png input="...\hills_5"/>
+      <png input="...\hills_6"/>
+      <png input="...\hills_7"/>
+      <png input="...\hills_8"/>
+      <png input="...\hills_9"/>
+      <png input="...\hills_10"/>
+      <png input="...\hills_11"/>
+      <png input="...\hills_12"/>
+      <png input="...\hills_13"/>
+      <png input="...\hills_14"/>
+      <png input="...\hills_15"/>
+    </group>
+  </library>
+  <library output="...\decals" count="64">
+    <group input="...\maps\world\decals">
+      <png input="...\forrest_1"/>
+      <png input="...\forrest_2"/>
+      <png input="...\forrest_3"/>
+      <png input="...\swamp_1"/>
+      <png input="...\swamp_2"/>
+      <png input="...\swamp_3"/>
+      <png input="...\clearing"/>
+      <png input="...\grave"/>
+      <png input="...\town"/>
+      <png input="...\terinyo"/>
+      <png input="...\hmv"/>
+      <png input="...\ruins"/>
+      <png input="...\pyramid"/>
+      <png input="...\bugtemple"/>
+      <png input="...\glade"/>
+      <png input="...\circle"/>
+      <png input="...\unicorn"/>
+      <png input="...\volcano"/>
+      <png input="...\dungeon"/>
+      <png input="...\dungeon2"/>
+      <png input="...\dungeon3"/>
+      <png input="...\tunnel"/>
+      <png input="...\water_c"/>
+      <png input="...\rift"/>
+      <png input="...\qtree"/>
+      <png input="...\toef"/>
+      <png input="...\dc_enter"/>
+    </group>
+  </library>
+</convert>

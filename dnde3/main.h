@@ -79,7 +79,7 @@ enum role_s : unsigned char {
 	KobolWarrior, KoboldShaman,
 	LargeDog, Lynx, GiantFrog,
 	AntWorker, AntWarrior, AntQueen,
-	GnollWarrior,
+	GnollWarrior, GoblinRockthrowerWarrior,
 	Character
 };
 enum alignment_s : unsigned char {
@@ -417,6 +417,9 @@ struct itemi {
 	cflags<item_flag_s>	flags;
 	slot_s				slot;
 	skill_s				skill;
+	//
+	bool				is(slot_s v) const;
+	bool				is(const aref<slot_s>& source) const;
 };
 class item {
 	union {
@@ -475,7 +478,7 @@ public:
 	slot_s				getwearerslot() const;
 	int					getweightsingle() const { return getitem().weight; }
 	int					getweight() const { return getweightsingle()*getcount(); }
-	bool				is(slot_s v) const;
+	bool				is(slot_s v) const { return getitem().is(v); }
 	bool				is(identify_s v) const { return v ? identify >= v : (identify == Unknown); }
 	bool				is(item_flag_s v) const { return getitem().flags.is(v); }
 	bool				is(item_type_s v) const { return magic == v; }
@@ -508,6 +511,13 @@ public:
 	void				select(indext index);
 	void				selecta(creature& e);
 	void				selectb(creature& e);
+};
+class itemia : public adat<item_s, ManyItems + 1> {
+public:
+	void				addx(const aref<slot_s>& source);
+	void				match(slot_s v, bool remove);
+	item_s				random() const;
+	void				select();
 };
 class skilla :public adat<skill_s, 64> {
 public:
@@ -579,6 +589,7 @@ struct rolei {
 	char				level;
 	varianta			features;
 	role_s				minions[4];
+	int					getcr() const;
 };
 struct foodi {
 	item_s				type;
@@ -756,7 +767,7 @@ public:
 	void				suffer(spell_s id);
 	void				testweapons();
 	void				unlink();
-	bool				use(item& it, bool interactive);
+	bool				use(item& it);
 	bool				use(creaturea& source, skill_s id);
 	bool				use(creaturea& creatures, spell_s id, int level, item* magic_source);
 	void				readsomething();
@@ -883,6 +894,7 @@ struct manual {
 };
 struct statistici {
 	short				artifacts;
+	short				magic_items;
 	short				level;
 	indext				positions[4];
 };
@@ -947,7 +959,6 @@ public:
 	bool				isfreenc(indext i) const;
 	bool				isfreenw(indext i) const;
 	bool				ismatch(indext index, const rect& rectanle) const;
-	//bool				ismatch(indext index, const aref<variant>& v) const;
 	bool				ismatch(indext index, variant v) const;
 	void				lake(int x, int y, int w, int h);
 	void				makewave(indext index);

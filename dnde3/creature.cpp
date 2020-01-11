@@ -1583,7 +1583,7 @@ bool creature::aiuse(const char* interactive, const char* title, slot_s slot, va
 		source.matchboost(effect);
 	auto pi = source.choose(interactive, title, 0, NoSlotName);
 	if(pi)
-		return use(*pi, interactive);
+		return use(*pi);
 	return false;
 }
 

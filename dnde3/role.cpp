@@ -1,14 +1,14 @@
 #include "main.h"
 
-rolei bsmeta<rolei>::elements[] = {{"Гоблин-воин", Goblin, Male, Chaotic, Monster, 0, {SwordShort}},
-{"Гоблин-метатель", Goblin, Male, Chaotic, Monster, 0, {Rock}},
+rolei bsmeta<rolei>::elements[] = {{"Гоблин", Goblin, Male, Chaotic, Monster, 0, {SwordShort}},
+{"Гоблин", Goblin, Male, Chaotic, Monster, 0, {Rock, LeatherArmor}},
 {"Орк", Orc, Male, Chaotic, Monster, 1, {SwordLong, StuddedLeatherArmor}},
 {"Летучая мышь", Animal, Female, Chaotic, Monster, 0, {Bite, Dexterity}},
 {"Крыса", Animal, Female, Chaotic, Monster, 0, {Bite, Dexterity}},
 {"Крестьянин", Human, Male, Neutral, Commoner, 1},
-{"Охранник", Human, Male, Neutral, Fighter, 1, {Spear}},
+{"Охранник", Human, Male, Neutral, Fighter, 2, {Spear, SplintMail, Helmet}},
 {"Ребенок", Human, Male, Neutral, Commoner},
-{"Крестьянка", Human, Male, Neutral, Commoner, 1},
+{"Крестьянка", Human, Male, Neutral, Commoner},
 {"Владелец магазина", Human, Male, Neutral, Commoner, 1, {Bargaining}},
 {"Кузнец", Dwarf, Male, Neutral, Commoner, 1, {HammerWar}},
 {"Бартендер", Dwarf, Male, Neutral, Commoner, 1, },
@@ -16,13 +16,14 @@ rolei bsmeta<rolei>::elements[] = {{"Гоблин-воин", Goblin, Male, Chaotic, Monste
 {"Зомби", Undead, Male, Chaotic, Monster, 2, {Dagger, Strenght}},
 {"Кобольд", Kobold, Male, Chaotic, Monster, 0, {BowShort, Dagger}},
 {"Кобольд-шаман", Kobold, Male, Chaotic, Mage, 3, {Staff, Wand1, MagicMissile}},
-{"Собака", Animal, Female, Neutral, Monster, 2, {Bite, Dexterity}},
-{"Рысь", Animal, Female, Chaotic, Monster, 4, {Bite, Fur, Dexterity, Strenght, Constitution}},
+{"Собака", Animal, Female, Neutral, Monster, 1, {Bite, Dexterity}},
+{"Рысь", Animal, Female, Chaotic, Monster, 3, {Bite, Fur, Dexterity, Strenght, Constitution}},
 {"Лягушка", Animal, Female, Neutral, Monster, 1, {Bite, Dexterity}},
 {"Муравей", Insect, Male, Chaotic, Monster, 0, {Bite, Hitin}},
 {"Муравей-воин", Insect, Male, Chaotic, Monster, 1, {Bite, Hitin, Strenght}},
 {"Матка муравьев", Insect, Female, Chaotic, Monster, 5, {Bite, Hitin, Strenght, Strenght, Constitution}, {AntWorker, AntWorker, AntWarrior, AntWarrior}},
 {"Гнолл", Gnoll, Male, Chaotic, Monster, 2, {AxeBattle, Fur}},
+{"Гоблин", Goblin, Male, Chaotic, Monster, 1, {Strenght, Rock, StuddedLeatherArmor}},
 {"Персонаж", Human, Male, Neutral, Commoner},
 };
 assert_enum(role, Character);
@@ -40,10 +41,21 @@ void creature::create(role_s type) {
 		add(v, 4, false);
 	for(auto i = 1; i < abilities[Level]; i++) {
 		if(ci.hp)
-			abilities[LifePoints] += xrand(ci.hp/2, ci.hp);
+			abilities[LifePoints] += xrand(ci.hp / 2, ci.hp);
 		if(ci.mp)
-			abilities[ManaPoints] += xrand(ci.mp/2, ci.mp);
+			abilities[ManaPoints] += xrand(ci.mp / 2, ci.mp);
 		raiseskills();
 	}
 	finish();
+}
+
+int	rolei::getcr() const {
+	auto b = 0;
+	for(auto v : features) {
+		if(v.type == Ability)
+			b += bsmeta<abilityi>::elements[v.value].cost;
+		else
+			b++;
+	}
+	return level + b / 3;
 }

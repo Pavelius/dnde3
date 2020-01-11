@@ -60,7 +60,7 @@ static void test_answers() {
 static void modify_weapon(creature* p1) {
 	item* pi = (item*)&p1->get(Melee);
 	pi->seteffect(Attack);
-	pi->decoy(Bludgeon, true);
+	//pi->decoy(Bludgeon, true);
 	//pi->set(Cursed);
 	//pi->setquality(3);
 	//pi->setidentify(1);
@@ -125,7 +125,7 @@ static void test_stack(creature* p1) {
 
 static void test_dungeon() {
 	loc.clear();
-	loc.level = 5;
+	loc.level = 1;
 	loc.create(false, false);
 	loc.setdungeon(true);
 	loc.setlight(-2);
@@ -134,7 +134,6 @@ static void test_dungeon() {
 	auto p3 = create(Human, Male, Fighter);
 	p1->activate();
 	create(p1, Potion1);
-	create(p1, Potion1, Dexterity);
 	create(p1, Boot1);
 	create(p1, Helmet);
 	create(p1, RingRed);
@@ -144,7 +143,6 @@ static void test_dungeon() {
 	create(p3, BracersLeather);
 	create(p3, Wand1);
 	modify_weapon(p1);
-	//test_stack(p2);
 	game.play();
 }
 

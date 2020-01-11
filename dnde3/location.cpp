@@ -730,8 +730,23 @@ creature* location::adventurer(indext index) {
 }
 
 creature* location::monster(indext index) {
-	static char indecies[] = {0, 0, 0, 0, 1, 1, 1, 2, 2, 3, 4, 5};
-	return add(index, monsters[maprnd(indecies)]);
+	adat<role_s> monsters;
+	auto cr = level/2;
+	auto n1 = imax(0, cr - 1);
+	auto n2 = cr + 1;
+	for(auto i = GoblinWarrior; i < Character; i = (role_s)(i + 1)) {
+		auto& ei = bsmeta<rolei>::elements[i];
+		if(ei.type == Commoner)
+			continue;
+		auto n = ei.getcr();
+		if(n<n1 || n > n2)
+			continue;
+		monsters.add(i);
+	}
+	auto r = GoblinWarrior;
+	if(monsters)
+		r = monsters[rand() % monsters.getcount()];
+	return add(index, r);
 }
 
 bool location::ismatch(indext index, variant v) const {

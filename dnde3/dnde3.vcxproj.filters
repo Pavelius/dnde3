@@ -172,6 +172,9 @@
     <ClCompile Include="description.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="itemia.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="answer.h">
@@ -224,5 +227,13 @@
     <Filter Include="Логика">
       <UniqueIdentifier>{bbdb4b2b-5110-4700-b1a8-f11c5cfe41a6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Ресурсы">
+      <UniqueIdentifier>{1bfeae82-abd0-45c0-ae19-5a399996e8aa}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="images.xml">
+      <Filter>Ресурсы</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>

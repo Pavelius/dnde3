@@ -26,31 +26,31 @@ bool item::isboost(variant id) const {
 	return false;
 }
 
-bool creature::use(item& it, bool interactive) {
+bool creature::use(item& it) {
 	variant effect;
-	bool consume = true;
+	const char* current_string;
 	switch(it.getitem().slot) {
 	case Edible:
 		act("%герой съел%а %-1.", it.getname());
 		for(auto& e : bsmeta<foodi>()) {
 			if(!e.match(this, it))
 				continue;
-			use(e, it, interactive);
+			use(e, it, true);
 			break;
 		}
+		it.use();
 		break;
 	case Drinkable:
 		act("%герой выпил%а %-1.", it.getname());
 		effect = it.geteffect();
+		current_string = sb.get();
 		if(effect.type == Ability)
 			potion((ability_s)effect.value, it.getkind(), true, it.getmagic(), it.getquality(), 120);
-		else {
-			if(interactive)
-				act("Ничего не произошло.");
-		}
+		if(current_string == sb.get())
+			act("Ничего не произошло.");
+		it.use();
 		break;
 	case Zapable:
-		consume = false;
 		if(true) {
 			auto v = it.geteffect();
 			if(v.type == Spell) {
@@ -61,13 +61,11 @@ bool creature::use(item& it, bool interactive) {
 					else
 						act("%герой вытащил%а %-1 и махнул%а несколько раз. Ничего не произошло.", it.getname());
 				} else
-					consume = true;
+					it.destroy(Magic, true);
 			}
 		}
 		break;
 	}
-	if(consume)
-		it.destroy(Magic, interactive);
 	wait();
 	return true;
 }
