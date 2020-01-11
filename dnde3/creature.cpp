@@ -27,6 +27,11 @@ short unsigned creature::getid() const {
 	return this - bsmeta<creature>::elements;
 }
 
+void creature::feel(ability_s id, bool raise) {
+	auto& ei = bsmeta<abilityi>::elements[id];
+	act("%герой почувстовал%а себя %1.", raise ? ei.name_how : ei.curse_how);
+}
+
 void creature::add(variant id, int v, bool interactive) {
 	switch(id.type) {
 	case Ability:
@@ -35,8 +40,7 @@ void creature::add(variant id, int v, bool interactive) {
 			abilities[id.value] += v;
 			dresson();
 			if(interactive)
-				act("%герой почувстовал%а себя %1.",
-				(v > 0) ? bsmeta<abilityi>::elements[id.value].name_how : bsmeta<abilityi>::elements[id.value].curse_how);
+				feel((ability_s)id.value, v > 0);
 		}
 		break;
 	case State:
@@ -95,7 +99,7 @@ void creature::dispell(variant source, bool interactive) {
 				add(e.id, e.modifier, interactive);
 			else {
 				if(interactive)
-					act("%герой почувствовал%а себя лучше.");
+					feel(LifePoints, true);
 			}
 			continue;
 		}

@@ -156,7 +156,7 @@ enum spell_s : unsigned char {
 	ArmorSpell, BlessSpell, BlessItem, CharmPerson, DetectEvil, DetectMagic, FearSpell, HealingSpell,
 	Identify, Invisibility, LightSpell, MagicMissile, Poison,
 	Repair, RemovePoisonSpell, RemoveSickSpell,
-	ShieldSpell, ShokingGrasp, Sleep, SlowMonster,
+	SickSpell, ShieldSpell, ShokingGrasp, Sleep, SlowMonster,
 	FirstSpell = ArmorSpell, LastSpell = SlowMonster
 };
 enum map_flag_s : unsigned char {
@@ -674,6 +674,7 @@ public:
 	bool				equip(item& v1, item& v2, bool run);
 	void				enslave();
 	void				fail(skill_s id);
+	void				feel(ability_s id, bool raise);
 	static creature*	find(indext i);
 	boosti*				find(variant id) const;
 	boosti*				finds(variant id) const;

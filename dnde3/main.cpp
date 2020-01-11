@@ -140,7 +140,7 @@ static void test_dungeon() {
 	create(p1, RingRed);
 	create(p1, RingBlue);
 	create(p1, Scroll1, BlessItem);
-	create(p1, Wand1, Invisibility);
+	create(p1, Wand1, SickSpell);
 	create(p3, BracersLeather);
 	create(p3, Wand1);
 	modify_weapon(p1);

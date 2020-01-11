@@ -276,6 +276,15 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 			act("%герой почувствовал%а отравление.");
 		}
 		break;
+	case SickSpell:
+		if(run) {
+			if(roll(ResistPoison, 10 - level*5)) {
+				act("%герой противостоял%а болезни.");
+				return false;
+			}
+			add(Sick, 1, true);
+		}
+		break;
 	case ShieldSpell:
 		if(run) {
 			add(Protection, id, 20 * level, false, 20);
