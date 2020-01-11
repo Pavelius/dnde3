@@ -283,6 +283,11 @@ struct boosti {
 	char				modifier;
 	unsigned			time;
 };
+struct leveli {
+	class_s				type;
+	char				level;
+	casev<variant>		features[16];
+};
 struct classi {
 	struct weaponi {
 		char			base;
@@ -628,6 +633,7 @@ class creature : public nameable {
 	unsigned			experience;
 	unsigned			money;
 	//
+	void				add(skill_s id, int v, bool interactive);
 	void				add(spell_s id, unsigned minutes);
 	void				add(ability_s id, variant source, int v, bool interactive, unsigned minutes);
 	bool				aiuse(const char* interactive, const char* title, slot_s slot, variant effect);

@@ -134,6 +134,7 @@ static void test_dungeon() {
 	auto p3 = create(Human, Male, Fighter);
 	p1->activate();
 	create(p1, Potion3, Level);
+	create(p1, Potion3, Level);
 	create(p1, Amulet1, Lockpicking);
 	create(p1, Boot1);
 	create(p1, Helmet);

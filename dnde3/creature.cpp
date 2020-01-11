@@ -68,6 +68,7 @@ void creature::add(variant id, int v, bool interactive) {
 	case Ability: add((ability_s)id.value, v, interactive); break;
 	case Spell: add((spell_s)id.value, v, interactive); break;
 	case State: add((state_s)id.value, v, interactive); break;
+	case Skill: add((skill_s)id.value, v, interactive); break;
 	case Item:
 		equip(item(item_s(id.value), v));
 		if(bsmeta<itemi>::elements[id.value].weapon.ammunition) {
@@ -420,6 +421,13 @@ void creature::raiseability() {
 		if(ei.mp)
 			abilities[ManaPoints] += xrand(ei.mp / 2, ei.mp);
 		abilities[Attack] += ei.weapon.multiplier;
+		// Add level features
+		for(auto& pi : bsmeta<leveli>()) {
+			if(pi.type == kind && pi.level == abilities[Level]) {
+				for(auto& e : pi.features)
+					add(e.id, e.value, true);
+			}
+		}
 		break;
 	}
 }
@@ -1046,6 +1054,15 @@ void creature::add(spell_s id, int v, bool interactive) {
 	}
 }
 
+void creature::add(skill_s id, int v, bool interactive) {
+	if(v > 0) {
+		skills[id] += v;
+		if(interactive)
+			act("%герой повысил%а навык [%+1] до [+%2i%%].", getstr(id), get(id));
+	} else if(v < 0) {
+	}
+}
+
 bool creature::aispells(creaturea& creatures) {
 	spella source;
 	source.select(*this);
@@ -1352,7 +1369,10 @@ unsigned creature::getlevelup() const {
 void creature::raiselevel() {
 	dressoff();
 	abilities[Level] += 1;
+	auto start_log = sb.get();
 	raiseability();
+	if(sb.get() > start_log)
+		pause();
 	raiseskills();
 	dresson();
 }
@@ -1362,8 +1382,8 @@ void creature::addexp(int v, bool interactive) {
 	if(v > 0) {
 		experience += v;
 		if(interactive)
-				act("%герой получил%а [+%1i] опыта.", v);
-			while(experience >= getlevelup()) {
+			act("%герой получил%а [+%1i] опыта.", v);
+		while(experience >= getlevelup()) {
 			if(is(Friendly)) {
 				activate();
 				act("Мои поздравления, %герой получил%а новый уровень опыта.");
