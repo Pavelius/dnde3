@@ -55,11 +55,11 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, 0, NoGender, Organic, {0, 3, {
 {"Длинный лук", 500, 60 * GP, 0, Male, Wood, {-10, 3, {1, 8}, Piercing, 1, 0, Arrow}, {}, {}, {}, Ranged, FocusBows},
 {"Короткий лук", 300, 30 * GP, 0, Male, Wood, {-6, 3, {1, 6}, Piercing, 1, 0, Arrow}, {}, {}, {}, Ranged, FocusBows},
 {"Дарт", 30, 1 * SP, 0, Male, Wood, {-4, 3, {1, 3}, Piercing, 3}, {}, {}, {}, Ranged},
-{"Праща", 50, 1 * SP, 0, Female, Leather, {-6, 3, {1, 4}, Bludgeon, 0, 0, Rock}, {}, {}, {}, Ranged},
+{"Праща", 50, 1 * SP, 0, Female, Leather, {-6, 3, {2, 4}, Bludgeon, 0, 0, Rock}, {}, {}, {}, Ranged},
 //
-{"Камни", 20, 0, 0, NoGender, Stone, {}, {}, {}, {Countable}, Amunitions},
-{"Стрелы", 3, 2 * CP, 0, NoGender, Wood, {}, {}, {}, {Countable}, Amunitions},
-{"Болты", 2, 1 * CP, 0, NoGender, Iron, {}, {}, {}, {Countable}, Amunitions},
+{"Камень", 15, 0, 0, Male, Stone, {0, 0, {1, 3}, Bludgeon, 0, 0, NoItem, Rock}, {}, {}, {Countable}, Ranged},
+{"Стрела", 3, 2 * CP, 0, Female, Wood, {0, 0, {}, Piercing, 0, 0, NoItem, Arrow}, {}, {}, {Countable}, Amunitions},
+{"Болт", 2, 1 * CP, 0, Male, Iron, {0, 0, {}, Piercing, 0, 0, NoItem, Bolt}, {}, {}, {Countable}, Amunitions},
 //
 {"Кожанная броня", 1000, 5 * GP, 0, Female, Leather, {-5}, {10, 1, 15}, {}, {}, Torso},
 {"Клепанная броня", 1500, 15 * GP, 0, Female, Leather, {-7}, {15, 1, 15}, {}, {}, Torso},
@@ -158,16 +158,16 @@ void item::create(item_s item_type, int chance_artifact, int chance_magic, int c
 	type = item_type;
 	auto& ei = getitem();
 	magic = Mundane;
-	if(chance_magic) {
+	if(chance_magic > 0 && (d100() < chance_magic)) {
 		if(d100() < chance_cursed)
 			magic = Cursed;
-		else if(d100() < chance_magic)
-			magic = Blessed;
 		else if(d100() < chance_artifact)
 			magic = Artifact;
+		else
+			magic = Blessed;
 	}
 	quality = 0;
-	if(chance_quality && (d100() < chance_quality)) {
+	if(chance_quality > 0 && (d100() < chance_quality)) {
 		static char quality_chances[] = {1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3};
 		quality = maprnd(quality_chances);
 	}
@@ -182,7 +182,7 @@ void item::create(item_s item_type, int chance_artifact, int chance_magic, int c
 		}
 	}
 	if(ischargeable())
-		charge = xrand(3, 18) + quality * 3;
+		charge = xrand(2, 12) + quality * 3;
 	if(iscountable())
 		setcount(xrand(10, 20));
 }
@@ -201,6 +201,7 @@ slot_s item::getwearerslot() const {
 bool item::is(slot_s v) const {
 	auto& ei = getitem();
 	switch(v) {
+	case Amunitions: return ei.weapon.ammunition_compatible != 0;
 	case LeftFinger: return ei.slot == RightFinger;
 	case OffHand: return ei.slot == OffHand || (ei.slot == Melee && ei.flags.is(Light));
 	default: return ei.slot == v;
@@ -300,28 +301,19 @@ void item::setcount(int count) {
 		p->dresson();
 }
 
-bool item::use() {
-	auto c = getcount();
-	setcount(getcount() - 1);
-	return c > 1;
-}
-
-void item::usecharge() {
-	if(!charge || !ischargeable())
-		return;
-	if(charge == 1) {
-		if(d100() < chance_turn_chargeable_to_dust) {
-			auto p = getwearer();
-			if(p) {
-				p->act("%1 рассыпался в прах.", getname());
-				p->dressoff();
-			}
-			clear();
-			if(p)
-				p->dresson();
-		}
+void item::use() {
+	if(iscountable()) {
+		if(us[1])
+			us[1]--;
+		else
+			destroy(Magic, false);
+	} else if(ischargeable()) {
+		if(charge)
+			charge--;
+		else
+			destroy(Magic, true);
 	} else
-		charge--;
+		destroy(Magic, false);
 }
 
 bool item::ismatch(variant v) const {
@@ -516,10 +508,24 @@ bool item::stack(item& v) {
 	return result;
 }
 
-void item::destroy() {
+void item::destroy(damage_s type, bool interactive) {
 	auto p = getwearer();
 	if(p)
 		p->dressoff();
+	if(interactive) {
+		auto& ei = bsmeta<itemi>::elements[getkind()];
+		static descriptioni text[] = {
+			{Glass, Fire, "%герой расплавил%ась и взорвалась."},
+			{Glass, {}, "%герой разбил%ась вдребезги."},
+			{Wood, Fire, "%герой сгорел%а до тла."},
+			{Paper, Fire, "%герой моментально превратил%ась в пепел."},
+			{Paper, Magic, "%герой превратил%ась в пыль и рассыпал%ась."},
+			{{}, Fire, "%герой расплавил%ась."},
+			{{}, Cold, "%герой замерз%ла и разлетел%ась на куски."},
+			{{}, {}, "%герой уничтожен%а."}
+		};
+		act(text->get(ei.material, type));
+	}
 	clear();
 	if(p)
 		p->dresson();
@@ -531,28 +537,13 @@ void item::decoy(damage_s type, bool interactive, bool include_artifact) {
 	if(iscountable())
 		return;
 	if(!include_artifact) {
-		if((magic==Blessed && damaged == 3) || magic==Artifact)
+		if((magic == Blessed && damaged == 3) || magic == Artifact)
 			return;
 	}
-	auto& ei = bsmeta<itemi>::elements[getkind()];
 	if(damaged < 3)
 		damaged++;
-	else {
-		if(interactive) {
-			static descriptioni text[] = {
-				{Glass, Fire, "%герой расплавил%ась и взорвалась."},
-				{Glass, {}, "%герой разбил%ась вдребезги."},
-				{Wood, Fire, "%герой сгорел%а до тла."},
-				{Paper, Fire, "%герой моментально превратил%ась в пепел."},
-				{Paper, Magic, "%герой превратил%ась в пыль и рассыпал%ась."},
-				{{}, Fire, "%герой расплавил%ась."},
-				{{}, Cold, "%герой замерз%ла и разлетел%ась на куски."},
-				{{}, {}, "%герой уничтожен%а."}
-			};
-			act(text->get(ei.material, type));
-		}
-		destroy();
-	}
+	else
+		destroy(type, interactive);
 }
 
 void item::damage(int count, damage_s type, bool interactive) {
@@ -571,4 +562,12 @@ void item::damage(int count, damage_s type, bool interactive) {
 	if(roll_result < chance_resist)
 		return;
 	decoy(type, interactive);
+}
+
+void item::breaktest() {
+	if(!(*this))
+		return;
+	if(d100() < 5)
+		return;
+	damage(xrand(1, 6), Bludgeon, true);
 }

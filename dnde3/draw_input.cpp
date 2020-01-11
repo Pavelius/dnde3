@@ -718,7 +718,7 @@ static void render_info(const creature& e) {
 	//case HeavilyEncumbered: x += texth(x, y, "Нагружен", 1); break;
 	//}
 	// Draw status
-	for(auto i = Anger; i <= LastState; i = (state_s)(i + 1)) {
+	for(auto i = Darkvision; i <= LastState; i = (state_s)(i + 1)) {
 		if(!e.is(i))
 			continue;
 		auto& ei = bsmeta<statei>::elements[i];

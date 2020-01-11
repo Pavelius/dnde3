@@ -105,7 +105,7 @@ enum skill_s : unsigned char {
 	FirstSkill = Bargaining, LastSkill = TwoWeaponFighting,
 };
 enum state_s : unsigned char {
-	Anger, Darkvision, Dazzled, Drunken, Fear, Friendly, Hostile,
+	Darkvision, Dazzled, Drunken, Fear, Friendly, Hostile,
 	Invisible, Sick,
 	Unaware, Wounded,
 	LastState = Wounded,
@@ -338,7 +338,6 @@ struct picture : point {
 	void				setcursor(indext i, int size);
 };
 struct statei {
-	const char*			id;
 	const char*			name;
 	const char*			nameof;
 	statea				flags;
@@ -372,6 +371,7 @@ struct attacki {
 	char				speed;
 	char				damage_bonus;
 	item_s				ammunition;
+	item_s				ammunition_compatible;
 	int					getenergy() const { return StandartEnergyCost - speed * 50; }
 };
 struct materiali {
@@ -443,13 +443,13 @@ public:
 	explicit operator bool() const { return type != NoItem; }
 	void				act(const char* format, ...) const;
 	void				actv(stringbuilder& st, const char* format, const char* format_param) const;
-	void				add(variant id, int v, bool interactive);
 	bool				apply(creature& player, variant id, int v, int order, bool run);
 	void				clear() { memset(this, 0, sizeof(*this)); }
 	void				create(item_s type, int chance_artifact, int chance_magic, int chance_cursed, int chance_quality);
+	void				breaktest();
 	void				damage(int count, damage_s type, bool interactive);
 	void				decoy(damage_s type, bool interactive, bool include_artifact = false);
-	void				destroy();
+	void				destroy(damage_s type, bool interactive);
 	item_s				getammo() const { return getitem().weapon.ammunition; }
 	armori				getarmor() const;
 	attacki				getattack() const;
@@ -484,7 +484,6 @@ public:
 	bool				isdamaged() const { return getdamage() > 0; }
 	void				loot();
 	bool				ismatch(variant v) const;
-	void				repair(int level);
 	void				set(item_type_s v);
 	void				set(identify_s v);
 	void				set(sale_s v) { sale = v; }
@@ -493,8 +492,7 @@ public:
 	void				seteffect(variant v);
 	void				setquality(int v);
 	bool				stack(item& v);
-	bool				use();
-	void				usecharge();
+	void				use();
 };
 class itema : public adat<item*> {
 public:
@@ -638,6 +636,8 @@ public:
 	explicit operator bool() const { return hp > 0; }
 	//
 	void				activate();
+	void				add(ability_s id, int v, bool interactive);
+	void				add(state_s id, int v, bool interactive);
 	void				add(variant id, int v, bool interactive);
 	void				add(variant id, variant source, int v, bool interactive, unsigned minutes);
 	bool				add(item v, bool run, bool interactive);
@@ -649,7 +649,7 @@ public:
 	int					calculate(const variant* formule) const;
 	bool				canhear(short unsigned index) const;
 	bool				cansee(indext i) const;
-	bool				canshoot(bool talk) const;
+	bool				canshoot() const;
 	bool				cast(spell_s id, int level, item* magic_source = 0);
 	bool				cast(creaturea& creatures, spell_s id, int level, item* magic_source = 0);
 	void				chat(creature* opponent);

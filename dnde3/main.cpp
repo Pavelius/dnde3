@@ -128,7 +128,7 @@ static void test_dungeon() {
 	loc.level = 5;
 	loc.create(false, false);
 	loc.setdungeon(true);
-	//loc.setlight(-3);
+	loc.setlight(-2);
 	auto p1 = create(Human, Male, Theif);
 	auto p2 = create(Dwarf, Male, Cleric);
 	auto p3 = create(Human, Male, Fighter);

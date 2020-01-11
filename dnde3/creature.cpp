@@ -32,36 +32,42 @@ void creature::feel(ability_s id, bool raise) {
 	act("%герой почувстовал%а себя %1.", raise ? ei.name_how : ei.curse_how);
 }
 
+void creature::add(ability_s id, int v, bool interactive) {
+	if(!v)
+		return;
+	dressoff();
+	abilities[id] += v;
+	dresson();
+	if(interactive)
+		feel(id, v > 0);
+}
+
+void creature::add(state_s id, int v, bool interactive) {
+	if(!v)
+		return;
+	if(v > 0) {
+		if(states.is(id))
+			return;
+		dressoff();
+		states.set(id);
+		dresson();
+		if(interactive)
+			act(bsmeta<statei>::elements[id].text_set);
+	} else {
+		if(!states.is(id))
+			return;
+		dressoff();
+		states.remove(id);
+		dresson();
+		if(interactive)
+			act(bsmeta<statei>::elements[id].text_remove);
+	}
+}
+
 void creature::add(variant id, int v, bool interactive) {
 	switch(id.type) {
-	case Ability:
-		if(v != 0) {
-			dressoff();
-			abilities[id.value] += v;
-			dresson();
-			if(interactive)
-				feel((ability_s)id.value, v > 0);
-		}
-		break;
-	case State:
-		if(v > 0) {
-			if(states.is(id.value))
-				return;
-			dressoff();
-			states.set(id.value);
-			dresson();
-			if(interactive)
-				act(bsmeta<statei>::elements[id.value].text_set);
-		} else {
-			if(!states.is(id.value))
-				return;
-			dressoff();
-			states.remove(id.value);
-			dresson();
-			if(interactive)
-				act(bsmeta<statei>::elements[id.value].text_remove);
-		}
-		break;
+	case Ability: add((ability_s)id.value, v, interactive); break;
+	case State: add((state_s)id.value, v, interactive); break;
 	case Item:
 		equip(item(item_s(id.value), v));
 		if(bsmeta<itemi>::elements[id.value].weapon.ammunition) {
@@ -97,7 +103,7 @@ void creature::dispell(variant source, bool interactive) {
 		if(e.owner == owner || e.source == source) {
 			if(e.id)
 				add(e.id, e.modifier, interactive);
-			else if(source.type==Spell) {
+			else if(source.type == Spell) {
 				if(interactive) {
 					switch(source.value) {
 					case Sleep:
@@ -951,12 +957,10 @@ void creature::attack(creature& enemy, const attacki& ai, int bonus, int danger)
 void creature::meleeattack(creature& enemy, int bonus) {
 	auto am = getattack(Melee, wears[Melee]);
 	attack(enemy, am, bonus, 100);
-	if(wears[Melee] && (d100() < 5))
-		wears[Melee].damage(0, Bludgeon, true);
+	wears[Melee].breaktest();
 	if(wears[OffHand] && wears[OffHand].is(Light)) {
 		attack(enemy, getattack(OffHand), bonus, 100);
-		if(wears[OffHand] && (d100() < 5))
-			wears[OffHand].damage(0, Bludgeon, true);
+		wears[OffHand].breaktest();
 	}
 	consume(am.getenergy());
 }
@@ -1016,8 +1020,7 @@ void creature::aiturn(creaturea& creatures, creaturea& enemies, creature* enemy)
 			return;
 		}
 		// Пытаемся стрелять если есть такая возможность
-		if(loc.getrange(enemy->getposition(), getposition()) > 1
-			&& canshoot(false)) {
+		if(loc.getrange(enemy->getposition(), getposition()) > 1 && canshoot()) {
 			rangeattack(*enemy);
 			return;
 		}
@@ -1349,9 +1352,10 @@ bool creature::cansee(indext i) const {
 	return loc.cansee(getposition(), i);
 }
 
-bool creature::canshoot(bool talk) const {
+bool creature::canshoot() const {
+	auto interactive = isactive();
 	if(!wears[Ranged]) {
-		if(talk) {
+		if(interactive) {
 			static const char* text[] = {
 				"Мне надо дистанционное оружие.",
 				"Чем стрелять?",
@@ -1363,7 +1367,7 @@ bool creature::canshoot(bool talk) const {
 	auto am = wears[Ranged].getammo();
 	if(am) {
 		if(!wears[Amunitions]) {
-			if(talk) {
+			if(interactive) {
 				static const char* text[] = {
 					"Нет боеприпасов.",
 					"Закончились %-1.",
@@ -1373,7 +1377,7 @@ bool creature::canshoot(bool talk) const {
 			return false;
 		}
 		if(wears[Amunitions].getkind() != am) {
-			if(talk) {
+			if(interactive) {
 				static const char* text[] = {
 					"Не подходят боеприпасы. Надо %-1.",
 					"Для стрельбы необходимы %-1, а я пытаюсь использовать %-2.",
@@ -1387,7 +1391,7 @@ bool creature::canshoot(bool talk) const {
 }
 
 void creature::shoot() {
-	if(!canshoot(true))
+	if(!canshoot())
 		return;
 	creaturea enemies;
 	enemies.select(getposition(), getlos());
@@ -1419,6 +1423,9 @@ void creature::rangeattack(creature& enemy, int bonus) {
 	attack(enemy, ai, 0, 100);
 	if(wears[Ranged].getammo())
 		wears[Amunitions].use();
+	else if(wears[Ranged].iscountable())
+		wears[Ranged].use();
+	wears[Melee].breaktest();
 	consume(ai.getenergy());
 }
 
@@ -1603,9 +1610,7 @@ void creature::fail(skill_s id) {
 	} else if(ei.is(Dexterity) && d100() < chance_fail) {
 		act("%герой испытал%а мышечный спазм.");
 		damage(1, Bludgeon, 100, false);
-	} else if(!is(Anger) && d100() < chance_fail)
-		add(Anger, 1, true);
-	else if(d100() < chance_fail) {
+	} else if(d100() < chance_fail) {
 		if(isactive())
 			act("Вы убили кучу времени, но все было тщетно.");
 		wait(xrand(2, 4));

@@ -60,16 +60,14 @@ bool creature::use(item& it, bool interactive) {
 						it.set(KnownPower);
 					else
 						act("%герой вытащил%а %-1 и махнул%а несколько раз. Ничего не произошло.", it.getname());
-				} else {
-					it.act("%герой превратил%ась в пыль и рассыпал%ась.");
+				} else
 					consume = true;
-				}
 			}
 		}
 		break;
 	}
 	if(consume)
-		it.destroy();
+		it.destroy(Magic, interactive);
 	wait();
 	return true;
 }
@@ -595,7 +593,7 @@ bool creature::cast(creaturea& source, spell_s id, int level, item* magic_source
 	ei.target.use(*this, source, creatures, items, indecies, id, v);
 	if(magic_source) {
 		if(magic_source->ischargeable())
-			magic_source->usecharge();
+			magic_source->use();
 	} else
 		paymana(ei.mp, false);
 	return true;

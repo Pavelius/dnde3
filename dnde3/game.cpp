@@ -49,9 +49,8 @@ bool gamei::checkalive() {
 }
 
 void gamei::play() {
-	while(checkalive()) {
+	while(checkalive())
 		playactive();
-	}
 }
 
 void gamei::applyboost() {
