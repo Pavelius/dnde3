@@ -712,11 +712,11 @@ static void render_info(const creature& e) {
 	y += fiela(x, y, 52, "ПБ", e.get(Deflect), e.getboost(Deflect), "%1i%%");
 	x = x1;
 	y = y1 + draw::texth() * 2;
-	// Draw encumbrance
-	switch(e.getencumbrance()) {
-	case Encumbered: x += texth(x, y, "Нагружен", 0); break;
-	case HeavilyEncumbered: x += texth(x, y, "Нагружен", 1); break;
-	}
+	//// Draw encumbrance
+	//switch(e.getencumbrance()) {
+	//case Encumbered: x += texth(x, y, "Нагружен", 0); break;
+	//case HeavilyEncumbered: x += texth(x, y, "Нагружен", 1); break;
+	//}
 	// Draw status
 	for(auto i = Anger; i <= LastState; i = (state_s)(i + 1)) {
 		if(!e.is(i))
@@ -1674,10 +1674,10 @@ void location::setcamera(short x, short y) {
 }
 
 static void change_player() {
+	auto po = creature::getactive();
 	auto pn = creature::getactive(hot.param);
 	if(!pn)
 		return;
-	auto po = creature::getactive();
 	if(pn != po && pn) {
 		po->wait();
 		pn->activate();

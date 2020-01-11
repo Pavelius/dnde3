@@ -407,7 +407,7 @@ struct itemi {
 	const char*			name;
 	int					weight;
 	int					cost;
-	int					quality_bonus;
+	int					quality;
 	gender_s			gender;
 	material_s			material;
 	attacki				weapon;
@@ -435,6 +435,8 @@ class item {
 		short unsigned	us[2];
 		int				i;
 	};
+	bool				use(skill_s id, creature& player, int order, bool run);
+	bool				use(spell_s id, creature& player, int level, int order, bool run);
 public:
 	item() = default;
 	item(item_s type, int level);
@@ -579,6 +581,16 @@ struct rolei {
 	varianta			features;
 	role_s				minions[4];
 };
+struct foodi {
+	item_s				type;
+	variant				condition;
+	char				hp, mp, chance;
+	variant				effect;
+	char				chance_poison;
+	char				chance_sick;
+	//
+	bool				match(const creature* player, const item it) const;
+};
 class creature : public nameable {
 	char				abilities[ManaRate + 1];
 	unsigned char		skills[LastSkill + 1];
@@ -587,9 +599,7 @@ class creature : public nameable {
 	int					restore_energy, restore_hits, restore_mana;
 	char				hp, mp;
 	statea				states;
-	short unsigned		charmer;
 	short unsigned		location_id, site_id;
-	encumbrance_s		encumbrance;
 	class_s				kind;
 	indext				guard;
 	direction_s			direction;
@@ -618,6 +628,9 @@ class creature : public nameable {
 	void				movecost(indext index);
 	void				randomequip();
 	bool				remove(item& it, bool run, bool talk);
+	bool				use(skill_s id, creature& player, int order, bool run);
+	bool				use(spell_s id, creature& player, int level, int order, bool run);
+	void				use(const foodi& ei, const item it, bool interactive);
 	void				usestealth();
 	void				usetrap();
 public:
@@ -626,7 +639,6 @@ public:
 	void				activate();
 	void				add(variant id, int v, bool interactive);
 	void				add(variant id, variant source, int v, bool interactive, unsigned minutes);
-	void				add(variant id, variant source, int v, bool interactive, item_type_s magic, int quality, int damage, int minutes);
 	bool				add(item v, bool run, bool interactive);
 	void				addexp(int count);
 	bool				alertness();
@@ -677,7 +689,6 @@ public:
 	int					getboost(variant id) const;
 	const classi&		getclass() const { return bsmeta<classi>::elements[kind]; }
 	direction_s			getdirection() const { return direction; }
-	encumbrance_s		getencumbrance() const { return encumbrance; }
 	int					getexperience() const { return experience; }
 	void				getfullname(stringbuilder& sb) const;
 	short unsigned		getguard() const { return guard; }
@@ -699,7 +710,6 @@ public:
 	void				inventory();
 	bool				is(class_s v) const { return kind == v; }
 	bool				is(state_s v) const { return states.is(v); }
-	bool				is(encumbrance_s value) const { return encumbrance == value; }
 	bool				is(const creature* p) const { return this == p; }
 	bool				isactive() const { return getactive() == this; }
 	bool				isallow(item_s v) const;
@@ -722,6 +732,7 @@ public:
 	void				paymana(int value, bool interactive);
 	void				playui();
 	void				pickup();
+	void				potion(ability_s id, variant source, bool interactive, item_type_s magic, int quality, int minutes);
 	void				raise(skill_s value);
 	void				raiseskills(int number);
 	void				raiseskills() { raiseskills(get(Intellegence) / 2); }
@@ -737,7 +748,6 @@ public:
 	void				select(skilla& e) const;
 	void				set(ability_s id, int v);
 	void				set(skill_s id, int v);
-	void				setcharmer(const creature* p) { charmer = p->getid(); }
 	void				setguard(short unsigned value) { guard = value; }
 	void				setmoney(int value) { money = value; }
 	void				shoot();
@@ -745,7 +755,6 @@ public:
 	void				unlink();
 	bool				use(item& it, bool interactive);
 	bool				use(creaturea& source, skill_s id);
-	static bool			usechance(int chance, bool hostile, item_type_s magic, int quality, int damaged);
 	void				readsomething();
 	void				useskills();
 	void				usespells();
@@ -792,14 +801,6 @@ struct targeti {
 	bool				prepare(creature& player, creaturea& creatures, itema& items, indexa& indecies, variant id, int v) const;
 	bool				use(creature& player, creaturea& source, variant id, int v) const;
 	void				use(creature& player, creaturea& source, creaturea& creatures, itema& items, indexa& indecies, variant id, int v) const;
-};
-struct foodi {
-	item_s				type;
-	variant				condition;
-	chancev				chances;
-	//
-	void				apply(creature* player, const item it, bool interactive) const;
-	bool				match(const creature* player, const item it) const;
 };
 struct skilli {
 	struct weaponi {

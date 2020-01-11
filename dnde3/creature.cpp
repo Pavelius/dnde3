@@ -13,10 +13,8 @@ static creature*	current_player;
 
 void creature::clear() {
 	memset(this, 0, sizeof(*this));
-	charmer = Blocked;
 	guard = Blocked;
-	location_id = Blocked;
-	site_id = Blocked;
+	site_id = location_id = Blocked;
 }
 
 creature* creature::getactive() {
@@ -135,15 +133,11 @@ void creature::dispell(bool interactive) {
 
 void creature::unlink() {
 	auto id = getid();
-	for(auto& e : bsmeta<creature>()) {
-		if(!e)
-			continue;
-		if(e.charmer == id)
-			e.charmer = Blocked;
-	}
 	if(current_player == this)
 		current_player = 0;
 	dispell(false);
+	setposition(Blocked);
+	guard = Blocked;
 }
 
 void creature::dressoff() {
@@ -498,10 +492,8 @@ void creature::activate() {
 creature* creature::getactive(int n) {
 	creaturea creatures;
 	creatures.select(Friendly);
-	if(!creatures)
+	if(!creatures || n >= creatures.getcount())
 		return 0;
-	if(n > creatures.getcount())
-		n = creatures.getcount();
 	return creatures[n];
 }
 
@@ -1189,10 +1181,11 @@ void creature::kill() {
 	if(d100() < chance_blood_when_dead)
 		bloodstain();
 	applyaward();
-	unlink();
 	dressoff();
 	dropitems();
-	clear();
+	unlink();
+	setposition(Blocked);
+	guard = Blocked;
 }
 
 void creature::damage(int value, damage_s type, int pierce, bool interactive) {
@@ -1318,8 +1311,6 @@ bool creature::isallow(item_s v) const {
 }
 
 creature* creature::getleader() const {
-	if(charmer != Blocked)
-		return getobject(charmer);
 	if(is(Friendly)) {
 		auto pa = getactive();
 		if(pa != this)
@@ -1507,103 +1498,6 @@ void creature::paymana(int value, bool interactive) {
 		mp -= value;
 		if(interactive)
 			act("%герой потерял%а %1i маны.", value);
-	}
-}
-
-bool creature::usechance(int chance, bool hostile, item_type_s magic, int quality, int damaged) {
-	if(!chance)
-		return true;
-	auto m = 1;
-	if(chance > 2)
-		m = chance / 2;
-	switch(magic) {
-	case Cursed: quality = -(1 + quality); break;
-	case Blessed: quality += 1; break;
-	case Artifact: quality += 2; break;
-	}
-	if(hostile)
-		chance += m*damaged - quality;
-	else
-		chance += m*quality - damaged;
-	if(chance < 0)
-		return false;
-	if(chance > 100)
-		chance = 100;
-	return d100() < chance;
-}
-
-void creature::add(variant id, variant source, int v, bool interactive, item_type_s magic, int quality, int damaged, int minutes) {
-	switch(id.type) {
-	case Ability:
-		switch(id.value) {
-		case LifePoints: case ManaPoints:
-			if(v >= 0) {
-				if(!v)
-					v = xrand(2, 8);
-				switch(magic) {
-				case Artifact: add(id, (1 + quality) * 3, interactive); break;
-				case Cursed: add(id, -(1 + quality), interactive); break;
-				case Blessed:
-					if(id.value == LifePoints)
-						damage(-5 * (v + quality + damaged), Magic, 0, interactive);
-					else
-						paymana(-5 * (v + quality + damaged), interactive);
-					break;
-				default:
-					if(id.value == LifePoints)
-						damage(-(v + quality + damaged), Magic, 0, interactive);
-					else
-						paymana(-(v + quality + damaged), interactive);
-					break;
-				}
-			} else {
-				v = -v;
-				switch(magic) {
-				case Blessed: case Artifact: break;
-				case Cursed: damage(5 * (v + quality * v), Magic, 0, interactive); break;
-				default: damage(v + quality * v, Magic, 0, interactive); break;
-				}
-			}
-			break;
-		case Attack: case Protection: case Deflect:
-			if(v >= 0) {
-				switch(magic) {
-				case Artifact: add(id, (1 + quality) * 2, interactive); break;
-				case Cursed: add(id, source, -v, interactive, 5 * (minutes + minutes*quality)); break;
-				case Blessed: add(id, source, v, interactive, 5 * (minutes + minutes*quality)); break;
-				default: add(id, source, v, interactive, minutes + minutes*quality); break;
-				}
-				break;
-			} else {
-				switch(magic) {
-				case Blessed: case Artifact: break;
-				case Cursed: add(id, source, v, interactive, 5 * (minutes + minutes*quality)); break;
-				default: add(id, source, v, interactive, minutes + minutes*quality); break;
-				}
-				break;
-			}
-			break;
-		default:
-			if(v >= 0) {
-				switch(magic) {
-				case Artifact: add(id, v + quality, interactive); break;
-				case Cursed: add(id, -(v + quality), interactive); break;
-				case Blessed: add(id, source, v + quality, interactive, 5 * minutes); break;
-				default: add(id, source, v + quality, interactive, minutes); break;
-				}
-			} else {
-				switch(magic) {
-				case Artifact: case Blessed: break;
-				case Cursed: add(id, v - quality, interactive); break;
-				default: add(id, source, v - quality, interactive, minutes); break;
-				}
-			}
-			break;
-		}
-		break;
-	case State:
-		add(id, v, interactive);
-		break;
 	}
 }
 
