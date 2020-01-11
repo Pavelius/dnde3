@@ -47,8 +47,8 @@ int	rolei::getcr() const {
 	for(auto v : features) {
 		if(v.type == Ability)
 			b += bsmeta<abilityi>::elements[v.value].cost;
-		else
+		else if(v)
 			b++;
 	}
-	return level + b / 3;
+	return level + b / 4;
 }
