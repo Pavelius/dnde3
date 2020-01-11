@@ -128,11 +128,11 @@ void creaturea::select(indext start, int distance) {
 	count = ps - data;
 }
 
-creature* creaturea::choose(bool interactive, const char* format) {
+creature* creaturea::choose(const char* interactive) {
 	indexa source;
 	for(auto p : *this)
 		source.add(p->getposition());
-	auto i = source.choose(interactive, format);
+	auto i = source.choose(interactive);
 	if(i == -1)
 		return 0;
 	return data[i];

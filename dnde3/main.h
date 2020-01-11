@@ -685,6 +685,7 @@ public:
 	void				create(role_s type);
 	void				clear();
 	void				consume(int energy_value);
+	void				closedoor();
 	void				damage(int count, damage_s type, int pierce = 0, bool interactive = true);
 	void				damagewears(int count, damage_s type, int item_count = 1);
 	void				dispell(bool interactive);
@@ -782,6 +783,7 @@ public:
 	void				suffer(spell_s id);
 	void				testweapons();
 	void				unlink();
+	bool				use();
 	bool				use(item& it);
 	bool				use(creaturea& source, skill_s id);
 	bool				use(creaturea& creatures, spell_s id, int level, item* magic_source);
@@ -796,7 +798,7 @@ class creaturea : public adat<creature*> {
 public:
 	creaturea() = default;
 	creaturea(const creature& v) { select(v.getposition(), v.getlos()); }
-	creature*			choose(bool interactive, const char* title);
+	creature*			choose(const char* interactive);
 	void				match(variant v, bool remove);
 	void				match(creature& player, variant v, bool remove, bool target_insivible = false);
 	void				matcha(creature& player, variant id, int v, bool remove);
@@ -808,7 +810,7 @@ public:
 };
 class indexa : public adat<indext> {
 public:
-	int					choose(bool interactive, const char* title);
+	int					choose(const char* interactive);
 	void				match(variant v, bool remove);
 	void				matcha(creature& player, variant id, int v);
 	void				matchr(indext index, int range);

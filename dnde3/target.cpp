@@ -66,7 +66,7 @@ void targeti::use(creature& player, creaturea& source, creaturea& creatures, ite
 		if(player.isactive())
 			fail_targets = "Нет подходящей цели";
 		if(type == Creature) {
-			auto p = creatures.choose(fail_targets, interactive);
+			auto p = creatures.choose(interactive);
 			if(p) {
 				auto i = creatures.indexof(p);
 				iswap(creatures[0], creatures[i]);

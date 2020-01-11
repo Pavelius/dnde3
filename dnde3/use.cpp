@@ -606,3 +606,14 @@ bool creature::use(creaturea& source, spell_s id, int level, item* magic_source)
 		paymana(ei.mp, false);
 	return true;
 }
+
+void creature::closedoor() {
+	indexa indecies;
+	indecies.select(getposition(), 1);
+	indecies.match(Door, false);
+	indecies.match(Opened, false);
+	auto i = indecies.choose(isactive() ? "Что использовать из того что рядом?" : 0);
+	if(i == -1)
+		return;
+	loc.remove(indecies[i], Opened);
+}

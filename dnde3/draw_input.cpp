@@ -1428,9 +1428,11 @@ item* itema::choose(const char* interactive, const char* title, const char* form
 	return (item*)getresult();
 }
 
-int indexa::choose(bool interactive, const char* format) {
+int indexa::choose(const char* interactive) {
 	if(!count)
 		return -1;
+	else if(count == 1)
+		return 0;
 	if(!interactive)
 		return rand() % count;
 	auto index = 0;
@@ -1442,7 +1444,7 @@ int indexa::choose(bool interactive, const char* format) {
 		current_background();
 		if(true) {
 			char temp[512]; string sb(temp);
-			sb.adds(format);
+			sb.adds(interactive);
 			const char* text_answer = 0;
 			if(!text_answer) {
 				auto p = creature::find(current_index);
@@ -1705,6 +1707,7 @@ static hotkey adventure_keys[] = {{F1, "Выбрать первого героя", change_player, 0
 {Alpha + 'M', "Карта местности", &creature::minimap},
 {Alpha + 'S', "Создать заклинание", &creature::usespells},
 {Alpha + 'Z', "Использовать волшебный жезл", &creature::usewands},
+{Alpha + 'U', "Использовать объект", &creature::closedoor},
 {Ctrl + Alpha + 'D', "Выпить что-то", &creature::drink},
 {Ctrl + Alpha + 'E', "Съесть что-то", &creature::eat},
 {Ctrl + Alpha + 'R', "Прочитать что-то", &creature::readsomething},

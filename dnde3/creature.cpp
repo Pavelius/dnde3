@@ -1382,7 +1382,7 @@ void creature::enslave() {
 	creaturea source;
 	source.select();
 	source.match(*this, Hostile, false);
-	auto p = source.choose(true, "В кого хотите вселиться?");
+	auto p = source.choose("В кого хотите вселиться?");
 	p->activate();
 	wait();
 }

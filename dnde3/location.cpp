@@ -759,6 +759,8 @@ bool location::ismatch(indext index, variant v) const {
 		if(tiles[index] == v.value)
 			return true;
 		break;
+	case ObjectFlags:
+		return is(index, (map_flag_s)v.value);
 	}
 	return false;
 }
