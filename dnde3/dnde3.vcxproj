@@ -134,7 +134,8 @@
     <ClCompile Include="equipment.cpp" />
     <ClCompile Include="food.cpp" />
     <ClCompile Include="indexa.cpp" />
-    <ClCompile Include="itemia.cpp" />
+    <ClCompile Include="rarity.cpp" />
+    <ClCompile Include="variantc.cpp" />
     <ClCompile Include="material.cpp" />
     <ClCompile Include="spella.cpp" />
     <ClCompile Include="target.cpp" />

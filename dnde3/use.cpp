@@ -45,7 +45,7 @@ bool creature::use(item& it) {
 		effect = it.geteffect();
 		current_string = sb.get();
 		if(effect.type == Ability)
-			potion((ability_s)effect.value, it.getkind(), true, it.getmagic(), it.getquality(), 120);
+			potion((ability_s)effect.value, it.getkind(), true, it.getmagic(), it.getquality(), it.getdamage(), 120);
 		if(current_string == sb.get())
 			act("Ќичего не произошло.");
 		it.use();
@@ -159,25 +159,23 @@ bool item::use(skill_s id, creature& player, int order, bool run) {
 			return false;
 		if(run) {
 			auto v = geteffect();
-			auto player_rang = 0;
 			auto level = getbonus();
-			auto consume = is(SingleUse);
-			auto b = 0;
+			auto b = (getitem().quality + level) * 3;
 			if(is(Unknown))
 				b += 10;
+			if(is(Blessed))
+				b += 10;
+			else if(is(Artifact))
+				b += 25;
 			if(is(SingleUse))
-				b += 35 - level * 5;
+				b += 35;
 			else {
 				auto effect = geteffect();
 				auto player_rang = 0;
 				switch(effect.type) {
 				case Spell:
 					player_rang = player.get((spell_s)effect.value);
-					b += 45 - player_rang * 10;
-					if(is(Blessed))
-						b += 15;
-					else if(is(Artifact))
-						b += 25;
+					b -= player_rang * 12;
 					break;
 				}
 			}
@@ -189,13 +187,12 @@ bool item::use(skill_s id, creature& player, int order, bool run) {
 					set(KnownPower);
 					if(player.isactive()) {
 						char temp[260]; stringbuilder st(temp); getname(st, true);
-						sb.adds("¬ам удалось пон€ть, что это [%-1].", temp);
+						sb.adds("¬ам удалось пон€ть, что это [%+1].", temp);
 					}
 				} else {
 					if(player.isactive())
 						player.act("ќднако, вам так и не удалось ничего пон€ть.");
 				}
-				consume = false;
 			} else {
 				switch(v.type) {
 				case Spell:
@@ -204,21 +201,18 @@ bool item::use(skill_s id, creature& player, int order, bool run) {
 							result = true;
 						if(!result || !player.cast((spell_s)v.value, level, this))
 							player.act("%герой вытащил%а %-1 и громко прочитал%а.", getname());
+						destroy(Magic, true);
 					} else {
-						consume = false;
+						player.act("%герой достал%а %-1 и зан€л%ась чтением.", getname());
 						if(result)
 							player.add(v, 1, true);
 						else {
 							// “ут интересно
 						}
-						decoy(Magic, true, true);
+						use();
 					}
 					break;
 				}
-			}
-			if(consume) {
-				act("%герой превратил%ась в пыль и рассыпал%ась.");
-				clear();
 			}
 		}
 		break;
@@ -461,27 +455,49 @@ void creature::use(const foodi& fi, const item it, bool interactive) {
 	}
 }
 
-void creature::potion(ability_s id, variant source, bool interactive, item_type_s magic, int quality, int minutes) {
+void creature::potion(ability_s id, variant source, bool interactive, item_type_s magic, int quality, int damaged, int minutes) {
 	int v;
 	switch(id) {
 	case LifePoints: case ManaPoints:
-		v = xrand(2, 12);
+		v = xrand(2, 12) - damaged;
+		if(v < 2)
+			v = 2;
+		v += quality;
 		switch(magic) {
 		case Artifact: add(id, (1 + quality) * 3, interactive); break;
 		case Cursed: add(id, -(1 + quality), interactive); break;
 		case Blessed:
 			if(id == LifePoints)
-				damage(-4 * (v + quality), Magic, 0, interactive);
+				damage(-4 * v, Magic, 0, interactive);
 			else
-				paymana(-4 * (v + quality), interactive);
+				paymana(-4 * v, interactive);
 			break;
 		default:
 			if(id == LifePoints)
-				damage(-(v + quality), Magic, 0, interactive);
+				damage(-v, Magic, 0, interactive);
 			else
-				paymana(-(v + quality), interactive);
+				paymana(-v, interactive);
 			break;
 		}
+		break;
+	case Level:
+		v = xrand(1, 8) - damaged;
+		if(v < 1)
+			v = 1;
+		v += quality;
+		switch(magic) {
+		case Artifact: v *= 5000; break;
+		case Cursed: v *= -500; break;
+		case Blessed: v *= 500; break;
+		default: v *= 100; break;
+		}
+		if(interactive) {
+			if(v>=0)
+				act("%герой получил%а [+%1i] опыта.", v);
+			else
+				act("%герой потер€л%а [-%1i] опыта.", v);
+		}
+		addexp(v);
 		break;
 	case Attack: case Protection: case Deflect:
 		v = xrand(6, 24);
@@ -493,12 +509,12 @@ void creature::potion(ability_s id, variant source, bool interactive, item_type_
 		}
 		break;
 	default:
-		v = 1;
+		v = 1 + quality;
 		switch(magic) {
-		case Artifact: add(id, v + quality, interactive); break;
-		case Cursed: add(id, -(v + quality), interactive); break;
-		case Blessed: add(id, source, v + quality, interactive, 5 * minutes); break;
-		default: add(id, source, v + quality, interactive, minutes); break;
+		case Artifact: add(id, v, interactive); break;
+		case Cursed: add(id, -v, interactive); break;
+		case Blessed: add(id, source, v, interactive, 5 * minutes); break;
+		default: add(id, source, v, interactive, minutes); break;
 		}
 		break;
 	}
@@ -557,12 +573,10 @@ bool creature::use(creaturea& source, spell_s id, int level, item* magic_source)
 	if(!(*this))
 		return true;
 	auto& ei = bsmeta<spelli>::elements[id];
-	if(magic_source) {
-		if(magic_source->ischargeable() && magic_source->getcharges() <= 0)
-			return false;
-	} else {
-		if(mp < ei.mp)
-			return false;
+	if(mp < ei.mp) {
+		if(isactive())
+			act("Ќе хватает маны.");
+		return false;
 	}
 	variant effect = id;
 	auto v = ei.dice.roll();

@@ -67,6 +67,7 @@ void creature::add(state_s id, int v, bool interactive) {
 void creature::add(variant id, int v, bool interactive) {
 	switch(id.type) {
 	case Ability: add((ability_s)id.value, v, interactive); break;
+	case Spell: add((spell_s)id.value, v, interactive); break;
 	case State: add((state_s)id.value, v, interactive); break;
 	case Item:
 		equip(item(item_s(id.value), v));
@@ -88,10 +89,6 @@ void creature::add(variant id, int v, bool interactive) {
 			break;
 		}
 		damage(v, damage_s(id.value), 0, interactive);
-		break;
-	case Spell:
-		if(v > 0)
-			spells[id.value] += v;
 		break;
 	}
 }
@@ -203,13 +200,13 @@ void creature::dress(int m) {
 		auto q = wears[i].getbonus();
 		switch(id.type) {
 		case Ability:
-			if(q > 0)
-				q = bsmeta<abilityi>::elements[id.value].bonus_base + bsmeta<abilityi>::elements[id.value].bonus_multiplier * q;
-			abilities[id.value] += m * q;
+			abilities[id.value] += m * bsmeta<abilityi>::elements[id.value].getbonus(q);
 			break;
 		case Skill:
 			if(q > 0)
 				q = 20 + q * 10;
+			else
+				q = q * 10;
 			skills[id.value] += m * q;
 			break;
 		}
@@ -998,21 +995,21 @@ void creature::add(spell_s id, int v, bool interactive) {
 	if(v > 0) {
 		spells[id] += v;
 		if(interactive) {
-			if(spells[id]==1)
-				act("%герой изучил%а заклинание %+1.", getstr(id));
-			else if(spells[id]>1)
-				act("%герой улучшил%а владение заклинанием %+1 до [%2i] ранга.", getstr(id), spells[id]);
+			if(spells[id] == 1)
+				act("%герой изучил%а заклинание [%+1].", getstr(id));
+			else if(spells[id] > 1)
+				act("%герой улучшил%а владение заклинанием [%+1] до [+%2i] ранга.", getstr(id), spells[id]);
 		}
-	} else if(v<0) {
+	} else if(v < 0) {
 		v = -v;
 		if(v > spells[id])
 			v = spells[id];
 		spells[id] -= v;
 		if(interactive) {
-			if(spells[id]==0)
+			if(spells[id] == 0)
 				act("%герой забыл%а заклинание %+1.", getstr(id));
 			else
-				act("%герой ухудшил%а уровень владени€ заклинанием %+1 до [%2i] ранга.", getstr(id), spells[id]);
+				act("%герой ухудшил%а уровень владени€ заклинанием [%+1] до [-%2i] ранга.", getstr(id), spells[id]);
 		}
 	}
 }
@@ -1527,14 +1524,11 @@ void creature::add(spell_s id, unsigned minutes) {
 	addx({}, id, 0, game.getrounds() + minutes);
 }
 
-void creature::add(variant id, variant source, int v, bool interactive, unsigned minutes) {
-	if(v != 0) {
-		add(id, v, interactive);
-		addx(id, source, -v, game.getrounds() + minutes);
-	} else {
-		// Special case when need set spell effect
-		addx({}, source, 0, game.getrounds() + minutes);
-	}
+void creature::add(ability_s id, variant source, int v, bool interactive, unsigned minutes) {
+	if(!v)
+		return;
+	add(id, v, interactive);
+	addx(id, source, -v, game.getrounds() + minutes);
 }
 
 static int getchance(int chance, bool hostile, int quality, int damage) {

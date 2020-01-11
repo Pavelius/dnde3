@@ -180,7 +180,7 @@ enum range_s : unsigned char {
 	You, Close, Reach, Near, Far
 };
 enum item_flag_s : unsigned char {
-	Chargeable, Coinable, Countable, SingleUse, TwoHanded, Versatile, Light, Natural,
+	Coinable, Countable, SingleUse, TwoHanded, Versatile, Light, Natural,
 };
 enum variant_s : unsigned char {
 	NoVariant,
@@ -208,6 +208,9 @@ enum target_flag_s : unsigned char {
 	NotYou, Friends, Enemies, AlwaysChoose,
 	RandomTargets, TwoTargets, ThreeTargets,
 	AllTargets,
+};
+enum rarity_s : unsigned char {
+	Common, Uncommon, Rare, VeryRare, Unique,
 };
 typedef short unsigned indext;
 typedef adat<rect, 64> rooma;
@@ -338,6 +341,10 @@ struct picture : point {
 	void				set(short x, short y);
 	void				setcursor(indext i, int size);
 };
+struct rarityi {
+	const char*			name;
+	char				weight;
+};
 struct statei {
 	const char*			name;
 	const char*			nameof;
@@ -406,6 +413,7 @@ struct descriptioni {
 };
 struct itemi {
 	const char*			name;
+	rarity_s			rarity;
 	int					weight;
 	int					cost;
 	int					quality;
@@ -483,7 +491,7 @@ public:
 	bool				is(item_flag_s v) const { return getitem().flags.is(v); }
 	bool				is(item_type_s v) const { return magic == v; }
 	bool				isboost(variant id) const;
-	bool				ischargeable() const { return is(Chargeable); }
+	bool				ischargeable() const;
 	bool				iscountable() const { return is(Countable); }
 	bool				isdamaged() const { return getdamage() > 0; }
 	void				loot();
@@ -512,12 +520,14 @@ public:
 	void				selecta(creature& e);
 	void				selectb(creature& e);
 };
-class itemia : public adat<item_s, ManyItems + 1> {
+class variantc : public adat<casev<variant>> {
+	void				add(variant v, rarity_s r);
 public:
-	void				addx(const aref<slot_s>& source);
+	void				additems(const aref<slot_s>& source);
+	int					getweight() const;
+	bool				is(variant v) const;
 	void				match(slot_s v, bool remove);
-	item_s				random() const;
-	void				select();
+	variant				random() const;
 };
 class skilla :public adat<skill_s, 64> {
 public:
@@ -617,6 +627,7 @@ class creature : public nameable {
 	unsigned			money;
 	//
 	void				add(spell_s id, unsigned minutes);
+	void				add(ability_s id, variant source, int v, bool interactive, unsigned minutes);
 	void				addx(variant id, variant source, int modifier, unsigned rounds);
 	bool				aiuse(const char* interactive, const char* title, slot_s slot, variant effect);
 	void				aimove();
@@ -653,7 +664,6 @@ public:
 	void				add(spell_s id, int v, bool interactive);
 	void				add(state_s id, int v, bool interactive);
 	void				add(variant id, int v, bool interactive);
-	void				add(variant id, variant source, int v, bool interactive, unsigned minutes);
 	bool				add(item v, bool run, bool interactive);
 	void				addexp(int count);
 	void				appear();
@@ -744,7 +754,7 @@ public:
 	void				paymana(int value, bool interactive);
 	void				playui();
 	void				pickup();
-	void				potion(ability_s id, variant source, bool interactive, item_type_s magic, int quality, int minutes);
+	void				potion(ability_s id, variant source, bool interactive, item_type_s magic, int quality, int damaged, int minutes);
 	void				raise(skill_s value);
 	void				raiseskills(int number);
 	void				raiseskills() { raiseskills(get(Intellegence) / 2); }

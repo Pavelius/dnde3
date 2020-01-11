@@ -13,11 +13,11 @@ static variant common_potions[] = {Dexterity, Wisdow, Charisma,
 LifePoints, ManaPoints,
 LifePoints, ManaPoints};
 static variant uncommon_potions[] = {Strenght, Dexterity, Wisdow, Charisma,
-LifeRate, ManaRate,
+LifeRate, ManaRate, Level,
 LifePoints, ManaPoints, Speed};
 static variant rare_potions[] = {Attack, Damage,
 Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
-Armor, Protection,
+Armor, Protection, Level,
 LifeRate, ManaRate,
 LifePoints, ManaPoints, Speed};
 static variant swords_enchanments[] = {{},
@@ -32,111 +32,111 @@ LifePoints, ManaPoints, Speed};
 static variant boots_enchanments[] = {{}, ResistElectricity, ResistParalize, ResistWater,
 Dexterity, Constitution,
 Armor, Speed};
-static variant wand_enchanments[] = {MagicMissile, ShokingGrasp, HealingSpell, ArmorSpell,
+static variant wand_common_spells[] = {MagicMissile, ShokingGrasp, HealingSpell, ArmorSpell,
 CharmPerson, FearSpell, Invisibility, Repair, SickSpell, Sleep};
 static variant mage_common_spells[] = {MagicMissile, ShokingGrasp,
 ArmorSpell, CharmPerson, FearSpell, Invisibility, Repair, Sleep};
 static variant common_scroll[] = {BlessItem, DetectEvil, DetectMagic, Identify};
 
-itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, 0, NoGender, Organic, {0, 3, {1, 3}, Bludgeon, 4, 2}, {}, {}, {}, Melee},
-{"Боевой топор", 850, 5 * GP, 0, Male, Iron, {-4, 3, {1, 8}, Slashing, 0, 2}, {}, {}, {Versatile}, Melee, FocusAxes},
-{"Дубина", 1000, 5 * CP, 0, Female, Wood, {-6, 3, {1, 6}, Bludgeon, 0, 2}, {}, {}, {}, Melee, Bargaining},
-{"Кинжал", 50, 2 * GP, 0, Male, Iron, {-2, 3, {1, 4}, Piercing, 2, 3}, {}, {}, {Light}, Melee},
-{"Молот", 800, 2 * GP, 0, Male, Wood, {-3, 3, {2, 5}, Bludgeon, 0, 1}, {}, {}, {}, Melee},
-{"Булава", 700, 8 * GP, 0, Female, Iron, {-3, 3, {2, 7}, Bludgeon, 0, 1}, {}, {}, {}, Melee},
-{"Копье", 700, 8 * GP, 0, NoGender, Iron, {-5, 3, {1, 8}, Piercing, 0, 2}, {}, {}, {}, Melee},
-{"Посох", 700, 8 * GP, 0, Male, Iron, {-2, 3, {1, 6}, Bludgeon, 1, 2}, {}, {}, {TwoHanded}, Melee},
-{"Длинный меч", 700, 8 * GP, 0, Male, Iron, {-4, 3, {1, 8}, Slashing, 0, 2}, {}, swords_enchanments, {Versatile}, Melee, FocusSwords},
-{"Короткий меч", 700, 8 * GP, 0, Male, Iron, {-3, 3, {1, 6}, Slashing, 0, 2}, {}, swords_enchanments, {Light}, Melee, FocusSwords},
-{"Двуручный меч", 700, 8 * GP, 0, Male, Iron, {-9, 3, {2, 12}, Slashing, -2, 2}, {}, swords_enchanments, {TwoHanded}, Melee, FocusTwohanded},
+itemi bsmeta<itemi>::elements[] = {{"Рука", Unique, 0, 0, 0, NoGender, Organic, {0, 3, {1, 3}, Bludgeon, 4, 2}, {}, {}, {}, Melee},
+{"Боевой топор", Common, 850, 5 * GP, 0, Male, Iron, {-4, 3, {1, 8}, Slashing, 0, 2}, {}, {}, {Versatile}, Melee, FocusAxes},
+{"Дубина", Common, 1000, 5 * CP, 0, Female, Wood, {-6, 3, {1, 6}, Bludgeon, 0, 2}, {}, {}, {}, Melee, Bargaining},
+{"Кинжал", Common, 50, 2 * GP, 0, Male, Iron, {-2, 3, {1, 4}, Piercing, 2, 3}, {}, {}, {Light}, Melee},
+{"Молот", Common, 800, 2 * GP, 0, Male, Wood, {-3, 3, {2, 5}, Bludgeon, 0, 1}, {}, {}, {}, Melee},
+{"Булава", Common, 700, 8 * GP, 0, Female, Iron, {-3, 3, {2, 7}, Bludgeon, 0, 1}, {}, {}, {}, Melee},
+{"Копье", Common, 700, 8 * GP, 0, NoGender, Iron, {-5, 3, {1, 8}, Piercing, 0, 2}, {}, {}, {}, Melee},
+{"Посох", Common, 700, 8 * GP, 0, Male, Iron, {-2, 3, {1, 6}, Bludgeon, 1, 2}, {}, {}, {TwoHanded}, Melee},
+{"Длинный меч", Common, 700, 8 * GP, 0, Male, Iron, {-4, 3, {1, 8}, Slashing, 0, 2}, {}, swords_enchanments, {Versatile}, Melee, FocusSwords},
+{"Короткий меч", Common, 700, 8 * GP, 0, Male, Iron, {-3, 3, {1, 6}, Slashing, 0, 2}, {}, swords_enchanments, {Light}, Melee, FocusSwords},
+{"Двуручный меч", Uncommon, 700, 8 * GP, 0, Male, Iron, {-9, 3, {2, 12}, Slashing, -2, 2}, {}, swords_enchanments, {TwoHanded}, Melee, FocusTwohanded},
 //
-{"Арбалет", 700, 40 * GP, 0, Male, Wood, {-3, 3, {1, 8}, Piercing, -2, 0, Bolt}, {}, {}, {}, Ranged},
-{"Тяжелый арбалет", 1200, 80 * GP, 0, Male, Wood, {-10, 3, {1, 12}, Piercing, -6, 0, Bolt}, {}, {}, {}, Ranged},
-{"Длинный лук", 500, 60 * GP, 0, Male, Wood, {-10, 3, {1, 8}, Piercing, 1, 0, Arrow}, {}, {}, {}, Ranged, FocusBows},
-{"Короткий лук", 300, 30 * GP, 0, Male, Wood, {-6, 3, {1, 6}, Piercing, 1, 0, Arrow}, {}, {}, {}, Ranged, FocusBows},
-{"Дарт", 30, 1 * SP, 0, Male, Wood, {-4, 3, {1, 3}, Piercing, 3}, {}, {}, {}, Ranged},
-{"Праща", 50, 1 * SP, 0, Female, Leather, {-6, 3, {2, 4}, Bludgeon, 0, 0, Rock}, {}, {}, {}, Ranged},
+{"Арбалет", Uncommon, 700, 40 * GP, 0, Male, Wood, {-3, 3, {1, 8}, Piercing, -2, 0, Bolt}, {}, {}, {}, Ranged},
+{"Тяжелый арбалет", Rare, 1200, 80 * GP, 0, Male, Wood, {-10, 3, {1, 12}, Piercing, -6, 0, Bolt}, {}, {}, {}, Ranged},
+{"Длинный лук", Uncommon, 500, 60 * GP, 0, Male, Wood, {-10, 3, {1, 8}, Piercing, 1, 0, Arrow}, {}, {}, {}, Ranged, FocusBows},
+{"Короткий лук", Common, 300, 30 * GP, 0, Male, Wood, {-6, 3, {1, 6}, Piercing, 1, 0, Arrow}, {}, {}, {}, Ranged, FocusBows},
+{"Дарт", Uncommon, 30, 1 * SP, 0, Male, Wood, {-4, 3, {1, 3}, Piercing, 3}, {}, {}, {}, Ranged},
+{"Праща", Uncommon, 50, 1 * SP, 0, Female, Leather, {-6, 3, {2, 4}, Bludgeon, 0, 0, Rock}, {}, {}, {}, Ranged},
 //
-{"Камень", 15, 0, 0, Male, Stone, {0, 0, {1, 3}, Bludgeon, 0, 0, NoItem, Rock}, {}, {}, {Countable}, Ranged},
-{"Стрела", 3, 2 * CP, 0, Female, Wood, {0, 0, {}, Piercing, 0, 0, NoItem, Arrow}, {}, {}, {Countable}, Amunitions},
-{"Болт", 2, 1 * CP, 0, Male, Iron, {0, 0, {}, Piercing, 0, 0, NoItem, Bolt}, {}, {}, {Countable}, Amunitions},
+{"Камень", Common, 15, 0, 0, Male, Stone, {0, 0, {1, 3}, Bludgeon, 0, 0, NoItem, Rock}, {}, {}, {Countable}, Ranged},
+{"Стрела", Common, 3, 2 * CP, 0, Female, Wood, {0, 0, {}, Piercing, 0, 0, NoItem, Arrow}, {}, {}, {Countable}, Amunitions},
+{"Болт", Common, 2, 1 * CP, 0, Male, Iron, {0, 0, {}, Piercing, 0, 0, NoItem, Bolt}, {}, {}, {Countable}, Amunitions},
 //
-{"Кожанная броня", 1000, 5 * GP, 0, Female, Leather, {-5}, {10, 1, 15}, {}, {}, Torso},
-{"Клепанная броня", 1500, 15 * GP, 0, Female, Leather, {-7}, {15, 1, 15}, {}, {}, Torso},
-{"Чешуйчатый доспех", 2500, 30 * GP, 0, Male, Iron, {-12}, {25, 2, 30}, {}, {}, Torso},
-{"Кольчуга", 2600, 50 * GP, 0, Female, Iron, {-10}, {25, 3, 25}, {}, {}, Torso},
-{"Бахрец", 3000, 200 * GP, 0, Male, Iron, {-15}, {30, 4, 35}, {}, {}, Torso},
-{"Латы", 3500, 800 * GP, 0, Female, Iron, {-20}, {40, 5, 35}, {}, {}, Torso},
+{"Кожанная броня", Common, 1000, 5 * GP, 0, Female, Leather, {-5}, {10, 1, 15}, {}, {}, Torso},
+{"Клепанная броня", Common, 1500, 15 * GP, 0, Female, Leather, {-7}, {15, 1, 15}, {}, {}, Torso},
+{"Чешуйчатый доспех", Uncommon, 2500, 30 * GP, 0, Male, Iron, {-12}, {25, 2, 30}, {}, {}, Torso},
+{"Кольчуга", Common, 2600, 50 * GP, 0, Female, Iron, {-10}, {25, 3, 25}, {}, {}, Torso},
+{"Бахрец", Uncommon, 3000, 200 * GP, 0, Male, Iron, {-15}, {30, 4, 35}, {}, {}, Torso},
+{"Латы", Rare, 3500, 800 * GP, 0, Female, Iron, {-20}, {40, 5, 35}, {}, {}, Torso},
 //
-{"Щит", 800, 0 * GP, 0, Male, Iron, {-5, 1}, {10, 0, 25, 5}, {}, {}, OffHand},
-{"Шлем", 100, 0 * GP, 0, Male, Iron, {-1}, {5, 0, 20, 3}, {}, {}, Head},
-{"Наручи", 70, 0 * GP, 0, NoGender, Iron, {-1}, {5, 0, 15, 2}, {}, {}, Elbows},
-{"Железные наручи", 110, 0 * GP, 0, NoGender, Iron, {-3}, {5, 1, 20, 2}, {}, {}, Elbows},
+{"Щит", Common, 800, 0 * GP, 0, Male, Iron, {-5, 1}, {10, 0, 25, 5}, {}, {}, OffHand},
+{"Шлем", Common, 100, 0 * GP, 0, Male, Iron, {-1}, {5, 0, 20, 3}, {}, {}, Head},
+{"Наручи", Common, 70, 0 * GP, 0, NoGender, Iron, {-1}, {5, 0, 15, 2}, {}, {}, Elbows},
+{"Железные наручи", Uncommon, 110, 0 * GP, 0, NoGender, Iron, {-3}, {5, 1, 20, 2}, {}, {}, Elbows},
 //
-{"Плащ", 30, 10 * SP, -2, Male, Leather, {}, {3, 0, 2}, {}, {}, TorsoBack},
-{"Плащ", 30, 15 * GP, -1, Male, Leather, {}, {3, 0, 2}, {}, {}, TorsoBack},
-{"Плащ", 35, 20 * GP, 0, Female, Leather, {}, {3, 0, 2}, {}, {}, TorsoBack},
-{"Плащ", 35, 5 * GP, 1, Female, Leather, {}, {5, 0, 2}, {}, {}, TorsoBack},
-{"Плащ", 40, 5 * GP, 2, Female, Leather, {}, {5, 0, 2}, {}, {}, TorsoBack},
+{"Плащ", Common, 30, 10 * SP, -2, Male, Leather, {}, {3, 0, 2}, {}, {}, TorsoBack},
+{"Плащ", Common, 30, 15 * GP, -1, Male, Leather, {}, {3, 0, 2}, {}, {}, TorsoBack},
+{"Плащ", Uncommon, 35, 20 * GP, 0, Female, Leather, {}, {3, 0, 2}, {}, {}, TorsoBack},
+{"Плащ", Uncommon, 35, 5 * GP, 1, Female, Leather, {}, {5, 0, 2}, {}, {}, TorsoBack},
+{"Плащ", Rare, 40, 5 * GP, 2, Female, Leather, {}, {5, 0, 2}, {}, {}, TorsoBack},
 //
-{"Туфли", 0, 0 * GP, -1, NoGender, Leather, {}, {3, 0, 10}, boots_enchanments, {}, Legs},
-{"Сапоги", 0, 0 * GP, 0, NoGender, Leather, {}, {3, 0, 10}, boots_enchanments, {}, Legs},
-{"Сапоги", 0, 0 * GP, -1, NoGender, Iron, {}, {5, 0, 15}, boots_enchanments, {}, Legs},
-{"Сапоги", 0, 0 * GP, 0, NoGender, Iron, {}, {3, 1, 10}, boots_enchanments, {}, Legs},
-{"Сапоги", 0, 0 * GP, 1, NoGender, Iron, {}, {3, 1, 10}, boots_enchanments, {}, Legs},
-
-{"Еда", 100, 5 * SP, 0, NoGender, Organic, {}, {}, {}, {}, Edible},
-{"Яблоко", 10, 5 * CP, 0, NoGender, Organic, {}, {}, {}, {}, Edible},
-{"Хлеб хоббитов", 50, 1 * SP, 0, NoGender, Organic, {}, {}, {}, {}, Edible},
-{"Хлеб эльфов", 50, 2 * SP, 1, NoGender, Organic, {}, {}, {}, {}, Edible},
-{"Хлеб гномов", 80, 8 * CP, -1, NoGender, Organic, {}, {}, {}, {}, Edible},
-{"Пирожное", 20, 1 * GP, 0, NoGender, Organic, {}, {}, {}, {}, Edible},
-{"Колбаса", 60, 8 * SP, 0, NoGender, Organic, {}, {}, {}, {}, Edible},
-{"Мясо", 80, 5 * CP, -1, NoGender, Organic, {}, {}, {}, {}, Edible},
+{"Туфли", Common, 0, 0 * GP, -1, NoGender, Leather, {}, {3, 0, 10}, boots_enchanments, {}, Legs},
+{"Сапоги", Common, 0, 0 * GP, 0, NoGender, Leather, {}, {3, 0, 10}, boots_enchanments, {}, Legs},
+{"Сапоги", Common, 0, 0 * GP, -1, NoGender, Iron, {}, {5, 0, 15}, boots_enchanments, {}, Legs},
+{"Сапоги", Common, 0, 0 * GP, 0, NoGender, Iron, {}, {3, 1, 10}, boots_enchanments, {}, Legs},
+{"Сапоги", Uncommon, 0, 0 * GP, 1, NoGender, Iron, {}, {3, 1, 10}, boots_enchanments, {}, Legs},
 //
-{"Свиток", 1, 10 * GP, -1, Male, Paper, {}, {}, common_scroll, {SingleUse}, Readable},
-{"Свиток", 1, 12 * GP, 0, Male, Paper, {}, {}, common_scroll, {SingleUse}, Readable},
-{"Свиток", 1, 15 * GP, 1, Male, Paper, {}, {}, common_scroll, {SingleUse}, Readable},
+{"Еда", Common, 100, 5 * SP, 0, NoGender, Organic, {}, {}, {}, {}, Edible},
+{"Яблоко", Common, 10, 5 * CP, 0, NoGender, Organic, {}, {}, {}, {}, Edible},
+{"Хлеб хоббитов", Uncommon, 50, 1 * SP, 0, NoGender, Organic, {}, {}, {}, {}, Edible},
+{"Хлеб эльфов", Uncommon, 50, 2 * SP, 1, NoGender, Organic, {}, {}, {}, {}, Edible},
+{"Хлеб гномов", Uncommon, 80, 8 * CP, -1, NoGender, Organic, {}, {}, {}, {}, Edible},
+{"Пирожное", Uncommon, 20, 1 * GP, 0, NoGender, Organic, {}, {}, {}, {}, Edible},
+{"Колбаса", Common, 60, 8 * SP, 0, NoGender, Organic, {}, {}, {}, {}, Edible},
+{"Мясо", Common, 80, 5 * CP, -1, NoGender, Organic, {}, {}, {}, {}, Edible},
 //
-{"Жезл", 10, 100 * GP, -2, NoGender, Wood, {}, {}, wand_enchanments, {Chargeable}, Zapable},
-{"Жезл", 10, 120 * GP, -1, NoGender, Wood, {}, {}, wand_enchanments, {Chargeable}, Zapable},
-{"Жезл", 20, 150 * GP, 0, NoGender, Iron, {}, {}, wand_enchanments, {Chargeable}, Zapable},
-{"Жезл", 20, 160 * GP, 1, NoGender, Iron, {}, {}, wand_enchanments, {Chargeable}, Zapable},
-{"Жезл", 30, 180 * GP, 2, NoGender, Iron, {}, {}, wand_enchanments, {Chargeable}, Zapable},
+{"Свиток", Common, 1, 10 * GP, -1, Male, Paper, {}, {}, common_scroll, {SingleUse}, Readable},
+{"Свиток", Common, 1, 12 * GP, 0, Male, Paper, {}, {}, common_scroll, {SingleUse}, Readable},
+{"Свиток", Uncommon, 1, 15 * GP, 1, Male, Paper, {}, {}, common_scroll, {SingleUse}, Readable},
 //
-{"Книга", 0, 0 * GP, -1, NoGender, Paper, {}, {}, mage_common_spells, {Chargeable}, Readable},
-{"Книга", 0, 0 * GP, 0, NoGender, Paper, {}, {}, mage_common_spells, {Chargeable}, Readable},
-{"Книга", 0, 0 * GP, 0, NoGender, Paper, {}, {}, mage_common_spells, {Chargeable}, Readable},
-{"Мануал", 0, 0 * GP, 1, NoGender, Paper, {}, {}, mage_common_spells, {Chargeable}, Readable},
-{"Том", 0, 0 * GP, 2, NoGender, Paper, {}, {}, mage_common_spells, {Chargeable}, Readable},
+{"Жезл", Uncommon, 10, 100 * GP, -2, NoGender, Wood, {}, {}, wand_common_spells, {}, Zapable},
+{"Жезл", Uncommon, 10, 120 * GP, -1, NoGender, Wood, {}, {}, wand_common_spells, {}, Zapable},
+{"Жезл", Uncommon, 20, 150 * GP, 0, NoGender, Iron, {}, {}, wand_common_spells, {}, Zapable},
+{"Жезл", Uncommon, 20, 160 * GP, 1, NoGender, Iron, {}, {}, wand_common_spells, {}, Zapable},
+{"Жезл", Uncommon, 30, 180 * GP, 2, NoGender, Iron, {}, {}, wand_common_spells, {}, Zapable},
 //
-{"Зелье", 15, 20 * GP, -1, NoGender, Glass, {}, {}, common_potions, {}, Drinkable},
-{"Зелье", 20, 30 * GP, 0, NoGender, Glass, {}, {}, common_potions, {}, Drinkable},
-{"Зелье", 10, 40 * GP, 0, NoGender, Glass, {}, {}, uncommon_potions, {}, Drinkable},
-{"Экстракт", 10, 45 * GP, 1, Male, Glass, {}, {}, rare_potions, {}, Drinkable},
-{"Элексир", 5, 50 * GP, 2, Male, Glass, {}, {}, rare_potions, {}, Drinkable},
+{"Книга", Rare, 500, 0 * GP, -1, Female, Paper, {}, {}, mage_common_spells, {}, Readable},
+{"Книга", Rare, 600, 0 * GP, 0, Female, Paper, {}, {}, mage_common_spells, {}, Readable},
+{"Книга", Rare, 600, 0 * GP, 0, Female, Paper, {}, {}, mage_common_spells, {}, Readable},
+{"Мануал", Rare, 800, 0 * GP, 1, Male, Paper, {}, {}, mage_common_spells, {}, Readable},
+{"Том", VeryRare, 1000, 0 * GP, 2, Male, Paper, {}, {}, mage_common_spells, {}, Readable},
 //
-{"Кольцо", 1, 35 * GP, 0, NoGender, Iron, {}, {}, ring_enchanments, {}, RightFinger},
-{"Кольцо", 1, 40 * GP, 0, NoGender, Iron, {}, {}, ring_enchanments, {}, RightFinger},
-{"Кольцо", 2, 45 * GP, 1, NoGender, Iron, {}, {}, ring_enchanments, {}, RightFinger},
+{"Зелье", Common, 10, 20 * GP, -1, NoGender, Glass, {}, {}, common_potions, {}, Drinkable},
+{"Зелье", Common, 20, 30 * GP, 0, NoGender, Glass, {}, {}, common_potions, {}, Drinkable},
+{"Зелье", Uncommon, 10, 40 * GP, 0, NoGender, Glass, {}, {}, uncommon_potions, {}, Drinkable},
+{"Экстракт", Rare, 10, 45 * GP, 1, Male, Glass, {}, {}, rare_potions, {}, Drinkable},
+{"Элексир", Rare, 5, 80 * GP, 2, Male, Glass, {}, {}, rare_potions, {}, Drinkable},
 //
-{"Амулет", 5, 0 * GP, -1, NoGender, Wood, {}, {}, {}, {}, Neck},
-{"Амулет", 6, 0 * GP, 0, NoGender, Wood, {}, {}, {}, {}, Neck},
-{"Амулет", 6, 0 * GP, 0, NoGender, Iron, {}, {}, {}, {}, Neck},
-{"Амулет", 7, 0 * GP, 1, NoGender, Iron, {}, {}, {}, {}, Neck},
-{"Амулет", 7, 0 * GP, 2, NoGender, Iron, {}, {}, {}, {}, Neck},
+{"Кольцо", Uncommon, 1, 35 * GP, 0, NoGender, Iron, {}, {}, ring_enchanments, {}, RightFinger},
+{"Кольцо", Uncommon, 1, 40 * GP, 0, NoGender, Iron, {}, {}, ring_enchanments, {}, RightFinger},
+{"Кольцо", Rare, 2, 60 * GP, 1, NoGender, Iron, {}, {}, ring_enchanments, {}, RightFinger},
 //
-{"Ключ", 0, 0 * GP, 0, NoGender, Iron, {}, {}, {}, {}},
+{"Амулет", Common, 20, 0 * GP, -1, NoGender, Wood, {}, {}, {}, {}, Neck},
+{"Амулет", Uncommon, 20, 0 * GP, 0, NoGender, Wood, {}, {}, {}, {}, Neck},
+{"Амулет", Uncommon, 20, 0 * GP, 0, NoGender, Iron, {}, {}, {}, {}, Neck},
+{"Амулет", Uncommon, 30, 0 * GP, 1, NoGender, Iron, {}, {}, {}, {}, Neck},
+{"Амулет", Rare, 40, 0 * GP, 2, NoGender, Iron, {}, {}, {}, {}, Neck},
 //
-{"Монеты", 0, 1 * CP, -1, NoGender, Iron, {}, {}, {}, {Coinable, Countable}},
-{"Серебрянные монеты", 0, 1 * SP, 0, NoGender, Iron, {}, {}, {}, {Coinable, Countable}},
-{"Золотые монеты", 0, 1 * GP, 1, NoGender, Iron, {}, {}, {}, {Coinable, Countable}},
+{"Ключ", Common, 0, 0 * GP, 0, NoGender, Iron, {}, {}, {}, {}},
 //
-{"Когти", 0, 0 * GP, 0, NoGender, Organic, {-6, 3, {1, 6}, Slashing, 3, 1}, {}, {}, {Natural}, Melee},
-{"Кулаки", 0, 0 * GP, 0, NoGender, Organic, {0, 4, {1, 6}, Bludgeon, 0, 2}, {}, {}, {Natural}, Melee},
-{"Укус", 0, 0 * GP, 0, NoGender, Organic, {0, 2, {2, 5}, Slashing, 0, 1}, {}, {}, {Natural}, Melee},
-{"Хитин", 0, 0 * GP, 0, NoGender, Leather, {-10}, {30, 2, 40}, {}, {Natural}, Torso},
-{"Мех", 0, 0 * GP, 0, NoGender, Leather, {-3}, {20, 0, 20}, {}, {Natural}, Torso},
+{"Монеты", Common, 0, 1 * CP, -1, NoGender, Iron, {}, {}, {}, {Coinable, Countable}},
+{"Серебрянные монеты", Common, 0, 1 * SP, 0, NoGender, Iron, {}, {}, {}, {Coinable, Countable}},
+{"Золотые монеты", Common, 0, 1 * GP, 1, NoGender, Iron, {}, {}, {}, {Coinable, Countable}},
+//
+{"Когти", Common, 0, 0 * GP, 0, NoGender, Organic, {-6, 3, {1, 6}, Slashing, 3, 1}, {}, {}, {Natural}, Melee},
+{"Кулаки", Common, 0, 0 * GP, 0, NoGender, Organic, {0, 4, {1, 6}, Bludgeon, 0, 2}, {}, {}, {Natural}, Melee},
+{"Укус", Common, 0, 0 * GP, 0, NoGender, Organic, {0, 2, {2, 5}, Slashing, 0, 1}, {}, {}, {Natural}, Melee},
+{"Хитин", Uncommon, 0, 0 * GP, 0, NoGender, Leather, {-10}, {30, 2, 40}, {}, {Natural}, Torso},
+{"Мех", Common, 0, 0 * GP, 0, NoGender, Leather, {-3}, {20, 0, 20}, {}, {Natural}, Torso},
 //
 {"Много предметов"},
 };
@@ -368,7 +368,7 @@ variant item::geteffect() const {
 	if(is(Countable))
 		return variant();
 	auto& ei = getitem();
-	if(ei.effects.getcount() > 0)
+	if(ei.effects.count > 0)
 		return ei.effects[effect];
 	return variant();
 }
@@ -575,7 +575,14 @@ void item::breaktest() {
 	if(!(*this))
 		return;
 	auto r = d100();
-	if(r >= 5)
+	if(r >= 3)
 		return;
 	damage(xrand(0, 5), Bludgeon, true);
+}
+
+bool item::ischargeable() const {
+	auto v = geteffect();
+	if(v.type == Spell)
+		return true;
+	return false;
 }

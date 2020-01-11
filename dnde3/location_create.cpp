@@ -95,9 +95,9 @@ static void create_item(indext index, item_s type, int level, bool forsale, iden
 }
 
 static void create_item(indext index, const aref<slot_s>& slots) {
-	itemia source;
-	source.addx(slots);
-	create_item(index, source.random(), loc.level, false);
+	variantc source;
+	source.additems(slots);
+	create_item(index, (item_s)source.random().value, loc.level, false);
 }
 
 static void create_weapon(indext index) {
@@ -121,7 +121,8 @@ static void create_potions(indext index) {
 }
 
 static void create_dungeon_item(indext index) {
-	static gentileproc chances[] = {create_weapon, create_weapon, create_armor,
+	static gentileproc chances[] = {create_weapon, create_weapon, create_weapon, create_armor,
+		create_armor, create_armor,
 		create_books_and_scrolls, create_potions,
 	};
 	maprnd(chances)(index);

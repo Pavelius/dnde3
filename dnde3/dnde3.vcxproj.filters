@@ -172,7 +172,10 @@
     <ClCompile Include="description.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="itemia.cpp">
+    <ClCompile Include="variantc.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="rarity.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
   </ItemGroup>
