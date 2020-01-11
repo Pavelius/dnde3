@@ -448,7 +448,7 @@ public:
 	void				clear() { memset(this, 0, sizeof(*this)); }
 	void				create(item_s type, int chance_artifact, int chance_magic, int chance_cursed, int chance_quality);
 	void				damage(int count, damage_s type, bool interactive);
-	void				decoy(bool interactive);
+	void				decoy(damage_s type, bool interactive, bool include_artifact = false);
 	void				destroy();
 	item_s				getammo() const { return getitem().weapon.ammunition; }
 	armori				getarmor() const;
@@ -642,11 +642,8 @@ public:
 	void				add(variant id, variant source, int v, bool interactive, unsigned minutes);
 	bool				add(item v, bool run, bool interactive);
 	void				addexp(int count);
-	bool				alertness();
 	void				appear();
 	bool				apply(creature& target, variant id, int v, int order, bool run);
-	bool				askyn(creature* opponent, const char* format, ...);
-	void				athletics(bool interactive);
 	void				backpack();
 	void				bloodstain() const;
 	int					calculate(const variant* formule) const;
@@ -712,10 +709,10 @@ public:
 	void				inventory();
 	bool				is(class_s v) const { return kind == v; }
 	bool				is(state_s v) const { return states.is(v); }
+	bool				is(spell_s v) const { return finds(v) != 0; }
 	bool				is(const creature* p) const { return this == p; }
 	bool				isactive() const { return getactive() == this; }
 	bool				isallow(item_s v) const;
-	bool				isboost(spell_s v) const { return finds(v) != 0; }
 	bool				isenemy(const creature* target) const;
 	bool				isguard() const { return guard != Blocked; }
 	bool				ismatch(variant v) const;

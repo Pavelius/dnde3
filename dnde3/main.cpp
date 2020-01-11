@@ -60,7 +60,7 @@ static void test_answers() {
 static void modify_weapon(creature* p1) {
 	item* pi = (item*)&p1->get(Melee);
 	pi->seteffect(Attack);
-	pi->decoy(true);
+	pi->decoy(Bludgeon, true);
 	//pi->set(Cursed);
 	//pi->setquality(3);
 	//pi->setidentify(1);

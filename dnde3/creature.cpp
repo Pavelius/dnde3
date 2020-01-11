@@ -117,10 +117,6 @@ void creature::dispell(variant source, bool interactive) {
 }
 
 void creature::addx(variant id, variant source, int modifier, unsigned rounds) {
-	switch(id.type) {
-	case State:
-		return;
-	}
 	auto p = bsmeta<boosti>::add();
 	p->id = id;
 	p->source = source;
@@ -899,7 +895,7 @@ void creature::consume(int v) {
 }
 
 void creature::attack(creature& enemy, const attacki& ai, int bonus, int danger) {
-	if(is(Invisible) || enemy.isboost(Sleep)) {
+	if(is(Invisible) || enemy.is(Sleep)) {
 		appear();
 		enemy.dispell(Sleep, true);
 		// Attack from invisible state
@@ -1113,11 +1109,11 @@ void creature::makemove() {
 		// Персонаж под действием заклинения невидимости
 		// должен быть становиться невидимым в начале своего хода
 		// и если он оглушен, то он видимый, но если спит, то невидимый!!!
-		if(isboost(Invisibility))
-			add(Invisible, 1, false);
+		if(is(Invisibility))
+			add(Invisible, 1, true);
 	}
 	// Sleeped creature don't move
-	if(isboost(Sleep))
+	if(is(Sleep))
 		return;
 	if(is(Unaware))
 		add(Unaware, -1, true);

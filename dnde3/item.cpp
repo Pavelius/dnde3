@@ -34,6 +34,8 @@ Dexterity, Constitution,
 Armor, Speed};
 static variant wand_enchanments[] = {MagicMissile, ShokingGrasp, HealingSpell, ArmorSpell,
 CharmPerson, FearSpell, Invisibility, Repair, SickSpell, Sleep};
+static variant mage_common_spells[] = {MagicMissile, ShokingGrasp,
+ArmorSpell, CharmPerson, FearSpell, Invisibility, Repair, Sleep};
 static variant common_scroll[] = {BlessItem, DetectEvil, DetectMagic, Identify};
 
 itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, 0, NoGender, Organic, {0, 3, {1, 3}, Bludgeon, 4, 2}, {}, {}, {}, Melee},
@@ -102,11 +104,11 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", 0, 0, 0, NoGender, Organic, {0, 3, {
 {"Жезл", 20, 160 * GP, 1, NoGender, Iron, {}, {}, wand_enchanments, {Chargeable}, Zapable},
 {"Жезл", 30, 180 * GP, 2, NoGender, Iron, {}, {}, wand_enchanments, {Chargeable}, Zapable},
 //
-{"Книга", 0, 0 * GP, -1, NoGender, Paper, {}, {}, {}, {}},
-{"Книга", 0, 0 * GP, 0, NoGender, Paper, {}, {}, {}, {}},
-{"Книга", 0, 0 * GP, 0, NoGender, Paper, {}, {}, {}, {}},
-{"Мануал", 0, 0 * GP, 1, NoGender, Paper, {}, {}, {}, {}},
-{"Том", 0, 0 * GP, 2, NoGender, Paper, {}, {}, {}, {}},
+{"Книга", 0, 0 * GP, -1, NoGender, Paper, {}, {}, mage_common_spells, {}, Readable},
+{"Книга", 0, 0 * GP, 0, NoGender, Paper, {}, {}, mage_common_spells, {}, Readable},
+{"Книга", 0, 0 * GP, 0, NoGender, Paper, {}, {}, mage_common_spells, {}, Readable},
+{"Мануал", 0, 0 * GP, 1, NoGender, Paper, {}, {}, mage_common_spells, {}, Readable},
+{"Том", 0, 0 * GP, 2, NoGender, Paper, {}, {}, mage_common_spells, {}, Readable},
 //
 {"Зелье", 15, 20 * GP, -1, NoGender, Glass, {}, {}, common_potions, {}, Drinkable},
 {"Зелье", 20, 30 * GP, 0, NoGender, Glass, {}, {}, common_potions, {}, Drinkable},
@@ -523,28 +525,31 @@ void item::destroy() {
 		p->dresson();
 }
 
-void item::decoy(bool interactive) {
-	if(magic == Artifact || is(Natural))
+void item::decoy(damage_s type, bool interactive, bool include_artifact) {
+	if(is(Natural))
 		return;
 	if(iscountable())
 		return;
-	if(magic == Blessed && damaged == 3)
-		return;
+	if(!include_artifact) {
+		if((magic==Blessed && damaged == 3) || magic==Artifact)
+			return;
+	}
 	auto& ei = bsmeta<itemi>::elements[getkind()];
 	if(damaged < 3)
 		damaged++;
 	else {
 		if(interactive) {
-			static descriptioni damage_text[] = {
+			static descriptioni text[] = {
 				{Glass, Fire, "%герой расплавил%ась и взорвалась."},
 				{Glass, {}, "%герой разбил%ась вдребезги."},
 				{Wood, Fire, "%герой сгорел%а до тла."},
 				{Paper, Fire, "%герой моментально превратил%ась в пепел."},
+				{Paper, Magic, "%герой превратил%ась в пыль и рассыпал%ась."},
 				{{}, Fire, "%герой расплавил%ась."},
 				{{}, Cold, "%герой замерз%ла и разлетел%ась на куски."},
 				{{}, {}, "%герой уничтожен%а."}
 			};
-			act(damage_text->get(ei.material, type));
+			act(text->get(ei.material, type));
 		}
 		destroy();
 	}
@@ -565,5 +570,5 @@ void item::damage(int count, damage_s type, bool interactive) {
 	auto roll_result = d100();
 	if(roll_result < chance_resist)
 		return;
-	decoy(interactive);
+	decoy(type, interactive);
 }

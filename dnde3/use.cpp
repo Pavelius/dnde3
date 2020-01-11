@@ -172,6 +172,18 @@ bool item::use(skill_s id, creature& player, int order, bool run) {
 			if(is(SingleUse))
 				b += 35 - level * 5;
 			else {
+				auto effect = geteffect();
+				auto player_rang = 0;
+				switch(effect.type) {
+				case Spell:
+					player_rang = player.get((spell_s)effect.value);
+					b += 45 - player_rang * 10;
+					if(is(Blessed))
+						b += 15;
+					else if(is(Artifact))
+						b += 25;
+					break;
+				}
 			}
 			auto result = player.roll(Literacy, b);
 			if(is(Unknown)) {
@@ -197,7 +209,13 @@ bool item::use(skill_s id, creature& player, int order, bool run) {
 						if(!result || !player.cast((spell_s)v.value, level, this))
 							player.act("%герой вытащил%а %-1 и громко прочитал%а.", getname());
 					} else {
-
+						consume = false;
+						if(result)
+							player.add(v, 1, true);
+						else {
+							// Тут интересно
+						}
+						decoy(Magic, true, true);
 					}
 					break;
 				}
@@ -282,7 +300,7 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 		}
 		break;
 	case RemovePoisonSpell:
-		if(!isboost(Poison))
+		if(!is(Poison))
 			return false;
 		if(run)
 			dispell(Poison, true);
@@ -311,7 +329,7 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 		}
 		break;
 	case Sleep:
-		if(get(ResistCharm) >= 100 || isboost(Sleep))
+		if(get(ResistCharm) >= 100 || is(Sleep))
 			return false;
 		if(run) {
 			if(charmresist(15 * order))
