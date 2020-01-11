@@ -486,18 +486,12 @@ void creature::potion(ability_s id, variant source, bool interactive, item_type_
 			v = 1;
 		v += quality;
 		switch(magic) {
-		case Artifact: v *= 5000; break;
+		case Artifact: v *= 3000; break;
 		case Cursed: v *= -500; break;
 		case Blessed: v *= 500; break;
 		default: v *= 100; break;
 		}
-		if(interactive) {
-			if(v>=0)
-				act("%герой получил%а [+%1i] опыта.", v);
-			else
-				act("%герой потерял%а [-%1i] опыта.", v);
-		}
-		addexp(v);
+		addexp(v, interactive);
 		break;
 	case Attack: case Protection: case Deflect:
 		v = xrand(6, 24);

@@ -34,18 +34,11 @@ void creature::create(role_s type) {
 	this->variant::type = Role;
 	this->variant::value = type;
 	this->kind = ei.type;
-	auto& ci = getclass();
-	abilities[Level] = ei.level;
 	applyabilities();
 	for(auto v : ei.features)
 		add(v, 4, false);
-	for(auto i = 1; i < abilities[Level]; i++) {
-		if(ci.hp)
-			abilities[LifePoints] += xrand(ci.hp / 2, ci.hp);
-		if(ci.mp)
-			abilities[ManaPoints] += xrand(ci.mp / 2, ci.mp);
-		raiseskills();
-	}
+	while(abilities[Level] < ei.level)
+		raiselevel();
 	finish();
 }
 

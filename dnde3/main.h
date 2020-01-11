@@ -543,6 +543,7 @@ public:
 	skillu(creature* player);
 	skill_s				choose(bool interactive, const char* title, bool* cancel_result = 0) const;
 	int					getcap(skill_s i) const { return cap[i]; }
+	int					getcap(skill_s i, creature& player) const;
 	void				setcap(skill_s i, int v) { cap[i] = v; }
 	void				setcaps();
 };
@@ -614,6 +615,7 @@ struct foodi {
 class creature : public nameable {
 	char				abilities[ManaRate + 1];
 	unsigned char		skills[LastSkill + 1];
+	unsigned char		skills_potency[LastSkill + 1];
 	unsigned char		spells[LastSpell + 1];
 	item				wears[Amunitions + 1];
 	int					restore_energy, restore_hits, restore_mana;
@@ -628,7 +630,6 @@ class creature : public nameable {
 	//
 	void				add(spell_s id, unsigned minutes);
 	void				add(ability_s id, variant source, int v, bool interactive, unsigned minutes);
-	void				addx(variant id, variant source, int modifier, unsigned rounds);
 	bool				aiuse(const char* interactive, const char* title, slot_s slot, variant effect);
 	void				aimove();
 	bool				aiskills(creaturea& creatures);
@@ -649,7 +650,10 @@ class creature : public nameable {
 	void				equip(item it, slot_s id);
 	void				finish();
 	void				movecost(indext index);
+	void				raiseability();
+	void				raiselevel();
 	void				randomequip();
+	void				recall(variant id, variant source, int modifier, unsigned rounds);
 	bool				remove(item& it, bool run, bool talk);
 	bool				use(skill_s id, creature& player, int order, bool run);
 	bool				use(spell_s id, creature& player, int level, int order, bool run);
@@ -665,7 +669,7 @@ public:
 	void				add(state_s id, int v, bool interactive);
 	void				add(variant id, int v, bool interactive);
 	bool				add(item v, bool run, bool interactive);
-	void				addexp(int count);
+	void				addexp(int count, bool interactive = false);
 	void				appear();
 	bool				apply(creature& target, variant id, int v, int order, bool run);
 	void				backpack();
@@ -718,6 +722,7 @@ public:
 	short unsigned		getid() const;
 	creature*			getleader() const;
 	int					getlevel(skill_s v) const;
+	unsigned			getlevelup() const;
 	const char*			getlevelname(skill_s v) const;
 	int					getlos() const;
 	int					getmana() const { return mp; }

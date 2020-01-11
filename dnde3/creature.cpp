@@ -5,11 +5,10 @@ DECLDATA(creature, 256);
 static int			skill_level[] = {10, 40, 60, 80};
 static dicei		skill_raise[] = {{2, 12}, {1, 6}, {1, 4}, {1, 1}};
 static const char*	skill_names[] = {"Начальный", "Продвинутый", "Экспертный", "Мастерский"};
-static const char*	talk_subjects[] = {"гномов", "хоббитов", "эльфов", "рыцарей", "троллей", "дракона", "колдуна", "трех друзей"};
-static const char*	talk_object[] = {"сокровище", "волшебное кольцо", "проклятый артефакт", "гору", "истинную любовь", "прекрасную куртизанку"};
-static const char*	talk_location[] = {"библиотеку", "ратушу", "магазин", "таверну", "храм"};
-static const char*	talk_games[] = {"кубики", "карты", "наперстки", "шарады"};
 static creature*	current_player;
+static int			experience_count[] = {0,
+0, 1000, 2500, 4500, 7000, 10000, 13500, 17500, 22000, 27000,
+};
 
 void creature::clear() {
 	memset(this, 0, sizeof(*this));
@@ -119,7 +118,7 @@ void creature::dispell(variant source, bool interactive) {
 	bsmeta<boosti>::source.setcount(ps - bsmeta<boosti>::elements);
 }
 
-void creature::addx(variant id, variant source, int modifier, unsigned rounds) {
+void creature::recall(variant id, variant source, int modifier, unsigned rounds) {
 	auto p = bsmeta<boosti>::add();
 	p->id = id;
 	p->source = source;
@@ -367,13 +366,30 @@ void creature::raiseskills(int number) {
 	source.select(*this);
 	source.shuffle();
 	source.setcaps();
-	unsigned index = 0;
-	unsigned count = source.getcount();
-	while(number > 0) {
-		if(index >= count)
-			index = 0;
-		raise(source[index++]);
-		number--;
+	if(isactive()) {
+		source.sort();
+		while(number > 0) {
+			char temp[260]; stringbuilder sb(temp);
+			sb.add("Какой навык повысить (осталось еще %1i)?", number);
+			auto s = source.choose(true, temp, 0);
+			raise(s);
+			auto v = source.getcap(s);
+			if(skills[s] > v)
+				skills[s] = v;
+			number--;
+		}
+	} else {
+		unsigned index = 0;
+		unsigned count = source.getcount();
+		while(number > 0) {
+			if(index >= count)
+				index = 0;
+			auto s = source[index++]; raise(s);
+			auto v = source.getcap(s);
+			if(skills[s] > v)
+				skills[s] = v;
+			number--;
+		}
 	}
 }
 
@@ -389,9 +405,32 @@ void creature::randomequip() {
 	money += xrand(3, 18)*GP;
 }
 
+void creature::raiseability() {
+	auto& ei = getclass();
+	switch(abilities[Level]) {
+	case 0:
+		abilities[Attack] += ei.weapon.base;
+		break;
+	case 1:
+		abilities[LifePoints] += ei.hp;
+		abilities[ManaPoints] += ei.mp;
+		abilities[Attack] += ei.weapon.multiplier;
+		break;
+	default:
+		if(ei.hp)
+			abilities[LifePoints] += xrand(ei.hp / 2, ei.hp);
+		if(ei.mp)
+			abilities[ManaPoints] += xrand(ei.mp / 2, ei.mp);
+		abilities[Attack] += ei.weapon.multiplier;
+		break;
+	}
+}
+
 void creature::applyabilities() {
 	const auto& ri = bsmeta<racei>::elements[getrace()];
 	const auto& ci = getclass();
+	// Create base abilities
+	abilities[Level] = 0;
 	// Generate abilities
 	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1))
 		abilities[i] = ri.abilities[i] + (rand() % 5) - 2;
@@ -412,11 +451,7 @@ void creature::applyabilities() {
 	// Class spells
 	for(auto e : ci.spells)
 		add(e, 1, false);
-	// Hits
-	if(abilities[Level] > 0) {
-		abilities[LifePoints] += getclass().hp;
-		abilities[ManaPoints] += getclass().mp;
-	}
+	raiseability();
 	dresson();
 }
 
@@ -430,13 +465,14 @@ void creature::create(race_s race, gender_s gender, class_s type) {
 	this->variant::type = Role;
 	this->variant::value = Character;
 	this->kind = type;
-	abilities[Level] = 1;
 	setname(race, gender);
 	applyabilities();
+	dressoff();
 	raise(Climbing);
 	if(abilities[Intellegence] >= 9)
 		raise(Literacy);
-	raiseskills();
+	dresson();
+	raiselevel();
 	randomequip();
 	finish();
 }
@@ -454,8 +490,6 @@ attacki creature::getattack(slot_s id, const item& weapon) const {
 	if(!result.dice.max)
 		return result;
 	auto& ci = getclass();
-	result.attack += ci.weapon.base;
-	result.attack += get(Level) * ci.weapon.multiplier;
 	result.attack += get(Attack);
 	result.dice.min += get(Damage);
 	result.dice.max += get(Damage);
@@ -1313,8 +1347,37 @@ void creature::damage(int value, damage_s type, int pierce, bool interactive) {
 	}
 }
 
-void creature::addexp(int v) {
-	experience += v;
+unsigned creature::getlevelup() const {
+	return experience_count[abilities[Level] + 1];
+}
+
+void creature::raiselevel() {
+	dressoff();
+	abilities[Level] += 1;
+	raiseability();
+	raiseskills();
+	dresson();
+}
+
+void creature::addexp(int v, bool interactive) {
+	v = v * (90 + get(Intellegence)) / 100;
+	if(v > 0) {
+		experience += v;
+		if(interactive)
+				act("%герой получил%а [+%1i] опыта.", v);
+			while(experience >= getlevelup()) {
+			if(is(Friendly)) {
+				activate();
+				act("Мои поздравления, %герой получил%а новый уровень опыта.");
+				act("Теперь вы %-1 [%2i] уровня.", getstr(kind), abilities[Level] + 1);
+				pause();
+			}
+			raiselevel();
+		}
+	} else {
+		if(interactive)
+			act("%герой потерял%а [-%1i] опыта.", v);
+	}
 }
 
 void creature::enslave() {
@@ -1521,31 +1584,14 @@ bool creature::match(variant id) const {
 }
 
 void creature::add(spell_s id, unsigned minutes) {
-	addx({}, id, 0, game.getrounds() + minutes);
+	recall({}, id, 0, game.getrounds() + minutes);
 }
 
 void creature::add(ability_s id, variant source, int v, bool interactive, unsigned minutes) {
 	if(!v)
 		return;
 	add(id, v, interactive);
-	addx(id, source, -v, game.getrounds() + minutes);
-}
-
-static int getchance(int chance, bool hostile, int quality, int damage) {
-	if(!chance)
-		return 100;
-	auto m = 1;
-	if(chance > 5)
-		m = chance / 4;
-	if(hostile)
-		chance += m*damage - quality;
-	else
-		chance += m*quality - damage;
-	if(chance < 0)
-		chance = 0;
-	if(chance > 100)
-		chance = 100;
-	return chance;
+	recall(id, source, -v, game.getrounds() + minutes);
 }
 
 void creature::paymana(int value, bool interactive) {

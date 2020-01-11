@@ -7,6 +7,15 @@ static void choose_children(stringbuilder& sb, manual& mn, answeri& an) {
 	}
 }
 
+static void add_children(stringbuilder& sb, manual& mn, answeri& an) {
+	for(auto& e : bsmeta<manual>()) {
+		if(e.parent == mn.value) {
+			sb.addn("[%1]: ", e.name);
+			sb.adds(e.text);
+		}
+	}
+}
+
 static void ability_skills(stringbuilder& sb, manual& mn, answeri& an) {
 	skilla source;
 	for(auto& e : bsmeta<skilli>()) {
@@ -27,7 +36,7 @@ static void ability_skills(stringbuilder& sb, manual& mn, answeri& an) {
 }
 
 static manual::proc ability_list[] = {choose_children};
-static manual::proc ability_procs[] = {ability_skills};
+static manual::proc ability_procs[] = {add_children, ability_skills};
 static manual::proc manual_list[] = {choose_children};
 static manual::proc skill_list[] = {choose_children};
 static manual::proc state_list[] = {choose_children};
@@ -39,6 +48,7 @@ manual bsmeta<manual>::elements[] = {{NoVariant, Variant, "Мануал", "Содержит сп
 {Ability, Intellegence, 0, "Интеллект характеризует память, рассудительность персонажа и его способность к обучению, включая области вне того, что можно выразить печатным словом.", ability_procs},
 {Ability, Wisdow, 0, "Мудрость характеризует совокупность просвещенности, рассудительности, силы воли, здравого смысла и интуиции персонажа.", ability_procs},
 {Ability, Charisma, 0, "Обаяние характеризует способность персонажа к убеждению, его личную привлекательность и лидерские качества. Это не отражает физической привлекательности, хотя она, разумеется, также играет роль. Обаяние важно для всех персонажей, а особенно для тех, кто собирается иметь дело с неигровыми персонажами, наемными воинами, слугами и разумными животными.", ability_procs},
+{Intellegence, 0, "Дополнительный опыт", "Персонаж получает [++1%%] опыта за каждую единицу интеллекта более **10** и [--1%%] опыта за каждую единицу интеллекта менее 10."},
 {Variant, Trap, "Ловушки", "В любом подземелье находится множество ловушек. По-умолчанию все ловушки скрыты и когда герой становится на клетке с ловушкой делается тестирование навыка [Внимательность] c штрафом [--20%%]. Если тест удался герой обнаруживает ловушку и получает немного опыта. Иначе срабатывает эффект ловушки и она становится видимой.\nПри повторном наступании на ловушку также делается тест внимательности, но с бонусом [++15%%]. Если тест удался герой повторно обходит ловушку (опыт, конечно же, снова не получает)."},
 {Variant, Skill, "Навыки персонажей", "Каждый персонаж имеет определенное количество навыков. Их число зависит от класса и расы.", skill_list},
 {Variant, State, "Состояния персонажей", "Во время приключений персонажи сталкиваются с множетсвом опасностей.", state_list},

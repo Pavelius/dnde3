@@ -1330,7 +1330,7 @@ static int text(int x, int y, int width, int value, const char* format = "%1i") 
 static int text(int x, int y, int width, dicei v, const char* format = "+ %1i-%2i") {
 	char temp[32]; stringbuilder sb(temp);
 	sb.add(format, v.min, v.max);
-	text(x + width - textw(temp), y, temp);
+	text(x, y, temp);
 	return width + 8;
 }
 
@@ -1349,18 +1349,25 @@ skill_s skillu::choose(bool interactive, const char* title, bool* cancel_result)
 		auto index = 0;
 		for(auto e : *this) {
 			auto x0 = x;
-			if(button(x0, y, 0, Alpha + answeri::getkey(index), 0))
-				execute(breakparam, (int)e);
+			auto sv = player->get(e);
+			auto cv = getcap(e, *player);
+			if(button(x0, y, 0, Alpha + answeri::getkey(index), 0)) {
+				auto need_execute = true;
+				if(!cancel_result && sv >= cv)
+					need_execute = false;
+				if(need_execute)
+					execute(breakparam, (int)e);
+			}
 			x0 += 22;
 			if((index + 1) % 2)
 				rectf({x, y, x + width, y + texth() + 1}, colors::white, 4);
 			text(x0, y, getstr(e)); x0 += 220;
 			x0 += text(x0, y, 36, player->get(e), "%1i%%");
-			if(cancel_result)
+			if(cancel_result || sv >= cv)
 				x0 += text(x0, y, 100, player->getlevelname(e));
 			else {
 				x0 += text(x0, y, 36, player->getraise(e));
-				x0 += text(x0, y, 64, getcap(e), " макс. %1i%%");
+				x0 += text(x0, y, 64, cv, " макс. %1i%%");
 			}
 			index++;
 			y += texth() + 4;
@@ -1407,7 +1414,7 @@ item* itema::choose(const char* interactive, const char* title, const char* form
 				if((index + 1) % 2)
 					rectf({x, y, x + width, y + texth() + 1}, colors::white, 4);
 				render(x0, y, 110, *e, mode);
-				render_item(x0, y, x2 - x0 - 72, *e, mode==NoSlotName);
+				render_item(x0, y, x2 - x0 - 72, *e, mode == NoSlotName);
 				render_weight(x0, y, x2 - x0, *e);
 				index++;
 				y += texth() + 4;
