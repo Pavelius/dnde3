@@ -206,7 +206,8 @@ enum sale_s : unsigned char {
 };
 enum target_flag_s : unsigned char {
 	NotYou, Friends, Enemies, AlwaysChoose,
-	RandomTargets, TwoTargets, ThreeTargets, AllTargets,
+	RandomTargets, TwoTargets, ThreeTargets,
+	AllTargets,
 };
 typedef short unsigned indext;
 typedef adat<rect, 64> rooma;
@@ -609,6 +610,7 @@ class creature : public nameable {
 	bool				aiuse(const char* interactive, const char* title, slot_s slot, variant effect);
 	void				aimove();
 	bool				aiskills(creaturea& creatures);
+	bool				aispells(creaturea& creatures);
 	void				aiturn(creaturea& creatures, creaturea& enemies, creature* enemy);
 	void				applyabilities();
 	void				applyaward() const;
@@ -637,6 +639,7 @@ public:
 	//
 	void				activate();
 	void				add(ability_s id, int v, bool interactive);
+	void				add(spell_s id, int v, bool interactive);
 	void				add(state_s id, int v, bool interactive);
 	void				add(variant id, int v, bool interactive);
 	void				add(variant id, variant source, int v, bool interactive, unsigned minutes);
@@ -651,7 +654,6 @@ public:
 	bool				cansee(indext i) const;
 	bool				canshoot() const;
 	bool				cast(spell_s id, int level, item* magic_source = 0);
-	bool				cast(creaturea& creatures, spell_s id, int level, item* magic_source = 0);
 	void				chat(creature* opponent);
 	bool				charmresist(int bonus = 0) const;
 	void				create(race_s race, gender_s gender, class_s type);
@@ -756,6 +758,7 @@ public:
 	void				unlink();
 	bool				use(item& it, bool interactive);
 	bool				use(creaturea& source, skill_s id);
+	bool				use(creaturea& creatures, spell_s id, int level, item* magic_source);
 	void				readsomething();
 	void				useskills();
 	void				usespells();
@@ -789,6 +792,7 @@ public:
 class spella : public adat<spell_s, LastSpell + 1> {
 public:
 	spell_s				choose(const char* interactive, const char* title, bool* cancel_result, const creature* player) const;
+	void				match(target_flag_s v, bool remove);
 	void				select(const creature& player);
 };
 struct targeti {

@@ -994,6 +994,42 @@ bool creature::needrestore(ability_s id) const {
 	return false;
 }
 
+void creature::add(spell_s id, int v, bool interactive) {
+	if(v > 0) {
+		spells[id] += v;
+		if(interactive) {
+			if(spells[id]==1)
+				act("%герой изучил%а заклинание %+1.", getstr(id));
+			else if(spells[id]>1)
+				act("%герой улучшил%а владение заклинанием %+1 до [%2i] ранга.", getstr(id), spells[id]);
+		}
+	} else if(v<0) {
+		v = -v;
+		if(v > spells[id])
+			v = spells[id];
+		spells[id] -= v;
+		if(interactive) {
+			if(spells[id]==0)
+				act("%герой забыл%а заклинание %+1.", getstr(id));
+			else
+				act("%герой ухудшил%а уровень владения заклинанием %+1 до [%2i] ранга.", getstr(id), spells[id]);
+		}
+	}
+}
+
+bool creature::aispells(creaturea& creatures) {
+	spella source;
+	source.select(*this);
+	source.shuffle();
+	for(auto s : source) {
+		if(use(creatures, s, get(s), 0)) {
+			wait();
+			return true;
+		}
+	}
+	return false;
+}
+
 bool creature::aiskills(creaturea& creatures) {
 	skilla source;
 	source.select(*this);
@@ -1024,6 +1060,8 @@ void creature::aiturn(creaturea& creatures, creaturea& enemies, creature* enemy)
 			rangeattack(*enemy);
 			return;
 		}
+		if(aispells(creatures))
+			return;
 		moveto(enemy->getposition());
 	} else {
 		if(is(Fear))

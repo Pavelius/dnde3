@@ -552,10 +552,12 @@ bool creature::apply(creature& player, variant id, int v, int order, bool run) {
 
 bool creature::cast(spell_s id, int level, item* magic_source) {
 	creaturea creatures(*this);
-	return cast(creatures, id, level, magic_source);
+	return use(creatures, id, level, magic_source);
 }
 
-bool creature::cast(creaturea& source, spell_s id, int level, item* magic_source) {
+bool creature::use(creaturea& source, spell_s id, int level, item* magic_source) {
+	if(!(*this))
+		return true;
 	auto& ei = bsmeta<spelli>::elements[id];
 	if(magic_source) {
 		if(magic_source->ischargeable() && magic_source->getcharges() <= 0)
