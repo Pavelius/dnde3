@@ -276,7 +276,21 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 			act("%герой почувствовал%а отравление.");
 		}
 		break;
+	case RemovePoisonSpell:
+		if(!isboost(Poison))
+			return false;
+		if(run)
+			dispell(Poison, true);
+		break;
+	case RemoveSickSpell:
+		if(!is(Sick))
+			return false;
+		if(run)
+			add(Sick, -1, true);
+		break;
 	case SickSpell:
+		if(is(Sick))
+			return false;
 		if(run) {
 			if(roll(ResistPoison, 10 - level*5)) {
 				act("%герой противостоял%а болезни.");
@@ -289,6 +303,16 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 		if(run) {
 			add(Protection, id, 20 * level, false, 20);
 			act("Вокруг %героя появилось защитное поле.");
+		}
+		break;
+	case Sleep:
+		if(get(ResistCharm)>=100 || isboost(Sleep))
+			return false;
+		if(run) {
+			if(charmresist(15 * order))
+				return false;
+			add(Sleep, xrand(2 * level, 8 * level));
+			act("%герой внезапно заснул%а.");
 		}
 		break;
 	case SlowMonster:

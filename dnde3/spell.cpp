@@ -19,7 +19,7 @@ spelli bsmeta<spelli>::elements[] = {{"Волшебная броня", "волшебной брони", 10, 
 {"Болезнь", "болезни", 10, {Creature, {Enemies}, Close, "Кого заразить?"}},
 {"Волшебный щит", "щита", 6, {Creature, {Friends}, Close, "На кого наложить щит?"}},
 {"Шокирующая хватка", "электричества", 3, {Creature, {Enemies}, Close}, {1, 8}, 2, Electricity, "сорвался элекрический заряд"},
-{"Сон", "сна", 10, {Creature, {Enemies}, Reach}},
+{"Сон", "сна", 10, {Creature, {Enemies, TwoTargets, NotYou}, Reach}},
 {"Замедлить монстра", "замедления", 12, {Creature, {Enemies, RandomTargets}, Near}},
 };
 assert_enum(spell, SlowMonster);

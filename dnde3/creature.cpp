@@ -97,9 +97,17 @@ void creature::dispell(variant source, bool interactive) {
 		if(e.owner == owner || e.source == source) {
 			if(e.id)
 				add(e.id, e.modifier, interactive);
-			else {
-				if(interactive)
-					feel(LifePoints, true);
+			else if(source.type==Spell) {
+				if(interactive) {
+					switch(source.value) {
+					case Sleep:
+						act("%герой внезапно проснул%ась.");
+						break;
+					default:
+						feel(LifePoints, true);
+						break;
+					}
+				}
 			}
 			continue;
 		}
@@ -891,8 +899,9 @@ void creature::consume(int v) {
 }
 
 void creature::attack(creature& enemy, const attacki& ai, int bonus, int danger) {
-	if(is(Invisible)) {
+	if(is(Invisible) || enemy.isboost(Sleep)) {
 		appear();
+		enemy.dispell(Sleep, true);
 		// Attack from invisible state
 		// increase danger and chance to hit
 		bonus += get(Backstabbing);
@@ -1108,7 +1117,7 @@ void creature::makemove() {
 			add(Invisible, 1, false);
 	}
 	// Sleeped creature don't move
-	if(is(Sleeped))
+	if(isboost(Sleep))
 		return;
 	if(is(Unaware))
 		add(Unaware, -1, true);

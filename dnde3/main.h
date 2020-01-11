@@ -106,7 +106,7 @@ enum skill_s : unsigned char {
 };
 enum state_s : unsigned char {
 	Anger, Darkvision, Dazzled, Drunken, Fear, Friendly, Hostile,
-	Invisible, Sick, Sleeped,
+	Invisible, Sick,
 	Unaware, Wounded,
 	LastState = Wounded,
 };
