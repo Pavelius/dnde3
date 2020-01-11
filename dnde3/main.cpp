@@ -23,7 +23,6 @@ static void create(creature* p1, item_s type, variant effect) {
 	item it;
 	it.create(type, 5, 20, 6, 40);
 	it.set(KnownPower);
-	it.set(Artifact);
 	it.seteffect(effect);
 	p1->add(it, true, false);
 }
@@ -135,6 +134,7 @@ static void test_dungeon() {
 	auto p3 = create(Human, Male, Fighter);
 	p1->activate();
 	create(p1, Potion3, Level);
+	create(p1, Amulet1, Lockpicking);
 	create(p1, Boot1);
 	create(p1, Helmet);
 	create(p1, RingRed);

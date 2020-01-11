@@ -23,7 +23,7 @@ const int max_building_size = 15;
 
 const int chance_act = 40;
 const int chance_blood_when_dead = 70;
-const int chance_drop_item = 40;
+const int chance_drop_item = 25;
 const int chance_scarry_cry = 20;
 const int chance_turn_chargeable_to_dust = 70;
 const int restore_points_percent = 75;

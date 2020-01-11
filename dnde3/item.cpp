@@ -37,6 +37,7 @@ CharmPerson, FearSpell, Invisibility, Repair, SickSpell, Sleep};
 static variant mage_common_spells[] = {MagicMissile, ShokingGrasp,
 ArmorSpell, CharmPerson, FearSpell, Invisibility, Repair, Sleep};
 static variant common_scroll[] = {BlessItem, DetectEvil, DetectMagic, Identify};
+static variant common_amulet[] = {Charisma, Strenght, Lockpicking};
 
 itemi bsmeta<itemi>::elements[] = {{"Рука", Unique, 0, 0, 0, NoGender, Organic, {0, 3, {1, 3}, Bludgeon, 4, 2}, {}, {}, {}, Melee},
 {"Боевой топор", Common, 850, 5 * GP, 0, Male, Iron, {-4, 3, {1, 8}, Slashing, 0, 2}, {}, {}, {Versatile}, Melee, FocusAxes},
@@ -120,17 +121,17 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", Unique, 0, 0, 0, NoGender, Organic, 
 {"Кольцо", Uncommon, 1, 40 * GP, 0, NoGender, Iron, {}, {}, ring_enchanments, {}, RightFinger},
 {"Кольцо", Rare, 2, 60 * GP, 1, NoGender, Iron, {}, {}, ring_enchanments, {}, RightFinger},
 //
-{"Амулет", Common, 20, 0 * GP, -1, NoGender, Wood, {}, {}, {}, {}, Neck},
-{"Амулет", Uncommon, 20, 0 * GP, 0, NoGender, Wood, {}, {}, {}, {}, Neck},
-{"Амулет", Uncommon, 20, 0 * GP, 0, NoGender, Iron, {}, {}, {}, {}, Neck},
-{"Амулет", Uncommon, 30, 0 * GP, 1, NoGender, Iron, {}, {}, {}, {}, Neck},
-{"Амулет", Rare, 40, 0 * GP, 2, NoGender, Iron, {}, {}, {}, {}, Neck},
+{"Амулет", Uncommon, 20, 250 * GP, -1, Male, Wood, {}, {}, common_amulet, {}, Neck},
+{"Медальон", Uncommon, 20, 300 * GP, 0, Male, Wood, {}, {}, common_amulet, {}, Neck},
+{"Амулет", Uncommon, 20, 350 * GP, 0, Male, Iron, {}, {}, common_amulet, {}, Neck},
+{"Амулет", Uncommon, 30, 400 * GP, 1, Male, Iron, {}, {}, common_amulet, {}, Neck},
+{"Ожерелье", Rare, 40, 450 * GP, 2, NoGender, Iron, {}, {}, common_amulet, {}, Neck},
 //
-{"Ключ", Common, 0, 0 * GP, 0, NoGender, Iron, {}, {}, {}, {}},
+{"Ключ", Common, 0, 0 * GP, 0, Male, Iron, {}, {}, {}, {}},
 //
-{"Монеты", Common, 0, 1 * CP, -1, NoGender, Iron, {}, {}, {}, {Coinable, Countable}},
-{"Серебрянные монеты", Common, 0, 1 * SP, 0, NoGender, Iron, {}, {}, {}, {Coinable, Countable}},
-{"Золотые монеты", Common, 0, 1 * GP, 1, NoGender, Iron, {}, {}, {}, {Coinable, Countable}},
+{"Монета", Common, 0, 1 * CP, -1, Female, Iron, {}, {}, {}, {Coinable, Countable}},
+{"Серебрянная монета", Common, 0, 1 * SP, 0, Female, Iron, {}, {}, {}, {Coinable, Countable}},
+{"Золотая монета", Common, 0, 1 * GP, 1, Female, Iron, {}, {}, {}, {Coinable, Countable}},
 //
 {"Когти", Common, 0, 0 * GP, 0, NoGender, Organic, {-6, 3, {1, 6}, Slashing, 3, 1}, {}, {}, {Natural}, Melee},
 {"Кулаки", Common, 0, 0 * GP, 0, NoGender, Organic, {0, 4, {1, 6}, Bludgeon, 0, 2}, {}, {}, {Natural}, Melee},
@@ -256,9 +257,17 @@ void item::getname(stringbuilder& sb, bool show_cab) const {
 				sb.adds(effect.getnameofc());
 			else
 				sb.adds(effect.getnameof());
-			if(effect.type == Ability) {
+			switch(effect.type) {
+			case Ability:
 				format = bsmeta<abilityi>::elements[effect.value].format;
 				q = bsmeta<abilityi>::elements[effect.value].getbonus(q);
+				break;
+			case Skill:
+				if(!is(Readable)) {
+					q = q * 10;
+					format = "%+1i%%";
+				}
+				break;
 			}
 		}
 		if(ei.slot >= Head && ei.slot <= Amunitions && q != 0)

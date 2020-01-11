@@ -202,11 +202,9 @@ void creature::dress(int m) {
 			abilities[id.value] += m * bsmeta<abilityi>::elements[id.value].getbonus(q);
 			break;
 		case Skill:
-			if(q > 0)
-				q = 20 + q * 10;
-			else
-				q = q * 10;
-			skills[id.value] += m * q;
+			// Apply only to known skills
+			if(skills[id.value])
+				skills[id.value] += m * q * 10;
 			break;
 		}
 	}
@@ -1263,13 +1261,13 @@ void creature::dropitems() {
 			continue;
 		if(e.is(Natural))
 			continue;
-		if(e.getmagic() == Mundane) {
+		if(e.getmagic() != Artifact) {
 			if(d100() >= chance_drop_item)
 				continue;
 		}
 		e.loot();
 		loc.drop(index, e);
-		e.clear();
+		e.destroy(Magic, false);
 	}
 }
 

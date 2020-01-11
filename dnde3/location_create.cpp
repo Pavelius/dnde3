@@ -185,7 +185,7 @@ static void create_connector(short unsigned index, direction_s dir, const rect& 
 		if(start == Blocked) {
 			start = index;
 			if(d100() < 60)
-				loc.set(start, Door);
+				create_door(start);
 		} else {
 			if(d100() < chance_corridor_content)
 				create_corridor_content(index);
