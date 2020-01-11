@@ -1161,6 +1161,14 @@ bool creature::rollv(int v) {
 	return d100() < v;
 }
 
+int	creature::rollv(int v1, int v2) {
+	auto r1 = d100();
+	auto r2 = d100();
+	auto d1 = imax(0, v1 - r1);
+	auto d2 = imax(0, v2 - r2);
+	return d1 - d2;
+}
+
 void creature::applyaward() const {
 	auto index = getposition();
 	if(index == Blocked)

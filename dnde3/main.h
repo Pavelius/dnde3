@@ -745,6 +745,7 @@ public:
 	bool				roll(skill_s v, int bonus) const { return rollv(get(v) + bonus); }
 	bool				roll(skill_s v, int bonus, int divider) const;
 	static bool			rollv(int v);
+	static int			rollv(int v1, int v2);
 	void				say(const char* format, ...) const;
 	void				select(itema& a, slot_s i1, slot_s i2, bool filled_only);
 	void				select(skilla& e) const;

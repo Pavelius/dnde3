@@ -1,5 +1,10 @@
 #include "main.h"
 
+static const char* talk_subjects[] = {"гномов", "хоббитов", "эльфов", "рыцарей", "троллей", "дракона", "колдуна", "трех друзей"};
+static const char* talk_object[] = {"сокровище", "волшебное кольцо", "проклятый артефакт", "гору", "истинную любовь", "прекрасную куртизанку"};
+static const char* talk_location[] = {"библиотеку", "ратушу", "магазин", "таверну", "храм"};
+static const char* talk_games[] = {"кубики", "карты", "наперстки", "шарады"};
+
 bool item::isboost(variant id) const {
 	// Simple case, when item have effect
 	if(is(KnownPower)) {
@@ -292,7 +297,7 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 		if(is(Sick))
 			return false;
 		if(run) {
-			if(roll(ResistPoison, 10 - level*5)) {
+			if(roll(ResistPoison, 10 - level * 5)) {
 				act("%герой противостоял%а болезни.");
 				return false;
 			}
@@ -306,7 +311,7 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 		}
 		break;
 	case Sleep:
-		if(get(ResistCharm)>=100 || isboost(Sleep))
+		if(get(ResistCharm) >= 100 || isboost(Sleep))
 			return false;
 		if(run) {
 			if(charmresist(15 * order))
@@ -352,6 +357,65 @@ bool creature::use(skill_s id, creature& player, int order, bool run) {
 				return false;
 			}
 			add(Invisible, 1, true);
+		}
+		break;
+	case Gambling:
+		if(!skills[Gambling] || loc.getlight() <= -1)
+			return false;
+		if(run) {
+			auto stack = 100 * (1 + player.get(Gambling) / 20);
+			if(player.getmoney() < stack) {
+				player.say("Дай [%2i] монет, сыграть в %1.", maprnd(talk_games), stack);
+				return false;
+			}
+			player.say("Давай сыграем в %1?", maprnd(talk_games));
+			if(getmoney() < stack) {
+				say("Нет. Я на мели. В другой раз.");
+				return false;
+			}
+			say("Идея неплохая. Я только за.");
+			auto result = rollv(player.get(Gambling), get(Gambling));
+			if(result > 0) {
+				player.setmoney(player.getmoney() + stack);
+				setmoney(getmoney() - stack);
+				player.act("%герой выиграл%а [%1i] монет.", stack);
+				player.addexp(10);
+			} else if(result < 0) {
+				player.setmoney(player.getmoney() - stack);
+				setmoney(getmoney() + stack);
+				player.act("%герой с дребезгом проиграл%а [%1i] монет.", stack);
+			} else
+				player.act("Игра не зашла. Все остались при своем.");
+		}
+		break;
+	case PickPockets:
+		if(getmoney() <= 20 || loc.getlight() <= -1)
+			return false;
+		if(run) {
+			static const char* talk[] = {
+				"Слушай смешной анекдот. Так ... как же он начинается? ... Забыл. Ладно, давай в другой раз расскажу.",
+				"О - смотри кто это?",
+				"Вы не знаете как пройти в %3? О, спасибо, я сам вспомнил дорогу.",
+				"Слышал эту историю про %1 и %2? Нет? Я тоже..."
+			};
+			player.say(maprnd(talk), maprnd(talk_subjects), maprnd(talk_object), maprnd(talk_location));
+			if(player.roll(PickPockets)) {
+				auto count = xrand(3, 18)*(1 + player.get(PickPockets) / 5);
+				if(count > getmoney())
+					count = getmoney();
+				setmoney(getmoney() - count);
+				player.setmoney(player.getmoney() + count);
+				player.act("%герой украл%а [%1i] монет.", count);
+				player.addexp(100);
+			} else {
+				static const char* talk[] = {
+					"Ах ты наглый вор! На тебе по морде!",
+					"Ах тыж гадина! Руки убери! На, получай!",
+					"Ну нет. Вот тебе, козлина, будешь знать как воровать!"
+				};
+				say(maprnd(talk));
+				player.damage(xrand(1, 3), Bludgeon, 100, true);
+			}
 		}
 		break;
 	default: return false;
