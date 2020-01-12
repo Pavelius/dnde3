@@ -52,9 +52,15 @@ creature* site::shopkeeper() {
 	return add(Shopkeeper);
 }
 
-void site::create(int x, int y, int w, int h, site_s type) {
-	if(w < 1 || h < 1)
+void site::create() {
+	if(!(*this))
 		return;
+	static slot_s weapons[] = {Melee};
+	static slot_s armors[] = {Melee};
+	static slot_s potions[] = {Drinkable};
+	static slot_s scrolls[] = {Readable};
+	static slot_s treasures[] = {Coinable};
+	static slot_s edible[] = {Edible};
 	switch(type) {
 	case Temple:
 		diety = (diety_s)xrand(GodBane, GodTyr);
@@ -67,18 +73,20 @@ void site::create(int x, int y, int w, int h, site_s type) {
 		break;
 	case ShopWeaponAndArmor:
 		setowner(shopkeeper());
-		//create_shop(x, y, w, h, 90, 10, true, item::getitems(source, slots_weapons_armor));
+		loc.loot(*this, armors, 30, loc.level, 10, KnownPower, 0);
+		loc.loot(*this, weapons, 70, loc.level, 10, KnownPower, 0);
 		break;
 	case ShopPotionAndScrolls:
 		setowner(shopkeeper());
-		//create_shop(x, y, w, h, 90, 10, true, item_potion_scrolls);
+		loc.loot(*this, scrolls, 70, loc.level, 10, KnownPower, 0);
+		loc.loot(*this, potions, 40, loc.level, 10, KnownPower, 0);
 		break;
 	case ShopFood:
 		setowner(shopkeeper());
-		//create_shop(x, y, w, h, 90, 10, true, item_food, 25, Unknown);
+		loc.loot(*this, edible, 90, loc.level, 20);
 		break;
 	case TreasureRoom:
-		//create_shop(x, y, w, h, 80, 10, false, item_treasure);
+		loc.loot(*this, treasures, 60, loc.level, 0, Unknown);
 		break;
 	case Barracs:
 		for(auto i = xrand(2, 4); i > 0; i--)

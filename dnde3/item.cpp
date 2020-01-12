@@ -63,12 +63,12 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", Unique, 0, 0, 0, NoGender, Organic, 
 {"Стрела", Common, 3, 2 * CP, 0, Female, Wood, {0, 0, {}, Piercing, 0, 0, NoItem, Arrow}, {}, {}, {Countable}, Amunitions},
 {"Болт", Common, 2, 1 * CP, 0, Male, Iron, {0, 0, {}, Piercing, 0, 0, NoItem, Bolt}, {}, {}, {Countable}, Amunitions},
 //
-{"Кожанная броня", Common, 1000, 5 * GP, 0, Female, Leather, {-5}, {10, 1, 15}, {}, {}, Torso},
-{"Клепанная броня", Common, 1500, 15 * GP, 0, Female, Leather, {-7}, {15, 1, 15}, {}, {}, Torso},
-{"Чешуйчатый доспех", Uncommon, 2500, 30 * GP, 0, Male, Iron, {-12}, {25, 2, 30}, {}, {}, Torso},
-{"Кольчуга", Common, 2600, 50 * GP, 0, Female, Iron, {-10}, {25, 3, 25}, {}, {}, Torso},
-{"Бахрец", Uncommon, 3000, 200 * GP, 0, Male, Iron, {-15}, {30, 4, 35}, {}, {}, Torso},
-{"Латы", Rare, 3500, 800 * GP, 0, Female, Iron, {-20}, {40, 5, 35}, {}, {}, Torso},
+{"Кожанная броня", Common, 1000, 5 * GP, 0, Female, Leather, {-5}, {10, 0, 15}, {}, {}, Torso},
+{"Клепанная броня", Common, 1500, 15 * GP, 0, Female, Leather, {-7}, {15, 0, 15}, {}, {}, Torso},
+{"Чешуйчатый доспех", Uncommon, 2500, 30 * GP, 0, Male, Iron, {-15}, {25, 1, 30}, {}, {}, Torso},
+{"Кольчуга", Common, 2600, 50 * GP, 0, Female, Iron, {-10}, {25, 1, 25}, {}, {}, Torso},
+{"Бахрец", Uncommon, 3000, 200 * GP, 0, Male, Iron, {-15}, {30, 2, 35}, {}, {}, Torso},
+{"Латы", Rare, 3500, 800 * GP, 0, Female, Iron, {-20}, {40, 3, 35}, {}, {}, Torso},
 //
 {"Щит", Common, 800, 0 * GP, 0, Male, Iron, {-5, 1}, {10, 0, 25, 5}, {}, {}, OffHand},
 {"Шлем", Common, 100, 0 * GP, 0, Male, Iron, {-1}, {5, 0, 20, 3}, {}, {}, Head},
@@ -130,9 +130,9 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", Unique, 0, 0, 0, NoGender, Organic, 
 //
 {"Ключ", Common, 0, 0 * GP, 0, Male, Iron, {}, {}, {}, {}},
 //
-{"Монета", Common, 0, 1 * CP, -1, Female, Iron, {}, {}, {}, {Coinable, Countable}},
-{"Серебрянная монета", Common, 0, 1 * SP, 0, Female, Iron, {}, {}, {}, {Coinable, Countable}},
-{"Золотая монета", Common, 0, 1 * GP, 1, Female, Iron, {}, {}, {}, {Coinable, Countable}},
+{"Монета", Common, 0, 1 * CP, -1, Female, Iron, {}, {}, {}, {Countable}, Coinable},
+{"Серебрянная монета", Common, 0, 1 * SP, 0, Female, Iron, {}, {}, {}, {Countable}, Coinable},
+{"Золотая монета", Common, 0, 1 * GP, 1, Female, Iron, {}, {}, {}, {Countable}, Coinable},
 //
 {"Когти", Common, 0, 0 * GP, 0, NoGender, Organic, {-6, 3, {1, 6}, Slashing, 3, 1}, {}, {}, {Natural}, Melee},
 {"Кулаки", Common, 0, 0 * GP, 0, NoGender, Organic, {0, 4, {1, 6}, Bludgeon, 0, 2}, {}, {}, {Natural}, Melee},
@@ -473,19 +473,14 @@ unsigned item::getcost() const {
 		switch(magic) {
 		case Blessed: m += 100; break;
 		case Artifact: m += 1000; break;
+		case Cursed: return 0; break;
 		default: break;
 		}
 		if(identify >= KnownPower) {
 			if(ei.slot >= Head && ei.slot <= Ranged) {
 				w += 5 * GP * quality;
-				auto effect = geteffect();
-				if(effect) {
-					if(ei.effects.count && !ei.effects[0])
-						w += 10 * GP;
-					switch(effect.type) {
-					case Ability: w += 10 * GP * bsmeta<abilityi>::elements[effect.value].cost; break;
-					}
-				}
+				if(ei.effects.count && !ei.effects[0] && geteffect())
+					w += 10 * GP;
 			}
 		}
 	}

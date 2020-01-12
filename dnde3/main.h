@@ -55,7 +55,7 @@ enum diety_s : unsigned char {
 	GodBane, GodBhaal, GodGruumsh, GodHelm, GodMistra, GodTempus, GodTyr
 };
 enum slot_s : unsigned char {
-	Backpack, Edible, Readable, Drinkable, Zapable, LastBackpack = Backpack + 31,
+	Backpack, Edible, Readable, Drinkable, Zapable, Coinable, LastBackpack = Backpack + 31,
 	Head, Neck, Melee, OffHand, TorsoBack, Torso, RightFinger, LeftFinger, Elbows, Legs, Ranged, Amunitions,
 };
 enum race_s : unsigned char {
@@ -180,7 +180,7 @@ enum range_s : unsigned char {
 	You, Close, Reach, Near, Far
 };
 enum item_flag_s : unsigned char {
-	Coinable, Countable, SingleUse, TwoHanded, Versatile, Light, Natural,
+	Countable, SingleUse, TwoHanded, Versatile, Light, Natural,
 };
 enum variant_s : unsigned char {
 	NoVariant,
@@ -571,15 +571,16 @@ public:
 	constexpr site() : rect({0, 0, 0, 0}), type(EmpthyRoom), diety(NoGod),
 		name(), owner_id(Blocked), found(0), recoil(0) {
 	}
-	operator bool() const { return x1 != x2; }
+	operator bool() const { return x2>x1 && y1 > y2; }
 	creature*			add(race_s race, gender_s gender, class_s type);
 	creature*			add(role_s type);
-	void				create(int x, int y, int w, int h, site_s type);
+	void				create();
 	static site*		find(indext index);
 	void				getname(stringbuilder& sb) const;
 	creature*			getowner() const;
 	indext				getposition() const;
 	creature*			priest();
+	void				set(const rect& v) { *static_cast<rect*>(this) = v; }
 	void				set(site_s v) { type = v; }
 	void				set(diety_s v) { diety = v; }
 	void				setowner(const creature* v);

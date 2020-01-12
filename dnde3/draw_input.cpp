@@ -19,7 +19,7 @@ struct hotkeym {
 }
 
 namespace colors {
-color				fow;
+color				fow = color::create(20, 21, 21);
 }
 const int			gui_border = 8;
 const int			gui_padding = 4;
@@ -189,12 +189,11 @@ static void window(rect rc, bool disabled, int border) {
 		border = gui_border;
 	rc.offset(-border, -border);
 	color c = colors::form;
-	color b = colors::form;
 	auto op = 192;
 	if(disabled)
 		op = op / 2;
 	draw::rectf(rc, c, op);
-	draw::rectb(rc, b);
+	draw::rectb(rc, colors::form);
 }
 
 static int buttonr(int x, int y, int w1, const char* name) {
@@ -203,7 +202,7 @@ static int buttonr(int x, int y, int w1, const char* name) {
 		w1 = w;
 	rect rc = {x - 2, y - 1, x + w1 + 2, y + texth()};
 	rectf(rc, colors::button);
-	rectb(rc, colors::border.mix(colors::form));
+	rectb(rc, colors::form);
 	text(x + (w1 - w) / 2, y, name);
 	return w1 + 5;
 }
@@ -220,7 +219,7 @@ static void windowf(const char* string, const char* press_key) {
 	window(rc, false, 0);
 	draw::textf(rc.x1, rc.y1, w, string);
 	if(press_key)
-		buttonr(rc.x1, rc.y2 + gui_border, -1, press_key);
+		buttonr(rc.x1, rc.y2 + gui_border + 1, -1, press_key);
 }
 
 static void dialogw(int& x, int& y, int width, int height, const char* title, int* y1 = 0) {
