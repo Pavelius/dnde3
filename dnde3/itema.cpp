@@ -84,12 +84,6 @@ void itema::footer(stringbuilder& sb) const {
 	sb.add("Общий вес ваших преметов [%1] кг.", addweight(s1, player->getweight()));
 }
 
-item* itema::chooses(const char* interactive, const char* title, const char* format, slot_mode_s mode) {
-	if(getcount() == 1)
-		return data[0];
-	return choose(interactive, title, format, mode);
-}
-
 void itema::matcha(creature& player, variant id, int v) {
 	if(!id)
 		return;

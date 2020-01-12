@@ -549,6 +549,7 @@ creature* creature::getactive(int n) {
 	creaturea creatures;
 	creatures.select(Friendly);
 	creatures.matchbs(true);
+	creatures.match(Sleep, true);
 	if(!creatures || n >= creatures.getcount())
 		return 0;
 	return creatures[n];
@@ -616,14 +617,14 @@ void creature::dropdown(item& item) {
 
 void creature::dropdown() {
 	itema items; items.selectb(*this);
-	auto pi = items.choose("В рюкзаке пусто.", "Выбросить предмет", 0, NoSlotName);
+	auto pi = items.choose("Выбросить предмет", 0, NoSlotName);
 	if(pi)
 		dropdown(*pi);
 }
 
 void creature::pickup() {
 	itema items; items.select(getposition());
-	auto pi = items.choose("На земле ничего нету.", "Поднять предмет", 0, NoSlotName);
+	auto pi = items.choose("Поднять предмет", 0, NoSlotName);
 	if(pi) {
 		if(add(*pi, true, true)) {
 			pi->clear();
@@ -635,7 +636,7 @@ void creature::pickup() {
 void creature::inventory() {
 	while(true) {
 		itema items; items.select(*this);
-		auto pi = items.choose("У вас ничего нету.", "Инвенторий", 0, SlotName);
+		auto pi = items.choose("Инвенторий", 0, SlotName);
 		if(!pi)
 			break;
 		auto slot = pi->getwearerslot();
@@ -655,7 +656,7 @@ void creature::inventory() {
 				items.clear();
 				items.selectb(*this);
 				items.match(slot, false);
-				auto p2 = items.choose("У вас нету подходящих предметов.", "Рюкзак", 0, NoSlotName, true);
+				auto p2 = items.choose("Рюкзак", 0, NoSlotName, true);
 				if(p2) {
 					if(!equip(*pi, *p2, true))
 						pause();
@@ -1118,15 +1119,15 @@ void creature::aiturn(creaturea& creatures, creaturea& enemies, creature* enemy)
 		// When we try to stand and think
 		if(d100() < chance_act) {
 			if(needrestore(LifePoints)) {
-				if(aiuse(false, 0, Drinkable, LifePoints))
+				if(aiuse(0, Drinkable, LifePoints))
 					return;
-				if(aiuse(false, 0, Edible, LifePoints))
+				if(aiuse(0, Edible, LifePoints))
 					return;
 			}
 			if(needrestore(ManaPoints)) {
-				if(aiuse(false, 0, Drinkable, ManaPoints))
+				if(aiuse(0, Drinkable, ManaPoints))
 					return;
-				if(aiuse(false, 0, Edible, ManaPoints))
+				if(aiuse(0, Edible, ManaPoints))
 					return;
 			}
 			if(aiskills(creatures))
@@ -1637,32 +1638,32 @@ void creature::paymana(int value, bool interactive) {
 	}
 }
 
-bool creature::aiuse(const char* interactive, const char* title, slot_s slot, variant effect) {
+bool creature::aiuse(const char* title, slot_s slot, variant effect) {
 	itema source; source.selectb(*this);
 	source.match(slot, false);
 	if(effect)
 		source.matchboost(effect);
-	auto pi = source.choose(interactive, title, 0, NoSlotName);
+	auto pi = source.choose(title, 0, NoSlotName);
 	if(pi)
 		return use(*pi);
 	return false;
 }
 
 void creature::drink() {
-	aiuse("В рюкзаке нет ничего, что можно выпить.", "Чего хотите выпить?", Drinkable, {});
+	aiuse("Чего хотите выпить?", Drinkable, {});
 }
 
 void creature::eat() {
-	aiuse("В рюкзаке нет ничего съедобного.", "Что хотите съесть?", Edible, {});
+	aiuse("Что хотите съесть?", Edible, {});
 }
 
 void creature::usewands() {
-	aiuse("В рюкзаке нет никаких волшебных предметов.", "Использовать какой предмет?", Zapable, {});
+	aiuse("Использовать какой предмет?", Zapable, {});
 }
 
 void creature::backpack() {
 	itema source; source.selectb(*this);
-	source.choose("В рюкзаке пусто.", "Рюкзак", 0, NoSlotName);
+	source.choose("Рюкзак", 0, NoSlotName);
 }
 
 int	creature::getboost(variant id) const {

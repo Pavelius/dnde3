@@ -62,9 +62,8 @@ void targeti::use(creature& player, creaturea& source, creaturea& creatures, ite
 		interactive = 0;
 	}
 	if(interactive && (maximum_count > 1 || is(AlwaysChoose))) {
-		const char* fail_targets = 0;
-		if(player.isactive())
-			fail_targets = "Нет подходящей цели";
+		if(!player.isactive())
+			interactive = 0;
 		if(type == Creature) {
 			auto p = creatures.choose(interactive);
 			if(p) {
@@ -72,11 +71,15 @@ void targeti::use(creature& player, creaturea& source, creaturea& creatures, ite
 				iswap(creatures[0], creatures[i]);
 			}
 		} else if(type == Item) {
-			auto p = items.choose(fail_targets, interactive, 0, NoSlotName, false, false);
+			auto p = items.choose(interactive, 0, NoSlotName, false, false);
 			if(p) {
 				auto i = items.indexof(p);
 				iswap(items[0], items[i]);
 			}
+		} else {
+			auto i = indecies.choose(interactive);
+			if(i != -1)
+				iswap(indecies[0], indecies[i]);
 		}
 	}
 	switch(type) {

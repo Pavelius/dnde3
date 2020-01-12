@@ -513,8 +513,7 @@ public:
 };
 class itema : public adat<item*> {
 public:
-	item*				chooses(const char* interactive, const char* title, const char* format, slot_mode_s mode);
-	item*				choose(const char* interactive, const char* title, const char* format, slot_mode_s mode, bool show_always = false, bool cancel = true);
+	item*				choose(const char* interactive, const char* format, slot_mode_s mode, bool show_always = false, bool cancel = true);
 	void				footer(stringbuilder& sb) const;
 	void				match(variant v, bool remove);
 	void				match(item& v, bool remove);
@@ -642,7 +641,7 @@ class creature : public nameable {
 	void				add(skill_s id, int v, bool interactive);
 	void				add(spell_s id, unsigned minutes);
 	void				add(ability_s id, variant source, int v, bool interactive, unsigned minutes);
-	bool				aiuse(const char* interactive, const char* title, slot_s slot, variant effect);
+	bool				aiuse(const char* interactive, slot_s slot, variant effect);
 	void				aimove();
 	bool				aiskills(creaturea& creatures);
 	bool				aispells(creaturea& creatures);

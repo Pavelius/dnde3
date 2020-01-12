@@ -1380,11 +1380,12 @@ skill_s skillu::choose(bool interactive, const char* title, bool* cancel_result)
 	return (skill_s)v;
 }
 
-item* itema::choose(const char* interactive, const char* title, const char* format, slot_mode_s mode, bool show_always, bool cancel) {
+item* itema::choose(const char* interactive, const char* format, slot_mode_s mode, bool show_always, bool cancel) {
 	if(!count) {
 		if(interactive) {
 			if(!show_always) {
-				sb.add(interactive);
+				sb.adds(interactive);
+				sb.adds("У вас ничего нету.");
 				return 0;
 			}
 		} else
@@ -1396,7 +1397,7 @@ item* itema::choose(const char* interactive, const char* title, const char* form
 	while(ismodal()) {
 		current_background();
 		int x, y, y1;
-		dialogw(x, y, width, 440, title, &y1);
+		dialogw(x, y, width, 440, interactive, &y1);
 		auto x1 = x;
 		auto x2 = x + width;
 		if(format)
@@ -1419,8 +1420,8 @@ item* itema::choose(const char* interactive, const char* title, const char* form
 				y += texth() + 4;
 			}
 			y += texth();
-		} else if(interactive)
-			y += textf(x, y, width, interactive) + texth() + 4;
+		} else
+			y += textf(x, y, width, "Ничего нет.") + texth() + 4;
 		render(x, y, width, *this);
 		domodal();
 	}
