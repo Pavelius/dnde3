@@ -548,6 +548,7 @@ void creature::activate() {
 creature* creature::getactive(int n) {
 	creaturea creatures;
 	creatures.select(Friendly);
+	creatures.matchbs(true);
 	if(!creatures || n >= creatures.getcount())
 		return 0;
 	return creatures[n];
@@ -827,7 +828,9 @@ void creature::move(indext index) {
 			p->setposition(getposition());
 			p->wait();
 			if(d100() < 50) {
-				if(is(Invisible)) {
+				if(p->saybusy()) {
+					// ¬се уже сказали
+				} else if(is(Invisible)) {
 					static const char* talk[] = {
 						" то здесь?",
 						"Ќе пон€л.",
@@ -938,7 +941,7 @@ void creature::consume(int v) {
 }
 
 void creature::attack(creature& enemy, const attacki& ai, int bonus, int danger) {
-	if(is(Invisible) || enemy.is(Sleep)) {
+	if(is(Invisible) || enemy.is(Sleep) || enemy.is(Unaware)) {
 		appear();
 		enemy.dispell(Sleep, true);
 		// Attack from invisible state
@@ -1690,6 +1693,10 @@ bool creature::ismatch(variant v) const {
 		if(is((state_s)v.value))
 			return true;
 		break;
+	case Spell:
+		if(is((spell_s)v.value))
+			return true;
+		break;
 	}
 	return false;
 }
@@ -1752,4 +1759,30 @@ void creature::damagewears(int count, damage_s type, int item_count) {
 		item_count = maximum;
 	for(auto i = 0; i < maximum; i++)
 		items[i]->damage(count, type, true);
+}
+
+bool creature::ask(const char* format, ...) {
+	if(!isactive())
+		return true;
+	act(format);
+	return askyn();
+}
+
+bool creature::saybusy() {
+	if(!isbusy())
+		return false;
+	if(is(Sleep)) {
+		static const char* text[] = {"%герой мирно спит.",
+			"%герой смачно похрапывает.",
+			"%герой во сне перевернул%ась на другой бок."
+		};
+		act(maprnd(text));
+		return true;
+	}
+	static const char* text[] = {"я зан€т",
+		"ћне надо закончить дело.",
+		"ƒайте мне еще около [%1i] минут и € освобожусь."
+	};
+	say(maprnd(text), -(restore_energy / StandartEnergyCost));
+	return true;
 }

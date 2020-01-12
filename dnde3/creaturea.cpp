@@ -152,3 +152,18 @@ void creaturea::sort(indext start) {
 	compare_index = start;
 	qsort(data, count, sizeof(data[0]), compare_distace);
 }
+
+void creaturea::matchbs(bool remove) {
+	auto ps = data;
+	for(auto p : *this) {
+		if(remove) {
+			if(p->isbusy())
+				continue;
+		} else {
+			if(!p->isbusy())
+				continue;
+		}
+		*ps++ = p;
+	}
+	count = ps - data;
+}

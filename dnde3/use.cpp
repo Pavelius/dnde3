@@ -203,11 +203,20 @@ bool item::use(skill_s id, creature& player, int order, bool run) {
 							player.act("%герой вытащил%а %-1 и громко прочитал%а.", getname());
 						destroy(Magic, true);
 					} else {
+						if(!player.ask("Чтение займет продолжительное время. Действительно хотите продолжить?"))
+							return false;
 						player.act("%герой достал%а %-1 и занял%ась чтением.", getname());
+						player.wait(60);
 						if(result)
 							player.add(v, 1, true);
 						else {
-							// Тут интересно
+							static effecti read_books[] = {
+								{{}, 0, "Почти все что было написано вы не поняли. Может стоит попробывать перечитать еще раз?"},
+								{{}, 0, "Вы прочитали несколько десятков страниц. Сколько из этого усвоили? Ровно ноль."},
+								{ManaPoints, -3, "Книга оказалось неинтересной, а чтение оказалось слишком утомительным. Вы даже немного разозлились."},
+								{ManaPoints, -4, "В книге было описано множество скучных вещей и вы заскучали."},
+							};
+							player.add(maprnd(read_books), getkind());
 						}
 						use();
 					}
@@ -616,4 +625,29 @@ void creature::closedoor() {
 	if(i == -1)
 		return;
 	loc.remove(indecies[i], Opened);
+}
+
+void creature::add(const effecti& e, item_s source) {
+	act(e.text, getstr(source));
+	if(e.id.type==Ability) {
+		auto id = (ability_s)e.id.value;
+		switch(id) {
+		case LifePoints:
+			damage(xrand(e.value / 2, e.value), Magic, 100, true);
+			break;
+		case ManaPoints:
+			paymana(xrand(e.value / 2, e.value), true);
+			break;
+		case Strenght: case Dexterity: case Constitution: case Intellegence: case Wisdow: case Charisma:
+			if(e.permanent)
+				add(id, e.value, true);
+			else
+				add(id, source, e.value, true, xrand(60, 180));
+			break;
+		default:
+			add(id, source, e.value, true, xrand(120, 240));
+			break;
+		}
+	} else
+		add(e.id, e.value, true);
 }

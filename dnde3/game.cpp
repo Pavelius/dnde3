@@ -30,7 +30,8 @@ void gamei::playactive() {
 			if((i % 5) == 0)
 				update_los();
 			move_creatures();
-			if(!creature::getactive())
+			auto p = creature::getactive();
+			if(!p || p->isbusy() || p->is(Sleep))
 				need_continue = false;
 		}
 		rounds++; // One round is one minute
@@ -43,8 +44,13 @@ bool gamei::checkalive() {
 	source.select(Friendly);
 	if(!source)
 		return false;
-	if(!creature::getactive())
-		source[0]->activate();
+	source.matchbs(true); // Уберем тех кто занят
+	source.match(Sleep, true); // Уберем тех кто спит
+	if(source) {
+		auto p = creature::getactive();
+		if(!p || source.indexof(p) == -1)
+			source[0]->activate();
+	}
 	return true;
 }
 

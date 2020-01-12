@@ -1773,6 +1773,29 @@ void creature::pause() {
 	sb.clear();
 }
 
+bool creature::askyn() {
+	current_index = Blocked;
+	while(ismodal()) {
+		current_background();
+		render_message("Да (Y) или Нет (N)");
+		domodal();
+		switch(hot.key) {
+		case KeyEscape:
+		case Alpha + 'N':
+			breakmodal(0);
+			hot.key = 0;
+			break;
+		case KeyEnter:
+		case Alpha + 'Y':
+			breakmodal(1);
+			hot.key = 0;
+			break;
+		}
+	}
+	sb.clear();
+	return getresult() != 0;
+}
+
 void location::show(rooma& rooms) {
 	while(ismodal()) {
 		rectf({0, 0, getwidth(), getheight()}, colors::form);

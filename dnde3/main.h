@@ -617,6 +617,12 @@ struct foodi {
 	//
 	bool				match(const creature* player, const item it) const;
 };
+struct effecti {
+	variant				id;
+	int					value;
+	const char*			text;
+	bool				permanent;
+};
 class creature : public nameable {
 	char				abilities[ManaRate + 1];
 	unsigned char		skills[LastSkill + 1];
@@ -675,9 +681,12 @@ public:
 	void				add(state_s id, int v, bool interactive);
 	void				add(variant id, int v, bool interactive);
 	bool				add(item v, bool run, bool interactive);
+	void				add(const effecti& id, item_s source);
 	void				addexp(int count, bool interactive = false);
 	void				appear();
 	bool				apply(creature& target, variant id, int v, int order, bool run);
+	bool				ask(const char* format, ...);
+	bool				askyn();
 	void				backpack();
 	void				bloodstain() const;
 	int					calculate(const variant* formule) const;
@@ -748,6 +757,7 @@ public:
 	bool				is(const creature* p) const { return this == p; }
 	bool				isactive() const { return getactive() == this; }
 	bool				isallow(item_s v) const;
+	bool				isbusy() const { return restore_energy <= -(StandartEnergyCost * 4); }
 	bool				isenemy(const creature* target) const;
 	bool				isguard() const { return guard != Blocked; }
 	bool				ismatch(variant v) const;
@@ -779,6 +789,7 @@ public:
 	static bool			rollv(int v);
 	static int			rollv(int v1, int v2);
 	void				say(const char* format, ...) const;
+	bool				saybusy();
 	void				select(itema& a, slot_s i1, slot_s i2, bool filled_only);
 	void				select(skilla& e) const;
 	void				set(ability_s id, int v);
@@ -809,6 +820,7 @@ public:
 	void				match(creature& player, variant v, bool remove, bool target_insivible = false);
 	void				matcha(creature& player, variant id, int v, bool remove);
 	void				matchr(indext index, int range);
+	void				matchbs(bool remove);
 	void				select();
 	void				select(indext start, int distance);
 	void				select(state_s v);
