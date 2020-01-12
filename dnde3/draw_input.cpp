@@ -220,7 +220,7 @@ static void windowf(const char* string, const char* press_key) {
 	window(rc, false, 0);
 	draw::textf(rc.x1, rc.y1, w, string);
 	if(press_key)
-		buttonr(rc.x1, rc.y2 + texth(), -1, press_key);
+		buttonr(rc.x1, rc.y2 + gui_border, -1, press_key);
 }
 
 static void dialogw(int& x, int& y, int width, int height, const char* title, int* y1 = 0) {

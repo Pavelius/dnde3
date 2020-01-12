@@ -1247,6 +1247,8 @@ bool creature::rollv(int v) {
 		return false;
 	if(v < 5)
 		v = 5;
+	else if(v > 95)
+		v = 95;
 	return d100() < v;
 }
 

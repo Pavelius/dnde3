@@ -66,6 +66,23 @@ void variantc::match(slot_s v, bool remove) {
 	count = ps - data;
 }
 
+void variantc::matchp(int value, bool greater) {
+	auto ps = data;
+	for(auto& e : *this) {
+		if(e.id.type != Item)
+			continue;
+		if(greater) {
+			if(bsmeta<itemi>::elements[e.id.value].cost < value)
+				continue;
+		} else {
+			if(bsmeta<itemi>::elements[e.id.value].cost > value)
+				continue;
+		}
+		*ps++ = e;
+	}
+	count = ps - data;
+}
+
 void variantc::match(item_flag_s v, bool remove) {
 	auto ps = data;
 	for(auto& e : *this) {

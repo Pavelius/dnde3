@@ -67,6 +67,7 @@ static void modify_weapon(creature* p1) {
 }
 
 static creature* create_indoor(bool enemies = true) {
+	static slot_s drinkable[] = {Drinkable};
 	static slot_s weapons[] = {Melee, Ranged};
 	loc.clear();
 	loc.positions[1] = loc.get(3, 3);
@@ -76,7 +77,8 @@ static creature* create_indoor(bool enemies = true) {
 		auto door = loc.building(rc);
 		rc.offset(1, 1);
 		//loc.set(door, Sealed);
-		loc.loot(rc, weapons, 80, 30, 0, KnownPower);
+		loc.loot(rc, weapons, 80, 1, 10, KnownPower);
+		loc.loot(rc, drinkable, 30, 5, 30, KnownPower);
 	}
 	loc.lake(10, 10, 20, 20);
 	loc.drop(loc.get(5, 4), item(SwordShort, 5));
@@ -102,7 +104,8 @@ static creature* create_indoor(bool enemies = true) {
 	p1->activate();
 	p1->damage(6, Bludgeon, 100);
 	create(p1, Potion1);
-	create(p1, Potion1, Dexterity);
+	create(p1, Potion3, Level);
+	create(p1, Potion3, Level);
 	create(p1, BracersLeather);
 	create(p1, Boot1);
 	create(p1, Helmet);

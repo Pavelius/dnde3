@@ -316,7 +316,7 @@ struct abilityi {
 	varianta			formula;
 	char				bonus_base, bonus_multiplier;
 	const char*			format;
-	char				cost;
+	int					cost;
 	//
 	ability_s			getid() const;
 	int					getbonus(int v) const;
@@ -372,6 +372,10 @@ struct dicei {
 	char				max;
 	int					roll() const;
 	void				normalize();
+};
+struct costi {
+	char				mundane;
+	char				artifact;
 };
 struct armori {
 	char				protection;
@@ -535,6 +539,7 @@ public:
 	bool				is(variant v) const;
 	void				match(slot_s v, bool remove);
 	void				match(item_flag_s v, bool remove);
+	void				matchp(int count, bool greater);
 	variant				random() const;
 };
 class skilla :public adat<skill_s, 64> {

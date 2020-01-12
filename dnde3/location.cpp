@@ -858,6 +858,8 @@ void location::loot(const rect& rc, const aref<slot_s>& slots, int chance, int l
 	variantc source;
 	source.additems(slots);
 	source.match(Natural, true);
+	if(chance_bigger_price)
+		source.matchp(1, true);
 	for(auto y = rc.y1; y < rc.y2; y++) {
 		if(y < 0 || y >= mmy)
 			continue;

@@ -9,9 +9,7 @@ static const char* power_text[][3] = {{"обычное", "обычный", "обычная"},
 };
 static const char* damage_text[] = {0, "Треснуло", "Повреждено", "Сломано"};
 
-static variant common_potions[] = {Dexterity, Wisdow, Charisma,
-LifePoints, ManaPoints,
-LifePoints, ManaPoints};
+static variant common_potions[] = {LifePoints, ManaPoints};
 static variant uncommon_potions[] = {Strenght, Dexterity, Wisdow, Charisma,
 LifeRate, ManaRate, Level,
 LifePoints, ManaPoints, Speed};
@@ -83,11 +81,11 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", Unique, 0, 0, 0, NoGender, Organic, 
 {"Плащ", Uncommon, 35, 5 * GP, 1, Female, Leather, {}, {5, 0, 2}, {}, {}, TorsoBack},
 {"Плащ", Rare, 40, 5 * GP, 2, Female, Leather, {}, {5, 0, 2}, {}, {}, TorsoBack},
 //
-{"Туфли", Common, 0, 0 * GP, -1, NoGender, Leather, {}, {3, 0, 10}, boots_enchanments, {}, Legs},
-{"Сапоги", Common, 0, 0 * GP, 0, NoGender, Leather, {}, {3, 0, 10}, boots_enchanments, {}, Legs},
-{"Сапоги", Common, 0, 0 * GP, -1, NoGender, Iron, {}, {5, 0, 15}, boots_enchanments, {}, Legs},
-{"Сапоги", Common, 0, 0 * GP, 0, NoGender, Iron, {}, {3, 1, 10}, boots_enchanments, {}, Legs},
-{"Сапоги", Uncommon, 0, 0 * GP, 1, NoGender, Iron, {}, {3, 1, 10}, boots_enchanments, {}, Legs},
+{"Туфли", Common, 100, 5 * GP, -1, NoGender, Leather, {}, {3, 0, 10}, boots_enchanments, {}, Legs},
+{"Сапоги", Common, 200, 10 * GP, 0, NoGender, Leather, {}, {3, 0, 10}, boots_enchanments, {}, Legs},
+{"Сапоги", Common, 400, 12 * GP, -1, NoGender, Iron, {}, {5, 0, 15}, boots_enchanments, {}, Legs},
+{"Сапоги", Common, 500, 15 * GP, 0, NoGender, Iron, {}, {3, 1, 10}, boots_enchanments, {}, Legs},
+{"Сапоги", Uncommon, 600, 17 * GP, 1, NoGender, Iron, {}, {3, 1, 10}, boots_enchanments, {}, Legs},
 //
 {"Еда", Common, 100, 5 * SP, 0, NoGender, Organic, {}, {}, {}, {}, Edible},
 {"Яблоко", Common, 10, 5 * CP, 0, NoGender, Organic, {}, {}, {}, {}, Edible},
@@ -108,14 +106,14 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", Unique, 0, 0, 0, NoGender, Organic, 
 {"Жезл", Uncommon, 20, 160 * GP, 1, NoGender, Iron, {}, {}, wand_common_spells, {}, Zapable},
 {"Жезл", Uncommon, 30, 180 * GP, 2, NoGender, Iron, {}, {}, wand_common_spells, {}, Zapable},
 //
-{"Книга", Rare, 500, 0 * GP, -1, Female, Paper, {}, {}, mage_common_spells, {}, Readable},
-{"Книга", Rare, 600, 0 * GP, 0, Female, Paper, {}, {}, mage_common_spells, {}, Readable},
-{"Книга", Rare, 600, 0 * GP, 0, Female, Paper, {}, {}, mage_common_spells, {}, Readable},
-{"Мануал", Rare, 800, 0 * GP, 1, Male, Paper, {}, {}, mage_common_spells, {}, Readable},
-{"Том", VeryRare, 1000, 0 * GP, 2, Male, Paper, {}, {}, mage_common_spells, {}, Readable},
+{"Книга", Rare, 500, 100 * GP, -1, Female, Paper, {}, {}, mage_common_spells, {}, Readable},
+{"Книга", Rare, 600, 150 * GP, 0, Female, Paper, {}, {}, mage_common_spells, {}, Readable},
+{"Книга", Rare, 600, 200 * GP, 0, Female, Paper, {}, {}, mage_common_spells, {}, Readable},
+{"Мануал", Rare, 800, 250 * GP, 1, Male, Paper, {}, {}, mage_common_spells, {}, Readable},
+{"Том", VeryRare, 1000, 300 * GP, 2, Male, Paper, {}, {}, mage_common_spells, {}, Readable},
 //
-{"Зелье", Common, 10, 20 * GP, -1, NoGender, Glass, {}, {}, common_potions, {}, Drinkable},
-{"Зелье", Common, 20, 30 * GP, 0, NoGender, Glass, {}, {}, common_potions, {}, Drinkable},
+{"Зелье", Common, 10, 10 * GP, -1, NoGender, Glass, {}, {}, common_potions, {}, Drinkable},
+{"Зелье", Common, 20, 35 * GP, 0, NoGender, Glass, {}, {}, uncommon_potions, {}, Drinkable},
 {"Зелье", Uncommon, 10, 40 * GP, 0, NoGender, Glass, {}, {}, uncommon_potions, {}, Drinkable},
 {"Экстракт", Rare, 10, 45 * GP, 1, Male, Glass, {}, {}, rare_potions, {}, Drinkable},
 {"Элексир", Rare, 5, 80 * GP, 2, Male, Glass, {}, {}, rare_potions, {}, Drinkable},
@@ -280,6 +278,11 @@ void item::getname(stringbuilder& sb, bool show_cab) const {
 		auto n = getcount();
 		if(n > 1)
 			sb.adds("%1i шт", getcount());
+	}
+	if(sale) {
+		auto n = getcost();
+		if(n > 0)
+			sb.adds("(цена %1i)", n);
 	}
 }
 
@@ -459,9 +462,36 @@ static unsigned getenchantcost(variant id, item_type_s magic, int quality) {
 }
 
 unsigned item::getcost() const {
-	if(iscountable())
-		return bsmeta<itemi>::elements[type].cost*getcount();
-	return bsmeta<itemi>::elements[type].cost;
+	auto& ei = bsmeta<itemi>::elements[type];
+	auto w = ei.cost;
+	auto m = 100;
+	if(sale == Sale75)
+		m = 75;
+	else if(sale == Sale150)
+		m = 150;
+	if(identify >= KnownMagic) {
+		switch(magic) {
+		case Blessed: m += 100; break;
+		case Artifact: m += 1000; break;
+		default: break;
+		}
+		if(identify >= KnownPower) {
+			if(ei.slot >= Head && ei.slot <= Ranged) {
+				w += 5 * GP * quality;
+				auto effect = geteffect();
+				if(effect) {
+					if(ei.effects.count && !ei.effects[0])
+						w += 10 * GP;
+					switch(effect.type) {
+					case Ability: w += 10 * GP * bsmeta<abilityi>::elements[effect.value].cost; break;
+					}
+				}
+			}
+		}
+	}
+	if(w < 0)
+		w = 0;
+	return w * m / 100;
 }
 
 int	item::getdamage() const {
