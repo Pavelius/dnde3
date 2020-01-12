@@ -698,7 +698,7 @@ indext location::center(const rect& rc) {
 	return get(rc.x1 + rc.width() / 2, rc.y1 + rc.height() / 2);
 }
 
-void location::room(const rect& rc) {
+site& location::room(const rect& rc) {
 	for(auto x = rc.x1; x < rc.x2; x++) {
 		for(auto y = rc.y1; y < rc.y2; y++)
 			set(get(x, y), Floor);
@@ -706,6 +706,7 @@ void location::room(const rect& rc) {
 	auto p = bsmeta<site>::add();
 	*((rect*)p) = rc;
 	p->set(Lair);
+	return *p;
 }
 
 bool location::ismatch(indext index, const rect& rectangle) const {
@@ -718,6 +719,10 @@ bool location::ismatch(indext index, const rect& rectangle) const {
 	return true;
 }
 
+creature* location::shopkeeper(indext index) {
+	return loc.add(index, Shopkeeper);
+}
+
 creature* location::adventurer(indext index) {
 	static race_s races[] = {Human, Elf, Halfling, Dwarf};
 	static gender_s genders[] = {Male, Female, Male};
@@ -727,7 +732,7 @@ creature* location::adventurer(indext index) {
 
 creature* location::monster(indext index) {
 	adat<role_s> monsters;
-	auto cr = level/2;
+	auto cr = level / 2;
 	auto n1 = imax(0, cr - 1);
 	auto n2 = cr + 1;
 	for(auto i = GoblinWarrior; i < Character; i = (role_s)(i + 1)) {
@@ -815,7 +820,7 @@ bool location::apply(creature& player, indext index, variant id, int v, int orde
 }
 
 void location::loot(indext index, item_s type, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality) {
-	if(index==Blocked || type == NoItem)
+	if(index == Blocked || type == NoItem)
 		return;
 	item it;
 	auto chance_artifact = imax(0, level / 4);
@@ -869,5 +874,118 @@ void location::loot(const rect& rc, const aref<slot_s>& slots, int chance, int l
 			if(d100() < chance)
 				loot(get(x, y), (item_s)source.random().value, level, chance_bigger_price, identify, chance_curse, bonus_quality);
 		}
+	}
+}
+
+void location::content(const rect& rc, site_s type) {
+	if(!rc)
+		return;
+	auto index = center(rc);
+	static slot_s weapons[] = {Melee};
+	static slot_s armors[] = {Torso};
+	static slot_s potions[] = {Drinkable};
+	static slot_s scrolls[] = {Readable};
+	static slot_s treasures[] = {Coinable};
+	static slot_s edible[] = {Edible};
+	switch(type) {
+	case Temple:
+		//diety = (diety_s)xrand(GodBane, GodTyr);
+		//setowner(priest());
+		break;
+	case Tavern:
+		//setowner(loc.add(index, Bartender));
+		for(auto i = xrand(1, 3); i > 0; i--)
+			loc.adventurer(index);
+		break;
+	case ShopWeaponAndArmor:
+		//setowner(shopkeeper());
+		loc.loot(rc, armors, 30, loc.level, 10, KnownPower, 0);
+		loc.loot(rc, weapons, 70, loc.level, 10, KnownPower, 0);
+		break;
+	case ShopPotionAndScrolls:
+		//setowner(shopkeeper());
+		loc.loot(rc, scrolls, 70, loc.level, 10, KnownPower, 0);
+		loc.loot(rc, potions, 40, loc.level, 10, KnownPower, 0);
+		break;
+	case ShopFood:
+		//setowner(shopkeeper());
+		loc.loot(rc, edible, 90, loc.level, 20);
+		break;
+	case TreasureRoom:
+		loc.loot(rc, treasures, 60, loc.level, 0, Unknown);
+		break;
+	case Barracs:
+		for(auto i = xrand(2, 4); i > 0; i--)
+			loc.add(index, HumanGuard);
+		break;
+	case CityHall:
+		break;
+	}
+}
+
+void location::interior(const rect& rc, site_s type, indext entrance) {
+	if(rc.width() < 5 && rc.height() < 5) {
+		content(rc.getoffset(1, 1), type);
+		return;
+	}
+	if(entrance == Blocked)
+		return;
+	const auto w = rc.width();
+	const auto h = rc.height();
+	auto dx = loc.getx(entrance);
+	auto dy = loc.gety(entrance);
+	auto x1 = rc.x1, y1 = rc.y1, w1 = rc.width(), h1 = rc.height();
+	auto x2 = rc.x1, y2 = rc.y1, w2 = rc.width(), h2 = rc.height();
+	if(w > h && w >= 5) {
+		auto wp = rc.x1 + w / 2 + 1 - (rand() % 3);
+		// Дверь может попасть прямо на линию
+		if(wp == dx) {
+			if(wp <= (rc.x1 + w / 2))
+				wp++;
+			else
+				wp--;
+		}
+		if((wp - rc.x1) < 2 || (rc.x1 + w - wp) <= 2)
+			return;
+		entrance = setiwv(wp, rc.y1, h, Wall, Door, true);
+		if(dx < wp) {
+			x1 = wp;
+			w1 = (rc.x1 + w) - wp;
+			w2 = wp - rc.x1 + 1;
+		} else {
+			x2 = wp;
+			w1 = wp - rc.x1;
+			w2 = (rc.x1 + w) - wp;
+		}
+	} else if(h >= 5) {
+		auto wp = rc.y1 + h / 2 + 1 - (rand() % 3);
+		if(wp == dy) {
+			if(wp <= (rc.y1 + h / 2))
+				wp++;
+			else
+				wp--;
+		}
+		if((wp - rc.y1) < 2 || (rc.y1 + h - wp) <= 2)
+			return;
+		entrance = setiwh(rc.x1, wp, w, Wall, Door, true);
+		if(dy < wp) {
+			y1 = wp;
+			h1 = (rc.y1 + h) - wp;
+			h2 = wp - rc.y1 + 1;
+		} else {
+			y2 = wp;
+			h1 = wp - rc.y1;
+			h2 = (rc.y1 + h) - wp;
+		}
+	}
+	content({x2 + 1, y2 + 1, x2 + w2 - 1, y2 + h2 - 1}, type);
+	switch(type) {
+	case ShopPotionAndScrolls:
+	case ShopWeaponAndArmor:
+		interior({x1, y1, x1 + w1, y1 + h1}, TreasureRoom, entrance);
+		break;
+	default:
+		interior({x1, y1, x1 + w1, y1 + h1}, EmpthyRoom, entrance);
+		break;
 	}
 }

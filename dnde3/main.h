@@ -568,17 +568,16 @@ class site : public rect {
 	unsigned char		found;
 	unsigned			recoil;
 public:
-	constexpr site() : rect({0, 0, 0, 0}), type(EmpthyRoom), diety(NoGod),
-		name(), owner_id(Blocked), found(0), recoil(0) {
+	constexpr site() : rect{0, 0, 0, 0}, type(EmpthyRoom), diety(NoGod),
+		name(), owner_id(Blocked), found(), recoil() {
 	}
 	operator bool() const { return x2>x1 && y1 > y2; }
-	creature*			add(race_s race, gender_s gender, class_s type);
-	creature*			add(role_s type);
-	void				create();
+	void				create(const rect& rc, site_s type);
 	static site*		find(indext index);
 	void				getname(stringbuilder& sb) const;
 	creature*			getowner() const;
 	indext				getposition() const;
+	void				interior(const rect& rc, site_s type, indext entrance);
 	creature*			priest();
 	void				set(const rect& v) { *static_cast<rect*>(this) = v; }
 	void				set(site_s v) { type = v; }
@@ -957,7 +956,7 @@ class location : public statistici {
 	indext				bpoint(indext index, int w, int h, direction_s dir) const;
 	bool				isdungeon() const { return is_dungeon; }
 	indext				getfree(indext i, procis proc, int radius_maximum) const;
-	void				room(const rect& rc);
+	site&				room(const rect& rc);
 	bool				linelos(int x0, int y0, int x1, int y1) const;
 	bool				wget(short unsigned i, direction_s direction, tile_s value) const;
 	bool				wget(short unsigned i, direction_s direction, tile_s value, bool default_result) const;
@@ -979,6 +978,7 @@ public:
 	indext				choose(bool allow_cancel);
 	void				clear();
 	static void			clearblock();
+	void				content(const rect& rc, site_s type);
 	void				create(bool explored, bool visualize);
 	void				create(const rect& rc, int count, map_object_s object);
 	void				create(const rect& rc, int count, tile_s v);
@@ -1007,6 +1007,7 @@ public:
 	bool				ismatch(indext index, const rect& rectanle) const;
 	bool				ismatch(indext index, variant v) const;
 	void				lake(int x, int y, int w, int h);
+	void				interior(const rect& rc, site_s type, indext index);
 	void				loot(indext index, item_s type, int level, char chance_bigger_price = 0, identify_s identify = Unknown, char chance_curse = 10, char bonus_quality = 0);
 	void				loot(indext index, const aref<slot_s>& slots, int level, char chance_bigger_price = 0, identify_s identify = Unknown, char chance_curse = 10, char bonus_quality = 0);
 	void				loot(const rect& rc, const aref<slot_s>& slots, int chance, int level, char chance_bigger_price = 0, identify_s identify = Unknown, char chance_curse = 10, char bonus_quality = 0);
@@ -1030,6 +1031,7 @@ public:
 	void				setlight(int v) { light_level = v; }
 	void				setlos(indext index, int r);
 	static void			show(rooma& rooms);
+	creature*			shopkeeper(indext index);
 	indext				stepto(indext index);
 	indext				stepfrom(indext index);
 	static indext		to(indext index, direction_s v);

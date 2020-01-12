@@ -68,7 +68,7 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", Unique, 0, 0, 0, NoGender, Organic, 
 {"Чешуйчатый доспех", Uncommon, 2500, 30 * GP, 0, Male, Iron, {-15}, {25, 1, 30}, {}, {}, Torso},
 {"Кольчуга", Common, 2600, 50 * GP, 0, Female, Iron, {-10}, {25, 1, 25}, {}, {}, Torso},
 {"Бахрец", Uncommon, 3000, 200 * GP, 0, Male, Iron, {-15}, {30, 2, 35}, {}, {}, Torso},
-{"Латы", Rare, 3500, 800 * GP, 0, Female, Iron, {-20}, {40, 3, 35}, {}, {}, Torso},
+{"Латы", Rare, 3500, 400 * GP, 0, Female, Iron, {-20}, {40, 3, 35}, {}, {}, Torso},
 //
 {"Щит", Common, 800, 0 * GP, 0, Male, Iron, {-5, 1}, {10, 0, 25, 5}, {}, {}, OffHand},
 {"Шлем", Common, 100, 0 * GP, 0, Male, Iron, {-1}, {5, 0, 20, 3}, {}, {}, Head},

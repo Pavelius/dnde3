@@ -1280,7 +1280,10 @@ static void render_weight(int x, int y, int width, const item& e) {
 		return;
 	char temp[64]; stringbuilder sb(temp);
 	auto v = e.getweight();
-	sb.add("%1i.%2i Í„", v / 100, (v / 10) % 10);
+	if(v < 10)
+		sb.add("%1i „", v * 10);
+	else
+		sb.add("%1i.%2i Í„", v / 100, (v / 10) % 10);
 	auto w = textw(temp);
 	text(x + width - w, y, temp);
 }
@@ -1410,8 +1413,8 @@ item* itema::choose(const char* interactive, const char* format, slot_mode_s mod
 				if(button(x0, y, 0, Alpha + answeri::getkey(index), 0))
 					execute(breakparam, (int)e);
 				x0 += 22;
-				if((index + 1) % 2)
-					rectf({x, y, x + width, y + texth() + 1}, colors::white, 4);
+				//if((index + 1) % 2)
+				//	rectf({x, y, x + width, y + texth() + 1}, colors::white, 4);
 				render(x0, y, 110, *e, mode);
 				render_item(x0, y, x2 - x0 - 72, *e, mode == NoSlotName);
 				render_weight(x0, y, x2 - x0, *e);

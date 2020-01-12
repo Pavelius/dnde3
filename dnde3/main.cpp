@@ -71,16 +71,17 @@ static creature* create_indoor(bool enemies = true) {
 	static slot_s weapons[] = {Melee, Ranged};
 	loc.clear();
 	loc.positions[1] = loc.get(3, 3);
-	loc.positions[2] = loc.get(12, 12);
+	loc.positions[2] = loc.get(5, 20);
 	if(true) {
-		rect rc = {5, 5, 16, 11};
+		rect rc = {5, 5, 16, 14};
 		auto door = loc.building(rc);
+		loc.interior(rc, ShopWeaponAndArmor, door);
 		rc.offset(1, 1);
 		//loc.set(door, Sealed);
-		loc.loot(rc, weapons, 80, 1, 10, KnownPower);
-		loc.loot(rc, drinkable, 30, 5, 30, KnownPower);
+		//loc.loot(rc, weapons, 80, 1, 10, KnownPower);
+		//loc.loot(rc, drinkable, 30, 5, 30, KnownPower);
 	}
-	loc.lake(10, 10, 20, 20);
+	loc.lake(20, 20, 20, 20);
 	loc.drop(loc.get(5, 4), item(SwordShort, 5));
 	loc.drop(loc.get(4, 6), item(SwordTwoHanded, 10));
 	loc.drop(loc.get(3, 3), item(Staff, 20));
