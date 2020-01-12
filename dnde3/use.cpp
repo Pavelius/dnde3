@@ -481,15 +481,15 @@ void creature::potion(ability_s id, variant source, bool interactive, item_type_
 		}
 		break;
 	case Level:
-		v = xrand(1, 8) - damaged;
+		v = xrand(1, 6) - damaged;
 		if(v < 1)
 			v = 1;
 		v += quality;
 		switch(magic) {
-		case Artifact: v *= 3000; break;
-		case Cursed: v *= -500; break;
-		case Blessed: v *= 500; break;
-		default: v *= 100; break;
+		case Artifact: v *= 5000; break;
+		case Cursed: v *= -1000; break;
+		case Blessed: v *= 1000; break;
+		default: v *= 250; break;
 		}
 		addexp(v, interactive);
 		break;

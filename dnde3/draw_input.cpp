@@ -211,8 +211,6 @@ static int buttonr(int x, int y, int w1, const char* name) {
 static void windowf(const char* string, const char* press_key) {
 	rect rc = {0, 0, 400, 0};
 	draw::textf(rc, string);
-	if(press_key)
-		rc.y2 += texth() + 4;
 	auto w = rc.width();
 	auto h = rc.height();
 	rc.x1 = (getwidth() - w) / 2;
@@ -222,7 +220,7 @@ static void windowf(const char* string, const char* press_key) {
 	window(rc, false, 0);
 	draw::textf(rc.x1, rc.y1, w, string);
 	if(press_key)
-		buttonr(rc.x1, rc.y2 - texth(), -1, press_key);
+		buttonr(rc.x1, rc.y2 + texth(), -1, press_key);
 }
 
 static void dialogw(int& x, int& y, int width, int height, const char* title, int* y1 = 0) {
@@ -732,7 +730,8 @@ static void render_message(const char* press_key = 0) {
 	if(!message_text[0])
 		return;
 	windowf(message_text, press_key);
-	sb.clear();
+	if(!press_key)
+		sb.clear();
 }
 
 static void render_indoor() {
@@ -1771,6 +1770,7 @@ void creature::pause() {
 			break;
 		}
 	}
+	sb.clear();
 }
 
 void location::show(rooma& rooms) {

@@ -123,6 +123,11 @@ static void test_stack(creature* p1) {
 	p1->add(i2, true, false);
 }
 
+static void test_pause() {
+	sb.add("Текст, который написан и который будет выведен с паузой.");
+	creature::pause();
+}
+
 static void test_dungeon() {
 	loc.clear();
 	loc.level = 1;
