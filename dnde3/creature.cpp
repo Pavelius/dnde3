@@ -741,10 +741,8 @@ void creature::usespells() {
 	auto s = source.choose("У вас нет ни одного заклинания.", "Какое заклинание использовать?", &cancel, this);
 	if(cancel)
 		return;
-	if(!cast(s, get(s), 0)) {
-		sb.add("Вокруг нет подходящей цели.");
+	if(!use(s, get(s), 0, true))
 		return;
-	}
 	wait();
 }
 
@@ -1072,7 +1070,7 @@ bool creature::aispells(creaturea& creatures) {
 	source.select(*this);
 	source.shuffle();
 	for(auto s : source) {
-		if(use(creatures, s, get(s), 0)) {
+		if(use(creatures, s, get(s), 0, false)) {
 			wait();
 			return true;
 		}
@@ -1118,17 +1116,21 @@ void creature::aiturn(creaturea& creatures, creaturea& enemies, creature* enemy)
 			add(Fear, -1, true);
 		// When we try to stand and think
 		if(d100() < chance_act) {
-			if(needrestore(LifePoints)) {
-				if(aiuse(0, Drinkable, LifePoints))
-					return;
-				if(aiuse(0, Edible, LifePoints))
-					return;
+			if(is(LowInt)) {
+				if(needrestore(LifePoints)) {
+					if(aiuse(0, Drinkable, LifePoints))
+						return;
+					if(aiuse(0, Edible, LifePoints))
+						return;
+				}
 			}
-			if(needrestore(ManaPoints)) {
-				if(aiuse(0, Drinkable, ManaPoints))
-					return;
-				if(aiuse(0, Edible, ManaPoints))
-					return;
+			if(is(AveInt)) {
+				if(needrestore(ManaPoints)) {
+					if(aiuse(0, Drinkable, ManaPoints))
+						return;
+					if(aiuse(0, Edible, ManaPoints))
+						return;
+				}
 			}
 			if(aiskills(creatures))
 				return;

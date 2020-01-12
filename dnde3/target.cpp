@@ -8,7 +8,7 @@ unsigned targeti::getcount(creaturea& creatures, itema& items, indexa& indecies)
 	}
 }
 
-bool targeti::prepare(creature& player, creaturea& creatures, itema& items, indexa& indecies, variant id, int v) const {
+bool targeti::prepare(creature& player, creaturea& creatures, itema& items, indexa& indecies, variant id, int v, bool show_errors) const {
 	static int range_value[] = {0, 1, 2, 4, 7};
 	auto r = range_value[range];
 	auto los = player.getlos();
@@ -36,7 +36,15 @@ bool targeti::prepare(creature& player, creaturea& creatures, itema& items, inde
 		creatures.sort(player.getposition());
 		break;
 	}
-	return getcount(creatures, items, indecies) > 0;
+	auto result = getcount(creatures, items, indecies) > 0;
+	if(!result && show_errors && player.isactive()) {
+		switch(type) {
+		case Creature: sb.adds("Вокруг нет никого, на кого это могло бы подействовать."); break;
+		case Item: sb.adds("У вас нету подходящего предмета, на которое это подействует."); break;
+		default: sb.adds("Рядом нет объекта, на который это может подействовать."); break;
+		}
+	}
+	return result;
 }
 
 void targeti::use(creature& player, creaturea& source, creaturea& creatures, itema& items, indexa& indecies, variant id, int v) const {
@@ -98,11 +106,11 @@ void targeti::use(creature& player, creaturea& source, creaturea& creatures, ite
 	}
 }
 
-bool targeti::use(creature& player, creaturea& source, variant id, int v) const {
+bool targeti::use(creature& player, creaturea& source, variant id, int v, bool show_errors) const {
 	creaturea creatures = source;
 	itema items;
 	indexa indecies;
-	if(!prepare(player, creatures, items, indecies, id, v))
+	if(!prepare(player, creatures, items, indecies, id, v, show_errors))
 		return false;
 	use(player, source, creatures, items, indecies, id, v);
 	return true;

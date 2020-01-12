@@ -212,6 +212,9 @@ enum target_flag_s : unsigned char {
 enum rarity_s : unsigned char {
 	Common, Uncommon, Rare, VeryRare, Unique,
 };
+enum intellegence_s : unsigned char {
+	NoInt, AnimalInt, SemiInt, LowInt, AveInt, VeryInt, HighInt, ExpInt, GenInt, SupGenInt, GodInt
+};
 typedef short unsigned indext;
 typedef adat<rect, 64> rooma;
 typedef flagable<1 + Chaotic / 8> alignmenta;
@@ -692,7 +695,6 @@ public:
 	bool				canhear(short unsigned index) const;
 	bool				cansee(indext i) const;
 	bool				canshoot() const;
-	bool				cast(spell_s id, int level, item* magic_source = 0);
 	void				chat(creature* opponent);
 	bool				charmresist(int bonus = 0) const;
 	void				create(race_s race, gender_s gender, class_s type);
@@ -735,6 +737,7 @@ public:
 	short unsigned		getguard() const { return guard; }
 	int					gethits() const { return hp; }
 	short unsigned		getid() const;
+	intellegence_s		getint() const;
 	creature*			getleader() const;
 	int					getlevel(skill_s v) const;
 	unsigned			getlevelup() const;
@@ -751,6 +754,7 @@ public:
 	void				heal(int value) { damage(-value, Magic); }
 	void				inventory();
 	bool				is(class_s v) const { return kind == v; }
+	bool				is(intellegence_s v) const;
 	bool				is(state_s v) const { return states.is(v); }
 	bool				is(spell_s v) const { return finds(v) != 0; }
 	bool				is(const creature* p) const { return this == p; }
@@ -800,9 +804,10 @@ public:
 	void				testweapons();
 	void				unlink();
 	bool				use();
-	bool				use(item& it);
 	bool				use(creaturea& source, skill_s id);
-	bool				use(creaturea& creatures, spell_s id, int level, item* magic_source);
+	bool				use(creaturea& creatures, spell_s id, int level, item* magic_source, bool show_errors);
+	bool				use(item& it);
+	bool				use(spell_s id, int level, item* magic_source = 0, bool show_errors = false);
 	void				readsomething();
 	void				useskills();
 	void				usespells();
@@ -848,8 +853,8 @@ struct targeti {
 	explicit constexpr operator bool() const { return type != NoVariant; }
 	unsigned			getcount(creaturea& creatures, itema& items, indexa& indecies) const;
 	constexpr bool		is(target_flag_s v) const { return flags.is(v); }
-	bool				prepare(creature& player, creaturea& creatures, itema& items, indexa& indecies, variant id, int v) const;
-	bool				use(creature& player, creaturea& source, variant id, int v) const;
+	bool				prepare(creature& player, creaturea& creatures, itema& items, indexa& indecies, variant id, int v, bool show_errors = false) const;
+	bool				use(creature& player, creaturea& source, variant id, int v, bool show_erros = false) const;
 	void				use(creature& player, creaturea& source, creaturea& creatures, itema& items, indexa& indecies, variant id, int v) const;
 };
 struct skilli {

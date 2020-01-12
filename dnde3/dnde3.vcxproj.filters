@@ -181,6 +181,9 @@
     <ClCompile Include="class_progress.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="intellegence.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="answer.h">

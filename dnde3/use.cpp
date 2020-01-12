@@ -56,7 +56,7 @@ bool creature::use(item& it) {
 			if(v.type == Spell) {
 				auto level = it.getbonus();
 				if(level > 0) {
-					if(cast((spell_s)v.value, level, &it))
+					if(use((spell_s)v.value, level, &it, false))
 						it.set(KnownPower);
 					else
 						act("%герой вытащил%а %-1 и махнул%а несколько раз. Ничего не произошло.", it.getname());
@@ -76,19 +76,8 @@ bool creature::use(creaturea& source, skill_s id) {
 		return false;
 	auto& ei = bsmeta<skilli>::elements[id];
 	creaturea creatures = source; itema items; indexa indecies;
-	if(!ei.target.prepare(*this, creatures, items, indecies, id, get(id))) {
-		if(isactive()) {
-			switch(id) {
-			case Literacy:
-				sb.add("В рюкзаке нету ничего, что можно почитать.");
-				break;
-			default:
-				sb.add("Не могу найти подходящие цели.");
-				break;
-			}
-		}
+	if(!ei.target.prepare(*this, creatures, items, indecies, id, get(id), true))
 		return false;
-	}
 	ei.target.use(*this, source, creatures, items, indecies, id, v);
 	// Appear when do some activity
 	if(is(Invisible)) {
@@ -199,7 +188,7 @@ bool item::use(skill_s id, creature& player, int order, bool run) {
 					if(is(SingleUse)) {
 						if(is(Blessed) || is(Artifact))
 							result = true;
-						if(!result || !player.cast((spell_s)v.value, level, this))
+						if(!result || !player.use((spell_s)v.value, level, this, false))
 							player.act("%герой вытащил%а %-1 и громко прочитал%а.", getname());
 						destroy(Magic, true);
 					} else {
@@ -567,12 +556,12 @@ bool creature::apply(creature& player, variant id, int v, int order, bool run) {
 	return true;
 }
 
-bool creature::cast(spell_s id, int level, item* magic_source) {
+bool creature::use(spell_s id, int level, item* magic_source, bool show_errors) {
 	creaturea creatures(*this);
-	return use(creatures, id, level, magic_source);
+	return use(creatures, id, level, magic_source, show_errors);
 }
 
-bool creature::use(creaturea& source, spell_s id, int level, item* magic_source) {
+bool creature::use(creaturea& source, spell_s id, int level, item* magic_source, bool show_errors) {
 	if(!(*this))
 		return true;
 	auto& ei = bsmeta<spelli>::elements[id];
@@ -590,7 +579,7 @@ bool creature::use(creaturea& source, spell_s id, int level, item* magic_source)
 	creaturea creatures = source;
 	itema items;
 	indexa indecies;
-	if(!ei.target.prepare(*this, creatures, items, indecies, id, v))
+	if(!ei.target.prepare(*this, creatures, items, indecies, id, v, show_errors))
 		return false;
 	if(magic_source) {
 		if(ei.target.type == Creature && ei.target.range != You)
