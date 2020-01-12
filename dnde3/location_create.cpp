@@ -72,52 +72,24 @@ static void create_big_rooms(int x, int y, int w, int h, rooma& rooms, bool visu
 	}
 }
 
-static void create_item(indext index, item_s type, int level, bool forsale, identify_s identify = Unknown, char chance_curse = 10) {
-	if(type == NoItem)
-		return;
-	item it;
-	auto chance_artifact = imax(0, level / 4);
-	auto chance_quality = imax(0, 40 + level);
-	auto chance_magic = imax(0, 5 + level);
-	it.create(type, chance_artifact, chance_magic, chance_curse, chance_quality);
-	it.set(identify);
-	if(it.is(Coinable))
-		it.setcount(xrand(1 * level, 10 * level));
-	else {
-		if(forsale)
-			it.set(Sale100);
-		if(it.is(Artifact))
-			loc.artifacts++;
-		if(it.is(Blessed))
-			loc.magic_items++;
-	}
-	loc.drop(index, it);
-}
-
-static void create_item(indext index, const aref<slot_s>& slots) {
-	variantc source;
-	source.additems(slots);
-	create_item(index, (item_s)source.random().value, loc.level, false);
-}
-
 static void create_weapon(indext index) {
 	static slot_s slots[] = {Melee, Ranged, Amunitions};
-	create_item(index, slots);
+	loc.loot(index, slots, loc.level);
 }
 
 static void create_armor(indext index) {
 	static slot_s slots[] = {Head, Torso, Legs, Elbows, OffHand};
-	create_item(index, slots);
+	loc.loot(index, slots, loc.level);
 }
 
 static void create_books_and_scrolls(indext index) {
 	static slot_s slots[] = {Readable};
-	create_item(index, slots);
+	loc.loot(index, slots, loc.level);
 }
 
 static void create_potions(indext index) {
 	static slot_s slots[] = {Drinkable};
-	create_item(index, slots);
+	loc.loot(index, slots, loc.level);
 }
 
 static void create_dungeon_item(indext index) {
@@ -141,7 +113,7 @@ static void create_trap(indext index) {
 }
 
 static void create_treasure(indext index) {
-	create_item(index, maprnd(item_treasure), loc.level, false);
+	loc.loot(index, maprnd(item_treasure), loc.level);
 }
 
 static void create_monster(indext index) {

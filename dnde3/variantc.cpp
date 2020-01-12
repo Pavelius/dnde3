@@ -65,3 +65,20 @@ void variantc::match(slot_s v, bool remove) {
 	}
 	count = ps - data;
 }
+
+void variantc::match(item_flag_s v, bool remove) {
+	auto ps = data;
+	for(auto& e : *this) {
+		if(e.id.type != Item)
+			continue;
+		if(remove) {
+			if(bsmeta<itemi>::elements[e.id.value].flags.is(v))
+				continue;
+		} else {
+			if(!bsmeta<itemi>::elements[e.id.value].flags.is(v))
+				continue;
+		}
+		*ps++ = e;
+	}
+	count = ps - data;
+}

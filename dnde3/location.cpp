@@ -362,16 +362,12 @@ indext location::bpoint(indext index, int width, int height, direction_s dir) co
 	}
 }
 
-indext location::building(indext index, int w, int h, direction_s dir) {
+indext location::building(const rect& rc, direction_s dir) {
 	static direction_s rdir[] = {Right, Left, Up, Down};
-	if(index == Blooded)
-		return index;
 	// Преобразуем координаты с учетом
-	auto x = getx(index);
-	auto y = gety(index);
-	x = imin(imax((short)1, x), short(mmx - w - 1));
-	y = imin(imax((short)1, y), short(mmy - h - 1));
-	auto i = get(x, y);
+	auto i = get(rc.x1, rc.y1);
+	auto w = rc.width();
+	auto h = rc.height();
 	// Стены и пол
 	set(i, Wall, w, h);
 	set(to(i, RightDown), Floor, w - 2, h - 2);
@@ -816,4 +812,60 @@ bool location::apply(creature& player, indext index, variant id, int v, int orde
 		break;
 	}
 	return true;
+}
+
+void location::loot(indext index, item_s type, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality) {
+	if(index==Blocked || type == NoItem)
+		return;
+	item it;
+	auto chance_artifact = imax(0, level / 4);
+	auto chance_quality = imax(0, imin(80, 40 + level) + bonus_quality);
+	auto chance_magic = imax(0, 10 + level);
+	it.create(type, chance_artifact, chance_magic, chance_curse, chance_quality);
+	it.set(identify);
+	if(it.is(Coinable))
+		it.setcount(xrand(1 * level, 10 * level));
+	else {
+		if(chance_bigger_price) {
+			if(d100() < chance_bigger_price)
+				it.set(Sale150);
+			else
+				it.set(Sale100);
+		} else if(chance_bigger_price < 0) {
+			if(d100() < (-chance_bigger_price))
+				it.set(Sale75);
+			else
+				it.set(Sale100);
+		}
+	}
+	if(it.is(Artifact))
+		loc.artifacts++;
+	if(it.is(Blessed))
+		loc.magic_items++;
+	loc.drop(index, it);
+}
+
+void location::loot(indext index, const aref<slot_s>& slots, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality) {
+	variantc source;
+	source.additems(slots);
+	source.match(Natural, true);
+	loot(index, (item_s)source.random().value, level, chance_bigger_price, identify, chance_curse, bonus_quality);
+}
+
+void location::loot(const rect& rc, const aref<slot_s>& slots, int chance, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality) {
+	if(!slots)
+		return;
+	variantc source;
+	source.additems(slots);
+	source.match(Natural, true);
+	for(auto y = rc.y1; y < rc.y2; y++) {
+		if(y < 0 || y >= mmy)
+			continue;
+		for(auto x = rc.x1; x < rc.x2; x++) {
+			if(x < 0 || x >= mmx)
+				continue;
+			if(d100() < chance)
+				loot(get(x, y), (item_s)source.random().value, level, chance_bigger_price, identify, chance_curse, bonus_quality);
+		}
+	}
 }

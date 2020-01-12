@@ -534,6 +534,7 @@ public:
 	int					getweight() const;
 	bool				is(variant v) const;
 	void				match(slot_s v, bool remove);
+	void				match(item_flag_s v, bool remove);
 	variant				random() const;
 };
 class skilla :public adat<skill_s, 64> {
@@ -965,7 +966,7 @@ public:
 	bool				apply(creature& player, indext index, variant id, int v, int order, bool run);
 	void				blockcreatures();
 	void				blockwalls(bool water = true);
-	indext				building(indext i, int width, int height, direction_s dir = Center);
+	indext				building(const rect& rc, direction_s dir = Center);
 	bool				cansee(indext i1, indext i2) const;
 	static indext		center(int x, int y, int w, int h);
 	static indext		center(const rect& rc);
@@ -1000,6 +1001,9 @@ public:
 	bool				ismatch(indext index, const rect& rectanle) const;
 	bool				ismatch(indext index, variant v) const;
 	void				lake(int x, int y, int w, int h);
+	void				loot(indext index, item_s type, int level, char chance_bigger_price = 0, identify_s identify = Unknown, char chance_curse = 10, char bonus_quality = 0);
+	void				loot(indext index, const aref<slot_s>& slots, int level, char chance_bigger_price = 0, identify_s identify = Unknown, char chance_curse = 10, char bonus_quality = 0);
+	void				loot(const rect& rc, const aref<slot_s>& slots, int chance, int level, char chance_bigger_price = 0, identify_s identify = Unknown, char chance_curse = 10, char bonus_quality = 0);
 	void				makewave(indext index);
 	void				minimap(int x, int y, point camera) const;
 	void				minimap(indext index) const;

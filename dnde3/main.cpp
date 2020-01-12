@@ -67,11 +67,17 @@ static void modify_weapon(creature* p1) {
 }
 
 static creature* create_indoor(bool enemies = true) {
+	static slot_s weapons[] = {Melee, Ranged};
 	loc.clear();
 	loc.positions[1] = loc.get(3, 3);
 	loc.positions[2] = loc.get(12, 12);
-	auto door = loc.building(loc.get(5, 5), 7, 5);
-	loc.set(door, Sealed);
+	if(true) {
+		rect rc = {5, 5, 16, 11};
+		auto door = loc.building(rc);
+		rc.offset(1, 1);
+		//loc.set(door, Sealed);
+		loc.loot(rc, weapons, 80, 30, 0, KnownPower);
+	}
 	loc.lake(10, 10, 20, 20);
 	loc.drop(loc.get(5, 4), item(SwordShort, 5));
 	loc.drop(loc.get(4, 6), item(SwordTwoHanded, 10));

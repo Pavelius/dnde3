@@ -5,7 +5,7 @@ struct rect
 	int					x1, y1;
 	int					x2, y2;
 	//
-	operator bool() const { return x1 != 0 || x2 != 0 || y1 != 0 || y2 != 0; }
+	constexpr explicit operator bool() const { return x1 != 0 || x2 != 0 || y1 != 0 || y2 != 0; }
 	inline bool			operator!=(const rect& rc) const { return rc.x1 != x1 || rc.x2 != x2 || rc.y1 != y1 || rc.y2 != y2; }
 	inline bool			operator==(const rect& rc) const { return rc.x1 == x1 && rc.x2 == x2 && rc.y1 == y1 && rc.y2 == y2; }
 	inline rect			operator+(const rect& rc) const { return{x1 + rc.x1, y1 + rc.y1, x2 + rc.x2, y2 + rc.y2}; }
