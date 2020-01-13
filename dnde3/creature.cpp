@@ -1714,7 +1714,7 @@ bool creature::ismatch(const creature& opponent, variant id) const {
 	int r1, r2;
 	switch(id.type) {
 	case Ability:
-		return get((ability_s)id.value) >= opponent.get((ability_s)id.value);
+		return get((ability_s)id.value) > opponent.get((ability_s)id.value);
 	case Skill:
 		r1 = get((skill_s)id.value);
 		r2 = value + opponent.get((ability_s)id.value) * 2 - 20;
