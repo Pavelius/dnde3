@@ -38,6 +38,8 @@ template<typename T, T v> struct static_value { static constexpr T value = v; };
 template<int v> struct static_int : static_value<int, v> {};
 namespace std {
 template<class T> class initializer_list {	// list of pointers to elements
+	const T*				first;
+	const T*				last;
 public:
 	typedef T				value_type;
 	typedef const T&		reference;
@@ -50,9 +52,6 @@ public:
 	constexpr const T*		begin() const noexcept { return first; }
 	constexpr const T*		end() const noexcept { return last; }
 	constexpr unsigned		size() const noexcept { return last - first; }
-private:
-	const T*				first;
-	const T*				last;
 };
 }
 // Storge like vector

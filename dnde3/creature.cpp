@@ -1686,14 +1686,10 @@ void creature::minimap() {
 
 bool creature::ismatch(variant v) const {
 	switch(v.type) {
-	case Alignment:
-		return true;
-	case Gender:
-		return getgender() == v.value;
-	case Race:
-		return getrace() == v.value;
-	case Role:
-		return getrole() == v.value;
+	case Alignment: return true;
+	case Gender: return getgender() == v.value;
+	case Race: return getrace() == v.value;
+	case Role: return getrole() == v.value;
 	case State:
 		if(is((state_s)v.value))
 			return true;
@@ -1702,8 +1698,54 @@ bool creature::ismatch(variant v) const {
 		if(is((spell_s)v.value))
 			return true;
 		break;
+	case Rarity:
+		return d100() < bsmeta<rarityi>::elements[v.value].chance;
 	}
 	return false;
+}
+
+bool creature::ismatch(const creature& opponent, skill_s id, int value) const {
+	auto r1 = get(id);
+	auto r2 = value + opponent.get(Intellegence) * 2 - 20;
+	return  r1 >= r2;
+}
+
+bool creature::ismatch(const creature& opponent, variant id) const {
+	int r1, r2;
+	switch(id.type) {
+	case Ability:
+		return get((ability_s)id.value) >= opponent.get((ability_s)id.value);
+	case Skill:
+		r1 = get((skill_s)id.value);
+		r2 = value + opponent.get((ability_s)id.value) * 2 - 20;
+		return  r1 >= r2;
+	default:
+		return false;
+	}
+}
+
+bool creature::ismatch(const creature& opponent, const varianta& source) const {
+	for(unsigned i = 0; i < sizeof(source)/sizeof(source[0]); i++) {
+		auto v = source[i];
+		if(!v)
+			break;
+		// Test for skill with values
+		if(i + 1 < sizeof(source) / sizeof(source[0])) {
+			auto v1 = source[i + 1];
+			if(v.type == Skill
+				&& v1.type == Number
+				&& ismatch(opponent, (skill_s)v.value, v1.value)) {
+				i++;
+				continue;
+			}
+		}
+		if(ismatch(v))
+			continue;
+		if(ismatch(opponent, v))
+			continue;
+		return false;
+	}
+	return true;
 }
 
 void creature::fail(skill_s id) {

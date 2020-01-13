@@ -153,7 +153,7 @@ enum img_s : unsigned char {
 	ResPCmar, ResPCmbd, ResPCmac
 };
 enum spell_s : unsigned char {
-	ArmorSpell, BlessSpell, BlessItem, CharmPerson, DetectEvil, DetectMagic, FearSpell, HealingSpell,
+	ArmorSpell, BlessSpell, BlessItem, ChatPerson, CharmPerson, DetectEvil, DetectMagic, FearSpell, HealingSpell,
 	Identify, Invisibility, LightSpell, MagicMissile, Poison,
 	Repair, RemovePoisonSpell, RemoveSickSpell,
 	SickSpell, ShieldSpell, ShokingGrasp, Sleep, SlowMonster,
@@ -186,7 +186,7 @@ enum variant_s : unsigned char {
 	NoVariant,
 	Ability, Alignment, Creature, Formula, Gender, God, Harm,
 	Item, ItemIdentify, ItemType,
-	Number, Object, ObjectFlags, Race, Range, Role,
+	Number, Object, ObjectFlags, Race, Range, Rarity, Role,
 	Skill, Slot, Spell, State, Target, Tile,
 	Variant,
 };
@@ -227,9 +227,9 @@ typedef flagable<1 + ManyItems / 8>	itemf;
 typedef flagable<1 + Blooded / 8> mapflf;
 typedef casev<ability_s> abilityv;
 typedef aset<damage_s, 1 + WaterAttack> damagea;
+struct targeti;
 class creature;
 class creaturea;
-struct targeti;
 struct variant {
 	variant_s			type;
 	unsigned char		value;
@@ -247,6 +247,7 @@ struct variant {
 	constexpr variant(map_flag_s v) : type(ObjectFlags), value(v) {}
 	constexpr variant(range_s v) : type(Range), value(v) {}
 	constexpr variant(race_s v) : type(Race), value(v) {}
+	constexpr variant(rarity_s v) : type(Rarity), value(v) {}
 	constexpr variant(role_s v) : type(Role), value(v) {}
 	constexpr variant(skill_s v) : type(Skill), value(v) {}
 	constexpr variant(slot_s v) : type(Slot), value(v) {}
@@ -261,7 +262,7 @@ struct variant {
 	const char*			getnameof() const;
 	const char*			getnameofc() const;
 };
-typedef variant			varianta[16];
+typedef variant			varianta[12];
 typedef adat<casev<variant>, 8> chancev;
 struct string : stringbuilder {
 	const char			*name, *opponent_name;
@@ -355,6 +356,7 @@ struct picture : point {
 struct rarityi {
 	const char*			name;
 	char				weight;
+	char				chance;
 };
 struct statei {
 	const char*			name;
@@ -564,12 +566,13 @@ public:
 	void				setcaps();
 };
 struct dialogi {
-	int					id;
+	char				index;
 	dialog_s			type;
-	variant				conditions[4];
+	varianta			conditions;
 	const char*			text;
-	variant				actions[4];
+	varianta			actions;
 	int					next;
+	explicit operator bool() const { return text != 0; }
 };
 class site : public rect {
 	site_s				type;
@@ -712,7 +715,9 @@ public:
 	bool				canhear(short unsigned index) const;
 	bool				cansee(indext i) const;
 	bool				canshoot() const;
-	void				chat(creature* opponent);
+	void				chat();
+	void				chat(creature& opponent);
+	void				chat(creature& opponent, const dialogi* source);
 	bool				charmresist(int bonus = 0) const;
 	void				create(race_s race, gender_s gender, class_s type);
 	void				create(role_s type);
@@ -772,6 +777,8 @@ public:
 	void				inventory();
 	bool				is(class_s v) const { return kind == v; }
 	bool				is(intellegence_s v) const;
+	bool				is(gender_s v) const { return getgender() == v; }
+	bool				is(race_s v) const { return getrace() == v; }
 	bool				is(state_s v) const { return states.is(v); }
 	bool				is(spell_s v) const { return finds(v) != 0; }
 	bool				is(const creature* p) const { return this == p; }
@@ -781,6 +788,9 @@ public:
 	bool				isenemy(const creature* target) const;
 	bool				isguard() const { return guard != Blocked; }
 	bool				ismatch(variant v) const;
+	bool				ismatch(const creature& opponent, variant id) const;
+	bool				ismatch(const creature& opponent, skill_s id, int value) const;
+	bool				ismatch(const creature& opponent, const varianta& source) const;
 	void				kill();
 	void				look(indext index);
 	void				lookaround();

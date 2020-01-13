@@ -236,6 +236,10 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 			act("%герой испытал%а небывалый прилив сил.");
 		}
 		break;
+	case ChatPerson:
+		if(run)
+			player.chat(*this);
+		break;
 	case CharmPerson:
 		if(ismatch(Animal) || get(ResistCharm) >= 100)
 			return false;
