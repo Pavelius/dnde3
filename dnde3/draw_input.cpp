@@ -1192,7 +1192,10 @@ int	answeri::paint(int x, int y, int width, int i, int& maximum_width) const {
 	auto& e = elements[i];
 	auto h = texth();
 	if(e.text) {
-		auto h1 = textf(x + z, y, width - z, e.text, &maximum_width);
+		auto mw = 0;
+		auto h1 = textf(x + z, y, width - z, e.text, &mw);
+		if(mw + z > maximum_width)
+			maximum_width = mw + z;
 		if(h1 > h)
 			h = h1;
 	}
@@ -1214,20 +1217,23 @@ int	answeri::paint(int x, int y, int width, const char* format, int& maximum_wid
 int	answeri::choosev(bool interactive, bool clear_text, bool return_single, const char* format) const {
 	auto w = 400;
 	auto h = 0;
-	if(true) {
+	if(format) {
 		auto mw = 0;
 		draw::state push;
 		setclip({0, 0, 0, 0});
-		h = paint(0, 0, 400, format, mw);
+		h = paint(0, 0, w, format, mw);
+		w = mw;
 	}
 	while(ismodal()) {
 		current_background();
-		rect rc = {(getwidth() - w) / 2, 32, (getwidth() + w) / 2, 32 + h};
+		rect rc = {(getwidth() - w) / 2, gui_padding * 3, (getwidth() + w) / 2, gui_padding * 3 + h};
 		window(rc, false, 0);
 		auto maximum_width = 0;
 		paint(rc.x1, rc.y1, rc.width(), format, maximum_width);
 		domodal();
 	}
+	if(clear_text)
+		sb.clear();
 	return getresult() != 0;
 }
 
