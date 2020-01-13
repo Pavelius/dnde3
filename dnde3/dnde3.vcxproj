@@ -22,7 +22,6 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{50EC0A75-889F-4835-89BA-132CC20380E2}</ProjectGuid>
     <RootNamespace>dnde3</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -116,6 +115,7 @@
     <ClCompile Include="ability.cpp" />
     <ClCompile Include="answer.cpp" />
     <ClCompile Include="archive.cpp" />
+    <ClCompile Include="chat.cpp" />
     <ClCompile Include="class_progress.cpp" />
     <ClCompile Include="damage.cpp" />
     <ClCompile Include="boost.cpp" />
@@ -194,6 +194,7 @@
       <SubType>Designer</SubType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)xmlimg.exe "$(SolutionDir)dnde3\images.xml"</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)art\font.pma</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

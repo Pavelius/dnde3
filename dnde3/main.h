@@ -212,6 +212,9 @@ enum target_flag_s : unsigned char {
 enum rarity_s : unsigned char {
 	Common, Uncommon, Rare, VeryRare, Unique,
 };
+enum dialog_s : unsigned char {
+	Say, Ask
+};
 enum intellegence_s : unsigned char {
 	NoInt, AnimalInt, SemiInt, LowInt, AveInt, VeryInt, HighInt, ExpInt, GenInt, SupGenInt, GodInt
 };
@@ -559,6 +562,14 @@ public:
 	int					getcap(skill_s i, creature& player) const;
 	void				setcap(skill_s i, int v) { cap[i] = v; }
 	void				setcaps();
+};
+struct dialogi {
+	int					id;
+	dialog_s			type;
+	variant				conditions[4];
+	const char*			text;
+	variant				actions[4];
+	int					next;
 };
 class site : public rect {
 	site_s				type;

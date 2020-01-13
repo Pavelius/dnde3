@@ -184,6 +184,9 @@
     <ClCompile Include="intellegence.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="chat.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="answer.h">
