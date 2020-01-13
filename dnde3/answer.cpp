@@ -19,7 +19,7 @@ void answeri::addv(int param, int priority, const char* format, const char* form
 		addsz();
 	auto pe = elements.add();
 	pe->param = param;
-	pe->priority = param;
+	pe->priority = priority;
 	pe->text = get();
 	stringbuilder::addv(format, format_param);
 	*((char*)pe->text) = stringbuilder::upper(pe->text[0]);

@@ -1234,7 +1234,7 @@ int	answeri::choosev(bool interactive, bool clear_text, bool return_single, cons
 	}
 	if(clear_text)
 		sb.clear();
-	return getresult() != 0;
+	return getresult();
 }
 
 int	answeri::dialogv(bool allow_cancel, const char* title, const char* format) const {

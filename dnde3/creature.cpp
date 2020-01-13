@@ -1732,11 +1732,11 @@ bool creature::ismatch(const creature& opponent, const varianta& source) const {
 		// Test for skill with values
 		if(i + 1 < sizeof(source) / sizeof(source[0])) {
 			auto v1 = source[i + 1];
-			if(v.type == Skill
-				&& v1.type == Number
-				&& ismatch(opponent, (skill_s)v.value, v1.value)) {
-				i++;
-				continue;
+			if(v.type == Skill && v1.type == Number) {
+				if(ismatch(opponent, (skill_s)v.value, v1.value)) {
+					i++;
+					continue;
+				}
 			}
 		}
 		if(ismatch(v))
