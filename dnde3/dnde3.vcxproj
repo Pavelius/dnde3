@@ -117,6 +117,7 @@
     <ClCompile Include="archive.cpp" />
     <ClCompile Include="chat.cpp" />
     <ClCompile Include="class_progress.cpp" />
+    <ClCompile Include="converter.cpp" />
     <ClCompile Include="damage.cpp" />
     <ClCompile Include="boost.cpp" />
     <ClCompile Include="bstream.cpp" />
@@ -136,7 +137,11 @@
     <ClCompile Include="food.cpp" />
     <ClCompile Include="indexa.cpp" />
     <ClCompile Include="intellegence.cpp" />
+    <ClCompile Include="main_util.cpp" />
+    <ClCompile Include="png_util.cpp" />
     <ClCompile Include="rarity.cpp" />
+    <ClCompile Include="sprite_util.cpp" />
+    <ClCompile Include="surface_util.cpp" />
     <ClCompile Include="variantc.cpp" />
     <ClCompile Include="material.cpp" />
     <ClCompile Include="spella.cpp" />
@@ -174,12 +179,14 @@
     <ClCompile Include="variant.cpp" />
     <ClCompile Include="win_draw.cpp" />
     <ClCompile Include="win_io_file.cpp" />
+    <ClCompile Include="zip_util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="answer.h" />
     <ClInclude Include="archive.h" />
     <ClInclude Include="bstream.h" />
     <ClInclude Include="color.h" />
+    <ClInclude Include="converter.h" />
     <ClInclude Include="crt.h" />
     <ClInclude Include="draw.h" />
     <ClInclude Include="io.h" />

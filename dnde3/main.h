@@ -60,7 +60,7 @@ enum slot_s : unsigned char {
 };
 enum race_s : unsigned char {
 	Human, Dwarf, Elf, Halfling,
-	Goblin, Kobold, Orc, Gnoll,
+	Goblin, Kobold, Ogre, Orc, Gnoll,
 	Animal, Insect, Undead,
 	LastRace = Undead
 };
@@ -79,7 +79,13 @@ enum role_s : unsigned char {
 	KobolWarrior, KoboldShaman,
 	LargeDog, Lynx, GiantFrog,
 	AntWorker, AntWarrior, AntQueen,
-	GnollWarrior, GoblinRockthrowerWarrior,
+	GnollWarrior,
+	GoblinRockthrowerWarrior, GoblinRockthrowerWarriorF,
+	OrcWarrio2r, OrcWarrior2F,
+	LargeBat2, LargeBat3,
+	Bee, Bee2, Bee3,
+	OrgeCommoner, OrgeCommonerF,
+	Bugbear, BugbearF,
 	Character
 };
 enum alignment_s : unsigned char {
@@ -623,6 +629,7 @@ public:
 };
 struct rolei {
 	const char*			name;
+	const char*			avatar_id;
 	race_s				race;
 	gender_s			gender;
 	alignment_s			alignment;

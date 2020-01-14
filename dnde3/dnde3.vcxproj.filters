@@ -187,6 +187,24 @@
     <ClCompile Include="chat.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="zip_util.cpp">
+      <Filter>Утилиты</Filter>
+    </ClCompile>
+    <ClCompile Include="surface_util.cpp">
+      <Filter>Утилиты</Filter>
+    </ClCompile>
+    <ClCompile Include="sprite_util.cpp">
+      <Filter>Утилиты</Filter>
+    </ClCompile>
+    <ClCompile Include="png_util.cpp">
+      <Filter>Утилиты</Filter>
+    </ClCompile>
+    <ClCompile Include="converter.cpp">
+      <Filter>Утилиты</Filter>
+    </ClCompile>
+    <ClCompile Include="main_util.cpp">
+      <Filter>Утилиты</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="answer.h">
@@ -225,6 +243,9 @@
     <ClInclude Include="main.h">
       <Filter>Логика</Filter>
     </ClInclude>
+    <ClInclude Include="converter.h">
+      <Filter>Утилиты</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Поддержка">
@@ -241,6 +262,9 @@
     </Filter>
     <Filter Include="Ресурсы">
       <UniqueIdentifier>{1bfeae82-abd0-45c0-ae19-5a399996e8aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Утилиты">
+      <UniqueIdentifier>{bc0edefb-d434-421b-9cba-f3f9a96f7cdb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

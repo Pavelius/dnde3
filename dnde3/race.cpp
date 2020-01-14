@@ -7,6 +7,7 @@ racei bsmeta<racei>::elements[] = {{"Человек", {10, 10, 10, 10, 10, 10}, {Bargai
 //
 {"Гоблин", {5, 12, 8, 6, 9, 6}, {HideInShadow, MoveSilently, Swimming}, {}, {Darkvision}},
 {"Кобольд", {5, 13, 7, 6, 9, 6}, {HideInShadow, MoveSilently, Swimming}, {}, {Darkvision}},
+{"Огр", {17, 8, 13, 6, 9, 6}, {Athletics, Mining, Survival}, {}, {Darkvision}},
 {"Орк", {12, 9, 11, 6, 9, 6}, {Athletics, Mining, Swimming}, {}, {Darkvision}},
 {"Гнолл", {13, 9, 11, 5, 9, 5}, {HearNoises, Survival, Swimming}, {}, {Darkvision}},
 //
