@@ -15,7 +15,7 @@ const unsigned short Blocked = 0xFFFF;
 const int StandartEnergyCost = 1000;
 
 const int chance_corridor_content = 10;
-const int chance_door_closed = 30;
+const int chance_door_closed = 10;
 const int chance_generate_room = 40;
 const int chance_special_area = 5;
 const int dense_forest = 5;
@@ -817,7 +817,7 @@ public:
 	void				paymana(int value, bool interactive);
 	void				playui();
 	void				pickup();
-	void				potion(ability_s id, variant source, bool interactive, item_type_s magic, int quality, int damaged, int minutes);
+	void				potion(ability_s id, variant source, bool interactive, item_type_s magic, int quality, int minutes);
 	void				raise(skill_s value);
 	void				raiseskills(int number);
 	void				raiseskills() { raiseskills(get(Intellegence) / 2); }

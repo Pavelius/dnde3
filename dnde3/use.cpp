@@ -32,11 +32,21 @@ bool creature::use(item& it) {
 	switch(it.getitem().slot) {
 	case Edible:
 		act("%герой съел%а %-1.", it.getname());
-		for(auto& e : bsmeta<foodi>()) {
-			if(!e.match(this, it))
-				continue;
-			use(e, it, true);
-			break;
+		if(d100() < it.getdamage() * 10) {
+			act("Еда оказалась испорченой.");
+			if(!roll(ResistPoison)) {
+				if(d100() < 15)
+					add(Sick, 1, true);
+				else
+					add(Poison, 1, true);
+			}
+		} else {
+			for(auto& e : bsmeta<foodi>()) {
+				if(!e.match(this, it))
+					continue;
+				use(e, it, true);
+				break;
+			}
 		}
 		it.use();
 		break;
@@ -44,8 +54,10 @@ bool creature::use(item& it) {
 		act("%герой выпил%а %-1.", it.getname());
 		effect = it.geteffect();
 		current_string = sb.get();
-		if(effect.type == Ability)
-			potion((ability_s)effect.value, it.getkind(), true, it.getmagic(), it.getquality(), it.getdamage(), 120);
+		if(d100() >= it.getdamage() * 8) {
+			if(effect.type == Ability)
+				potion((ability_s)effect.value, it.getkind(), true, it.getmagic(), it.getquality(), 120);
+		}
 		if(current_string == sb.get())
 			act("Ничего не произошло.");
 		it.use();
@@ -463,11 +475,11 @@ void creature::use(const foodi& fi, const item it, bool interactive) {
 	}
 }
 
-void creature::potion(ability_s id, variant source, bool interactive, item_type_s magic, int quality, int damaged, int minutes) {
+void creature::potion(ability_s id, variant source, bool interactive, item_type_s magic, int quality, int minutes) {
 	int v;
 	switch(id) {
 	case LifePoints: case ManaPoints:
-		v = xrand(2, 12) - damaged;
+		v = xrand(2, 12);
 		if(v < 2)
 			v = 2;
 		v += quality;
@@ -476,9 +488,9 @@ void creature::potion(ability_s id, variant source, bool interactive, item_type_
 		case Cursed: add(id, -(1 + quality), interactive); break;
 		case Blessed:
 			if(id == LifePoints)
-				damage(-4 * v, Magic, 0, interactive);
+				damage(-3 * v, Magic, 0, interactive);
 			else
-				paymana(-4 * v, interactive);
+				paymana(-3 * v, interactive);
 			break;
 		default:
 			if(id == LifePoints)
@@ -489,7 +501,7 @@ void creature::potion(ability_s id, variant source, bool interactive, item_type_
 		}
 		break;
 	case Level:
-		v = xrand(1, 6) - damaged;
+		v = xrand(1, 6);
 		if(v < 1)
 			v = 1;
 		v += quality;
@@ -628,7 +640,7 @@ void creature::closedoor() {
 
 void creature::add(const effecti& e, item_s source) {
 	act(e.text, getstr(source));
-	if(e.id.type==Ability) {
+	if(e.id.type == Ability) {
 		auto id = (ability_s)e.id.value;
 		switch(id) {
 		case LifePoints:

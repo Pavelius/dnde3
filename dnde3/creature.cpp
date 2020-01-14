@@ -1296,6 +1296,7 @@ void creature::dropitems() {
 void creature::kill() {
 	if(d100() < chance_blood_when_dead)
 		bloodstain();
+	hp = mp = 0;
 	applyaward();
 	dressoff();
 	dropitems();

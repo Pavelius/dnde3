@@ -188,9 +188,9 @@ int main(int argc, char* argv[]) {
 	//test_answers();
 	//item_choose();
 	//test_worldmap();
-	test_indoor(true);
+	//test_indoor(true);
 	//test_analize();
-	//test_dungeon();
+	test_dungeon();
 }
 
 int __stdcall WinMain(void* ci, void* pi, char* cmd, int sw) {

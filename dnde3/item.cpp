@@ -393,7 +393,7 @@ armori item::getarmor() const {
 	auto d = getdamage();
 	auto b = getbonus();
 	result.protection += b * result.protection_bonus - d;
-	result.armor += b * result.armor_bonus - d;
+	result.armor += b * result.armor_bonus - (d / 2);
 	if(result.armor < 0)
 		result.armor = 0;
 	return result;
@@ -407,7 +407,7 @@ attacki item::getattack() const {
 	result.attack += b * ei.weapon.attack_bonus - d;
 	if(ei.weapon.damage_bonus) {
 		result.dice.min += b / ei.weapon.damage_bonus;
-		result.dice.max += b / ei.weapon.damage_bonus - d;
+		result.dice.max += b / ei.weapon.damage_bonus - (d / 2);
 		if(result.dice.min < 0)
 			result.dice.min = 0;
 		if(result.dice.max < 0)
@@ -565,13 +565,13 @@ void item::destroy(damage_s type, bool interactive) {
 		auto& ei = bsmeta<itemi>::elements[getkind()];
 		static descriptioni text[] = {
 			{Glass, Fire, "%герой расплавил%ась и взорвалась."},
-		{Glass, {}, "%герой разбил%ась вдребезги."},
-		{Wood, Fire, "%герой сгорел%а до тла."},
-		{Paper, Fire, "%герой моментально превратил%ась в пепел."},
-		{Paper, Magic, "%герой превратил%ась в пыль и рассыпал%ась."},
-		{{}, Fire, "%герой расплавил%ась."},
-		{{}, Cold, "%герой замерз%ла и разлетел%ась на куски."},
-		{{}, {}, "%герой уничтожен%а."}
+			{Glass, {}, "%герой разбил%ась вдребезги."},
+			{Wood, Fire, "%герой сгорел%а до тла."},
+			{Paper, Fire, "%герой моментально превратил%ась в пепел."},
+			{Paper, Magic, "%герой превратил%ась в пыль и рассыпал%ась."},
+			{{}, Fire, "%герой расплавил%ась."},
+			{{}, Cold, "%герой замерз%ла и разлетел%ась на куски."},
+			{{}, {}, "%герой уничтожен%а."}
 		};
 		act(text->get(ei.material, type));
 	}
