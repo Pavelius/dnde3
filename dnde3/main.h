@@ -438,6 +438,7 @@ struct descriptioni {
 };
 struct itemi {
 	const char*			name;
+	const char*			avatar_id;
 	rarity_s			rarity;
 	int					weight;
 	int					cost;
@@ -465,6 +466,7 @@ class item {
 			unsigned char quality : 2;
 			sale_s		sale : 2;
 			//
+			unsigned char personal : 1;
 			unsigned char identifye : 1;
 			unsigned char damaged : 2;
 			unsigned char charge : 4;
