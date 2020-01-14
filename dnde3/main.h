@@ -657,7 +657,19 @@ struct effecti {
 	const char*			text;
 	bool				permanent;
 };
-class creature : public nameable {
+class paperdoll {
+	unsigned char		hair, face_hair, eyes;
+	unsigned char		skin;
+public:
+	constexpr paperdoll() : skin(0), hair(0), face_hair(0), eyes(0) {}
+	int					getskin() const { return skin; }
+	int					gethair() const { return hair; }
+	int					gethairf() const { return face_hair; }
+	void				setskin(int v) { skin = v; }
+	void				sethair(int v) { hair = v; }
+	void				sethairf(int v) { face_hair = v; }
+};
+class creature : public nameable, public paperdoll {
 	char				abilities[ManaRate + 1];
 	unsigned char		skills[LastSkill + 1];
 	unsigned char		skills_potency[LastSkill + 1];
