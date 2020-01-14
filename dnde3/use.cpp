@@ -74,6 +74,12 @@ bool creature::use(creaturea& source, skill_s id) {
 	auto v = get(id);
 	if(v <= 0)
 		return false;
+	auto pu = isusedisable(id);
+	if(pu) {
+		if(isactive())
+			sb.add(pu, getstr(id));
+		return false;
+	}
 	auto& ei = bsmeta<skilli>::elements[id];
 	creaturea creatures = source; itema items; indexa indecies;
 	if(!ei.target.prepare(*this, creatures, items, indecies, id, get(id), true))
@@ -643,4 +649,18 @@ void creature::add(const effecti& e, item_s source) {
 		}
 	} else
 		add(e.id, e.value, true);
+}
+
+const char* creature::isusedisable(skill_s id) const {
+	auto& ei = bsmeta<skilli>::elements[id];
+	switch(id) {
+	case Healing: return "Используется автоматически восстанавливая 1 очко [жизни] за определенный промежуток времени.";
+	case Concetration: return "Используется автоматически восстанавливая 1 очко [маны] за определенный промежуток времени.";
+	default:
+		if(ei.isweapon())
+			return "Навык владения оружием влияет на шанс [попадания], наносимый [урон], [скорость] проведения удара и используется автоматически где это применимо.";
+		if(!ei.target)
+			return "Этот навык используется автоматически.";
+		return 0;
+	}
 }

@@ -42,14 +42,3 @@ assert_enum(skill, LastSkill);
 skill_s	skilli::getid() const {
 	return skill_s(this - bsmeta<skilli>::elements);
 }
-
-const char* skilli::getusetext() const {
-	switch(getid()) {
-	case Healing: return "Используется автоматически восстанавливая 1 очко жизни за определенный промежуток времени.";
-	case Concetration: return "Используется автоматически восстанавливая 1 очко маны за определенный промежуток времени.";
-	default:
-		if(isweapon())
-			return "Навык владения оружием влияет на шанс попадания, наносимый урон, скорость проведения удара и используется автоматически где это применимо.";
-		return "Этот навык используется автоматически.";
-	}
-}

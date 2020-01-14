@@ -726,11 +726,8 @@ void creature::useskills() {
 	auto s = source.choose(true, "Какой навык использовать?", &cancel);
 	if(cancel)
 		return;
-	if(bsmeta<skilli>::elements[s].target) {
-		creaturea source(*this);
-		use(source, s);
-	} else
-		sb.add(bsmeta<skilli>::elements[s].getusetext());
+	creaturea creatures(*this);
+	use(creatures, s);
 }
 
 void creature::usespells() {

@@ -267,8 +267,10 @@ typedef adat<casev<variant>, 8> chancev;
 struct string : stringbuilder {
 	const char			*name, *opponent_name;
 	gender_s			gender, opponent_gender;
+	creature			*player, *opponent;
 	constexpr string(const stringbuilder& source) : stringbuilder(source),
 		name(0), opponent_name(0),
+		player(0), opponent(0),
 		gender(Male), opponent_gender(Male) {
 	}
 	template<unsigned N> constexpr string(char(&result)[N]) : stringbuilder(result, result + N - 1), name(0), gender(Female) {}
@@ -791,6 +793,7 @@ public:
 	bool				ismatch(const creature& opponent, variant id) const;
 	bool				ismatch(const creature& opponent, skill_s id, int value) const;
 	bool				ismatch(const creature& opponent, const varianta& source) const;
+	const char*			isusedisable(skill_s id) const;
 	void				kill();
 	void				look(indext index);
 	void				lookaround();
@@ -897,7 +900,6 @@ struct skilli {
 	targeti				target;
 	//
 	skill_s				getid() const;
-	const char*			getusetext() const;
 	constexpr bool		is(ability_s v) const { return abilities[0] == v || abilities[1] == v; }
 	constexpr bool		isweapon() const { return weapon.attack != 0; }
 };
