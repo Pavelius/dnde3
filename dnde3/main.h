@@ -186,7 +186,7 @@ enum range_s : unsigned char {
 	You, Close, Reach, Near, Far
 };
 enum item_flag_s : unsigned char {
-	Countable, SingleUse, TwoHanded, Versatile, Light, Natural,
+	SingleUse, TwoHanded, Versatile, Light, Natural,
 };
 enum variant_s : unsigned char {
 	NoVariant,
@@ -521,7 +521,7 @@ public:
 	bool				is(item_type_s v) const { return magic == v; }
 	bool				isboost(variant id) const;
 	bool				ischargeable() const;
-	bool				iscountable() const { return is(Countable); }
+	bool				iscountable() const;
 	bool				isdamaged() const { return getdamage() > 0; }
 	void				loot();
 	bool				ismatch(variant v) const;

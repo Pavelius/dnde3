@@ -68,9 +68,9 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", "item-1", Unique, 0, 0, 0, NoGender,
 {"Дарт", "item34", Uncommon, 30, 1 * SP, 0, Male, Wood, {-4, 3, {1, 3}, Piercing, 3}, {}, weapon_enchanments, {}, Ranged},
 {"Праща", "item52", Uncommon, 50, 1 * SP, 0, Female, Leather, {-6, 3, {2, 4}, Bludgeon, 0, 0, Rock}, {}, weapon_enchanments, {}, Ranged},
 //
-{"Камень", "items53", Common, 15, 0, 0, Male, Stone, {0, 0, {1, 3}, Bludgeon, 0, 0, NoItem, Rock}, {}, {}, {Countable}, Ranged},
-{"Стрела", "item51", Common, 3, 2 * CP, 0, Female, Wood, {0, 0, {}, Piercing, 0, 0, NoItem, Arrow}, {}, {}, {Countable}, Amunitions},
-{"Болт", "item68", Common, 2, 1 * CP, 0, Male, Iron, {0, 0, {}, Piercing, 0, 0, NoItem, Bolt}, {}, {}, {Countable}, Amunitions},
+{"Камень", "items53", Common, 15, 0, 0, Male, Stone, {0, 0, {1, 3}, Bludgeon, 0, 0, NoItem, Rock}, {}, {}, {}, Ranged},
+{"Стрела", "item51", Common, 3, 2 * CP, 0, Female, Wood, {0, 0, {}, Piercing, 0, 0, NoItem, Arrow}, {}, {}, {}, Amunitions},
+{"Болт", "item68", Common, 2, 1 * CP, 0, Male, Iron, {0, 0, {}, Piercing, 0, 0, NoItem, Bolt}, {}, {}, {}, Amunitions},
 //
 {"Кожанная броня", "item10", Common, 1000, 5 * GP, 0, Female, Leather, {-5}, {10, 0, 15}, common_armor, {}, Torso},
 {"Клепанная броня", "item43", Common, 1500, 15 * GP, 0, Female, Leather, {-7}, {15, 0, 15}, common_armor, {}, Torso},
@@ -139,9 +139,9 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", "item-1", Unique, 0, 0, 0, NoGender,
 //
 {"Ключ", "item354", Common, 0, 0 * GP, 0, Male, Iron, {}, {}, {}, {}},
 //
-{"Монета", "items37", Common, 0, 1 * CP, -1, Female, Iron, {}, {}, {}, {Countable}, Coinable},
-{"Серебрянная монета", "items37", Common, 0, 1 * SP, 0, Female, Iron, {}, {}, {}, {Countable}, Coinable},
-{"Золотая монета", "items37", Common, 0, 1 * GP, 1, Female, Iron, {}, {}, {}, {Countable}, Coinable},
+{"Монета", "items37", Common, 0, 1 * CP, -1, Female, Iron, {}, {}, {}, {}, Coinable},
+{"Серебрянная монета", "items37", Common, 0, 1 * SP, 0, Female, Iron, {}, {}, {}, {}, Coinable},
+{"Золотая монета", "items37", Common, 0, 1 * GP, 1, Female, Iron, {}, {}, {}, {}, Coinable},
 //
 {"Когти", 0, Common, 0, 0 * GP, 0, NoGender, Organic, {-6, 3, {1, 6}, Slashing, 3, 1}, {}, {}, {Natural}, Melee},
 {"Кулаки", 0, Common, 0, 0 * GP, 0, NoGender, Organic, {0, 4, {1, 6}, Bludgeon, 0, 2}, {}, {}, {Natural}, Melee},
@@ -211,8 +211,12 @@ void item::create(item_s item_type, int chance_artifact, int chance_magic, int c
 	}
 	if(ischargeable())
 		charge = xrand(2, 12) + quality;
-	if(iscountable())
-		setcount(xrand(10, 20));
+	if(iscountable()) {
+		if(is(Edible))
+			setcount(xrand(1, 3));
+		else
+			setcount(xrand(10, 20));
+	}
 }
 
 creature* item::getwearer() const {
@@ -389,7 +393,7 @@ int	item::getbonus() const {
 }
 
 variant item::geteffect() const {
-	if(is(Countable))
+	if(iscountable())
 		return variant();
 	auto& ei = getitem();
 	if(ei.effects.count > 0)
@@ -506,7 +510,7 @@ unsigned item::getcost() const {
 }
 
 int	item::getdamage() const {
-	if(is(Countable))
+	if(iscountable())
 		return 0;
 	return damaged;
 }
@@ -631,6 +635,10 @@ void item::breaktest() {
 	if(r >= 3)
 		return;
 	damage(xrand(0, 5), Bludgeon, true);
+}
+
+bool item::iscountable() const {
+	return bsmeta<itemi>::elements[type].effects.count==0;
 }
 
 bool item::ischargeable() const {
