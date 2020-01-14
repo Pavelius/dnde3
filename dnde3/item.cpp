@@ -201,7 +201,7 @@ void item::create(item_s item_type, int chance_artifact, int chance_magic, int c
 		}
 	}
 	if(ischargeable())
-		charge = xrand(2, 12) + quality * 3;
+		charge = xrand(2, 12) + quality;
 	if(iscountable())
 		setcount(xrand(10, 20));
 }
@@ -392,8 +392,8 @@ armori item::getarmor() const {
 	auto result = getitem().armor;
 	auto d = getdamage();
 	auto b = getbonus();
-	result.protection += b*result.protection_bonus - d;
-	result.armor += b*result.armor_bonus - d;
+	result.protection += b * result.protection_bonus - d;
+	result.armor += b * result.armor_bonus - d;
 	if(result.armor < 0)
 		result.armor = 0;
 	return result;
@@ -426,14 +426,19 @@ void item::set(item_type_s v) {
 }
 
 void item::set(identify_s v) {
-	if(!v || v > identify) {
-		auto p = getwearer();
-		if(p)
-			p->dressoff();
-		identify = v;
-		if(p)
-			p->dresson();
+	if(is(v))
+		return;
+	auto p = getwearer();
+	if(p)
+		p->dressoff();
+	switch(v) {
+	case KnownMagic: identifyc = 1; break;
+	case KnownPower: identifye = 1; break;
+	case KnownStats: identifys = 1; break;
+	default: identifyc = identifys = identifye = 0; break;
 	}
+	if(p)
+		p->dresson();
 }
 
 void item::setquality(int v) {
@@ -469,19 +474,19 @@ unsigned item::getcost() const {
 		m = 75;
 	else if(sale == Sale150)
 		m = 150;
-	if(identify >= KnownMagic) {
+	if(is(KnownMagic)) {
 		switch(magic) {
 		case Blessed: m += 100; break;
 		case Artifact: m += 1000; break;
 		case Cursed: return 0; break;
 		default: break;
 		}
-		if(identify >= KnownPower) {
-			if(ei.slot >= Head && ei.slot <= Ranged) {
-				w += 5 * GP * quality;
-				if(ei.effects.count && !ei.effects[0] && geteffect())
-					w += 10 * GP;
-			}
+	}
+	if(is(KnownPower)) {
+		if(ei.slot >= Head && ei.slot <= Ranged) {
+			w += 5 * GP * quality;
+			if(ei.effects.count && !ei.effects[0] && geteffect())
+				w += 10 * GP;
 		}
 	}
 	if(w < 0)
@@ -560,13 +565,13 @@ void item::destroy(damage_s type, bool interactive) {
 		auto& ei = bsmeta<itemi>::elements[getkind()];
 		static descriptioni text[] = {
 			{Glass, Fire, "%герой расплавил%ась и взорвалась."},
-			{Glass, {}, "%герой разбил%ась вдребезги."},
-			{Wood, Fire, "%герой сгорел%а до тла."},
-			{Paper, Fire, "%герой моментально превратил%ась в пепел."},
-			{Paper, Magic, "%герой превратил%ась в пыль и рассыпал%ась."},
-			{{}, Fire, "%герой расплавил%ась."},
-			{{}, Cold, "%герой замерз%ла и разлетел%ась на куски."},
-			{{}, {}, "%герой уничтожен%а."}
+		{Glass, {}, "%герой разбил%ась вдребезги."},
+		{Wood, Fire, "%герой сгорел%а до тла."},
+		{Paper, Fire, "%герой моментально превратил%ась в пепел."},
+		{Paper, Magic, "%герой превратил%ась в пыль и рассыпал%ась."},
+		{{}, Fire, "%герой расплавил%ась."},
+		{{}, Cold, "%герой замерз%ла и разлетел%ась на куски."},
+		{{}, {}, "%герой уничтожен%а."}
 		};
 		act(text->get(ei.material, type));
 	}
@@ -622,4 +627,13 @@ bool item::ischargeable() const {
 	if(v.type == Spell)
 		return true;
 	return false;
+}
+
+bool item::is(identify_s v) const {
+	switch(v) {
+	case KnownMagic: return identifyc != 0;
+	case KnownStats: return identifys != 0;
+	case KnownPower: return !iscountable() && identifye != 0;
+	default: return !identifys && !identifyc && !identifye;
+	}
 }

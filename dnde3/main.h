@@ -453,13 +453,15 @@ class item {
 		struct {
 			item_s		type;
 			//
+			unsigned char identifyc : 1;
+			unsigned char identifys : 1;
 			item_type_s	magic : 2;
 			unsigned char quality : 2;
-			identify_s	identify : 2;
 			sale_s		sale : 2;
 			//
-			unsigned char charge : 6;
+			unsigned char identifye : 1;
 			unsigned char damaged : 2;
+			unsigned char charge : 4;
 			//
 			unsigned char effect;
 		};
@@ -506,7 +508,7 @@ public:
 	int					getweightsingle() const { return getitem().weight; }
 	int					getweight() const { return getweightsingle()*getcount(); }
 	bool				is(slot_s v) const { return getitem().is(v); }
-	bool				is(identify_s v) const { return v ? identify >= v : (identify == Unknown); }
+	bool				is(identify_s v) const;
 	bool				is(item_flag_s v) const { return getitem().flags.is(v); }
 	bool				is(item_type_s v) const { return magic == v; }
 	bool				isboost(variant id) const;
@@ -518,7 +520,6 @@ public:
 	void				set(item_type_s v);
 	void				set(identify_s v);
 	void				set(sale_s v) { sale = v; }
-	void				setcharges(int v);
 	void				setcount(int v);
 	void				seteffect(variant v);
 	void				setquality(int v);

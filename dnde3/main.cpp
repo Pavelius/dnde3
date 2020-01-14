@@ -184,13 +184,13 @@ int main(int argc, char* argv[]) {
 	auto s3 = sizeof(item);
 	if(!test_formula())
 		return false;
-	game.intialize();
+	//game.intialize();
 	//game.setnextlayer(test_worldmap);
 	//game.layer();
 	//test_answers();
 	//item_choose();
 	//test_worldmap();
-	test_indoor(true);
+	//test_indoor(true);
 	//test_analize();
 	//test_dungeon();
 }
