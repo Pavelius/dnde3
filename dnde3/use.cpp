@@ -12,15 +12,11 @@ bool item::isboost(variant id) const {
 		if(e == id)
 			return true;
 	}
-	// Check for food
-	for(auto& e : bsmeta<foodi>()) {
-		if(e.type != type)
-			continue;
-		if(id.type == Ability) {
-			if(id.value == LifePoints && e.hp > 0)
-				return true;
-			if(id.value == ManaPoints && e.mp > 0)
-				return true;
+	if(id.type == Ability) {
+		switch(id.value) {
+		case LifePoints:
+		case ManaPoints:
+			return is(Edible);
 		}
 	}
 	return false;

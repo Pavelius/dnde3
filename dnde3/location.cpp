@@ -143,8 +143,6 @@ void location::clear() {
 	memset(this, 0, sizeof(*this));
 	for(auto& e : random)
 		e = rand() % 256;
-	for(auto& e : monsters)
-		e = Character;
 }
 
 static void correct(rect& rc) {

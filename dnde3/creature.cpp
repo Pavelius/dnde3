@@ -1831,3 +1831,7 @@ bool creature::saybusy() {
 	say(maprnd(text), -(restore_energy / StandartEnergyCost));
 	return true;
 }
+
+void creature::usetools() {
+	aiuse("Использовать какой инаструмент?", Tool, {});
+}

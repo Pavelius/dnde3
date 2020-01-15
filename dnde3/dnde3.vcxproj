@@ -155,7 +155,7 @@
     <ClCompile Include="itemground.cpp" />
     <ClCompile Include="item_type.cpp" />
     <ClCompile Include="location.cpp" />
-    <ClCompile Include="location_create.cpp" />
+    <ClCompile Include="landscape.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="manual.cpp" />
     <ClCompile Include="map_object.cpp" />

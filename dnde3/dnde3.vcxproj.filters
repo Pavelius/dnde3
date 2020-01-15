@@ -136,9 +136,6 @@
     <ClCompile Include="skilla.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="location_create.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
     <ClCompile Include="item_type.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
@@ -204,6 +201,9 @@
     </ClCompile>
     <ClCompile Include="main_util.cpp">
       <Filter>Утилиты</Filter>
+    </ClCompile>
+    <ClCompile Include="landscape.cpp">
+      <Filter>Логика</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

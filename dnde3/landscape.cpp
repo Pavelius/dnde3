@@ -1,6 +1,5 @@
 #include "main.h"
 
-typedef void(*gentileproc)(indext index);
 struct vector {
 	short unsigned		index;
 	direction_s			dir;
@@ -48,27 +47,33 @@ static void show_minimap_step(short unsigned index, bool visualize) {
 		loc.minimap(index);
 }
 
-static void create_big_rooms(int x, int y, int w, int h, rooma& rooms, bool visualize) {
-	if(h < max_building_size * 2 && w < max_building_size * 2) {
-		auto dw = xrand(max_building_size - 4 - 6, max_building_size - 4);
-		auto dh = xrand(max_building_size - 4 - 6, max_building_size - 4);
-		auto dws = (w - dw - 2);
-		auto dhs = (h - dh - 2);
+static void create_big_rooms(const rect& rc, rooma& rooms, bool visualize) {
+	if(rc.width() < 4 + 5 || rc.height() < 4 + 3)
+		return;
+	if(rc.height() < max_building_size * 2 && rc.width() < max_building_size * 2) {
+		auto dw = xrand(5, max_building_size - 4);
+		if(dw > rc.width() - 4)
+			dw = rc.width() - 4;
+		auto dh = xrand(3, max_building_size - 7);
+		if(dh > rc.height() - 4)
+			dh = rc.height() - 4;
+		auto dws = (rc.width() - dw - 2);
+		auto dhs = (rc.height() - dh - 2);
 		if(dws && dhs) {
-			auto x1 = x + 1 + rand() % dws;
-			auto y1 = y + 1 + rand() % dhs;
+			auto x1 = rc.x1 + 1 + rand() % dws;
+			auto y1 = rc.y1 + 1 + rand() % dhs;
 			rooms.add({x1, y1, x1 + dw, y1 + dh});
 			if(visualize)
 				loc.show(rooms);
 		}
-	} else if(w > h) {
-		auto w1 = w / 2 + (rand() % 8) - 4;
-		create_big_rooms(x, y, w1, h, rooms, visualize);
-		create_big_rooms(x + w1, y, w - w1, h, rooms, visualize);
+	} else if(rc.width() > rc.height()) {
+		auto w1 = rc.width() / 2 + (rand() % 8) - 4;
+		create_big_rooms({rc.x1, rc.y1, rc.x1 + w1 - 1, rc.y2}, rooms, visualize);
+		create_big_rooms({rc.x1 + w1, rc.y1, rc.x2, rc.y2}, rooms, visualize);
 	} else {
-		auto h1 = h / 2 + (rand() % 6) - 3;
-		create_big_rooms(x, y, w, h1, rooms, visualize);
-		create_big_rooms(x, y + h1, w, h - h1, rooms, visualize);
+		auto h1 = rc.height() / 2 + (rand() % 6) - 3;
+		create_big_rooms({rc.x1, rc.y1, rc.x2, rc.y1 + h1 - 1}, rooms, visualize);
+		create_big_rooms({rc.x1, rc.y1 + h1, rc.x2, rc.y2}, rooms, visualize);
 	}
 }
 
@@ -255,23 +260,26 @@ static void create_dungeon_content(rooma& rooms, bool visualize) {
 
 void location::create(bool explored, bool visualize) {
 	stack_get = stack_put = 0;
-	monsters[0] = GoblinWarrior;
-	monsters[1] = GoblinRockthrower;
-	monsters[2] = GnollWarrior;
-	monsters[3] = KobolWarrior;
-	monsters[4] = KoboldShaman;
-	monsters[5] = Skeleton;
 	// Explore all map
 	if(explored) {
 		auto count = mmx * mmy;
 		for(short unsigned i = 0; i < count; i++)
 			set(i, Explored);
 	}
+	rect rc = {1, 1, mmx - 1, mmy - 1};
 	rooma rooms;
 	indoor_floor();
-	create_big_rooms(1, 1, mmx - 1, mmy - 1, rooms, false);
+	create_big_rooms(rc, rooms, false);
 	qsort(rooms.data, rooms.count, sizeof(rooms.data[0]), compare_rect);
 	create_dungeon_content(rooms, visualize && explored);
 	//change_tile(NoTile, Wall);
 	update_doors();
 }
+
+template<> landscapei bsmeta<landscapei>::elements[] = {{"Равнина"},
+{"Лес"},
+{"Болото"},
+// 
+{"Подземелье", {1, 1, 1, 1}, indoor_floor, create_big_rooms, create_dungeon_content},
+{"Город", {1, 1, 1, 1}},
+};

@@ -46,8 +46,8 @@ enum item_s : unsigned char {
 	Potion1, Potion2, Potion3, Potion4, Potion5,
 	RingRed, RingBlue, RingGreen,
 	Amulet1, Amulet2, Amulet3, Amulet4, Amulet5,
-	ClimbingTool, HealingKit, ScriblingKit,
-	DoorKey, Coin, CoinSP, CoinGP,
+	ClimbingTool, FletcherySet, Forge, HealingKit, ScriblingKit, CrystalBall, AlchemySet, TheifTool,
+	Corpse, DoorKey, Coin, CoinSP, CoinGP,
 	Claws, Slam, Bite, Hitin, Fur,
 	ManyItems
 };
@@ -122,6 +122,9 @@ enum tile_s : unsigned char {
 	Swamp, Hill,
 	Sea, Foothills, Mountains, CloudPeaks, Forest,
 	City
+};
+enum landscape_s : unsigned char {
+	AreaPlain, AreaForest, AreaSwamp, AreaDungeon, AreaCity,
 };
 enum site_s : unsigned char {
 	EmpthyRoom, TreasureRoom,
@@ -234,6 +237,10 @@ typedef flagable<1 + ManyItems / 8>	itemf;
 typedef flagable<1 + Blooded / 8> mapflf;
 typedef casev<ability_s> abilityv;
 typedef aset<damage_s, 1 + WaterAttack> damagea;
+typedef void(*gentileproc)(indext index);
+typedef void(*genlandproc)();
+typedef void(*genareaproc)(const rect& rc, rooma& rooms, bool visualize);
+typedef void(*genroomproc)(rooma& rooms, bool visualize);
 struct targeti;
 class creature;
 class creaturea;
@@ -410,6 +417,7 @@ struct attacki {
 };
 struct materiali {
 	const char*			name;
+	const char*			genders[3];
 	damagea				resist;
 };
 struct damagei {
@@ -864,6 +872,7 @@ public:
 	void				readsomething();
 	void				useskills();
 	void				usespells();
+	void				usetools();
 	void				usewands();
 	void				wait() { consume(StandartEnergyCost); }
 	void				wait(int n) { consume(StandartEnergyCost * n); }
@@ -882,6 +891,23 @@ public:
 	void				select(indext start, int distance);
 	void				select(state_s v);
 	void				sort(indext start);
+};
+struct landscapei {
+	const char*			name;
+	rect				border;
+	genlandproc			genland;
+	genareaproc			genarea;
+};
+struct dungeoni {
+	struct itemc {
+		char			quality;
+		char			cursed;
+		char			magical;
+	};
+	tile_s				type;
+	short				levels;
+	racea				denyrace;
+	itemc				items;
 };
 class indexa : public adat<indext> {
 public:
@@ -946,7 +972,7 @@ struct coordinate {
 };
 struct areainfo : coordinate {
 	unsigned char		rooms; // Количество комнат
-	unsigned short		artifacts;
+	unsigned char		artifacts;
 	bool				isdungeon; // Underground dungeons has 'true'
 	race_s				habbitants[4];
 	short unsigned		positions[8]; // Several positions
@@ -995,7 +1021,6 @@ class location : public statistici {
 	map_object_s		objects[mmx*mmy];
 	unsigned char		random[mmx*mmy];
 	mapflf				flags[mmx*mmy];
-	role_s				monsters[6];
 	bool				is_dungeon;
 	char				light_level;
 	//

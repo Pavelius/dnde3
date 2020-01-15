@@ -11,18 +11,12 @@ static const char* damage_text[] = {0, "Треснуло", "Повреждено", "Сломано"};
 
 static variant common_potions[] = {LifePoints, ManaPoints};
 static variant uncommon_potions[] = {Strenght, Dexterity, Wisdow, Charisma,
-LifeRate, ManaRate, Level,
-LifePoints, ManaPoints, Speed};
+LifeRate, ManaRate, Level, Speed};
 static variant rare_potions[] = {Attack, Damage,
 Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
-Armor, Protection, Level,
-LifeRate, ManaRate,
-LifePoints, ManaPoints, Speed};
-static variant weapon_enchanments[] = {{},
-Attack, Damage, Speed,
-Strenght, Constitution};
-static variant swords_enchanments[] = {{},
-Attack, Damage,
+Armor, Protection, Level};
+static variant weapon_enchanments[] = {{}, Attack, Damage, Speed, Strenght, Constitution};
+static variant swords_enchanments[] = {{}, Attack, Damage,
 Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
 Protection, LifePoints, ManaPoints, Speed};
 static variant common_rings[] = {ResistAcid, ResistCharm, ResistCold, ResistElectricity,
@@ -41,13 +35,17 @@ static variant wand_common_spells[] = {MagicMissile, ShokingGrasp, HealingSpell,
 CharmPerson, FearSpell, Invisibility, Repair, SickSpell, Sleep};
 static variant common_mage_spells[] = {MagicMissile, ShokingGrasp,
 ArmorSpell, CharmPerson, FearSpell, Invisibility, Repair, Sleep};
-static variant common_scroll[] = {BlessItem, DetectEvil, DetectMagic, Identify};
+static variant common_scroll[] = {BlessItem, DetectEvil, DetectMagic, Identify, KnockDoor};
 static variant common_amulet[] = {Charisma, Strenght, Lockpicking};
 static variant common_shield[] = {Protection, Deflect,
 ResistFire, ResistAcid, ResistElectricity, ResistCharm};
 static variant common_helm[] = {Intellegence, Charisma};
 static variant common_bracers[] = {FocusBows, Lockpicking, PickPockets, Dexterity, Protection};
 static variant common_cloack[] = {Protection, Survival, HideInShadow};
+static variant alchemy_receipts[] = {LifePoints, ManaPoints, LifeRate, ManaRate,
+Strenght, Dexterity, Constitution, Wisdow, Charisma,
+Armor, Protection,
+ResistAcid, ResistCharm, ResistCold, ResistElectricity, ResistFire, ResistParalize, ResistPoison, ResistWater};
 
 itemi bsmeta<itemi>::elements[] = {{"Рука", "item-1", Unique, 0, 0, 0, NoGender, Organic, {0, 3, {1, 3}, Bludgeon, 4, 2}, {}, {}, {}, Melee},
 {"Боевой топор", "item5", Common, 850, 5 * GP, 0, Male, Iron, {-4, 3, {1, 8}, Slashing, 0, 2}, {}, weapon_enchanments, {Versatile}, Melee, FocusAxes},
@@ -138,9 +136,15 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", "item-1", Unique, 0, 0, 0, NoGender,
 {"Ожерелье", "item174", Rare, 40, 450 * GP, 2, NoGender, Iron, {}, {}, common_amulet, {}, Neck},
 //
 {"Набор скалолаза", "item522", Rare, 100, 10 * GP, 2, Male, Iron, {}, {}, {}, {}, Tool},
+{"Набор стрелодела", "item468", Rare, 100, 8 * GP, 2, Male, Wood, {}, {}, {}, {}, Tool},
+{"Наковальня", "item72", Rare, 2000, 9 * GP, 2, Male, Iron, {}, {}, {}, {}, Tool},
 {"Бинты", "item561", Rare, 10, 1 * SP, 2, NoGender, Paper, {}, {}, {}, {}, Tool},
-{"Набор писца", "item679", Rare, 10, 20 * SP, 2, Male, Paper, {}, {}, {}, {}, Tool},
+{"Набор писца", "item679", Rare, 50, 20 * SP, 2, Male, Paper, {}, {}, {}, {}, Tool},
+{"Кристальный шар", "item612", Rare, 300, 25 * SP, 2, Male, Glass, {}, {}, {}, {}, Tool},
+{"Набор алхимика", "item87", Rare, 800, 30 * SP, 2, Male, Wood, {}, {}, alchemy_receipts, {}, Tool},
+{"Инструменты вора", "item23", Rare, 300, 25 * SP, 2, Male, Iron, {}, {}, {}, {}, Tool},
 //
+{"Тело", "item103", Unique, 1000, 0 * GP, 0, NoGender, Organic, {}, {}, {}, {}},
 {"Ключ", "item354", Common, 0, 0 * GP, 0, Male, Iron, {}, {}, {}, {}},
 //
 {"Монета", "items37", Common, 0, 1 * CP, -1, Female, Iron, {}, {}, {}, {}, Coinable},
@@ -308,6 +312,8 @@ void item::getname(stringbuilder& sb, bool show_cab) const {
 }
 
 void item::seteffect(variant v) {
+	if(iscountable())
+		return;
 	auto p = getwearer();
 	if(p)
 		p->dressoff();
@@ -380,23 +386,19 @@ bool item::ismatch(variant v) const {
 }
 
 int	item::getbonus() const {
-	auto m = 0;
-	switch(magic) {
-	case Artifact:
-		m = 2 + quality;
-		break;
-	case Blessed:
-		m = 1 + quality;
-		break;
-	case Cursed:
-		return -1 - quality;
-	default:
-		m = quality;
-		break;
+	auto m = quality;
+	if(identifyc) {
+		switch(magic) {
+		case Artifact: m += 2; break;
+		case Blessed: m += 1; break;
+		case Cursed: return -1 - quality;
+		}
 	}
 	auto& ei = getitem();
-	if(ei.effects.count && (effect || ei.effects.data[0]))
-		m++;
+	if(ei.slot != Tool) {
+		if(ei.effects.count && (effect || ei.effects.data[0]))
+			m++;
+	}
 	return m;
 }
 
@@ -646,7 +648,7 @@ void item::breaktest() {
 }
 
 bool item::iscountable() const {
-	return bsmeta<itemi>::elements[type].effects.count==0;
+	return bsmeta<itemi>::elements[type].effects.count == 0;
 }
 
 bool item::ischargeable() const {
