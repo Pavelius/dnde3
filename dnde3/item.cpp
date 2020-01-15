@@ -137,6 +137,10 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", "item-1", Unique, 0, 0, 0, NoGender,
 {"Амулет", "item170", Uncommon, 30, 400 * GP, 1, Male, Iron, {}, {}, common_amulet, {}, Neck},
 {"Ожерелье", "item174", Rare, 40, 450 * GP, 2, NoGender, Iron, {}, {}, common_amulet, {}, Neck},
 //
+{"Набор скалолаза", "item522", Rare, 100, 10 * GP, 2, Male, Iron, {}, {}, {}, {}, Tool},
+{"Бинты", "item561", Rare, 10, 1 * SP, 2, NoGender, Paper, {}, {}, {}, {}, Tool},
+{"Набор писца", "item679", Rare, 10, 20 * SP, 2, Male, Paper, {}, {}, {}, {}, Tool},
+//
 {"Ключ", "item354", Common, 0, 0 * GP, 0, Male, Iron, {}, {}, {}, {}},
 //
 {"Монета", "items37", Common, 0, 1 * CP, -1, Female, Iron, {}, {}, {}, {}, Coinable},
@@ -231,6 +235,8 @@ slot_s item::getwearerslot() const {
 }
 
 const char* item::getdamagetext() const {
+	if(iscountable())
+		return 0;
 	return damage_text[damaged];
 }
 

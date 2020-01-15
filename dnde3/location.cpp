@@ -768,6 +768,20 @@ bool location::ismatch(indext index, variant v) const {
 
 bool location::apply(creature& player, indext index, variant id, int v, int order, bool run) {
 	switch(id.type) {
+	case Spell:
+		switch(id.value) {
+		case KnockDoor:
+			if(getobject(index) != Door || is(index, Opened))
+				return false;
+			if(run) {
+				set(index, Opened);
+				remove(index, Sealed);
+				if(order == 0)
+					player.act("Двери волшебным образом открылись.");
+			}
+			break;
+		}
+		break;
 	case Skill:
 		switch(id.value) {
 		case Athletics:

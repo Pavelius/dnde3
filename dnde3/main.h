@@ -46,6 +46,7 @@ enum item_s : unsigned char {
 	Potion1, Potion2, Potion3, Potion4, Potion5,
 	RingRed, RingBlue, RingGreen,
 	Amulet1, Amulet2, Amulet3, Amulet4, Amulet5,
+	ClimbingTool, HealingKit, ScriblingKit,
 	DoorKey, Coin, CoinSP, CoinGP,
 	Claws, Slam, Bite, Hitin, Fur,
 	ManyItems
@@ -55,7 +56,7 @@ enum diety_s : unsigned char {
 	GodBane, GodBhaal, GodGruumsh, GodHelm, GodMistra, GodTempus, GodTyr
 };
 enum slot_s : unsigned char {
-	Backpack, Edible, Readable, Drinkable, Zapable, Coinable, LastBackpack = Backpack + 31,
+	Backpack, Edible, Readable, Drinkable, Zapable, Coinable, Tool, LastBackpack = Backpack + 31,
 	Head, Neck, Melee, OffHand, TorsoBack, Torso, RightFinger, LeftFinger, Elbows, Legs, Ranged, Amunitions,
 };
 enum race_s : unsigned char {
@@ -160,7 +161,7 @@ enum img_s : unsigned char {
 };
 enum spell_s : unsigned char {
 	ArmorSpell, BlessSpell, BlessItem, ChatPerson, CharmPerson, DetectEvil, DetectMagic, FearSpell, HealingSpell,
-	Identify, Invisibility, LightSpell, MagicMissile, Poison,
+	Identify, Invisibility, KnockDoor, LightSpell, MagicMissile, Poison,
 	Repair, RemovePoisonSpell, RemoveSickSpell,
 	SickSpell, ShieldSpell, ShokingGrasp, Sleep, SlowMonster,
 	FirstSpell = ArmorSpell, LastSpell = SlowMonster
