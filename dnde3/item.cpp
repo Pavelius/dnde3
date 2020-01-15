@@ -263,8 +263,8 @@ void item::getname(stringbuilder& sb, bool show_cab) const {
 		}
 	}
 	sb.adds("%-1", getname());
+	const char* format = "%+1i";
 	if(is(KnownPower)) {
-		const char* format = "%+1i";
 		auto effect = geteffect();
 		if(effect) {
 			if(q < 0)
@@ -284,8 +284,10 @@ void item::getname(stringbuilder& sb, bool show_cab) const {
 				break;
 			}
 		}
-		if(ei.slot >= Head && ei.slot <= Amunitions && q != 0)
-			sb.adds(format, q);
+		if(is(KnownStats)) {
+			if(ei.slot >= Head && ei.slot <= Amunitions && q != 0)
+				sb.adds(format, q);
+		}
 	}
 	if(iscountable()) {
 		auto n = getcount();

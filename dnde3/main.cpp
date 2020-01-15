@@ -181,7 +181,7 @@ static bool test_formula() {
 void util_main();
 
 int main(int argc, char* argv[]) {
-	util_main();
+	//util_main();
 	if(!test_formula())
 		return false;
 	game.intialize();
