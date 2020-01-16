@@ -46,7 +46,8 @@ enum item_s : unsigned char {
 	Potion1, Potion2, Potion3, Potion4, Potion5,
 	RingRed, RingBlue, RingGreen,
 	Amulet1, Amulet2, Amulet3, Amulet4, Amulet5,
-	ClimbingTool, FletcherySet, Forge, HealingKit, ScriblingKit, CrystalBall, AlchemySet, TheifTool,
+	ClimbingTool, FletcherySet, Forge, HealingKit, ScriblingKit, CrystalBall, AlchemySet, TheifTool, CookingSet,
+	Lute, Arfa, Baboon, Guitar, Vilanchelle, Flute,
 	Corpse, DoorKey, Coin, CoinSP, CoinGP,
 	Claws, Slam, Bite, Hitin, Fur,
 	ManyItems
@@ -465,6 +466,7 @@ struct itemi {
 	//
 	bool				is(slot_s v) const;
 	bool				is(const aref<slot_s>& source) const;
+	variant				randeffect() const;
 };
 class item {
 	union {
@@ -885,9 +887,9 @@ public:
 	creaturea() = default;
 	creaturea(const creature& v) { select(v.getposition(), v.getlos()); }
 	creature*			choose(const char* interactive);
-	void				match(variant v, bool remove);
+	void				match(variant v, bool remove = false);
 	void				match(creature& player, variant v, bool remove, bool target_insivible = false);
-	void				matcha(creature& player, variant id, int v, bool remove);
+	void				matcha(creature& player, variant id, int v, bool remove = false);
 	void				matchr(indext index, int range);
 	void				matchbs(bool remove);
 	void				select();

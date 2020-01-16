@@ -149,14 +149,13 @@ static void test_dungeon() {
 	auto p3 = create(Human, Male, Fighter);
 	p1->activate();
 	create(p1, Potion3, Level);
-	create(p1, Potion3, Level);
 	create(p1, Amulet1, Lockpicking);
 	create(p1, Boot1);
 	create(p1, Helmet);
 	create(p1, RingRed);
 	create(p1, Wand1, Sleep);
 	create(p1, Book1);
-	create(p1, AlchemySet);
+	create(p1, Guitar, Damage);
 	create(p3, BracersLeather);
 	create(p3, Wand1);
 	modify_weapon(p1);
@@ -182,16 +181,16 @@ static bool test_formula() {
 void util_main();
 
 int main(int argc, char* argv[]) {
-	//util_main();
+	util_main();
 	if(!test_formula())
 		return false;
-	//game.intialize();
+	game.intialize();
 	//test_answers();
 	//item_choose();
 	//test_worldmap();
 	//test_indoor(true);
 	//test_analize();
-	//test_dungeon();
+	test_dungeon();
 }
 
 int __stdcall WinMain(void* ci, void* pi, char* cmd, int sw) {

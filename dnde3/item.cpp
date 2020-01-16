@@ -31,21 +31,24 @@ static variant common_armor[] = {{},
 ResistElectricity, ResistParalize, ResistWater,
 Charisma, Wisdow,
 Armor, Speed};
+static variant common_helm[] = {{}, Intellegence, Charisma};
+static variant common_bracers[] = {{}, FocusBows, Lockpicking, PickPockets, Dexterity, Protection};
 static variant wand_common_spells[] = {MagicMissile, ShokingGrasp, HealingSpell, ArmorSpell,
 CharmPerson, FearSpell, Invisibility, Repair, SickSpell, Sleep};
 static variant common_mage_spells[] = {MagicMissile, ShokingGrasp,
 ArmorSpell, CharmPerson, FearSpell, Invisibility, Repair, Sleep};
 static variant common_scroll[] = {BlessItem, DetectEvil, DetectMagic, Identify, KnockDoor};
 static variant common_amulet[] = {Charisma, Strenght, Lockpicking};
-static variant common_shield[] = {Protection, Deflect,
+static variant common_shield[] = {{}, Protection, Deflect,
 ResistFire, ResistAcid, ResistElectricity, ResistCharm};
-static variant common_helm[] = {Intellegence, Charisma};
-static variant common_bracers[] = {FocusBows, Lockpicking, PickPockets, Dexterity, Protection};
 static variant common_cloack[] = {Protection, Survival, HideInShadow};
 static variant alchemy_receipts[] = {LifePoints, ManaPoints, LifeRate, ManaRate,
 Strenght, Dexterity, Constitution, Wisdow, Charisma,
 Armor, Protection,
 ResistAcid, ResistCharm, ResistCold, ResistElectricity, ResistFire, ResistParalize, ResistPoison, ResistWater};
+static variant lute_songs[] = {{}, Attack, Damage, BlessSpell, LifePoints, ManaPoints};
+static variant flute_songs[] = {{}, Wisdow, Intellegence, Charisma};
+static variant booben_songs[] = {{}, Strenght, Dexterity, Constitution, Armor};
 
 itemi bsmeta<itemi>::elements[] = {{"Рука", "item-1", Unique, 0, 0, 0, NoGender, Organic, {0, 3, {1, 3}, Bludgeon, 4, 2}, {}, {}, {}, Melee},
 {"Боевой топор", "item5", Common, 850, 5 * GP, 0, Male, Iron, {-4, 3, {1, 8}, Slashing, 0, 2}, {}, weapon_enchanments, {Versatile}, Melee, FocusAxes},
@@ -135,14 +138,22 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", "item-1", Unique, 0, 0, 0, NoGender,
 {"Амулет", "item170", Uncommon, 30, 400 * GP, 1, Male, Iron, {}, {}, common_amulet, {}, Neck},
 {"Ожерелье", "item174", Rare, 40, 450 * GP, 2, NoGender, Iron, {}, {}, common_amulet, {}, Neck},
 //
-{"Набор скалолаза", "item522", Rare, 100, 10 * GP, 2, Male, Iron, {}, {}, {}, {}, Tool},
-{"Набор стрелодела", "item468", Rare, 100, 8 * GP, 2, Male, Wood, {}, {}, {}, {}, Tool},
-{"Наковальня", "item72", Rare, 2000, 9 * GP, 2, Male, Iron, {}, {}, {}, {}, Tool},
-{"Бинты", "item561", Rare, 10, 1 * SP, 2, NoGender, Paper, {}, {}, {}, {}, Tool},
-{"Набор писца", "item679", Rare, 50, 20 * SP, 2, Male, Paper, {}, {}, {}, {}, Tool},
-{"Кристальный шар", "item612", Rare, 300, 25 * SP, 2, Male, Glass, {}, {}, {}, {}, Tool},
-{"Набор алхимика", "item87", Rare, 800, 30 * SP, 2, Male, Wood, {}, {}, alchemy_receipts, {}, Tool, Charisma},
-{"Инструменты вора", "item23", Rare, 300, 25 * SP, 2, Male, Iron, {}, {}, {}, {}, Tool},
+{"Набор скалолаза", "item522", Rare, 100, 10 * GP, 0, Male, Iron, {}, {}, {}, {}, Tool},
+{"Набор стрелодела", "item468", Rare, 100, 8 * GP, 0, Male, Wood, {}, {}, {}, {}, Tool},
+{"Наковальня", "item72", Rare, 2000, 9 * GP, 0, Male, Iron, {}, {}, {}, {}, Tool},
+{"Бинты", "item561", Rare, 10, 1 * SP, 0, NoGender, Paper, {}, {}, {}, {}, Tool},
+{"Набор писца", "item679", Rare, 50, 20 * GP, 0, Male, Paper, {}, {}, {}, {}, Tool},
+{"Кристальный шар", "item612", Rare, 300, 25 * GP, 0, Male, Glass, {}, {}, {}, {}, Tool},
+{"Набор алхимика", "item87", Rare, 800, 30 * GP, 0, Male, Wood, {}, {}, alchemy_receipts, {}, Tool},
+{"Инструменты вора", "item23", Rare, 300, 25 * GP, 0, Male, Iron, {}, {}, {}, {}, Tool},
+{"Котелок", "item463", Rare, 300, 2 * GP, 0, Male, Iron, {}, {}, {}, {}, Tool},
+//
+{"Лютня", "item81", Rare, 300, 30 * GP, 0, Female, Wood, {}, {}, lute_songs, {}, Tool, Charisma},
+{"Арфа", "item82", Rare, 300, 20 * GP, 0, Female, Wood, {}, {}, lute_songs, {}, Tool, Charisma},
+{"Бубен", "item83", Rare, 300, 35 * GP, 0, Male, Leather, {}, {}, booben_songs, {}, Tool, Charisma},
+{"Гитара", "item84", Rare, 300, 35 * GP, 0, Female, Wood, {}, {}, lute_songs, {}, Tool, Charisma},
+{"Скрипка", "item85", Rare, 300, 35 * GP, 0, Female, Wood, {}, {}, flute_songs, {}, Tool, Charisma},
+{"Флейта", "item86", Rare, 300, 35 * GP, 0, Female, Wood, {}, {}, flute_songs, {}, Tool, Charisma},
 //
 {"Тело", "item103", Unique, 1000, 0 * GP, 0, NoGender, Organic, {}, {}, {}, {}},
 {"Ключ", "item354", Common, 0, 0 * GP, 0, Male, Iron, {}, {}, {}, {}},
@@ -187,6 +198,16 @@ item::item(item_s type, int level) {
 	if(chance_quality > 70)
 		chance_quality = 70;
 	create(type, chance_artifact, chance_magic, chance_cursed, chance_quality);
+}
+
+variant itemi::randeffect() const {
+	if(effects.data) {
+		if(effects[0])
+			return effects[rand() % effects.getcount()];
+		else if(effects[1])
+			return effects[1 + (rand() % (effects.getcount() - 1))];
+	}
+	return {};
 }
 
 void item::create(item_s item_type, int chance_artifact, int chance_magic, int chance_cursed, int chance_quality) {

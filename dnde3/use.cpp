@@ -75,32 +75,60 @@ bool creature::use(item& it) {
 		break;
 	case Tool:
 		if(skill.type == Ability) {
+			auto ability_value = get((ability_s)skill.value) * 2;
+			ability_value += it.getbonus() * 2;
 			if(skill.value == Charisma) {
 				// Музыкальный инструмент
-				auto value = get((ability_s)skill.value);
-				static const char* text[] = {"Храбрый %герой отправился в путь, парочку монстров хотел он нагнуть ...",
+				if(mp <= 3) {
+					if(isactive())
+						sb.add("Не хватает маны.");
+					return false;
+				}
+				static const char* text[] = {"Храбрый %герой отправился в путь, парочку монстров хотел он нагнуть.",
 					"%герой спустился в темнейший лабиринт и тут он увидал, лежащий бинт, лежвший прямо на полу и, безусловно, он очень пригодился бы ему, если бы он знал, что монстр огромный ...",
-					"Заплати, ведьмаку чеканной монетой, чеканной монетой, оу-оу-оу!! ...",
-					"Бей его бей! Бей, да точней! ...",
-					"Да здраствует королева! Королева-Вьюга! Королева всего севера и всего юга ...",
+					"Заплати, ведьмаку чеканной монетой, чеканной монетой, оу-оу-оу!!",
+					"Бей его бей! Бей, да точней!",
+					"Да здраствует королева! Королева-Вьюга! Королева всего севера и всего юга.",
+					"Шум волны, да морской прибой, ах не остаться уже нам с тобой.",
 				};
 				say(maprnd(text));
-				if(effect) {
-					if(d100() < 40)
-						value = value * 2;
+				if(effect && (d100() < 60))
+					ability_value += 20;
+				else if(ei.effects.data && ei.effects.count) {
+					if(ei.effects[0])
+						effect = ei.effects[rand() % ei.effects.count];
 					else
-						effect = {};
+						effect = ei.effects[1 + rand() % (ei.effects.count - 1)];
 				}
-				if(!effect && ei.effects.count)
-					effect = ei.effects[rand() % ei.effects.count];
 				if(effect) {
-					value += it.getbonus() * 2;
-					if(rollv(value)) {
-						creaturea creatures(*this);
+					creaturea creatures(*this);
+					creatures.match(*this, Friendly, false, false);
+					if(!creatures) {
+						if(isactive())
+							sb.add("Вокруг дружелюбно настроеных существ, которые смогут оценить всю крсоту выступления.");
+						return false;
+					}
+					if(rollv(ability_value)) {
+						auto index = 0;
 						for(auto p : creatures) {
+							if(effect.type == Ability)
+								p->potion((ability_s)effect.value, it.getkind(), true, Mundane, it.getquality(), 10);
+							else
+								p->apply(*this, effect, 1, index, true);
+							index++;
 						}
+					} else {
+						auto p = creatures.random();
+						static const char* text[] = {"Пожалей мои уши.",
+							"Лучше бы ты молчал.",
+							"Что за дичь ты несешь?",
+							"Хватит трепаться!",
+							"АААааа! Убейте меня кто-то!",
+						};
+						p->say(maprnd(text));
 					}
 				}
+				paymana(xrand(1, 3), false);
 			}
 		}
 		break;
@@ -246,9 +274,9 @@ bool item::use(skill_s id, creature& player, int order, bool run) {
 						else {
 							static effecti read_books[] = {
 								{{}, 0, "Почти все что было написано вы не поняли. Может стоит попробывать перечитать еще раз?"},
-							{{}, 0, "Вы прочитали несколько десятков страниц. Сколько из этого усвоили? Ровно ноль."},
-							{ManaPoints, -3, "Книга оказалось неинтересной, а чтение оказалось слишком утомительным. Вы даже немного разозлились."},
-							{ManaPoints, -4, "В книге было описано множество скучных вещей и вы заскучали."},
+								{{}, 0, "Вы прочитали несколько десятков страниц. Сколько из этого усвоили? Ровно ноль."},
+								{ManaPoints, -3, "Книга оказалось неинтересной, а чтение оказалось слишком утомительным. Вы даже немного разозлились."},
+								{ManaPoints, -4, "В книге было описано множество скучных вещей и вы заскучали."},
 							};
 							player.add(maprnd(read_books), getkind());
 						}

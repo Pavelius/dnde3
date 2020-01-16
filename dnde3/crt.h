@@ -77,6 +77,7 @@ struct adat {
 	int						indexof(const T* e) const { if(e >= data && e < data + count) return e - data; return -1; }
 	int						indexof(const T t) const { for(unsigned i = 0; i < count; i++) if(data[i] == t) return i; return -1; }
 	bool					is(const T t) const { return indexof(t) != -1; }
+	T						random() const { if(count) return data[rand() % count]; return T(); }
 	void					remove(int index, int remove_count = 1) { if(index < 0) return; if(index<int(count - 1)) memcpy(data + index, data + index + 1, sizeof(data[0])*(count - index - 1)); count--; }
 	void					shuffle() { zshuffle(data, count); }
 };
