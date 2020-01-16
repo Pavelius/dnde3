@@ -56,8 +56,9 @@ enum diety_s : unsigned char {
 	GodBane, GodBhaal, GodGruumsh, GodHelm, GodMistra, GodTempus, GodTyr
 };
 enum slot_s : unsigned char {
-	Backpack, Edible, Readable, Drinkable, Zapable, Coinable, Tool, LastBackpack = Backpack + 31,
-	Head, Neck, Melee, OffHand, TorsoBack, Torso, RightFinger, LeftFinger, Elbows, Legs, Ranged, Amunitions,
+	Backpack, Edible, Readable, Drinkable, Zapable, Coinable, LastBackpack = Backpack + 31,
+	Head, Neck, Melee, OffHand, TorsoBack, Torso, RightFinger, LeftFinger, Elbows, Legs, Ranged, Amunitions, Tool,
+	LastWear = Tool,
 };
 enum race_s : unsigned char {
 	Human, Dwarf, Elf, Halfling,
@@ -271,7 +272,8 @@ struct variant {
 	constexpr variant(int v) : type(Number), value(v) {}
 	variant(const creature* v);
 	explicit operator bool() const { return type != NoVariant; }
-	bool operator==(const variant& e) const { return type == e.type && value == e.value; }
+	constexpr bool operator==(const variant& e) const { return type == e.type && value == e.value; }
+	constexpr bool operator!=(const variant& e) const { return type != e.type || value != e.value; }
 	const char*			getname() const;
 	const char*			getnameof() const;
 	const char*			getnameofc() const;
@@ -459,7 +461,7 @@ struct itemi {
 	aref<variant>		effects;
 	cflags<item_flag_s>	flags;
 	slot_s				slot;
-	skill_s				skill;
+	variant				skill;
 	//
 	bool				is(slot_s v) const;
 	bool				is(const aref<slot_s>& source) const;
@@ -683,7 +685,7 @@ class creature : public nameable, public paperdoll {
 	unsigned char		skills[LastSkill + 1];
 	unsigned char		skills_potency[LastSkill + 1];
 	unsigned char		spells[LastSpell + 1];
-	item				wears[Amunitions + 1];
+	item				wears[LastWear + 1];
 	int					restore_energy, restore_hits, restore_mana;
 	char				hp, mp;
 	statea				states;

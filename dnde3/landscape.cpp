@@ -280,6 +280,6 @@ template<> landscapei bsmeta<landscapei>::elements[] = {{"Равнина"},
 {"Лес"},
 {"Болото"},
 // 
-{"Подземелье", {1, 1, 1, 1}, indoor_floor, create_big_rooms, create_dungeon_content},
+{"Подземелье", {1, 1, 1, 1}, indoor_floor, create_big_rooms},
 {"Город", {1, 1, 1, 1}},
 };

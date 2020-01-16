@@ -23,7 +23,10 @@ bool item::isboost(variant id) const {
 }
 
 bool creature::use(item& it) {
-	variant effect;
+	if(!it)
+		return false;
+	variant effect = it.geteffect();
+	variant skill = it.getitem().skill;
 	const char* current_string;
 	switch(it.getitem().slot) {
 	case Edible:
@@ -48,7 +51,6 @@ bool creature::use(item& it) {
 		break;
 	case Drinkable:
 		act("%герой выпил%а %-1.", it.getname());
-		effect = it.geteffect();
 		current_string = sb.get();
 		if(d100() >= it.getdamage() * 8) {
 			if(effect.type == Ability)
@@ -59,17 +61,32 @@ bool creature::use(item& it) {
 		it.use();
 		break;
 	case Zapable:
-		if(true) {
-			auto v = it.geteffect();
-			if(v.type == Spell) {
-				auto level = it.getbonus();
-				if(level > 0) {
-					if(use((spell_s)v.value, level, &it, false))
-						it.set(KnownPower);
-					else
-						act("%герой вытащил%а %-1 и махнул%а несколько раз. Ничего не произошло.", it.getname());
-				} else
-					it.destroy(Magic, true);
+		if(effect.type == Spell) {
+			auto level = it.getbonus();
+			if(level > 0) {
+				if(use((spell_s)effect.value, level, &it, false))
+					it.set(KnownPower);
+				else
+					act("%герой вытащил%а %-1 и махнул%а несколько раз. Ничего не произошло.", it.getname());
+			} else
+				it.destroy(Magic, true);
+		}
+		break;
+	case Tool:
+		if(skill.type == Ability) {
+			// Музыкальный инструмент
+			auto value = (ability_s)get((ability_s)skill.value);
+			static const char* text[] = {"Храбрый %герой отправился в путь ...",
+				"%герой, прекрасный спустился в темнейший лабиринт ...",
+				"Заплати, ведьмаку чеканной монетой, чеканной моентой, оу-оу-оу!! ...",
+				"Бей его бей, бей да точней! ...",
+				"Да здраствует королева! Королева-Вьюга! Королева всего севера и всего юга ...",
+			};
+			say(maprnd(text));
+			if(rollv(value)) {
+
+			} else {
+
 			}
 		}
 		break;
@@ -215,9 +232,9 @@ bool item::use(skill_s id, creature& player, int order, bool run) {
 						else {
 							static effecti read_books[] = {
 								{{}, 0, "Почти все что было написано вы не поняли. Может стоит попробывать перечитать еще раз?"},
-								{{}, 0, "Вы прочитали несколько десятков страниц. Сколько из этого усвоили? Ровно ноль."},
-								{ManaPoints, -3, "Книга оказалось неинтересной, а чтение оказалось слишком утомительным. Вы даже немного разозлились."},
-								{ManaPoints, -4, "В книге было описано множество скучных вещей и вы заскучали."},
+							{{}, 0, "Вы прочитали несколько десятков страниц. Сколько из этого усвоили? Ровно ноль."},
+							{ManaPoints, -3, "Книга оказалось неинтересной, а чтение оказалось слишком утомительным. Вы даже немного разозлились."},
+							{ManaPoints, -4, "В книге было описано множество скучных вещей и вы заскучали."},
 							};
 							player.add(maprnd(read_books), getkind());
 						}
@@ -513,9 +530,9 @@ void creature::potion(ability_s id, variant source, bool interactive, item_type_
 		v = xrand(6, 24);
 		switch(magic) {
 		case Artifact: add(id, (1 + quality) * 2, interactive); break;
-		case Cursed: add(id, source, -v, interactive, 5 * (minutes + minutes*quality)); break;
-		case Blessed: add(id, source, v, interactive, 5 * (minutes + minutes*quality)); break;
-		default: add(id, source, v, interactive, minutes + minutes*quality); break;
+		case Cursed: add(id, source, -v, interactive, 5 * (minutes + minutes * quality)); break;
+		case Blessed: add(id, source, v, interactive, 5 * (minutes + minutes * quality)); break;
+		default: add(id, source, v, interactive, minutes + minutes * quality); break;
 		}
 		break;
 	default:
@@ -591,7 +608,7 @@ bool creature::use(creaturea& source, spell_s id, int level, item* magic_source,
 	variant effect = id;
 	auto v = ei.dice.roll();
 	if(ei.multiplier)
-		v += level*ei.multiplier;
+		v += level * ei.multiplier;
 	else
 		v += level;
 	creaturea creatures = source;

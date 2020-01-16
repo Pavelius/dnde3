@@ -19,5 +19,6 @@ sloti bsmeta<sloti>::elements[] = {{"", "Рюкзак", "В рюкзаке"},
 {"Legs", "Ноги", "На ногах"},
 {"Ranged", "Дистанционное", "Дистанционное"},
 {"Amunitions", "Аммуниция", "В колчане"},
+{"Tool", "Инструмент", "За спиной"},
 };
-assert_enum(slot, Amunitions);
+assert_enum(slot, LastWear);

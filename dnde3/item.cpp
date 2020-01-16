@@ -49,7 +49,7 @@ ResistAcid, ResistCharm, ResistCold, ResistElectricity, ResistFire, ResistParali
 
 itemi bsmeta<itemi>::elements[] = {{"Рука", "item-1", Unique, 0, 0, 0, NoGender, Organic, {0, 3, {1, 3}, Bludgeon, 4, 2}, {}, {}, {}, Melee},
 {"Боевой топор", "item5", Common, 850, 5 * GP, 0, Male, Iron, {-4, 3, {1, 8}, Slashing, 0, 2}, {}, weapon_enchanments, {Versatile}, Melee, FocusAxes},
-{"Дубина", "item1", Common, 1000, 5 * CP, 0, Female, Wood, {-6, 3, {1, 6}, Bludgeon, 0, 2}, {}, weapon_enchanments, {}, Melee, Bargaining},
+{"Дубина", "item1", Common, 1000, 5 * CP, 0, Female, Wood, {-6, 3, {1, 6}, Bludgeon, 0, 2}, {}, weapon_enchanments, {}, Melee},
 {"Кинжал", "item0", Common, 50, 2 * GP, 0, Male, Iron, {-2, 3, {1, 4}, Piercing, 2, 3}, {}, weapon_enchanments, {Light}, Melee},
 {"Молот", "item42", Common, 800, 2 * GP, 0, Male, Wood, {-3, 3, {2, 5}, Bludgeon, 0, 1}, {}, weapon_enchanments, {}, Melee},
 {"Булава", "item7", Common, 700, 8 * GP, 0, Female, Iron, {-3, 3, {2, 7}, Bludgeon, 0, 1}, {}, weapon_enchanments, {}, Melee},
@@ -141,7 +141,7 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", "item-1", Unique, 0, 0, 0, NoGender,
 {"Бинты", "item561", Rare, 10, 1 * SP, 2, NoGender, Paper, {}, {}, {}, {}, Tool},
 {"Набор писца", "item679", Rare, 50, 20 * SP, 2, Male, Paper, {}, {}, {}, {}, Tool},
 {"Кристальный шар", "item612", Rare, 300, 25 * SP, 2, Male, Glass, {}, {}, {}, {}, Tool},
-{"Набор алхимика", "item87", Rare, 800, 30 * SP, 2, Male, Wood, {}, {}, alchemy_receipts, {}, Tool},
+{"Набор алхимика", "item87", Rare, 800, 30 * SP, 2, Male, Wood, {}, {}, alchemy_receipts, {}, Tool, Charisma},
 {"Инструменты вора", "item23", Rare, 300, 25 * SP, 2, Male, Iron, {}, {}, {}, {}, Tool},
 //
 {"Тело", "item103", Unique, 1000, 0 * GP, 0, NoGender, Organic, {}, {}, {}, {}},
@@ -295,7 +295,7 @@ void item::getname(stringbuilder& sb, bool show_cab) const {
 			}
 		}
 		if(is(KnownStats)) {
-			if(ei.slot >= Head && ei.slot <= Amunitions && q != 0)
+			if(ei.slot >= Head && ei.slot <= LastWear && q != 0)
 				sb.adds(format, q);
 		}
 	}
@@ -394,8 +394,8 @@ int	item::getbonus() const {
 		case Cursed: return -1 - quality;
 		}
 	}
-	auto& ei = getitem();
-	if(ei.slot != Tool) {
+	if(identifye) {
+		auto& ei = getitem();
 		if(ei.effects.count && (effect || ei.effects.data[0]))
 			m++;
 	}

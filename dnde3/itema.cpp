@@ -1,11 +1,11 @@
 #include "main.h"
 
 void itema::select(creature& e) {
-	e.select(*this, Head, Amunitions, false);
+	e.select(*this, Head, LastWear, false);
 }
 
 void itema::selecta(creature& e) {
-	e.select(*this, Backpack, Amunitions, true);
+	e.select(*this, Backpack, LastWear, true);
 }
 
 void itema::selectb(creature& e) {

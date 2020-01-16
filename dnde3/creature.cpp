@@ -251,7 +251,7 @@ void creature::raise(skill_s value) {
 }
 
 void creature::equip(item it, slot_s id) {
-	if(id >= Head && id <= Amunitions)
+	if(id >= Head && id <= LastWear)
 		it.set(KnownStats);
 	dressoff();
 	wears[id] = it;
@@ -289,7 +289,7 @@ bool creature::equip(item v) {
 	if(!isallow(v.getkind()))
 		return false;
 	// First try to dress this item
-	for(auto i = Head; i <= Amunitions; i = (slot_s)(i + 1)) {
+	for(auto i = Head; i <= LastWear; i = (slot_s)(i + 1)) {
 		if(!v.is(i))
 			continue;
 		if(wears[i]) {
@@ -319,7 +319,7 @@ bool creature::canuse(const item& e, bool talk) const {
 }
 
 bool creature::cantakeoff(slot_s id, bool talk) {
-	if(id >= Head && id <= Amunitions) {
+	if(id >= Head && id <= LastWear) {
 		auto& e = wears[id];
 		if(e.is(Cursed)) {
 			if(talk) {
@@ -499,15 +499,16 @@ attacki creature::getattack(slot_s id, const item& weapon) const {
 	result.attack += get(Attack);
 	result.dice.min += get(Damage);
 	result.dice.max += get(Damage);
-	if(skill && skills[skill]) {
+	if(skill.type==Skill && skills[skill.value]) {
 		// Weapon focus modify damage, attack and speed
-		auto& ei = bsmeta<skilli>::elements[skill];
+		auto& ei = bsmeta<skilli>::elements[skill.value];
+		auto value = get(skill_s(skill.value));
 		if(ei.weapon.attack)
-			result.attack += get(skill) / ei.weapon.attack;
+			result.attack += value / ei.weapon.attack;
 		if(ei.weapon.damage)
-			result.dice.max += get(skill) / ei.weapon.damage;
+			result.dice.max += value / ei.weapon.damage;
 		if(ei.weapon.speed)
-			result.speed += get(skill) / ei.weapon.speed;
+			result.speed += value / ei.weapon.speed;
 	}
 	switch(id) {
 	case Melee:
@@ -520,12 +521,13 @@ attacki creature::getattack(slot_s id, const item& weapon) const {
 			result.speed -= 8;
 			result.speed += wears[OffHand].getitem().weapon.speed;
 			auto& ei = bsmeta<skilli>::elements[TwoWeaponFighting];
+			auto value = get(TwoWeaponFighting);
 			if(ei.weapon.attack)
-				result.attack += get(skill) / ei.weapon.attack;
+				result.attack += value / ei.weapon.attack;
 			if(ei.weapon.damage)
-				result.dice.max += get(skill) / ei.weapon.damage;
+				result.dice.max += value / ei.weapon.damage;
 			if(ei.weapon.speed)
-				result.speed += get(TwoWeaponFighting) / ei.weapon.speed;
+				result.speed += value / ei.weapon.speed;
 		}
 		break;
 	case OffHand:
@@ -533,7 +535,7 @@ attacki creature::getattack(slot_s id, const item& weapon) const {
 			result.attack -= 30;
 			auto& ei = bsmeta<skilli>::elements[TwoWeaponFighting];
 			if(ei.weapon.attack)
-				result.attack += get(skill) / ei.weapon.attack;
+				result.attack += get(TwoWeaponFighting) / ei.weapon.attack;
 		}
 		break;
 	}
@@ -652,7 +654,7 @@ void creature::inventory() {
 			add(*pi, true, false);
 			remove(*pi, true, false);
 		} else {
-			if(slot >= Head && slot <= Amunitions) {
+			if(slot >= Head && slot <= LastWear) {
 				items.clear();
 				items.selectb(*this);
 				items.match(slot, false);
@@ -1277,7 +1279,7 @@ void creature::bloodstain() const {
 
 void creature::dropitems() {
 	auto index = getposition();
-	for(auto i = Backpack; i <= Amunitions; i = (slot_s)(i + 1)) {
+	for(auto i = Backpack; i <= LastWear; i = (slot_s)(i + 1)) {
 		auto& e = wears[i];
 		if(!e)
 			continue;
@@ -1797,7 +1799,7 @@ int creature::getlos() const {
 
 void creature::damagewears(int count, damage_s type, int item_count) {
 	itema items;
-	select(items, Head, Amunitions, true);
+	select(items, Head, LastWear, true);
 	items.shuffle();
 	int maximum = items.getcount();
 	if(item_count > maximum)
@@ -1833,5 +1835,5 @@ bool creature::saybusy() {
 }
 
 void creature::usetools() {
-	aiuse("Использовать какой инаструмент?", Tool, {});
+	use(wears[Tool]);
 }
