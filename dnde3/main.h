@@ -559,6 +559,7 @@ public:
 	void				selectb(creature& e);
 };
 class variantc : public adat<casev<variant>> {
+	void				add(variant v);
 	void				add(variant v, rarity_s r);
 public:
 	void				additems(const aref<slot_s>& source);

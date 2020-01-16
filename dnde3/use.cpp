@@ -75,26 +75,32 @@ bool creature::use(item& it) {
 		break;
 	case Tool:
 		if(skill.type == Ability) {
-			// Музыкальный инструмент
-			auto value = get((ability_s)skill.value);
-			static const char* text[] = {"Храбрый %герой отправился в путь ...",
-				"%герой, прекрасный спустился в темнейший лабиринт ...",
-				"Заплати, ведьмаку чеканной монетой, чеканной моентой, оу-оу-оу!! ...",
-				"Бей его бей, бей да точней! ...",
-				"Да здраствует королева! Королева-Вьюга! Королева всего севера и всего юга ...",
-			};
-			say(maprnd(text));
-			if(effect) {
-				if(d100() < 50)
-					value = value * 2;
-				else
-					effect = {};
-			}
-			if(!effect && ei.effects.count)
-				effect = ei.effects[rand() % ei.effects.count];
-			value += it.getbonus() * 2;
-			if(rollv(value)) {
-
+			if(skill.value == Charisma) {
+				// Музыкальный инструмент
+				auto value = get((ability_s)skill.value);
+				static const char* text[] = {"Храбрый %герой отправился в путь, парочку монстров хотел он нагнуть ...",
+					"%герой спустился в темнейший лабиринт и тут он увидал, лежащий бинт, лежвший прямо на полу и, безусловно, он очень пригодился бы ему, если бы он знал, что монстр огромный ...",
+					"Заплати, ведьмаку чеканной монетой, чеканной монетой, оу-оу-оу!! ...",
+					"Бей его бей! Бей, да точней! ...",
+					"Да здраствует королева! Королева-Вьюга! Королева всего севера и всего юга ...",
+				};
+				say(maprnd(text));
+				if(effect) {
+					if(d100() < 40)
+						value = value * 2;
+					else
+						effect = {};
+				}
+				if(!effect && ei.effects.count)
+					effect = ei.effects[rand() % ei.effects.count];
+				if(effect) {
+					value += it.getbonus() * 2;
+					if(rollv(value)) {
+						creaturea creatures(*this);
+						for(auto p : creatures) {
+						}
+					}
+				}
 			}
 		}
 		break;

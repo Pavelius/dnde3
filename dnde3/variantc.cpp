@@ -40,6 +40,16 @@ void variantc::add(variant v, rarity_s r) {
 	p->value = rw;
 }
 
+void variantc::add(variant v) {
+	auto r = Unique;
+	switch(v.type) {
+	case Item: r = bsmeta<itemi>::elements[v.value].rarity; break; break;
+	default: break;
+	}
+	if(r!=Unique)
+		add(v, r);
+}
+
 void variantc::additems(const aref<slot_s>& source) {
 	for(auto i = item_s(1); i < ManyItems; i = (item_s)(i + 1)) {
 		auto& ei = bsmeta<itemi>::elements[i];
