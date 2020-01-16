@@ -144,9 +144,9 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", "item-1", Unique, 0, 0, 0, NoGender,
 {"Бинты", "item561", Rare, 10, 1 * SP, 0, NoGender, Paper, {}, {}, {}, {}, Tool},
 {"Набор писца", "item679", Rare, 50, 20 * GP, 0, Male, Paper, {}, {}, {}, {}, Tool},
 {"Кристальный шар", "item612", Rare, 300, 25 * GP, 0, Male, Glass, {}, {}, {}, {}, Tool},
-{"Набор алхимика", "item87", Rare, 800, 30 * GP, 0, Male, Wood, {}, {}, alchemy_receipts, {}, Tool},
+{"Набор алхимика", "item739", Rare, 400, 30 * GP, 0, Male, Wood, {}, {}, alchemy_receipts, {}, Tool, Alchemy},
 {"Инструменты вора", "item23", Rare, 300, 25 * GP, 0, Male, Iron, {}, {}, {}, {}, Tool},
-{"Котелок", "item463", Rare, 300, 2 * GP, 0, Male, Iron, {}, {}, {}, {}, Tool},
+{"Котелок", "item463", Rare, 1000, 2 * GP, 0, Male, Iron, {}, {}, {}, {}, Tool},
 //
 {"Лютня", "item81", Rare, 300, 30 * GP, 0, Female, Wood, {}, {}, lute_songs, {}, Tool, Charisma},
 {"Арфа", "item82", Rare, 300, 20 * GP, 0, Female, Wood, {}, {}, lute_songs, {}, Tool, Charisma},
@@ -228,7 +228,7 @@ void item::create(item_s item_type, int chance_artifact, int chance_magic, int c
 		static char quality_chances[] = {1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3};
 		quality = maprnd(quality_chances);
 	}
-	if(!iscountable() && ei.effects) {
+	if(!iscountable() && ei.effects.data) {
 		if(ei.effects[0])
 			effect = rand() % ei.effects.getcount();
 		else if(ei.effects[1]) {
@@ -325,10 +325,12 @@ void item::getname(stringbuilder& sb, bool show_cab) const {
 		if(n > 1)
 			sb.adds("%1i шт", getcount());
 	}
-	if(sale) {
-		auto n = getcost();
-		if(n > 0)
-			sb.adds("(цена %1i)", n);
+	if(is(KnownStats)) {
+		if(sale) {
+			auto n = getcost();
+			if(n > 0)
+				sb.adds("(цена %1i)", n);
+		}
 	}
 }
 
@@ -669,7 +671,7 @@ void item::breaktest() {
 }
 
 bool item::iscountable() const {
-	return bsmeta<itemi>::elements[type].effects.count == 0;
+	return bsmeta<itemi>::elements[type].effects.data == 0;
 }
 
 bool item::ischargeable() const {
