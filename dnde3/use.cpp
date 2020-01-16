@@ -25,8 +25,9 @@ bool item::isboost(variant id) const {
 bool creature::use(item& it) {
 	if(!it)
 		return false;
+	auto& ei = it.getitem();
 	variant effect = it.geteffect();
-	variant skill = it.getitem().skill;
+	variant skill = ei.skill;
 	const char* current_string;
 	switch(it.getitem().slot) {
 	case Edible:
@@ -75,7 +76,7 @@ bool creature::use(item& it) {
 	case Tool:
 		if(skill.type == Ability) {
 			// Музыкальный инструмент
-			auto value = (ability_s)get((ability_s)skill.value);
+			auto value = get((ability_s)skill.value);
 			static const char* text[] = {"Храбрый %герой отправился в путь ...",
 				"%герой, прекрасный спустился в темнейший лабиринт ...",
 				"Заплати, ведьмаку чеканной монетой, чеканной моентой, оу-оу-оу!! ...",
@@ -83,9 +84,16 @@ bool creature::use(item& it) {
 				"Да здраствует королева! Королева-Вьюга! Королева всего севера и всего юга ...",
 			};
 			say(maprnd(text));
+			if(effect) {
+				if(d100() < 50)
+					value = value * 2;
+				else
+					effect = {};
+			}
+			if(!effect && ei.effects.count)
+				effect = ei.effects[rand() % ei.effects.count];
+			value += it.getbonus() * 2;
 			if(rollv(value)) {
-
-			} else {
 
 			}
 		}
