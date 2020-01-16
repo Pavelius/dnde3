@@ -432,6 +432,7 @@ struct damagei {
 };
 struct trapi {
 	const char*			name;
+	const char*			avatar_id;
 	char				modifier;
 	char				multiplier;
 	dicei				damage;

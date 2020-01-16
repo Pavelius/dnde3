@@ -19,7 +19,7 @@ struct hotkeym {
 }
 
 namespace colors {
-color				fow = color::create(20, 21, 21);
+color				fow = color::create(20, 21, 20);
 }
 const int			gui_border = 8;
 const int			gui_padding = 4;
