@@ -240,7 +240,6 @@ typedef flagable<1 + Blooded / 8> mapflf;
 typedef casev<ability_s> abilityv;
 typedef aset<damage_s, 1 + WaterAttack> damagea;
 typedef void(*gentileproc)(indext index);
-typedef void(*genlandproc)();
 typedef void(*genareaproc)(const rect& rc, rooma& rooms, bool visualize);
 typedef void(*genroomproc)(rooma& rooms, bool visualize);
 struct targeti;
@@ -269,6 +268,7 @@ struct variant {
 	constexpr variant(slot_s v) : type(Slot), value(v) {}
 	constexpr variant(spell_s v) : type(Spell), value(v) {}
 	constexpr variant(state_s v) : type(State), value(v) {}
+	constexpr variant(tile_s v) : type(Tile), value(v) {}
 	constexpr variant(variant_s v) : type(Variant), value(v) {}
 	constexpr variant(int v) : type(Number), value(v) {}
 	variant(const creature* v);
@@ -900,8 +900,10 @@ public:
 struct landscapei {
 	const char*			name;
 	rect				border;
-	genlandproc			genland;
+	tile_s				tile;
+	casev<variant>		tiles[4];
 	genareaproc			genarea;
+	genroomproc			genroom;
 };
 struct dungeoni {
 	struct itemc {
@@ -1055,7 +1057,7 @@ public:
 	void				clear();
 	static void			clearblock();
 	void				content(const rect& rc, site_s type);
-	void				create(bool explored, bool visualize);
+	void				create(landscape_s landscape, bool explored, bool visualize);
 	void				create(const rect& rc, int count, map_object_s object);
 	void				create(const rect& rc, int count, tile_s v);
 	void				drop(indext i, item v);
@@ -1092,9 +1094,10 @@ public:
 	void				minimap(indext index) const;
 	creature*			monster(indext index);
 	bool				read(const char* url);
+	void				rectangle(const rect& rc, map_object_s v);
 	void				remove(indext i, map_flag_s v) { flags[i].remove(v); }
 	void				set(indext i, map_flag_s v) { flags[i].set(v); }
-	void				set(indext i, tile_s v) { tiles[i] = v; }
+	void				set(indext i, tile_s v);
 	void				set(indext i, tile_s v, int width, int height);
 	void				set(indext i, trap_s v);
 	void				set(indext i, map_object_s v) { objects[i] = v; }

@@ -66,10 +66,10 @@ static void modify_weapon(creature* p1) {
 	//pi->setidentify(1);
 }
 
-static creature* create_indoor(bool enemies = true) {
+static void create_indoor(landscape_s area, bool enemies = true) {
 	static slot_s drinkable[] = {Drinkable};
 	static slot_s weapons[] = {Melee, Ranged};
-	loc.clear();
+	loc.create(area, false, false);
 	loc.positions[1] = loc.get(3, 3);
 	loc.positions[2] = loc.get(5, 20);
 	if(true) {
@@ -112,16 +112,7 @@ static creature* create_indoor(bool enemies = true) {
 	create(p1, Helmet);
 	create(p1, RingRed);
 	create(p1, RingBlue);
-	return p1;
-}
-
-static void test_indoor(bool enemies = true) {
-	create_indoor(enemies);
 	game.play();
-}
-
-static void test_analize() {
-	auto p1 = create_indoor();
 }
 
 static void test_stack(creature* p1) {
@@ -141,7 +132,7 @@ static void test_pause() {
 static void test_dungeon() {
 	loc.clear();
 	loc.level = 1;
-	loc.create(false, false);
+	loc.create(AreaDungeon, false, false);
 	loc.setdungeon(true);
 	loc.setlight(-2);
 	auto p1 = create(Human, Male, Theif);
@@ -188,9 +179,9 @@ int main(int argc, char* argv[]) {
 	//test_answers();
 	//item_choose();
 	//test_worldmap();
-	//test_indoor(true);
 	//test_analize();
-	test_dungeon();
+	//test_dungeon();
+	create_indoor(AreaSwamp, true);
 }
 
 int __stdcall WinMain(void* ci, void* pi, char* cmd, int sw) {

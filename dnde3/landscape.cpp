@@ -202,12 +202,6 @@ static void update_doors() {
 	}
 }
 
-static void indoor_floor() {
-	auto count = mmx * mmy;
-	for(short unsigned i = 0; i < count; i++)
-		loc.set(i, Wall);
-}
-
 static void outdoor_floor() {
 	loc.create({0, 0, mmx - 1, mmy - 1}, xrand(10, 20), Hill);
 	loc.create({0, 0, mmx - 1, mmy - 1}, xrand(4, 12), Swamp);
@@ -258,7 +252,24 @@ static void create_dungeon_content(rooma& rooms, bool visualize) {
 	}
 }
 
-void location::create(bool explored, bool visualize) {
+template<> landscapei bsmeta<landscapei>::elements[] = {{"Равнина", {}, Plain, {{Tree, 2}, {Water, -16}, {Hill, 1}, {Swamp, -20}}},
+{"Лес", {}, Plain, {{Tree, 10}, {Hill, 1}, {Swamp, -20}}},
+{"Болото", {}, Plain, {{Tree, 3}, {Swamp, 1}, {Water, 5}}},
+// 
+{"Подземелье", {1, 1, 1, 1}, Wall, {}, create_big_rooms, create_dungeon_content},
+{"Город", {1, 1, 1, 1}, Plain, {{Tree, 2}, {Water, -16}}},
+};
+
+static void fill(const rect& rc, variant id, int value) {
+	switch(id.type) {
+	case Tile: loc.create(rc, value, (tile_s)id.value); break;
+	case Object: loc.create(rc, value, (map_object_s)id.value); break;
+	}
+}
+
+void location::create(landscape_s landscape, bool explored, bool visualize) {
+	auto& ei = bsmeta<landscapei>::elements[landscape];
+	clear();
 	stack_get = stack_put = 0;
 	// Explore all map
 	if(explored) {
@@ -266,20 +277,28 @@ void location::create(bool explored, bool visualize) {
 		for(short unsigned i = 0; i < count; i++)
 			set(i, Explored);
 	}
-	rect rc = {1, 1, mmx - 1, mmy - 1};
+	rect rc = {0, 0, mmx - 1, mmy - 1};
+	rc += ei.border;
 	rooma rooms;
-	indoor_floor();
-	create_big_rooms(rc, rooms, false);
+	// Initilaize area
+	auto count = mmx * mmy;
+	for(short unsigned i = 0; i < count; i++)
+		loc.set(i, ei.tile);
+	for(auto& e : ei.tiles) {
+		if(!e.id)
+			break;
+		if(e.value < 0)
+			fill(rc, e.id, xrand(-e.value / 2, -e.value));
+		else
+			fill(rc, e.id, count*e.value / 100);
+	}
+	// Create rooms
+	if(ei.genarea)
+		ei.genarea(rc, rooms, false);
 	qsort(rooms.data, rooms.count, sizeof(rooms.data[0]), compare_rect);
-	create_dungeon_content(rooms, visualize && explored);
-	//change_tile(NoTile, Wall);
+	// Object generator (from big to small)
+	if(ei.genroom)
+		ei.genroom(rooms, visualize && explored);
+	// Finish step
 	update_doors();
 }
-
-template<> landscapei bsmeta<landscapei>::elements[] = {{"Равнина"},
-{"Лес"},
-{"Болото"},
-// 
-{"Подземелье", {1, 1, 1, 1}, indoor_floor, create_big_rooms},
-{"Город", {1, 1, 1, 1}},
-};

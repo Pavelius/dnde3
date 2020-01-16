@@ -297,6 +297,11 @@ void location::create(const rect& rc, int count, tile_s v) {
 	}
 }
 
+void location::set(indext i, tile_s v) {
+	tiles[i] = v;
+	objects[i] = NoTileObject;
+}
+
 void location::set(indext index, tile_s v, int width, int height) {
 	if(index == Blocked)
 		return;
@@ -357,6 +362,13 @@ indext location::bpoint(indext index, int width, int height, direction_s dir) co
 	case Right: return get(x + width - 1, y + xrand(1, height - 2));
 	case Up: return get(x + xrand(1, width - 2), y);
 	default: return get(x + xrand(1, width - 2), y + height - 1);
+	}
+}
+
+void location::rectangle(const rect& rc, map_object_s v) {
+	for(auto y = rc.y1; y < rc.y2; y++) {
+		for(auto x = rc.x1; x < rc.x2; x++)
+			set(get(x, y), v);
 	}
 }
 
