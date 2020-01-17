@@ -1029,8 +1029,7 @@ struct statistici {
 	short				artifacts;
 	short				magic_items;
 	short				level;
-	indext				positions[4];
-	void				clear();
+	indext				positions[8];
 };
 class location : public statistici {
 	typedef bool(location::*procis)(indext i) const;

@@ -7,7 +7,7 @@ creature* site::getowner() const {
 }
 
 void site::getname(stringbuilder& sb) const {
-	sb.add("Таверна");
+	sb.add(bsmeta<roomi>::elements[type].name);
 }
 
 site* site::find(indext index) {
