@@ -47,7 +47,7 @@ bool targeti::prepare(creature& player, creaturea& creatures, itema& items, inde
 	return result;
 }
 
-void targeti::use(creature& player, creaturea& source, creaturea& creatures, itema& items, indexa& indecies, variant id, int v) const {
+void targeti::use(creature& player, const creaturea& source, creaturea& creatures, itema& items, indexa& indecies, variant id, int v) const {
 	auto maximum_count = getcount(creatures, items, indecies);
 	unsigned count = 1;
 	auto interactive = this->interactive;
@@ -106,7 +106,7 @@ void targeti::use(creature& player, creaturea& source, creaturea& creatures, ite
 	}
 }
 
-bool targeti::use(creature& player, creaturea& source, variant id, int v, bool show_errors) const {
+bool targeti::use(creature& player, const creaturea& source, variant id, int v, bool show_errors) const {
 	creaturea creatures = source;
 	itema items;
 	indexa indecies;

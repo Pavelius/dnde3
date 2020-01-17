@@ -160,6 +160,7 @@ enum img_s : unsigned char {
 	ResDoors,
 	ResFog,
 	ResFeature,
+	ResTraps,
 	ResSea, ResPlains, ResFoothills, ResMountains, ResCloudPeaks, ResDecals,
 	ResUI,
 	ResPCmar, ResPCmbd, ResPCmac
@@ -703,7 +704,7 @@ class creature : public nameable, public paperdoll {
 	void				add(skill_s id, int v, bool interactive);
 	void				add(spell_s id, unsigned minutes);
 	void				add(ability_s id, variant source, int v, bool interactive, unsigned minutes);
-	bool				aiuse(const char* interactive, slot_s slot, variant effect);
+	bool				aiuse(const creaturea& creatures, const char* interactive, slot_s slot, variant effect);
 	void				aimove();
 	bool				aiskills(creaturea& creatures);
 	bool				aispells(creaturea& creatures);
@@ -851,6 +852,7 @@ public:
 	void				raiseskills(int number);
 	void				raiseskills() { raiseskills(get(Intellegence) / 2); }
 	void				rangeattack(creature& enemy, int bonus = 0);
+	void				readsomething();
 	bool				roll(ability_s v) const { return rollv(get(v)); }
 	bool				roll(ability_s v, int bonus) const { return rollv(get(v) + bonus); }
 	bool				roll(skill_s v) const { return rollv(get(v)); }
@@ -870,12 +872,10 @@ public:
 	void				suffer(spell_s id);
 	void				testweapons();
 	void				unlink();
-	bool				use();
-	bool				use(creaturea& source, skill_s id);
-	bool				use(creaturea& creatures, spell_s id, int level, item* magic_source, bool show_errors);
-	bool				use(item& it);
+	bool				use(const creaturea& source, skill_s id);
+	bool				use(const creaturea& creatures, spell_s id, int level, item* magic_source, bool show_errors);
+	bool				use(const creaturea& creatures, item& it);
 	bool				use(spell_s id, int level, item* magic_source = 0, bool show_errors = false);
-	void				readsomething();
 	void				useskills();
 	void				usespells();
 	void				usetools();
@@ -941,8 +941,8 @@ struct targeti {
 	unsigned			getcount(creaturea& creatures, itema& items, indexa& indecies) const;
 	constexpr bool		is(target_flag_s v) const { return flags.is(v); }
 	bool				prepare(creature& player, creaturea& creatures, itema& items, indexa& indecies, variant id, int v, bool show_errors = false) const;
-	bool				use(creature& player, creaturea& source, variant id, int v, bool show_erros = false) const;
-	void				use(creature& player, creaturea& source, creaturea& creatures, itema& items, indexa& indecies, variant id, int v) const;
+	bool				use(creature& player, const creaturea& source, variant id, int v, bool show_erros = false) const;
+	void				use(creature& player, const creaturea& source, creaturea& creatures, itema& items, indexa& indecies, variant id, int v) const;
 };
 struct skilli {
 	struct weaponi {

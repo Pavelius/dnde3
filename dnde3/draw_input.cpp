@@ -61,6 +61,7 @@ imgi bsmeta<imgi>::elements[] = {{""},
 {"doors", "art"},
 {"fog", "art"},
 {"features", "art"},
+{"traps", "art"},
 {"sea", "art"},
 {"plain", "art"},
 {"hills", "art"},
@@ -1003,7 +1004,7 @@ void location::indoor(point camera, bool show_fow, const picture* effects) {
 			switch(o) {
 			case Trap:
 				if(!is(i, Hidden))
-					image(x, y, gres(ResFeature), 59 + gettrap(i) - TrapAnimal, 0);
+					image(x, y, gres(ResTraps), gettrap(i), 0);
 				break;
 			case Plants:
 				image(x, y, gres(ResFeature), 36 + (getrand(i) / 60) % 3, 0);

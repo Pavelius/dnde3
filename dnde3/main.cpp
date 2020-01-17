@@ -169,19 +169,19 @@ static bool test_formula() {
 	return r == 102;
 }
 
-void util_main();
+//void util_main();
 
 int main(int argc, char* argv[]) {
-	util_main();
+	//util_main();
 	if(!test_formula())
 		return false;
-	game.intialize();
+	//game.intialize();
 	//test_answers();
 	//item_choose();
 	//test_worldmap();
 	//test_analize();
 	//test_dungeon();
-	create_indoor(AreaSwamp, true);
+	//create_indoor(AreaSwamp, true);
 }
 
 int __stdcall WinMain(void* ci, void* pi, char* cmd, int sw) {

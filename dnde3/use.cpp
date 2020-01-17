@@ -22,7 +22,7 @@ bool item::isboost(variant id) const {
 	return false;
 }
 
-bool creature::use(item& it) {
+bool creature::use(const creaturea& creatures, item& it) {
 	if(!it)
 		return false;
 	auto& ei = it.getitem();
@@ -137,7 +137,7 @@ bool creature::use(item& it) {
 	return true;
 }
 
-bool creature::use(creaturea& source, skill_s id) {
+bool creature::use(const creaturea& source, skill_s id) {
 	auto v = get(id);
 	if(v <= 0)
 		return false;
@@ -638,7 +638,7 @@ bool creature::use(spell_s id, int level, item* magic_source, bool show_errors) 
 	return use(creatures, id, level, magic_source, show_errors);
 }
 
-bool creature::use(creaturea& source, spell_s id, int level, item* magic_source, bool show_errors) {
+bool creature::use(const creaturea& source, spell_s id, int level, item* magic_source, bool show_errors) {
 	if(!(*this))
 		return true;
 	auto& ei = bsmeta<spelli>::elements[id];

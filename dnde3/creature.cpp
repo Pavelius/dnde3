@@ -1117,17 +1117,17 @@ void creature::aiturn(creaturea& creatures, creaturea& enemies, creature* enemy)
 		if(d100() < chance_act) {
 			if(is(LowInt)) {
 				if(needrestore(LifePoints)) {
-					if(aiuse(0, Drinkable, LifePoints))
+					if(aiuse(creatures, 0, Drinkable, LifePoints))
 						return;
-					if(aiuse(0, Edible, LifePoints))
+					if(aiuse(creatures, 0, Edible, LifePoints))
 						return;
 				}
 			}
 			if(is(AveInt)) {
 				if(needrestore(ManaPoints)) {
-					if(aiuse(0, Drinkable, ManaPoints))
+					if(aiuse(creatures, 0, Drinkable, ManaPoints))
 						return;
-					if(aiuse(0, Edible, ManaPoints))
+					if(aiuse(creatures, 0, Edible, ManaPoints))
 						return;
 				}
 			}
@@ -1642,27 +1642,30 @@ void creature::paymana(int value, bool interactive) {
 	}
 }
 
-bool creature::aiuse(const char* title, slot_s slot, variant effect) {
+bool creature::aiuse(const creaturea& creatures, const char* title, slot_s slot, variant effect) {
 	itema source; source.selectb(*this);
 	source.match(slot, false);
 	if(effect)
 		source.matchboost(effect);
 	auto pi = source.choose(title, 0, NoSlotName);
 	if(pi)
-		return use(*pi);
+		return use(creatures, *pi);
 	return false;
 }
 
 void creature::drink() {
-	aiuse("×åãî õîòèòå âûïèòü?", Drinkable, {});
+	creaturea creatures(*this);
+	aiuse(creatures, "×åãî õîòèòå âûïèòü?", Drinkable, {});
 }
 
 void creature::eat() {
-	aiuse("×òî õîòèòå ñúåñòü?", Edible, {});
+	creaturea creatures(*this);
+	aiuse(creatures, "×òî õîòèòå ñúåñòü?", Edible, {});
 }
 
 void creature::usewands() {
-	aiuse("Èñïîëüçîâàòü êàêîé ïğåäìåò?", Zapable, {});
+	creaturea creatures(*this);
+	aiuse(creatures, "Èñïîëüçîâàòü êàêîé ïğåäìåò?", Zapable, {});
 }
 
 void creature::backpack() {
@@ -1835,5 +1838,6 @@ bool creature::saybusy() {
 }
 
 void creature::usetools() {
-	use(wears[Tool]);
+	creaturea creatures(*this);
+	use(creatures, wears[Tool]);
 }
