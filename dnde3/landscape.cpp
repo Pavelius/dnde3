@@ -208,6 +208,13 @@ static void outdoor_floor() {
 	loc.create({0, 0, mmx - 1, mmy - 1}, mmx*mmy*dense_forest / 100, Tree);
 }
 
+static void fill(const rect& rc, variant id, int value) {
+	switch(id.type) {
+	case Tile: loc.create(rc, value, (tile_s)id.value); break;
+	case Object: loc.create(rc, value, (map_object_s)id.value); break;
+	}
+}
+
 static void create_corridor(int x, int y, int w, int h, direction_s dir) {
 	switch(dir) {
 	case Up: putb(loc.get(x + rand() % w, y), Up); break;
@@ -252,6 +259,28 @@ static void create_dungeon_content(rooma& rooms, bool visualize) {
 	}
 }
 
+static void create_city_buildings(rooma& rooms, bool visualize) {
+	auto current = 1;
+	auto max_possible_points = rooms.getcount() / 3;
+	if(max_possible_points > 25)
+		max_possible_points = 25;
+	auto placed_stairs = false;
+	for(auto& e : rooms) {
+		auto t = (site_s)xrand(Temple, ShopFood);
+		if(current > max_possible_points)
+			t = House;
+		auto p = bsmeta<site>::add();
+		*((rect*)p) = e;
+		p->create(e, t);
+		if(!placed_stairs && t == House) {
+			placed_stairs = true;
+			loc.positions[0] = loc.getfree(loc.center(e));
+			loc.set(loc.positions[0], StairsDown);
+		}
+		current++;
+	}
+}
+
 template<> landscapei bsmeta<landscapei>::elements[] = {{"Равнина", {}, Plain, {{Tree, 2}, {Water, -16}, {Hill, 1}, {Swamp, -20}}},
 {"Лес", {}, Plain, {{Tree, 10}, {Hill, 1}, {Swamp, -20}}},
 {"Болото", {}, Plain, {{Tree, -40}, {Swamp, 1}, {Lake, 1}}},
@@ -259,13 +288,6 @@ template<> landscapei bsmeta<landscapei>::elements[] = {{"Равнина", {}, Plain, {
 {"Подземелье", {1, 1, 1, 1}, Wall, {}, create_big_rooms, create_dungeon_content},
 {"Город", {1, 1, 1, 1}, Plain, {{Tree, 2}, {Water, -16}}},
 };
-
-static void fill(const rect& rc, variant id, int value) {
-	switch(id.type) {
-	case Tile: loc.create(rc, value, (tile_s)id.value); break;
-	case Object: loc.create(rc, value, (map_object_s)id.value); break;
-	}
-}
 
 void location::create(landscape_s landscape, bool explored, bool visualize) {
 	auto& ei = bsmeta<landscapei>::elements[landscape];
