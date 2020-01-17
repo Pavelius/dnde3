@@ -143,6 +143,8 @@ void location::clear() {
 	memset(this, 0, sizeof(*this));
 	for(auto& e : random)
 		e = rand() % 256;
+	for(auto& e : positions)
+		e = Blocked;
 }
 
 tile_s location::gettile(indext i) const {
@@ -955,8 +957,19 @@ void location::content(const rect& rc, room_s type) {
 	}
 }
 
-void location::interior(const rect& rc, room_s type, indext entrance) {
+void location::addposition(indext i) {
+	for(auto& e : positions) {
+		if(e != Blocked)
+			continue;
+		e = i;
+		break;
+	}
+}
+
+void location::interior(const rect& rc, room_s type, indext entrance, int level) {
 	if(rc.width() < 5 && rc.height() < 5) {
+		if(level == 0)
+			addposition(center(rc.getoffset(1, 1)));
 		content(rc.getoffset(1, 1), type);
 		return;
 	}
@@ -1010,14 +1023,17 @@ void location::interior(const rect& rc, room_s type, indext entrance) {
 			h2 = (rc.y1 + h) - wp;
 		}
 	}
-	content({x2 + 1, y2 + 1, x2 + w2 - 1, y2 + h2 - 1}, type);
+	rect r2 = {x2 + 1, y2 + 1, x2 + w2 - 1, y2 + h2 - 1};
+	content(r2, type);
+	if(level == 0)
+		addposition(center(r2));
 	switch(type) {
 	case ShopPotionAndScrolls:
 	case ShopWeaponAndArmor:
-		interior({x1, y1, x1 + w1, y1 + h1}, TreasureRoom, entrance);
+		interior({x1, y1, x1 + w1, y1 + h1}, TreasureRoom, entrance, level + 1);
 		break;
 	default:
-		interior({x1, y1, x1 + w1, y1 + h1}, EmpthyRoom, entrance);
+		interior({x1, y1, x1 + w1, y1 + h1}, EmpthyRoom, entrance, level + 1);
 		break;
 	}
 }

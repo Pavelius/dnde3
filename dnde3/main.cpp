@@ -70,10 +70,6 @@ static void create_indoor(landscape_s area, bool enemies = true) {
 	static slot_s drinkable[] = {Drinkable};
 	static slot_s weapons[] = {Melee, Ranged};
 	loc.create(area, false, false);
-	//loc.positions[1] = loc.get(3, 3);
-	//loc.positions[2] = loc.get(5, 20);
-	loc.set(loc.get(2, 6), Blooded); loc.set(loc.get(3, 6), Blooded); loc.set(loc.get(4, 6), Blooded);
-	loc.set(loc.get(3, 6), Webbed); loc.set(loc.get(4, 6), Webbed); loc.set(loc.get(4, 7), Webbed);
 	auto p1 = create(Human, Male, Theif);
 	auto p2 = create(Dwarf, Male, Cleric);
 	auto p3 = create(Elf, Male, Fighter);

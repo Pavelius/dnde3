@@ -618,7 +618,7 @@ class site : public rect {
 public:
 	constexpr site() : rect{}, type(), param(), name(),
 		owner_id(Blocked), found(), recoil() {}
-	operator bool() const { return x2 > x1 && y1 > y2; }
+	operator bool() const { return x2 > x1 && y2 > y1; }
 	static site*		find(indext index);
 	room_s				getkind() const { return type; }
 	void				getname(stringbuilder& sb) const;
@@ -1030,6 +1030,7 @@ struct statistici {
 	short				magic_items;
 	short				level;
 	indext				positions[4];
+	void				clear();
 };
 class location : public statistici {
 	typedef bool(location::*procis)(indext i) const;
@@ -1054,6 +1055,7 @@ public:
 	void				addinfo(indext i, stringbuilder& sb) const;
 	void				additems(indext i, stringbuilder& sb) const;
 	void				addobject(indext i, stringbuilder& sb) const;
+	void				addposition(indext i);
 	creature*			adventurer(indext index);
 	bool				apply(creature& player, indext index, variant id, int v, int order, bool run);
 	void				blockcreatures();
@@ -1100,7 +1102,7 @@ public:
 	bool				ismatch(indext index, const rect& rectanle) const;
 	bool				ismatch(indext index, variant v) const;
 	void				lake(const rect& rc);
-	void				interior(const rect& rc, room_s type, indext index);
+	void				interior(const rect& rc, room_s type, indext index, int level);
 	void				loot(indext index, item_s type, int level, char chance_bigger_price = 0, identify_s identify = Unknown, char chance_curse = 10, char bonus_quality = 0);
 	void				loot(indext index, const aref<slot_s>& slots, int level, char chance_bigger_price = 0, identify_s identify = Unknown, char chance_curse = 10, char bonus_quality = 0);
 	void				loot(const rect& rc, const aref<slot_s>& slots, int chance, int level, char chance_bigger_price = 0, identify_s identify = Unknown, char chance_curse = 10, char bonus_quality = 0);

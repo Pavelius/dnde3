@@ -249,19 +249,18 @@ static void create_city_buildings(const rect& rc, rooma& rooms, const landscapei
 	int index = 0;
 	int index_maximum = sizeof(land.objects)/ sizeof(land.objects[0]);
 	for(auto& e : rooms) {
-		auto p = bsmeta<site>::add();
 		auto t = (room_s)xrand(Temple, ShopFood);
 		if(current > max_possible_points)
 			t = House;
-		p->set(e);
-		auto door = loc.building(e);
 		if(index < index_maximum && land.objects[index]) {
 			t = land.objects[index];
-			loc.positions[index] = loc.getfree(loc.center(e));
 			index++;
 		}
+		auto p = bsmeta<site>::add();
+		p->set(e);
 		p->set(t);
-		loc.interior(e, t, door);
+		auto door = loc.building(e);
+		loc.interior(e, t, door, 0);
 		current++;
 	}
 }
@@ -335,7 +334,7 @@ template<> landscapei bsmeta<landscapei>::elements[] = {{"Равнина", 0, Plain, {{
 {"Болото", 0, Plain, {{Tree, -40}, {Swamp, 1}, {Lake, 1}}},
 // 
 {"Подземелье", 1, Wall, {}, {StairsDownRoom, StairsUpRoom}, create_big_rooms, create_dungeon_content},
-{"Город", 1, Plain, {{Tree, 2}, {Water, -16}}, {StairsDownRoom, Barracs}, create_city, create_city_buildings},
+{"Город", 1, Plain, {{Tree, 2}, {Water, -16}}, {StairsDownRoom, Barracs, Lair}, create_city, create_city_buildings},
 };
 
 void location::create(landscape_s landscape, bool explored, bool visualize) {
