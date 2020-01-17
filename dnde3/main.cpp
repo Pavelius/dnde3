@@ -69,7 +69,7 @@ static void modify_weapon(creature* p1) {
 static void create_indoor(landscape_s area, bool enemies = true) {
 	static slot_s drinkable[] = {Drinkable};
 	static slot_s weapons[] = {Melee, Ranged};
-	loc.create(area, false, false);
+	loc.create(area, true, false);
 	loc.positions[1] = loc.get(3, 3);
 	loc.positions[2] = loc.get(5, 20);
 	if(true) {
@@ -77,11 +77,7 @@ static void create_indoor(landscape_s area, bool enemies = true) {
 		auto door = loc.building(rc);
 		loc.interior(rc, ShopWeaponAndArmor, door);
 		rc.offset(1, 1);
-		//loc.set(door, Sealed);
-		//loc.loot(rc, weapons, 80, 1, 10, KnownPower);
-		//loc.loot(rc, drinkable, 30, 5, 30, KnownPower);
 	}
-	loc.lake({20, 20, 40, 40});
 	loc.drop(loc.get(5, 4), item(SwordShort, 5));
 	loc.drop(loc.get(4, 6), item(SwordTwoHanded, 10));
 	loc.drop(loc.get(3, 3), item(Staff, 20));
@@ -181,7 +177,7 @@ int main(int argc, char* argv[]) {
 	//test_worldmap();
 	//test_analize();
 	//test_dungeon();
-	create_indoor(AreaSwamp, true);
+	create_indoor(AreaCity, true);
 }
 
 int __stdcall WinMain(void* ci, void* pi, char* cmd, int sw) {

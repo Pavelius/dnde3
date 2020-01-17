@@ -8,17 +8,8 @@ static vector			rooms[256];
 static unsigned char	stack_put, stack_get;
 static direction_s		connectors_side[] = {Up, Left, Right, Down};
 
-static slot_s slots_weapons_armor[] = {Melee, Ranged, OffHand, Head, Elbows, Legs, Torso};
-static item_s item_treasure[] = {Coin, Coin, Coin, Coin, Coin, Coin, Coin, CoinSP, CoinSP, CoinSP, CoinGP};
-static item_s item_food[] = {Ration, Ration, Ration, BreadEvlen, BreadHalflings, BreadDwarven, Sausage};
-static item_s item_potion_scrolls[] = {Scroll1, Scroll2, Scroll3,
-Scroll1, Scroll2, Scroll3,
-Book1, Book2, Book3, Book4, Book5,
-Amulet1, Amulet2, Amulet3, Amulet4, Amulet5,
-Boot1, Boot2, IronBoot1, IronBoot2, IronBoot3,
-Potion1, Potion2, Potion3, Potion4, Potion5,
-Wand1, Wand2, Wand3, Wand4, Wand5,
-RingRed, RingGreen, RingBlue};
+static slot_s	slots_weapons_armor[] = {Melee, Ranged, OffHand, Head, Elbows, Legs, Torso};
+static item_s	item_treasure[] = {Coin, Coin, Coin, Coin, Coin, Coin, Coin, CoinSP, CoinSP, CoinSP, CoinGP};
 
 static int compare_rect(const void* p1, const void* p2) {
 	auto e1 = (rect*)p1;
@@ -202,19 +193,6 @@ static void update_doors() {
 	}
 }
 
-static void outdoor_floor() {
-	loc.create({0, 0, mmx - 1, mmy - 1}, xrand(10, 20), Hill);
-	loc.create({0, 0, mmx - 1, mmy - 1}, xrand(4, 12), Swamp);
-	loc.create({0, 0, mmx - 1, mmy - 1}, mmx*mmy*dense_forest / 100, Tree);
-}
-
-static void fill(const rect& rc, variant id, int value) {
-	switch(id.type) {
-	case Tile: loc.create(rc, value, (tile_s)id.value); break;
-	case Object: loc.create(rc, value, (map_object_s)id.value); break;
-	}
-}
-
 static void create_corridor(int x, int y, int w, int h, direction_s dir) {
 	switch(dir) {
 	case Up: putb(loc.get(x + rand() % w, y), Up); break;
@@ -238,7 +216,7 @@ static void create_room(int x, int y, int w, int h) {
 	p->set(Lair);
 }
 
-static void create_dungeon_content(rooma& rooms, bool visualize) {
+static void create_dungeon_content(const rect& rc, rooma& rooms, bool visualize) {
 	rooms.count -= 2; // Two room of lesser size would cutted off
 	zshuffle(rooms.data, rooms.count);
 	loc.positions[0] = loc.center(rooms[0]);
@@ -251,7 +229,6 @@ static void create_dungeon_content(rooma& rooms, bool visualize) {
 		create_corridor(e.x1, e.y1, e.width(), e.height(), maprnd(connectors_side));
 	for(auto& e : rooms)
 		create_corridor(e.x1, e.y1, e.width(), e.height(), maprnd(connectors_side));
-	rect rc = {2, 2, mmx - 2, mmy - 2};
 	while(stack_get != stack_put) {
 		auto& e = getb();
 		create_connector(e.index, e.dir, rc);
@@ -259,7 +236,13 @@ static void create_dungeon_content(rooma& rooms, bool visualize) {
 	}
 }
 
-static void create_city_buildings(rooma& rooms, bool visualize) {
+static void create_road(const rect& rc) {
+	auto r1 = rc; loc.normalize(r1);
+	loc.set(loc.get(r1.x1, r1.y1), Road, r1.width(), r1.height());
+}
+
+static void create_city_buildings(const rect& rc, rooma& rooms, bool visualize) {
+	rect r1 = rc.getoffset(2, 2);
 	auto current = 1;
 	auto max_possible_points = rooms.getcount() / 3;
 	if(max_possible_points > 25)
@@ -271,7 +254,7 @@ static void create_city_buildings(rooma& rooms, bool visualize) {
 			t = House;
 		auto p = bsmeta<site>::add();
 		*((rect*)p) = e;
-		p->create(e, t);
+		//p->create(e, t);
 		if(!placed_stairs && t == House) {
 			placed_stairs = true;
 			loc.positions[0] = loc.getfree(loc.center(e));
@@ -315,11 +298,10 @@ static void create_city_level(const rect& rc, int level, rooma& rooms) {
 		create_city_level({rc.x1, rc.y1, rc.x1 + w1, rc.y2}, level + 1, rooms);
 		create_city_level({rc.x1 + w1, rc.y1, rc.x2, rc.y2}, level + 1, rooms);
 		if(level <= 2) {
-			//if(y == 1) {
-			//	y--;
-			//	h++;
-			//}
-			//create_road(x + w1 - 3, y, 3, h);
+			auto r1 = rc;
+			if(r1.x2 == mmx - 1)
+				r1.x2 = mmx - 1;
+			create_road({r1.x1 + w1 - 3, r1.y1, r1.x1 + w1, r1.y2});
 			//for(int i = xrand(3, 6); i >= 0; i--)
 			//	create_commoner(random(x + w1 - 3, y, 3, h));
 		}
@@ -328,15 +310,15 @@ static void create_city_level(const rect& rc, int level, rooma& rooms) {
 		create_city_level({rc.x1, rc.y1, rc.x2, rc.y1 + h1}, level + 1, rooms);
 		create_city_level({rc.x1, rc.y1 + h1, rc.x2, rc.y2}, level + 1, rooms);
 		if(level <= 2) {
-			//create_road(x, y + h1 - 3, w, 3);
+			create_road({rc.x1, rc.y1 + h1 - 3, rc.x2, rc.y1 + h1});
 			//for(int i = xrand(2, 4); i >= 0; i--)
 			//	create_commoner(random(x, y + h1 - 3, w, 3));
 		}
 	}
 }
 
-static void create_city(int x, int y, int w, int h, rooma& rooms, bool visualize) {
-	create_city_level({x, y, w + x, h + y}, 0, rooms);
+static void create_city(const rect& rc, rooma& rooms, bool visualize) {
+	create_city_level(rc, 0, rooms);
 }
 
 template<> landscapei bsmeta<landscapei>::elements[] = {{"Равнина", {}, Plain, {{Tree, 2}, {Water, -16}, {Hill, 1}, {Swamp, -20}}},
@@ -344,21 +326,21 @@ template<> landscapei bsmeta<landscapei>::elements[] = {{"Равнина", {}, Plain, {
 {"Болото", {}, Plain, {{Tree, -40}, {Swamp, 1}, {Lake, 1}}},
 // 
 {"Подземелье", {1, 1, 1, 1}, Wall, {}, create_big_rooms, create_dungeon_content},
-{"Город", {1, 1, 1, 1}, Plain, {{Tree, 2}, {Water, -16}}},
+{"Город", {}, Plain, {{Tree, 2}, {Water, -16}}, create_city, create_city_buildings},
 };
 
 void location::create(landscape_s landscape, bool explored, bool visualize) {
 	auto& ei = bsmeta<landscapei>::elements[landscape];
 	clear();
 	stack_get = stack_put = 0;
+	visualize = visualize && explored;
 	// Explore all map
 	if(explored) {
 		auto count = mmx * mmy;
 		for(short unsigned i = 0; i < count; i++)
 			set(i, Explored);
 	}
-	rect rc = {0, 0, mmx - 1, mmy - 1};
-	rc += ei.border;
+	rect rc = {0, 0, mmx - 1, mmy - 1}; rc += ei.border;
 	rooma rooms;
 	// Initilaize area
 	auto count = mmx * mmy;
@@ -368,17 +350,17 @@ void location::create(landscape_s landscape, bool explored, bool visualize) {
 		if(!e.id)
 			break;
 		if(e.value < 0)
-			fill(rc, e.id, xrand(-e.value / 2, -e.value));
+			loc.fill(rc, xrand(-e.value / 2, -e.value), e.id);
 		else
-			fill(rc, e.id, count*e.value / 100);
+			loc.fill(rc, count*e.value / 100, e.id);
 	}
 	// Create rooms
 	if(ei.genarea)
-		ei.genarea(rc, rooms, false);
+		ei.genarea(rc, rooms, visualize);
 	qsort(rooms.data, rooms.count, sizeof(rooms.data[0]), compare_rect);
 	// Object generator (from big to small)
 	if(ei.genroom)
-		ei.genroom(rooms, visualize && explored);
+		ei.genroom(rc, rooms, visualize);
 	// Finish step
 	update_doors();
 }

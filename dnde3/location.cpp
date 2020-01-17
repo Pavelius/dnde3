@@ -145,17 +145,6 @@ void location::clear() {
 		e = rand() % 256;
 }
 
-static void correct(rect& rc) {
-	if(rc.x1 < 0)
-		rc.x1 = 0;
-	if(rc.y1 < 0)
-		rc.y1 = 0;
-	if(rc.x2 > mmx - 1)
-		rc.x2 = mmx - 1;
-	if(rc.y2 > mmy - 1)
-		rc.y2 = mmy - 1;
-}
-
 tile_s location::gettile(indext i) const {
 	if(i == Blocked)
 		return Wall;
@@ -281,7 +270,7 @@ void location::setcamera(indext i) {
 		setcamera(getx(i), gety(i));
 }
 
-void location::create(const rect& rc, int count, map_object_s v) {
+void location::fill(const rect& rc, int count, map_object_s v) {
 	for(int i = 0; i < count; i++) {
 		int x1 = xrand(rc.x1, rc.x2);
 		int y1 = xrand(rc.y1, rc.y2);
@@ -289,11 +278,18 @@ void location::create(const rect& rc, int count, map_object_s v) {
 	}
 }
 
-void location::create(const rect& rc, int count, tile_s v) {
+void location::fill(const rect& rc, int count, tile_s v) {
 	for(int i = 0; i < count; i++) {
 		int x1 = xrand(rc.x1, rc.x2);
 		int y1 = xrand(rc.y1, rc.y2);
 		set(get(x1, y1), v);
+	}
+}
+
+void location::fill(const rect& rc, int count, variant id) {
+	switch(id.type) {
+	case Tile: fill(rc, count, (tile_s)id.value); break;
+	case Object: fill(rc, count, (map_object_s)id.value); break;
 	}
 }
 
@@ -319,6 +315,10 @@ void location::set(indext i, tile_s v) {
 		objects[i] = NoTileObject;
 		break;
 	}
+}
+
+void location::set(const rect& rc, tile_s v) {
+
 }
 
 void location::set(indext index, tile_s v, int width, int height) {
@@ -457,7 +457,7 @@ void location::lake(const rect& rc) {
 }
 
 void location::forest(const rect& rc) {
-	loc.create(rc, rc.width()*rc.height()*dense_forest / 100, Tree);
+	loc.fill(rc, rc.width()*rc.height()*dense_forest / 100, Tree);
 }
 
 bool location::isfree(indext i) const {
