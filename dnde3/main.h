@@ -230,6 +230,10 @@ enum dialog_s : unsigned char {
 enum intellegence_s : unsigned char {
 	NoInt, AnimalInt, SemiInt, LowInt, AveInt, VeryInt, HighInt, ExpInt, GenInt, SupGenInt, GodInt
 };
+struct targeti;
+struct landscapei;
+class creature;
+class creaturea;
 typedef short unsigned indext;
 typedef adat<rect, 64> rooma;
 typedef flagable<1 + Chaotic / 8> alignmenta;
@@ -240,10 +244,7 @@ typedef flagable<1 + Blooded / 8> mapflf;
 typedef casev<ability_s> abilityv;
 typedef aset<damage_s, 1 + WaterAttack> damagea;
 typedef void(*gentileproc)(indext index);
-typedef void(*genareaproc)(const rect& rc, rooma& rooms, bool visualize);
-struct targeti;
-class creature;
-class creaturea;
+typedef void(*genareaproc)(const rect& rc, rooma& rooms, const landscapei& landscape, bool visualize);
 struct variant {
 	variant_s			type;
 	unsigned char		value;
@@ -429,6 +430,10 @@ struct damagei {
 	char				damage_chance;
 	const char*			resist_text;
 };
+struct pooli {
+	const char*			name;
+	const char*			avatar_id;
+};
 struct trapi {
 	const char*			name;
 	const char*			avatar_id;
@@ -601,26 +606,25 @@ struct dialogi {
 };
 class site : public rect {
 	site_s				type;
+	variant				param;
 	unsigned char		name[2];
-	diety_s				diety;
 	short unsigned		owner_id;
 	unsigned char		found;
 	unsigned			recoil;
 public:
-	constexpr site() : rect{0, 0, 0, 0}, type(EmpthyRoom), diety(NoGod),
-		name(), owner_id(Blocked), found(), recoil() {
-	}
+	constexpr site() : rect{}, type(), param(), name(),
+		owner_id(Blocked), found(), recoil() {}
 	operator bool() const { return x2 > x1 && y1 > y2; }
-	void				create(const rect& rc, site_s type);
 	static site*		find(indext index);
+	site_s				getkind() const { return type; }
 	void				getname(stringbuilder& sb) const;
 	creature*			getowner() const;
+	variant				getparam() const { return param; }
 	indext				getposition() const;
-	void				interior(const rect& rc, site_s type, indext entrance);
 	creature*			priest();
 	void				set(const rect& v) { *static_cast<rect*>(this) = v; }
 	void				set(site_s v) { type = v; }
-	void				set(diety_s v) { diety = v; }
+	void				set(variant v) { param = v; }
 	void				setowner(const creature* v);
 	creature*			shopkeeper();
 };
@@ -636,6 +640,7 @@ public:
 	void				act(const char* format, ...) const;
 	void				actv(stringbuilder& sb, const char* format, const char* param) const;
 	void				actv(stringbuilder& sb, nameable& e, const char* format, const char* param) const;
+	bool				cansee() const;
 	gender_s			getgender() const;
 	const char*			getname() const;
 	void				sayv(stringbuilder& st, const char* format, const char* param) const;
@@ -898,7 +903,7 @@ public:
 };
 struct landscapei {
 	const char*			name;
-	rect				border;
+	char				border;
 	tile_s				tile;
 	casev<variant>		tiles[4];
 	genareaproc			genarea;
@@ -1063,6 +1068,8 @@ public:
 	void				fill(const rect& rc, int count, map_object_s v);
 	void				fill(const rect& rc, int count, tile_s v);
 	void				fill(const rect& rc, int count, variant id);
+	void				fill(const rect& rc, map_object_s v);
+	void				fill(const rect& rc, tile_s v);
 	void				forest(const rect& rc);
 	static indext		get(short x, short y) { return y * mmx + x; }
 	int					getlight() const { return light_level; }
@@ -1074,11 +1081,12 @@ public:
 	int					getindex(indext i, tile_s e) const;
 	int					getitemscount(indext i) const;
 	map_object_s		getobject(indext i) const { return objects[i]; }
-	tile_s				gettile(indext i) const;
-	trap_s				gettrap(indext i) const;
+	indext				getpoint(const rect& rc, direction_s dir) const;
 	static int			getrange(indext i1, indext i2);
 	int					getrand(indext i) const { return random[i]; }
 	static rect			getrect(indext i, int rx = 3, int ry = 2);
+	tile_s				gettile(indext i) const;
+	trap_s				gettrap(indext i) const;
 	void				indoor(point camera, bool show_fow = true, const picture* effects = 0);
 	bool				is(indext i, map_flag_s v) const { return flags[i].is(v); }
 	bool				isfree(indext i) const;
@@ -1095,14 +1103,11 @@ public:
 	void				minimap(int x, int y, point camera) const;
 	void				minimap(indext index) const;
 	creature*			monster(indext index);
-	static void			normalize(rect& rc);
+	static rect			normalize(const rect& rc);
 	bool				read(const char* url);
-	void				rectangle(const rect& rc, map_object_s v);
 	void				remove(indext i, map_flag_s v) { flags[i].remove(v); }
-	void				set(const rect& rc, tile_s v);
 	void				set(indext i, map_flag_s v) { flags[i].set(v); }
 	void				set(indext i, tile_s v);
-	void				set(indext i, tile_s v, int width, int height);
 	void				set(indext i, trap_s v);
 	void				set(indext i, map_object_s v) { objects[i] = v; }
 	void				setr(indext i, unsigned char v) { random[i] = v; }

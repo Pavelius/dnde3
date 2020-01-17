@@ -293,6 +293,20 @@ void location::fill(const rect& rc, int count, variant id) {
 	}
 }
 
+void location::fill(const rect& rc, tile_s v) {
+	auto r1 = normalize(rc);
+	for(auto y = r1.y1; y <= r1.y2; y++)
+		for(auto x = r1.x1; x <= r1.x2; x++)
+			set(get(x, y), v);
+}
+
+void location::fill(const rect& rc, map_object_s v) {
+	auto r1 = normalize(rc);
+	for(auto y = r1.y1; y <= r1.y2; y++)
+		for(auto x = r1.x1; x <= r1.x2; x++)
+			set(get(x, y), v);
+}
+
 rect location::getrect(indext i, int rx, int ry) {
 	if(i == Blocked)
 		return {};
@@ -317,27 +331,6 @@ void location::set(indext i, tile_s v) {
 	}
 }
 
-void location::set(const rect& rc, tile_s v) {
-
-}
-
-void location::set(indext index, tile_s v, int width, int height) {
-	if(index == Blocked)
-		return;
-	auto x1 = getx(index);
-	auto y1 = gety(index);
-	auto x2 = x1 + width;
-	auto y2 = y1 + height;
-	if(x2 > mmx)
-		x2 = mmx;
-	if(y2 > mmy)
-		y2 = mmy;
-	for(auto y = y1; y < y2; y++) {
-		for(auto x = x1; x < x2; x++)
-			set(get(x, y), v);
-	}
-}
-
 void location::ellipse(rect rc, tile_s object) {
 	int a = iabs(rc.width()), b = iabs(rc.height()), b1 = b & 1;
 	long dx = 4 * (1 - a)*b*b, dy = 4 * (b1 + 1)*a*a;
@@ -352,8 +345,8 @@ void location::ellipse(rect rc, tile_s object) {
 	rc.y2 = rc.y1 - b1;   /* starting pixel */
 	a *= 8 * a; b1 = 8 * b*b;
 	do {
-		set(get(rc.x1, rc.y1), object, rc.x2 - rc.x1, 1);
-		set(get(rc.x1, rc.y2), object, rc.x2 - rc.x1, 1);
+		fill({rc.x1, rc.y1, rc.x2, rc.y1}, object);
+		fill({rc.x1, rc.y2, rc.x2, rc.y2}, object);
 		e2 = 2 * err;
 		if(e2 <= dy) {
 			rc.y1++;
@@ -373,45 +366,30 @@ void location::ellipse(rect rc, tile_s object) {
 	}
 }
 
-indext location::bpoint(indext index, int width, int height, direction_s dir) const {
-	auto x = getx(index);
-	auto y = gety(index);
+indext location::getpoint(const rect& rc, direction_s dir) const {
 	switch(dir) {
-	case Left: return get(x, y + xrand(1, height - 2));
-	case Right: return get(x + width - 1, y + xrand(1, height - 2));
-	case Up: return get(x + xrand(1, width - 2), y);
-	default: return get(x + xrand(1, width - 2), y + height - 1);
-	}
-}
-
-void location::rectangle(const rect& rc, map_object_s v) {
-	for(auto y = rc.y1; y < rc.y2; y++) {
-		for(auto x = rc.x1; x < rc.x2; x++)
-			set(get(x, y), v);
+	case Left: return get(rc.x1, xrand(rc.y1 + 1, rc.y2 - 1));
+	case Right: return get(rc.x2, xrand(rc.y1 + 1, rc.y2 - 1));
+	case Up: return get(xrand(rc.x1 + 1, rc.x2 - 1), rc.y1);
+	default: return get(xrand(rc.x1 + 1, rc.x2 - 1), rc.y2);
 	}
 }
 
 indext location::building(const rect& rc, direction_s dir) {
 	static direction_s rdir[] = {Right, Left, Up, Down};
-	// Преобразуем координаты с учетом
-	auto i = get(rc.x1, rc.y1);
-	auto w = rc.width();
-	auto h = rc.height();
 	// Стены и пол
-	set(i, Wall, w, h);
-	set(to(i, RightDown), Floor, w - 2, h - 2);
+	fill(rc, Wall);
+	fill(rc.getoffset(1, 1), Floor);
 	// Двери
 	if(dir == Center)
 		dir = maprnd(rdir);;
-	auto door = bpoint(i, w, h, dir);
+	auto door = getpoint(rc, dir);
 	set(door, Floor);
 	set(door, Door);
 	auto m1 = to(door, dir);
 	auto t1 = gettile(m1);
-	if(t1 != Floor) {
-		if(t1 != Plain && t1 != Road)
-			set(m1, Plain);
-	}
+	if(t1 != Floor && t1 != Plain && t1 != Road)
+		set(m1, Plain);
 	set(m1, NoTileObject);
 	return door;
 }
@@ -420,7 +398,7 @@ indext location::building(const rect& rc, direction_s dir) {
 indext location::setiwh(int x, int y, int s, tile_s o, map_object_s r, bool locked_doors) {
 	if(s <= 2)
 		return Blocked;
-	set(get(x, y), o, s, 1);
+	fill({x, y, x + s, y}, o);
 	auto i = get(x + xrand(1, s - 2), y);
 	set(i, Floor);
 	set(i, r);
@@ -434,7 +412,7 @@ indext location::setiwh(int x, int y, int s, tile_s o, map_object_s r, bool lock
 indext location::setiwv(int x, int y, int s, tile_s o, map_object_s r, bool locked_doors) {
 	if(s <= 2)
 		return Blocked;
-	set(get(x, y), o, 1, s);
+	fill({x, y, x, y + s}, o);
 	auto i = get(x, y + xrand(1, s - 2));
 	set(i, Floor);
 	set(i, r);
@@ -1037,13 +1015,15 @@ void location::interior(const rect& rc, site_s type, indext entrance) {
 	}
 }
 
-void location::normalize(rect& rc) {
-	if(rc.x1 < 0)
-		rc.x1 = 0;
-	if(rc.y1 < 0)
-		rc.y1 = 0;
-	if(rc.x2 >= mmx)
-		rc.x2 = mmx - 1;
-	if(rc.y2 >= mmy)
-		rc.y2 = mmy - 1;
+rect location::normalize(const rect& rc) {
+	rect result = rc;
+	if(result.x1 < 0)
+		result.x1 = 0;
+	if(result.y1 < 0)
+		result.y1 = 0;
+	if(result.x2 >= mmx)
+		result.x2 = mmx - 1;
+	if(result.y2 >= mmy)
+		result.y2 = mmy - 1;
+	return result;
 }

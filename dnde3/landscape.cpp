@@ -38,7 +38,7 @@ static void show_minimap_step(short unsigned index, bool visualize) {
 		loc.minimap(index);
 }
 
-static void create_big_rooms(const rect& rc, rooma& rooms, bool visualize) {
+static void create_big_rooms(const rect& rc, rooma& rooms, const landscapei& land, bool visualize) {
 	if(rc.width() < 4 + 5 || rc.height() < 4 + 3)
 		return;
 	if(rc.height() < max_building_size * 2 && rc.width() < max_building_size * 2) {
@@ -59,12 +59,12 @@ static void create_big_rooms(const rect& rc, rooma& rooms, bool visualize) {
 		}
 	} else if(rc.width() > rc.height()) {
 		auto w1 = rc.width() / 2 + (rand() % 8) - 4;
-		create_big_rooms({rc.x1, rc.y1, rc.x1 + w1 - 1, rc.y2}, rooms, visualize);
-		create_big_rooms({rc.x1 + w1, rc.y1, rc.x2, rc.y2}, rooms, visualize);
+		create_big_rooms({rc.x1, rc.y1, rc.x1 + w1 - 1, rc.y2}, rooms, land, visualize);
+		create_big_rooms({rc.x1 + w1, rc.y1, rc.x2, rc.y2}, rooms, land, visualize);
 	} else {
 		auto h1 = rc.height() / 2 + (rand() % 6) - 3;
-		create_big_rooms({rc.x1, rc.y1, rc.x2, rc.y1 + h1 - 1}, rooms, visualize);
-		create_big_rooms({rc.x1, rc.y1 + h1, rc.x2, rc.y2}, rooms, visualize);
+		create_big_rooms({rc.x1, rc.y1, rc.x2, rc.y1 + h1 - 1}, rooms, land, visualize);
+		create_big_rooms({rc.x1, rc.y1 + h1, rc.x2, rc.y2}, rooms, land, visualize);
 	}
 }
 
@@ -216,7 +216,7 @@ static void create_room(int x, int y, int w, int h) {
 	p->set(Lair);
 }
 
-static void create_dungeon_content(const rect& rc, rooma& rooms, bool visualize) {
+static void create_dungeon_content(const rect& rc, rooma& rooms, const landscapei& land, bool visualize) {
 	rooms.count -= 2; // Two room of lesser size would cutted off
 	zshuffle(rooms.data, rooms.count);
 	loc.positions[0] = loc.center(rooms[0]);
@@ -237,11 +237,10 @@ static void create_dungeon_content(const rect& rc, rooma& rooms, bool visualize)
 }
 
 static void create_road(const rect& rc) {
-	auto r1 = rc; loc.normalize(r1);
-	loc.set(loc.get(r1.x1, r1.y1), Road, r1.width(), r1.height());
+	loc.fill(rc, Road);
 }
 
-static void create_city_buildings(const rect& rc, rooma& rooms, bool visualize) {
+static void create_city_buildings(const rect& rc, rooma& rooms, const landscapei& land, bool visualize) {
 	rect r1 = rc.getoffset(2, 2);
 	auto current = 1;
 	auto max_possible_points = rooms.getcount() / 3;
@@ -253,8 +252,10 @@ static void create_city_buildings(const rect& rc, rooma& rooms, bool visualize) 
 		if(current > max_possible_points)
 			t = House;
 		auto p = bsmeta<site>::add();
-		*((rect*)p) = e;
-		//p->create(e, t);
+		p->set(e);
+		p->set(t);
+		auto door = loc.building(e);
+		loc.interior(e, p->getkind(), door);
 		if(!placed_stairs && t == House) {
 			placed_stairs = true;
 			loc.positions[0] = loc.getfree(loc.center(e));
@@ -296,37 +297,44 @@ static void create_city_level(const rect& rc, int level, rooma& rooms) {
 	if(r == 0) {
 		int w1 = (w*m) / 100; // horizontal
 		create_city_level({rc.x1, rc.y1, rc.x1 + w1, rc.y2}, level + 1, rooms);
-		create_city_level({rc.x1 + w1, rc.y1, rc.x2, rc.y2}, level + 1, rooms);
+		create_city_level({rc.x1 + w1 + 1, rc.y1, rc.x2, rc.y2}, level + 1, rooms);
 		if(level <= 2) {
 			auto r1 = rc;
-			if(r1.x2 == mmx - 1)
-				r1.x2 = mmx - 1;
-			create_road({r1.x1 + w1 - 3, r1.y1, r1.x1 + w1, r1.y2});
+			if(r1.y2 >= mmy - 3)
+				r1.y2 = mmy - 1;
+			if(r1.y1 <= 2)
+				r1.y1 = 0;
+			create_road({r1.x1 + w1 - 2, r1.y1, r1.x1 + w1, r1.y2});
 			//for(int i = xrand(3, 6); i >= 0; i--)
-			//	create_commoner(random(x + w1 - 3, y, 3, h));
+			//	loc.commoner(random(x + w1 - 3, y, 3, h));
 		}
 	} else {
 		int h1 = (h*m) / 100; // vertial
 		create_city_level({rc.x1, rc.y1, rc.x2, rc.y1 + h1}, level + 1, rooms);
-		create_city_level({rc.x1, rc.y1 + h1, rc.x2, rc.y2}, level + 1, rooms);
+		create_city_level({rc.x1, rc.y1 + h1 + 1, rc.x2, rc.y2}, level + 1, rooms);
 		if(level <= 2) {
-			create_road({rc.x1, rc.y1 + h1 - 3, rc.x2, rc.y1 + h1});
+			auto r1 = rc;
+			if(r1.x2 >= mmx - 3)
+				r1.x2 = mmx - 1;
+			if(r1.x1 <= 2)
+				r1.x1 = 0;
+			create_road({r1.x1, r1.y1 + h1 - 2, r1.x2, r1.y1 + h1});
 			//for(int i = xrand(2, 4); i >= 0; i--)
 			//	create_commoner(random(x, y + h1 - 3, w, 3));
 		}
 	}
 }
 
-static void create_city(const rect& rc, rooma& rooms, bool visualize) {
+static void create_city(const rect& rc, rooma& rooms, const landscapei& land, bool visualize) {
 	create_city_level(rc, 0, rooms);
 }
 
-template<> landscapei bsmeta<landscapei>::elements[] = {{"Равнина", {}, Plain, {{Tree, 2}, {Water, -16}, {Hill, 1}, {Swamp, -20}}},
-{"Лес", {}, Plain, {{Tree, 10}, {Hill, 1}, {Swamp, -20}}},
-{"Болото", {}, Plain, {{Tree, -40}, {Swamp, 1}, {Lake, 1}}},
+template<> landscapei bsmeta<landscapei>::elements[] = {{"Равнина", 0, Plain, {{Tree, 2}, {Water, -16}, {Hill, 1}, {Swamp, -20}}},
+{"Лес", 0, Plain, {{Tree, 10}, {Hill, 1}, {Swamp, -20}}},
+{"Болото", 0, Plain, {{Tree, -40}, {Swamp, 1}, {Lake, 1}}},
 // 
-{"Подземелье", {1, 1, 1, 1}, Wall, {}, create_big_rooms, create_dungeon_content},
-{"Город", {}, Plain, {{Tree, 2}, {Water, -16}}, create_city, create_city_buildings},
+{"Подземелье", 1, Wall, {}, create_big_rooms, create_dungeon_content},
+{"Город", 1, Plain, {{Tree, 2}, {Water, -16}}, create_city, create_city_buildings},
 };
 
 void location::create(landscape_s landscape, bool explored, bool visualize) {
@@ -340,7 +348,7 @@ void location::create(landscape_s landscape, bool explored, bool visualize) {
 		for(short unsigned i = 0; i < count; i++)
 			set(i, Explored);
 	}
-	rect rc = {0, 0, mmx - 1, mmy - 1}; rc += ei.border;
+	rect rc = {0, 0, mmx - 1, mmy - 1};
 	rooma rooms;
 	// Initilaize area
 	auto count = mmx * mmy;
@@ -354,13 +362,15 @@ void location::create(landscape_s landscape, bool explored, bool visualize) {
 		else
 			loc.fill(rc, count*e.value / 100, e.id);
 	}
+	rc.x1 += ei.border; rc.y1 += ei.border;
+	rc.x2 -= ei.border; rc.y2 -= ei.border;
 	// Create rooms
 	if(ei.genarea)
-		ei.genarea(rc, rooms, visualize);
+		ei.genarea(rc, rooms, ei, visualize);
 	qsort(rooms.data, rooms.count, sizeof(rooms.data[0]), compare_rect);
 	// Object generator (from big to small)
 	if(ei.genroom)
-		ei.genroom(rc, rooms, visualize);
+		ei.genroom(rc, rooms, ei, visualize);
 	// Finish step
 	update_doors();
 }

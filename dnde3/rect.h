@@ -10,7 +10,7 @@ struct rect {
 	inline bool			operator==(const rect& rc) const { return rc.x1 == x1 && rc.x2 == x2 && rc.y1 == y1 && rc.y2 == y2; }
 	inline rect			operator+(const rect& rc) const { return{x1 + rc.x1, y1 + rc.y1, x2 + rc.x2, y2 + rc.y2}; }
 	void				clear() { x1 = x2 = y1 = y2 = 0; }
-	rect				getoffset(int x, int y) const { return {x1 + x, x2 - x, y1 + y, y2 - y}; }
+	rect				getoffset(int x, int y) const { return {x1 + x, y1 + y, x2 - x, y2 - y}; }
 	inline int			height() const { return y2 - y1; }
 	bool				intersect(const rect& rc) const { return x1<rc.x2 && x2>rc.x1 && y1<rc.y2 && y2>rc.y1; }
 	void				move(int x, int y) { x1 += x; x2 += x; y1 += y; y2 += y; }

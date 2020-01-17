@@ -34,10 +34,10 @@ static void test_worldmap() {
 	auto i0 = loc.get(5, 4);
 	auto i1 = loc.get(5, 5);
 	auto i2 = loc.get(5, 6);
-	loc.set(loc.get(0, 0), Sea, mmx, 2);
-	loc.set(loc.get(0, 0), Sea, 2, mmy);
-	loc.set(loc.get(mmx - 2, 0), Sea, 2, mmy);
-	loc.set(loc.get(0, mmy - 2), Sea, mmx, 2);
+	loc.fill({0, 0, mmx - 1, 1}, Sea);
+	loc.fill({0, 0, 1, mmy - 1}, Sea);
+	loc.fill({mmx - 2, 0, mmx - 1, mmy - 1}, Sea);
+	loc.fill({0, mmy - 2, mmx - 1, mmy - 1}, Sea);
 	loc.set(i0, Mountains);
 	loc.set(i0 + 1, Mountains);
 	loc.set(i1, Sea);
@@ -69,25 +69,9 @@ static void modify_weapon(creature* p1) {
 static void create_indoor(landscape_s area, bool enemies = true) {
 	static slot_s drinkable[] = {Drinkable};
 	static slot_s weapons[] = {Melee, Ranged};
-	loc.create(area, true, false);
+	loc.create(area, false, false);
 	loc.positions[1] = loc.get(3, 3);
 	loc.positions[2] = loc.get(5, 20);
-	if(true) {
-		rect rc = {5, 5, 16, 14};
-		auto door = loc.building(rc);
-		loc.interior(rc, ShopWeaponAndArmor, door);
-		rc.offset(1, 1);
-	}
-	loc.drop(loc.get(5, 4), item(SwordShort, 5));
-	loc.drop(loc.get(4, 6), item(SwordTwoHanded, 10));
-	loc.drop(loc.get(3, 3), item(Staff, 20));
-	loc.set(loc.get(4, 3), Tree);
-	loc.set(loc.get(2, 6), Hill);
-	loc.set(loc.get(3, 7), Hill);
-	loc.set(loc.get(3, 8), Water);
-	loc.set(loc.get(3, 7), Hill);
-	loc.set(loc.get(3, 8), Altar);
-	loc.set(loc.get(3, 5), Plants);
 	loc.set(loc.get(2, 6), Blooded); loc.set(loc.get(3, 6), Blooded); loc.set(loc.get(4, 6), Blooded);
 	loc.set(loc.get(3, 6), Webbed); loc.set(loc.get(4, 6), Webbed); loc.set(loc.get(4, 7), Webbed);
 	auto p1 = create(Human, Male, Theif);
@@ -128,7 +112,7 @@ static void test_pause() {
 static void test_dungeon() {
 	loc.clear();
 	loc.level = 1;
-	loc.create(AreaDungeon, false, false);
+	loc.create(AreaDungeon, true, false);
 	loc.setdungeon(true);
 	loc.setlight(-2);
 	auto p1 = create(Human, Male, Theif);
