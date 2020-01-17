@@ -125,9 +125,10 @@ enum tile_s : unsigned char {
 	City
 };
 enum landscape_s : unsigned char {
-	AreaPlain, AreaForest, AreaSwamp, AreaDungeon, AreaCity,
+	AreaPlain, AreaForest, AreaSwamp,
+	AreaDungeon, AreaCity,
 };
-enum site_s : unsigned char {
+enum room_s : unsigned char {
 	EmpthyRoom, TreasureRoom,
 	StairsDownRoom, StairsUpRoom, House, Lair,
 	Temple, Tavern, Barracs, CityHall,
@@ -604,8 +605,11 @@ struct dialogi {
 	int					next;
 	explicit operator bool() const { return text != 0; }
 };
+struct roomi {
+	const char*			name;
+};
 class site : public rect {
-	site_s				type;
+	room_s				type;
 	variant				param;
 	unsigned char		name[2];
 	short unsigned		owner_id;
@@ -616,14 +620,14 @@ public:
 		owner_id(Blocked), found(), recoil() {}
 	operator bool() const { return x2 > x1 && y1 > y2; }
 	static site*		find(indext index);
-	site_s				getkind() const { return type; }
+	room_s				getkind() const { return type; }
 	void				getname(stringbuilder& sb) const;
 	creature*			getowner() const;
 	variant				getparam() const { return param; }
 	indext				getposition() const;
 	creature*			priest();
 	void				set(const rect& v) { *static_cast<rect*>(this) = v; }
-	void				set(site_s v) { type = v; }
+	void				set(room_s v) { type = v; }
 	void				set(variant v) { param = v; }
 	void				setowner(const creature* v);
 	creature*			shopkeeper();
@@ -906,6 +910,7 @@ struct landscapei {
 	char				border;
 	tile_s				tile;
 	casev<variant>		tiles[4];
+	room_s				objects[4];
 	genareaproc			genarea;
 	genareaproc			genroom;
 };
@@ -1060,7 +1065,7 @@ public:
 	indext				choose(bool allow_cancel);
 	void				clear();
 	static void			clearblock();
-	void				content(const rect& rc, site_s type);
+	void				content(const rect& rc, room_s type);
 	void				create(landscape_s landscape, bool explored, bool visualize);
 	void				drop(indext i, item v);
 	void				editor();
@@ -1095,7 +1100,7 @@ public:
 	bool				ismatch(indext index, const rect& rectanle) const;
 	bool				ismatch(indext index, variant v) const;
 	void				lake(const rect& rc);
-	void				interior(const rect& rc, site_s type, indext index);
+	void				interior(const rect& rc, room_s type, indext index);
 	void				loot(indext index, item_s type, int level, char chance_bigger_price = 0, identify_s identify = Unknown, char chance_curse = 10, char bonus_quality = 0);
 	void				loot(indext index, const aref<slot_s>& slots, int level, char chance_bigger_price = 0, identify_s identify = Unknown, char chance_curse = 10, char bonus_quality = 0);
 	void				loot(const rect& rc, const aref<slot_s>& slots, int chance, int level, char chance_bigger_price = 0, identify_s identify = Unknown, char chance_curse = 10, char bonus_quality = 0);

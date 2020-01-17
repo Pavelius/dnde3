@@ -902,9 +902,10 @@ void location::loot(const rect& rc, const aref<slot_s>& slots, int chance, int l
 	}
 }
 
-void location::content(const rect& rc, site_s type) {
+void location::content(const rect& rc, room_s type) {
 	if(!rc)
 		return;
+	auto& ei = bsmeta<roomi>::elements[type];
 	auto index = center(rc);
 	static slot_s weapons[] = {Melee};
 	static slot_s armors[] = {Torso};
@@ -913,6 +914,12 @@ void location::content(const rect& rc, site_s type) {
 	static slot_s treasures[] = {Coinable};
 	static slot_s edible[] = {Edible};
 	switch(type) {
+	case StairsDownRoom:
+		loc.set(index, StairsDown);
+		break;
+	case StairsUpRoom:
+		loc.set(index, StairsUp);
+		break;
 	case Temple:
 		//diety = (diety_s)xrand(GodBane, GodTyr);
 		//setowner(priest());
@@ -948,7 +955,7 @@ void location::content(const rect& rc, site_s type) {
 	}
 }
 
-void location::interior(const rect& rc, site_s type, indext entrance) {
+void location::interior(const rect& rc, room_s type, indext entrance) {
 	if(rc.width() < 5 && rc.height() < 5) {
 		content(rc.getoffset(1, 1), type);
 		return;

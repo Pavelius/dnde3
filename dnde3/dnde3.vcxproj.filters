@@ -205,6 +205,9 @@
     <ClCompile Include="landscape.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="room.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="answer.h">

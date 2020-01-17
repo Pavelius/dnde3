@@ -246,21 +246,22 @@ static void create_city_buildings(const rect& rc, rooma& rooms, const landscapei
 	auto max_possible_points = rooms.getcount() / 3;
 	if(max_possible_points > 25)
 		max_possible_points = 25;
-	auto placed_stairs = false;
+	int index = 0;
+	int index_maximum = sizeof(land.objects)/ sizeof(land.objects[0]);
 	for(auto& e : rooms) {
-		auto t = (site_s)xrand(Temple, ShopFood);
+		auto p = bsmeta<site>::add();
+		auto t = (room_s)xrand(Temple, ShopFood);
 		if(current > max_possible_points)
 			t = House;
-		auto p = bsmeta<site>::add();
 		p->set(e);
-		p->set(t);
 		auto door = loc.building(e);
-		loc.interior(e, p->getkind(), door);
-		if(!placed_stairs && t == House) {
-			placed_stairs = true;
-			loc.positions[0] = loc.getfree(loc.center(e));
-			loc.set(loc.positions[0], StairsDown);
+		if(index < index_maximum && land.objects[index]) {
+			t = land.objects[index];
+			loc.positions[index] = loc.getfree(loc.center(e));
+			index++;
 		}
+		p->set(t);
+		loc.interior(e, t, door);
 		current++;
 	}
 }
@@ -333,8 +334,8 @@ template<> landscapei bsmeta<landscapei>::elements[] = {{"Равнина", 0, Plain, {{
 {"Лес", 0, Plain, {{Tree, 10}, {Hill, 1}, {Swamp, -20}}},
 {"Болото", 0, Plain, {{Tree, -40}, {Swamp, 1}, {Lake, 1}}},
 // 
-{"Подземелье", 1, Wall, {}, create_big_rooms, create_dungeon_content},
-{"Город", 1, Plain, {{Tree, 2}, {Water, -16}}, create_city, create_city_buildings},
+{"Подземелье", 1, Wall, {}, {StairsDownRoom, StairsUpRoom}, create_big_rooms, create_dungeon_content},
+{"Город", 1, Plain, {{Tree, 2}, {Water, -16}}, {StairsDownRoom, Barracs}, create_city, create_city_buildings},
 };
 
 void location::create(landscape_s landscape, bool explored, bool visualize) {
