@@ -12,6 +12,7 @@ tilei bsmeta<tilei>::elements[] = {{"Plain", "Равнина", Female},
 {"Mountains", "Горы", Male},
 {"CloudPeaks", "Туманные пики", Male},
 {"Forest", "Лес", Male},
+{"Lake", "Озеро", NoGender},
 {"City", "Город", Male},
 };
 assert_enum(tile, City);

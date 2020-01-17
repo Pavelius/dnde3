@@ -81,7 +81,7 @@ static void create_indoor(landscape_s area, bool enemies = true) {
 		//loc.loot(rc, weapons, 80, 1, 10, KnownPower);
 		//loc.loot(rc, drinkable, 30, 5, 30, KnownPower);
 	}
-	loc.lake(20, 20, 20, 20);
+	loc.lake({20, 20, 40, 40});
 	loc.drop(loc.get(5, 4), item(SwordShort, 5));
 	loc.drop(loc.get(4, 6), item(SwordTwoHanded, 10));
 	loc.drop(loc.get(3, 3), item(Staff, 20));
@@ -175,13 +175,13 @@ int main(int argc, char* argv[]) {
 	//util_main();
 	if(!test_formula())
 		return false;
-	//game.intialize();
+	game.intialize();
 	//test_answers();
 	//item_choose();
 	//test_worldmap();
 	//test_analize();
 	//test_dungeon();
-	//create_indoor(AreaSwamp, true);
+	create_indoor(AreaSwamp, true);
 }
 
 int __stdcall WinMain(void* ci, void* pi, char* cmd, int sw) {

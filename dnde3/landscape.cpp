@@ -254,7 +254,7 @@ static void create_dungeon_content(rooma& rooms, bool visualize) {
 
 template<> landscapei bsmeta<landscapei>::elements[] = {{"Равнина", {}, Plain, {{Tree, 2}, {Water, -16}, {Hill, 1}, {Swamp, -20}}},
 {"Лес", {}, Plain, {{Tree, 10}, {Hill, 1}, {Swamp, -20}}},
-{"Болото", {}, Plain, {{Tree, 3}, {Swamp, 1}, {Water, 5}}},
+{"Болото", {}, Plain, {{Tree, -40}, {Swamp, 1}, {Lake, 1}}},
 // 
 {"Подземелье", {1, 1, 1, 1}, Wall, {}, create_big_rooms, create_dungeon_content},
 {"Город", {1, 1, 1, 1}, Plain, {{Tree, 2}, {Water, -16}}},

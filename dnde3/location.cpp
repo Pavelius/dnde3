@@ -297,9 +297,28 @@ void location::create(const rect& rc, int count, tile_s v) {
 	}
 }
 
+rect location::getrect(indext i, int rx, int ry) {
+	if(i == Blocked)
+		return {};
+	rect rc;
+	rc.x1 = getx(i) - rx;
+	rc.y1 = gety(i) - ry;
+	rc.x2 = rc.x1 + rx * 2;
+	rc.y2 = rc.y1 + ry * 2;
+	normalize(rc);
+	return rc;
+}
+
 void location::set(indext i, tile_s v) {
-	tiles[i] = v;
-	objects[i] = NoTileObject;
+	switch(v) {
+	case Lake:
+		lake(getrect(i, 3, 3));
+		break;
+	default:
+		tiles[i] = v;
+		objects[i] = NoTileObject;
+		break;
+	}
 }
 
 void location::set(indext index, tile_s v, int width, int height) {
@@ -425,12 +444,12 @@ indext location::setiwv(int x, int y, int s, tile_s o, map_object_s r, bool lock
 	return i;
 }
 
-void location::lake(int x, int y, int w, int h) {
-	int w2 = w / 2;
-	int h2 = h / 2;
+void location::lake(const rect& rc) {
+	int w2 = rc.width() / 2;
+	int h2 = rc.height() / 2;
 	for(int i = 0; i < 5; i++) {
-		int x1 = x + xrand(0, w2);
-		int y1 = y + xrand(0, h2);
+		int x1 = rc.x1 + xrand(0, w2);
+		int y1 = rc.y1 + xrand(0, h2);
 		int w1 = w2 - xrand(0, 2);
 		int h1 = h2 - xrand(0, 2);
 		ellipse({x1, y1, x1 + w1, y1 + h1}, Water);
@@ -1012,4 +1031,15 @@ void location::interior(const rect& rc, site_s type, indext entrance) {
 		interior({x1, y1, x1 + w1, y1 + h1}, EmpthyRoom, entrance);
 		break;
 	}
+}
+
+void location::normalize(rect& rc) {
+	if(rc.x1 < 0)
+		rc.x1 = 0;
+	if(rc.y1 < 0)
+		rc.y1 = 0;
+	if(rc.x2 >= mmx)
+		rc.x2 = mmx - 1;
+	if(rc.y2 >= mmy)
+		rc.y2 = mmy - 1;
 }

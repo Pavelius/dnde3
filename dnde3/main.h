@@ -11,7 +11,6 @@ const int CP = 1;
 const short unsigned mmx = 96;
 const short unsigned mmy = 96;
 const unsigned short Blocked = 0xFFFF;
-
 const int StandartEnergyCost = 1000;
 
 const int chance_corridor_content = 10;
@@ -122,7 +121,7 @@ enum state_s : unsigned char {
 enum tile_s : unsigned char {
 	Plain, Water, Floor, Wall, Road,
 	Swamp, Hill,
-	Sea, Foothills, Mountains, CloudPeaks, Forest,
+	Sea, Foothills, Mountains, CloudPeaks, Forest, Lake,
 	City
 };
 enum landscape_s : unsigned char {
@@ -612,7 +611,7 @@ public:
 	constexpr site() : rect{0, 0, 0, 0}, type(EmpthyRoom), diety(NoGod),
 		name(), owner_id(Blocked), found(), recoil() {
 	}
-	operator bool() const { return x2>x1 && y1 > y2; }
+	operator bool() const { return x2 > x1 && y1 > y2; }
 	void				create(const rect& rc, site_s type);
 	static site*		find(indext index);
 	void				getname(stringbuilder& sb) const;
@@ -1078,6 +1077,7 @@ public:
 	trap_s				gettrap(indext i) const;
 	static int			getrange(indext i1, indext i2);
 	int					getrand(indext i) const { return random[i]; }
+	static rect			getrect(indext i, int rx = 3, int ry = 2);
 	void				indoor(point camera, bool show_fow = true, const picture* effects = 0);
 	bool				is(indext i, map_flag_s v) const { return flags[i].is(v); }
 	bool				isfree(indext i) const;
@@ -1085,7 +1085,7 @@ public:
 	bool				isfreenw(indext i) const;
 	bool				ismatch(indext index, const rect& rectanle) const;
 	bool				ismatch(indext index, variant v) const;
-	void				lake(int x, int y, int w, int h);
+	void				lake(const rect& rc);
 	void				interior(const rect& rc, site_s type, indext index);
 	void				loot(indext index, item_s type, int level, char chance_bigger_price = 0, identify_s identify = Unknown, char chance_curse = 10, char bonus_quality = 0);
 	void				loot(indext index, const aref<slot_s>& slots, int level, char chance_bigger_price = 0, identify_s identify = Unknown, char chance_curse = 10, char bonus_quality = 0);
@@ -1094,6 +1094,7 @@ public:
 	void				minimap(int x, int y, point camera) const;
 	void				minimap(indext index) const;
 	creature*			monster(indext index);
+	static void			normalize(rect& rc);
 	bool				read(const char* url);
 	void				rectangle(const rect& rc, map_object_s v);
 	void				remove(indext i, map_flag_s v) { flags[i].remove(v); }
