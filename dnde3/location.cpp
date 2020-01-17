@@ -456,6 +456,10 @@ void location::lake(const rect& rc) {
 	}
 }
 
+void location::forest(const rect& rc) {
+	loc.create(rc, rc.width()*rc.height()*dense_forest / 100, Tree);
+}
+
 bool location::isfree(indext i) const {
 	if(i == Blocked)
 		return false;

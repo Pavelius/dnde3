@@ -1063,6 +1063,7 @@ public:
 	void				drop(indext i, item v);
 	void				editor();
 	void				ellipse(rect rc, tile_s object);
+	void				forest(const rect& rc);
 	static indext		get(short x, short y) { return y * mmx + x; }
 	int					getlight() const { return light_level; }
 	static direction_s	getdirection(indext from, indext to);

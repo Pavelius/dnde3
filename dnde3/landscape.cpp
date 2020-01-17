@@ -281,6 +281,64 @@ static void create_city_buildings(rooma& rooms, bool visualize) {
 	}
 }
 
+static void create_city_level(const rect& rc, int level, rooma& rooms) {
+	auto w = rc.width();
+	auto h = rc.height();
+	if(d100() < chance_special_area &&
+		w > max_building_size && w<max_building_size * 3 && h>max_building_size && h < max_building_size * 3) {
+		switch(rand() % 4) {
+		case 1:
+			loc.forest({rc.x1, rc.y1, rc.x2 - 3, rc.y2 - 3});
+			break;
+		default:
+			loc.lake({rc.x1 + rand() % 3, rc.y1 + rand() % 3, rc.x2 - 3 * 2, rc.y2 - 3 * 2});
+			break;
+		}
+		return;
+	}
+	if(w <= max_building_size && h <= max_building_size) {
+		if(w > 6 && h > 6)
+			rooms.add({rc.x1, rc.y1, rc.x2 - 3, rc.y2 - 3});
+		return;
+	}
+	// Calculate direction
+	int m = xrand(30, 60);
+	int r = -1;
+	if(w / 3 >= h / 2)
+		r = 0;
+	else if(h / 3 >= w / 2)
+		r = 1;
+	if(r == -1)
+		r = (d100() < 50) ? 0 : 1;
+	if(r == 0) {
+		int w1 = (w*m) / 100; // horizontal
+		create_city_level({rc.x1, rc.y1, rc.x1 + w1, rc.y2}, level + 1, rooms);
+		create_city_level({rc.x1 + w1, rc.y1, rc.x2, rc.y2}, level + 1, rooms);
+		if(level <= 2) {
+			//if(y == 1) {
+			//	y--;
+			//	h++;
+			//}
+			//create_road(x + w1 - 3, y, 3, h);
+			//for(int i = xrand(3, 6); i >= 0; i--)
+			//	create_commoner(random(x + w1 - 3, y, 3, h));
+		}
+	} else {
+		int h1 = (h*m) / 100; // vertial
+		create_city_level({rc.x1, rc.y1, rc.x2, rc.y1 + h1}, level + 1, rooms);
+		create_city_level({rc.x1, rc.y1 + h1, rc.x2, rc.y2}, level + 1, rooms);
+		if(level <= 2) {
+			//create_road(x, y + h1 - 3, w, 3);
+			//for(int i = xrand(2, 4); i >= 0; i--)
+			//	create_commoner(random(x, y + h1 - 3, w, 3));
+		}
+	}
+}
+
+static void create_city(int x, int y, int w, int h, rooma& rooms, bool visualize) {
+	create_city_level({x, y, w + x, h + y}, 0, rooms);
+}
+
 template<> landscapei bsmeta<landscapei>::elements[] = {{"Равнина", {}, Plain, {{Tree, 2}, {Water, -16}, {Hill, 1}, {Swamp, -20}}},
 {"Лес", {}, Plain, {{Tree, 10}, {Hill, 1}, {Swamp, -20}}},
 {"Болото", {}, Plain, {{Tree, -40}, {Swamp, 1}, {Lake, 1}}},
