@@ -115,6 +115,7 @@
     <ClCompile Include="ability.cpp" />
     <ClCompile Include="answer.cpp" />
     <ClCompile Include="archive.cpp" />
+    <ClCompile Include="building_names.cpp" />
     <ClCompile Include="chat.cpp" />
     <ClCompile Include="class_progress.cpp" />
     <ClCompile Include="converter.cpp" />
@@ -138,20 +139,12 @@
     <ClCompile Include="food.cpp" />
     <ClCompile Include="indexa.cpp" />
     <ClCompile Include="intellegence.cpp" />
-    <ClCompile Include="main_util.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="png_util.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="main_util.cpp" />
+    <ClCompile Include="png_util.cpp" />
     <ClCompile Include="rarity.cpp" />
     <ClCompile Include="room.cpp" />
-    <ClCompile Include="sprite_util.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="surface_util.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="sprite_util.cpp" />
+    <ClCompile Include="surface_util.cpp" />
     <ClCompile Include="variantc.cpp" />
     <ClCompile Include="material.cpp" />
     <ClCompile Include="spella.cpp" />
@@ -189,9 +182,7 @@
     <ClCompile Include="variant.cpp" />
     <ClCompile Include="win_draw.cpp" />
     <ClCompile Include="win_io_file.cpp" />
-    <ClCompile Include="zip_util.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="zip_util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="answer.h" />

@@ -908,10 +908,10 @@ void location::loot(const rect& rc, const aref<slot_s>& slots, int chance, int l
 	source.match(Natural, true);
 	if(chance_bigger_price)
 		source.matchp(1, true);
-	for(auto y = rc.y1; y < rc.y2; y++) {
+	for(auto y = rc.y1; y <= rc.y2; y++) {
 		if(y < 0 || y >= mmy)
 			continue;
-		for(auto x = rc.x1; x < rc.x2; x++) {
+		for(auto x = rc.x1; x <= rc.x2; x++) {
 			if(x < 0 || x >= mmx)
 				continue;
 			if(d100() < chance)
@@ -1036,7 +1036,7 @@ void location::interior(const rect& rc, room_s type, indext entrance, int level)
 			h2 = (rc.y1 + h) - wp;
 		}
 	}
-	rect r2 = {x2 + 1, y2 + 1, x2 + w2 - 1, y2 + h2 - 1};
+	rect r2 = {x2 + 1, y2 + 1, x2 + w2 - 2, y2 + h2 - 2};
 	if(level == 0)
 		addposition(center(r2));
 	content(r2, type);

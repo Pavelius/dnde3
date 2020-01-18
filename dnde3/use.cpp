@@ -53,9 +53,15 @@ bool creature::use(const creaturea& creatures, item& it) {
 	case Drinkable:
 		act("%герой выпил%а %-1.", it.getname());
 		current_string = sb.get();
-		if(d100() >= it.getdamage() * 8) {
-			if(effect.type == Ability)
+		if(d100() >= it.getdamage() * 10) {
+			switch(effect.type) {
+			case Ability:
 				potion((ability_s)effect.value, it.getkind(), true, it.getmagic(), it.getquality(), 120);
+				break;
+			case Spell:
+				use((spell_s)effect.value, *this, it.getbonus(), 0, true);
+				break;
+			}
 		}
 		if(current_string == sb.get())
 			act("Ќичего не произошло.");
@@ -360,8 +366,13 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 				act("%герой перенес%ла эффект €да без последствий.");
 				return false;
 			}
-			add(Poisoned, 1, true);
-			poison += xrand(0, 3);
+			if(is(Poisoned)) {
+				poison += xrand(1, 3);
+				act("%герой получил%а дополнительную дозу €да!");
+			} else {
+				poison += xrand(0, 2);
+				add(Poisoned, 1, true);
+			}
 		}
 		break;
 	case RemovePoisonSpell:

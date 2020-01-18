@@ -211,6 +211,7 @@ static void create_dungeon_content(const rect& rc, rooma& rooms, const landscape
 		loc.fill(e, Floor);
 		auto p = bsmeta<site>::add();
 		p->set(e);
+		p->randomname();
 		auto t = EmpthyRoom;
 		if(index < index_maximum && land.objects[index]) {
 			t = land.objects[index];
@@ -254,6 +255,7 @@ static void create_city_buildings(const rect& rc, rooma& rooms, const landscapei
 		auto p = bsmeta<site>::add();
 		p->set(e);
 		p->set(t);
+		p->randomname();
 		auto door = loc.building(e);
 		loc.interior(e, t, door, 0);
 		current++;
@@ -336,10 +338,11 @@ template<> landscapei bsmeta<landscapei>::elements[] = {{"Равнина", 0, Plain, {{
 };
 assert_enum(landscape, AreaCity);
 
-void location::create(landscape_s landscape, bool explored, bool visualize) {
+void location::create(landscape_s landscape, int level, bool explored, bool visualize) {
 	auto& ei = bsmeta<landscapei>::elements[landscape];
 	clear();
 	this->landscape = landscape;
+	this->level = level;
 	stack_get = stack_put = 0;
 	visualize = visualize && explored;
 	// Explore all map

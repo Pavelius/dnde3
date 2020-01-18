@@ -73,9 +73,7 @@ static void create_indoor(landscape_s area) {
 	auto p3 = create(Elf, Male, Fighter);
 	p1->activate();
 	p1->damage(6, Bludgeon, 100);
-	create(p1, Potion1);
-	create(p1, Potion3, Level);
-	create(p1, Potion3, Level);
+	create(p1, Potion2, PoisonSpell);
 	create(p1, BracersLeather);
 	create(p1, Boot1);
 	create(p1, Helmet);
@@ -99,9 +97,7 @@ static void test_pause() {
 }
 
 static void test_dungeon() {
-	loc.clear();
-	loc.level = 1;
-	loc.create(AreaDungeon, true, false);
+	loc.create(AreaDungeon, 1, true, false);
 	loc.setdungeon(true);
 	loc.setlight(-2);
 	auto p1 = create(Human, Male, Theif);
@@ -138,10 +134,10 @@ static bool test_formula() {
 	return r == 102;
 }
 
-//void util_main();
+void util_main();
 
 int main(int argc, char* argv[]) {
-	//util_main();
+	util_main();
 	if(!test_formula())
 		return false;
 	game.intialize();

@@ -90,7 +90,9 @@ const char* nameable::getname() const {
 
 bool nameable::cansee() const {
 	auto player = creature::getactive();
-	if(player && player != this) {
+	if(!player)
+		return false;
+	if(player != this) {
 		auto start = player->getposition();
 		if(start == Blocked)
 			return false;

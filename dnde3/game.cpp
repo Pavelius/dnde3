@@ -90,8 +90,8 @@ void gamei::playactive() {
 			auto p = creature::getactive();
 			if(!p || p->isbusy() || p->is(Sleep) || command)
 				need_continue = false;
-			passminute();
 		}
+		passminute();
 	}
 }
 
@@ -111,6 +111,8 @@ void gamei::enter(indext index, int level, map_object_s stairs) {
 	};
 	if(true) {
 		gamestat players;
+		if(loc)
+			loc.write(getposition(), loc.level);
 		setposition(index, level);
 		if(!meher_dungeon->create(index, level))
 			return;

@@ -7,7 +7,9 @@ creature* site::getowner() const {
 }
 
 void site::getname(stringbuilder& sb) const {
-	sb.add(bsmeta<roomi>::elements[type].name);
+	sb.add(bsmeta<roomi>::elements[type].title,
+		bsmeta<adjectivei>::elements[name[0]].get(bsmeta<objectivei>::elements[name[1]].gender),
+		bsmeta<objectivei>::elements[name[1]]);
 }
 
 site* site::find(indext index) {
@@ -55,4 +57,9 @@ void site::unlink(const creature& player) {
 		if(e.owner_id == id)
 			e.owner_id = Blocked;
 	}
+}
+
+void site::randomname() {
+	name[0] = bsmeta<objectivei>::source.random();
+	name[1] = bsmeta<adjectivei>::source.random();
 }

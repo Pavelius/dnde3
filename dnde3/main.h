@@ -42,7 +42,7 @@ enum item_s : unsigned char {
 	Scroll1, Scroll2, Scroll3,
 	Wand1, Wand2, Wand3, Wand4, Wand5,
 	Book1, Book2, Book3, Book4, Book5,
-	Potion1, Potion2, Potion3, Potion4, Potion5,
+	Bottle, Potion1, Potion2, Potion3, Potion4, Potion5,
 	RingRed, RingBlue, RingGreen,
 	Amulet1, Amulet2, Amulet3, Amulet4, Amulet5,
 	ClimbingTool, FletcherySet, Forge, HealingKit, ScriblingKit, CrystalBall, AlchemySet, TheifTool, CookingSet,
@@ -390,6 +390,16 @@ struct statei {
 	const char*			text_set;
 	const char*			text_remove;
 };
+struct adjectivei {
+	const char*			name;
+	const char*			name_male;
+	const char*			name_female;
+	const char*			get(gender_s v) const;
+};
+struct objectivei {
+	const char*			name;
+	gender_s			gender;
+};
 struct racei {
 	const char*			name;
 	char				abilities[6];
@@ -612,6 +622,7 @@ struct dialogi {
 };
 struct roomi {
 	const char*			name;
+	const char*			title;
 	map_object_s		heart;
 };
 class site : public rect {
@@ -632,6 +643,7 @@ public:
 	variant				getparam() const { return param; }
 	indext				getposition() const;
 	creature*			priest();
+	void				randomname();
 	void				set(const rect& v) { *static_cast<rect*>(this) = v; }
 	void				set(room_s v) { type = v; }
 	void				set(variant v) { param = v; }
@@ -1052,6 +1064,7 @@ struct statistici {
 	short				magic_items;
 	short				level;
 	indext				positions[8];
+	constexpr explicit operator bool() const { return level != 0; }
 };
 class location : public statistici {
 	typedef bool(location::*procis)(indext i) const;
@@ -1090,7 +1103,7 @@ public:
 	static void			clearblock();
 	void				content(const rect& rc, room_s type);
 	creature*			commoner(indext index);
-	void				create(landscape_s landscape, bool explored, bool visualize);
+	void				create(landscape_s landscape, int level, bool explored, bool visualize);
 	void				drop(indext i, item v);
 	void				editor();
 	void				ellipse(rect rc, tile_s object);

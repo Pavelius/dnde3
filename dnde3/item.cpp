@@ -11,7 +11,7 @@ static const char* damage_text[] = {0, "Треснуло", "Повреждено", "Сломано"};
 
 static variant common_potions[] = {LifePoints, ManaPoints};
 static variant uncommon_potions[] = {Strenght, Dexterity, Wisdow, Charisma,
-LifeRate, ManaRate, Level, Speed};
+LifeRate, ManaRate, Level, Speed, PoisonSpell};
 static variant rare_potions[] = {Attack, Damage,
 Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
 Armor, Protection, Level};
@@ -122,11 +122,12 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", "item-1", Unique, 0, 0, 0, NoGender,
 {"Мануал", "item680", Rare, 800, 250 * GP, 1, Male, Paper, {}, {}, common_mage_spells, {}, Readable},
 {"Том", "item649", VeryRare, 1000, 300 * GP, 2, Male, Paper, {}, {}, common_mage_spells, {}, Readable},
 //
-{"Зелье", "item244", Common, 10, 10 * GP, -1, NoGender, Glass, {}, {}, common_potions, {}, Drinkable},
-{"Зелье", "item482", Common, 20, 35 * GP, 0, NoGender, Glass, {}, {}, uncommon_potions, {}, Drinkable},
-{"Зелье", "item49", Uncommon, 10, 40 * GP, 0, NoGender, Glass, {}, {}, uncommon_potions, {}, Drinkable},
-{"Экстракт", "item63", Rare, 10, 45 * GP, 1, Male, Glass, {}, {}, rare_potions, {}, Drinkable},
-{"Элексир", "item64", Rare, 5, 80 * GP, 2, Male, Glass, {}, {}, rare_potions, {}, Drinkable},
+{"Пустая бутылка", "item259", Rare, 5, 5 * CP, -1, Female, Glass, {}, {}, {}, {}, Drinkable},
+{"Зелье", "item49", Common, 10, 10 * GP, -1, NoGender, Glass, {}, {}, common_potions, {}, Drinkable},
+{"Зелье", "item63", Common, 20, 35 * GP, 0, NoGender, Glass, {}, {}, uncommon_potions, {}, Drinkable},
+{"Зелье", "item64", Uncommon, 10, 40 * GP, 0, NoGender, Glass, {}, {}, uncommon_potions, {}, Drinkable},
+{"Экстракт", "item244", Rare, 10, 45 * GP, 1, Male, Glass, {}, {}, rare_potions, {}, Drinkable},
+{"Элексир", "item246", Rare, 5, 80 * GP, 2, Male, Glass, {}, {}, rare_potions, {}, Drinkable},
 //
 {"Кольцо", "item204", Uncommon, 1, 35 * GP, 0, NoGender, Iron, {}, {}, common_rings, {}, RightFinger},
 {"Кольцо", "item44", Uncommon, 1, 40 * GP, 0, NoGender, Iron, {}, {}, common_rings, {}, RightFinger},
@@ -675,6 +676,8 @@ bool item::iscountable() const {
 }
 
 bool item::ischargeable() const {
+	if(is(Drinkable))
+		return false;
 	auto v = geteffect();
 	if(v.type == Spell)
 		return true;

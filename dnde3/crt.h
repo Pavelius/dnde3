@@ -124,10 +124,10 @@ public:
 	constexpr explicit operator bool() const { for(unsigned i = 0; i < last; i++) if(data[i]) return true; return false; }
 	template<class T> constexpr flagable(const std::initializer_list<T>& v) : data{0} { for(auto e : v) set(e); }
 	void					clear() { memset(this, 0, sizeof(*this)); }
-	constexpr bool			is(short unsigned v) const { return (data[v / 8] & (1 << (v%8))) != 0; }
-	constexpr void			remove(short unsigned v) { data[v / 8] &= ~(1 << (v%8)); }
+	constexpr bool			is(short unsigned v) const { return (data[v / 8] & (1 << (v % 8))) != 0; }
+	constexpr void			remove(short unsigned v) { data[v / 8] &= ~(1 << (v % 8)); }
 	constexpr void			set(const flagable& e) { for(unsigned i = 0; i < c; i++) data[i] |= e.data[i]; }
-	constexpr void			set(short unsigned v) { data[v / 8] |= 1 << (v%8); }
+	constexpr void			set(short unsigned v) { data[v / 8] |= 1 << (v % 8); }
 	constexpr void			set(short unsigned v, bool activate) { if(activate) set(v); else remove(v); }
 };
 // Abstract value collection
@@ -170,7 +170,7 @@ public:
 	constexpr array(unsigned size) : data(0), size(size), count(0), count_maximum(0), growable(true) {}
 	constexpr array(void* data, unsigned size, unsigned count) : data(data), size(size), count(count), count_maximum(0), growable(false) {}
 	constexpr array(void* data, unsigned size, unsigned count, unsigned count_maximum) : data(data), size(size), count(count), count_maximum(count_maximum), growable(false) {}
-	template<typename T, unsigned N> constexpr array(T (&e)[N]) : array(e, sizeof(T), N) {}
+	template<typename T, unsigned N> constexpr array(T(&e)[N]) : array(e, sizeof(T), N) {}
 	~array();
 	void*					add();
 	void*					add(const void* element);
@@ -185,6 +185,7 @@ public:
 	void*					insert(int index, const void* element);
 	bool					isgrowable() const { return growable; }
 	void*					ptr(int index) const { return (char*)data + size * index; }
+	int						random() const { return count ? (rand() % count) : 0; }
 	void					remove(int index, int elements_count);
 	void					setcount(unsigned value) { count = value; }
 	void					setup(unsigned size);
@@ -267,7 +268,7 @@ char*								szupper(char* p, int count = 1); // to upper reg
 char*								szurl(char* p, const char* path, const char* name, const char* ext = 0, const char* suffix = 0);
 char*								szurlc(char* p1);
 inline int							xrand(int n1, int n2) { return n1 + rand() % (n2 - n1 + 1); }
-inline int							d100() { return rand()%100; }
+inline int							d100() { return rand() % 100; }
 // Common used templates
 inline int							ifloor(double n) { return (int)n; }
 template<class T> inline T			imax(T a, T b) { return a > b ? a : b; }

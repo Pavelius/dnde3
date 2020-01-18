@@ -1185,16 +1185,16 @@ void creature::checksick() {
 }
 
 void creature::checkpoison() {
-	if(!is(Poisoned))
-		return;
-	if(roll(ResistPoison)) {
-		if(poison <= 0)
-			add(Poisoned, -1, true);
-		else
-			poison--;
-	} else {
-		act("%герой страдает от яда.");
-		damage(1, Magic, 100, false);
+	if(is(Poisoned)) {
+		if(roll(ResistPoison)) {
+			if(poison <= 0)
+				add(Poisoned, -1, true);
+			else
+				poison--;
+		} else {
+			act("%герой страдает от яда.");
+			damage(1, Magic, 100, false);
+		}
 	}
 }
 
