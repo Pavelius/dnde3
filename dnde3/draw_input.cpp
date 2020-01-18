@@ -1795,7 +1795,7 @@ bool creature::askyn() {
 	current_index = Blocked;
 	while(ismodal()) {
 		current_background();
-		render_message("Да (Y) или Нет (N)");
+		render_message("Y/N");
 		domodal();
 		switch(hot.key) {
 		case KeyEscape:
