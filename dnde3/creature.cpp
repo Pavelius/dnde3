@@ -1496,6 +1496,9 @@ int creature::get(skill_s id) const {
 
 bool creature::isallow(item_s v) const {
 	auto& ci = bsmeta<classi>::elements[kind];
+	auto& ei = bsmeta<itemi>::elements[v];
+	if(ei.skill.type==Skill && skills[ei.skill.value] > 0)
+		return true;
 	if(ci.restricted.is(v))
 		return false;
 	return true;

@@ -10,6 +10,7 @@ equipmenti bsmeta<equipmenti>::elements[] = {{Dwarf, Fighter, {AxeBattle, ScaleM
 {Human, Paladin, {SwordLong, ScaleMail}},
 {Human, Ranger, {SwordLong, SwordShort, LeatherArmor}},
 {Human, Theif, {SwordShort, LeatherArmor}},
+{Elf, Mage, {SwordLong, Wand2, Potion1, RingRed, RingBlue}},
 {Human, Mage, {Staff, Wand2, Scroll1, Potion1, RingBlue}},
 };
 DECLFULL(equipmenti);
