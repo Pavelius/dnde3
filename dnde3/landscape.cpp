@@ -202,29 +202,24 @@ static void create_corridor(int x, int y, int w, int h, direction_s dir) {
 	}
 }
 
-static void create_room(int x, int y, int w, int h) {
-	for(auto x1 = x; x1 < x + w; x1++) {
-		for(auto y1 = y; y1 < y + h; y1++) {
-			loc.set(loc.get(x1, y1), Floor);
-		}
-	}
-	auto p = bsmeta<site>::add();
-	p->x1 = x;
-	p->y1 = y;
-	p->x2 = p->x1 + w - 1;
-	p->y2 = p->y1 + h - 1;
-	p->set(Lair);
-}
-
 static void create_dungeon_content(const rect& rc, rooma& rooms, const landscapei& land, bool visualize) {
 	rooms.count -= 2; // Two room of lesser size would cutted off
 	zshuffle(rooms.data, rooms.count);
-	loc.positions[0] = loc.center(rooms[0]);
-	loc.set(loc.positions[0], StairsDown);
-	loc.positions[1] = loc.center(rooms[1]);
-	loc.set(loc.positions[1], StairsUp);
-	for(auto& e : rooms)
-		create_room(e.x1, e.y1, e.width(), e.height());
+	int index = 0;
+	int index_maximum = sizeof(land.objects) / sizeof(land.objects[0]);
+	for(const auto& e : rooms) {
+		loc.fill(e, Floor);
+		auto p = bsmeta<site>::add();
+		p->set(e);
+		auto t = EmpthyRoom;
+		if(index < index_maximum && land.objects[index]) {
+			t = land.objects[index];
+			loc.addposition(loc.center(e));
+			index++;
+		}
+		p->set(t);
+		loc.content(e, t);
+	}
 	for(auto& e : rooms)
 		create_corridor(e.x1, e.y1, e.width(), e.height(), maprnd(connectors_side));
 	for(auto& e : rooms)
@@ -337,13 +332,14 @@ template<> landscapei bsmeta<landscapei>::elements[] = {{"Равнина", 0, Plain, {{
 // 
 {"Подземелье", 1, Wall, {}, {StairsDownRoom, StairsUpRoom}, create_big_rooms, create_dungeon_content},
 {"Логово", 1, Wall, {}, {StairsUpRoom}, create_big_rooms, create_dungeon_content},
-{"Город", 1, Plain, {{Tree, 2}, {Water, -16}}, {Barracs, StairsDownRoom, Lair}, create_city, create_city_buildings},
+{"Город", 1, Plain, {{Tree, 2}, {Water, -16}}, {StairsDownRoom, Barracs, Lair}, create_city, create_city_buildings},
 };
 assert_enum(landscape, AreaCity);
 
 void location::create(landscape_s landscape, bool explored, bool visualize) {
 	auto& ei = bsmeta<landscapei>::elements[landscape];
 	clear();
+	this->landscape = landscape;
 	stack_get = stack_put = 0;
 	visualize = visualize && explored;
 	// Explore all map

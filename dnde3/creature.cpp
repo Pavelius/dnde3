@@ -150,8 +150,9 @@ void creature::dispell(bool interactive) {
 void creature::unlink() {
 	if(current_player == this)
 		current_player = 0;
-	dispell(false);
 	site::unlink(*this);
+	setguard(Blocked);
+	setposition(Blocked);
 }
 
 void creature::dressoff() {
@@ -1332,9 +1333,8 @@ void creature::kill() {
 	applyaward();
 	dressoff();
 	dropitems();
+	dispell(false);
 	unlink();
-	setposition(Blocked);
-	guard = Blocked;
 }
 
 void creature::damage(int value, damage_s type, int pierce, bool interactive) {

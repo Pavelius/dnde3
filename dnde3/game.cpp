@@ -1,6 +1,62 @@
 #include "main.h"
 
-gamei			game;
+gamei					game;
+
+class gamestat {
+	adat<creature, 8>	players;
+	adat<boosti>		boosts;
+public:
+	gamestat() {
+		for(auto& player : bsmeta<creature>()) {
+			if(!player)
+				continue;
+			if(!player.is(Friendly))
+				continue;
+			// Store player
+			auto i = players.getcount();
+			player.unlink();
+			auto p1 = players.add();
+			if(p1) {
+				*p1 = player;
+				// Store boost
+				auto owner_id = player.getid();
+				auto pb = bsmeta<boosti>::elements;
+				for(auto& b : bsmeta<boosti>()) {
+					if(b.owner_id == owner_id) {
+						auto pb = boosts.add();
+						if(pb) {
+							*pb = b;
+							pb->owner_id = i;
+						}
+					} else
+						*pb++ = b;
+				}
+				bsmeta<boosti>::source.setcount(pb - bsmeta<boosti>::elements);
+			}
+			player.clear();
+		}
+	}
+	~gamestat() {
+		auto pb = boosts.begin();
+		auto pe = boosts.end();
+		for(auto& player : players) {
+			auto owner_id = &player - players.data;
+			auto p1 = bsmeta<creature>::addz();
+			if(p1)
+				*p1 = player;
+			while(pb < pe && pb->owner_id == owner_id) {
+				if(p1) {
+					auto p2 = bsmeta<boosti>::add();
+					if(p2) {
+						*p2 = *pb;
+						p2->owner_id = p1->getid();
+					}
+				}
+				pb++;
+			}
+		}
+	}
+};
 
 static void update_los() {
 	auto player = creature::getactive();
@@ -42,43 +98,24 @@ void gamei::playactive() {
 	}
 }
 
-static void save(playera& players) {
-	int index = 0;
-	int index_maximum = sizeof(players) / sizeof(players[0]);
-	memset(players, 0, sizeof(players));
-	for(auto& e : bsmeta<creature>()) {
-		if(!e)
-			continue;
-		if(!e.is(Friendly))
-			continue;
-		e.unlink();
-		if(index < index_maximum)
-			players[index++] = e;
-		e.clear();
-	}
-}
-
-static void load(playera& players) {
-	int index = 0;
-	int index_maximum = sizeof(players) / sizeof(players[0]);
-	for(const auto& e : players) {
-		if(!e)
-			continue;
-		auto p = bsmeta<creature>::addz();
-		*p = e;
-	}
-}
-
 void gamei::enter(indext index, int level, map_object_s stairs) {
 	static dungeoni meher_dungeon[] = {{AreaCity, 1},
 	{AreaDungeon, 16},
 	{AreaDungeonLair, 1},
 	};
-	playera players; save(players);
-	setposition(index, level);
-	if(!meher_dungeon->create(index, level))
-		return;
-	load(players);
+	if(true) {
+		gamestat players;
+		setposition(index, level);
+		if(!meher_dungeon->create(index, level))
+			return;
+	}
+	auto start_position = loc.find(stairs);
+	if(start_position != Blocked) {
+		for(auto& e : bsmeta <creature>()) {
+			if(e && e.is(Friendly))
+				e.setposition(loc.getfree(start_position));
+		}
+	}
 	update_los();
 }
 
@@ -93,6 +130,7 @@ void gamei::checkcommand() {
 		enter(getposition(), getlevel() - 1, StairsDown);
 		break;
 	}
+	command = NoTileObject;
 }
 
 bool gamei::checkalive() {

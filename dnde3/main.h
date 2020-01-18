@@ -238,7 +238,6 @@ struct targeti;
 struct landscapei;
 class creature;
 class creaturea;
-typedef creature playera[16];
 typedef short unsigned indext;
 typedef adat<rect, 64> rooma;
 typedef flagable<1 + Chaotic / 8> alignmenta;
@@ -613,6 +612,7 @@ struct dialogi {
 };
 struct roomi {
 	const char*			name;
+	map_object_s		heart;
 };
 class site : public rect {
 	room_s				type;
@@ -1053,6 +1053,7 @@ struct statistici {
 };
 class location : public statistici {
 	typedef bool(location::*procis)(indext i) const;
+	landscape_s			landscape;
 	tile_s				tiles[mmx*mmy];
 	map_object_s		objects[mmx*mmy];
 	unsigned char		random[mmx*mmy];
@@ -1060,10 +1061,10 @@ class location : public statistici {
 	bool				is_dungeon;
 	char				light_level;
 	//
-	bool				isdungeon() const { return is_dungeon; }
 	indext				getfree(indext i, procis proc, int radius_maximum) const;
 	site&				room(const rect& rc);
 	bool				linelos(int x0, int y0, int x1, int y1) const;
+	bool				isdungeon() const { return landscape == AreaDungeon; }
 	bool				wget(short unsigned i, direction_s direction, tile_s value) const;
 	bool				wget(short unsigned i, direction_s direction, tile_s value, bool default_result) const;
 	bool				xget(short unsigned i, direction_s direction) const;
@@ -1096,6 +1097,7 @@ public:
 	void				fill(const rect& rc, int count, variant id);
 	void				fill(const rect& rc, map_object_s v);
 	void				fill(const rect& rc, tile_s v);
+	indext				find(map_object_s v) const;
 	void				forest(const rect& rc);
 	static indext		get(short x, short y) { return y * mmx + x; }
 	int					getlight() const { return light_level; }

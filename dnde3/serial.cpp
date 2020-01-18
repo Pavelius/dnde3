@@ -14,6 +14,7 @@ static bool serial(location& e, const char* url, bool write_mode) {
 	a.set(bsmeta<creature>::source);
 	a.set(bsmeta<site>::source);
 	a.set(bsmeta<boosti>::source);
+	a.set(bsmeta<itemground>::source);
 	return true;
 }
 

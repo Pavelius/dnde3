@@ -1,13 +1,13 @@
 #include "main.h"
 
 static creature* create(race_s race, gender_s gender, class_s cls) {
-	auto p = loc.add(loc.positions[1], race, gender, cls);
+	auto p = loc.add(loc.positions[0], race, gender, cls);
 	p->add(Friendly, 1, false);
 	return p;
 }
 
 static creature* create(role_s type) {
-	auto p = loc.add(loc.positions[2], type);
+	auto p = loc.add(loc.positions[1], type);
 	p->add(Hostile, 1, false);
 	return p;
 }
@@ -67,7 +67,7 @@ static void modify_weapon(creature* p1) {
 }
 
 static void create_indoor(landscape_s area) {
-	game.enter(loc.get(20, 20), 1, StairsUp);
+	game.enter(loc.get(20, 20), 1, StairsDown);
 	auto p1 = create(Human, Male, Theif);
 	auto p2 = create(Dwarf, Male, Cleric);
 	auto p3 = create(Elf, Male, Fighter);

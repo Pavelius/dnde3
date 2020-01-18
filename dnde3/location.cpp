@@ -145,6 +145,10 @@ void location::clear() {
 		e = rand() % 256;
 	for(auto& e : positions)
 		e = Blocked;
+	bsmeta<creature>::source.clear();
+	bsmeta<site>::source.clear();
+	bsmeta<boosti>::source.clear();
+	bsmeta<itemground>::source.clear();
 }
 
 tile_s location::gettile(indext i) const {
@@ -921,6 +925,8 @@ void location::content(const rect& rc, room_s type) {
 		return;
 	auto& ei = bsmeta<roomi>::elements[type];
 	auto index = center(rc);
+	if(ei.heart)
+		set(index, ei.heart);
 	static slot_s weapons[] = {Melee};
 	static slot_s armors[] = {Torso};
 	static slot_s potions[] = {Drinkable};
@@ -928,12 +934,6 @@ void location::content(const rect& rc, room_s type) {
 	static slot_s treasures[] = {Coinable};
 	static slot_s edible[] = {Edible};
 	switch(type) {
-	case StairsDownRoom:
-		loc.set(index, StairsDown);
-		break;
-	case StairsUpRoom:
-		loc.set(index, StairsUp);
-		break;
 	case Temple:
 		//diety = (diety_s)xrand(GodBane, GodTyr);
 		//setowner(priest());
@@ -980,9 +980,10 @@ void location::addposition(indext i) {
 
 void location::interior(const rect& rc, room_s type, indext entrance, int level) {
 	if(rc.width() < 5 && rc.height() < 5) {
+		rect r2 = rc.getoffset(1, 1);
 		if(level == 0)
-			addposition(center(rc.getoffset(1, 1)));
-		content(rc.getoffset(1, 1), type);
+			addposition(center(r2));
+		content(r2, type);
 		return;
 	}
 	if(entrance == Blocked)
@@ -1036,9 +1037,9 @@ void location::interior(const rect& rc, room_s type, indext entrance, int level)
 		}
 	}
 	rect r2 = {x2 + 1, y2 + 1, x2 + w2 - 1, y2 + h2 - 1};
-	content(r2, type);
 	if(level == 0)
 		addposition(center(r2));
+	content(r2, type);
 	switch(type) {
 	case ShopPotionAndScrolls:
 	case ShopWeaponAndArmor:
@@ -1071,4 +1072,13 @@ creature* location::commoner(indext index) {
 indext location::getrand(const rect& rc) const {
 	auto r1 = normalize(rc);
 	return get(xrand(r1.x1, rc.x2), xrand(r1.y1, r1.y2));
+}
+
+indext location::find(map_object_s v) const {
+	const indext count = mmx*mmy;
+	for(indext i = 0; i < count; i++) {
+		if(objects[i] == v)
+			return i;
+	}
+	return Blocked;
 }
