@@ -38,7 +38,7 @@ bool creature::use(const creaturea& creatures, item& it) {
 				if(d100() < 15)
 					add(Sick, 1, true);
 				else
-					add(Poison, 1, true);
+					add(PoisonSpell, 1, true);
 			}
 		} else {
 			for(auto& e : bsmeta<foodi>()) {
@@ -354,21 +354,23 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 			act("Около %героя появилась маленькая волшебная сфера света.");
 		}
 		break;
-	case Poison:
+	case PoisonSpell:
 		if(run) {
 			if(roll(ResistPoison)) {
 				act("%герой перенес%ла эффект яда без последствий.");
 				return false;
 			}
-			add(id, 20 * level);
-			act("%герой почувствовал%а отравление.");
+			add(Poisoned, 1, true);
+			poison += xrand(0, 3);
 		}
 		break;
 	case RemovePoisonSpell:
-		if(!is(Poison))
+		if(!is(Poisoned))
 			return false;
-		if(run)
-			dispell(Poison, true);
+		if(run) {
+			add(Poisoned, -1, true);
+			poison = 0;
+		}
 		break;
 	case RemoveSickSpell:
 		if(!is(Sick))
@@ -413,17 +415,6 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 		return apply(player, ei.bonus, level, order, run);
 	}
 	return true;
-}
-
-void creature::suffer(spell_s id) {
-	switch(id) {
-	case Poison:
-		if(roll(ResistPoison))
-			return;
-		damage(1, Magic, 100, false);
-		act("%герой страдает от яда.");
-		break;
-	}
 }
 
 bool creature::use(skill_s id, creature& player, int order, bool run) {
@@ -523,10 +514,10 @@ void creature::use(const foodi& fi, const item it, bool interactive) {
 	chance = fi.chance_poison + it.getdamage() * 15;
 	if(chance > 0) {
 		if(d100() < chance)
-			use(Poison, *this, 1, 0, true);
+			add(Poisoned, 1, true);
 	} else {
 		if(d100() < -chance)
-			dispell(Poison, true);
+			add(Poisoned, -1, true);
 	}
 }
 

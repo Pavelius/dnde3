@@ -90,12 +90,18 @@ void gamei::playactive() {
 			auto p = creature::getactive();
 			if(!p || p->isbusy() || p->is(Sleep) || command)
 				need_continue = false;
+			passminute();
 		}
-		rounds++; // One round is one minute
-		applyboost();
-		if((rounds % 5) == 0)
-			applypoison();
 	}
+}
+
+void gamei::passminute() {
+	rounds++; // One round is one minute
+	applyboost();
+	if((rounds % 5) == 0)
+		applypoison();
+	if((rounds % 60) == 0)
+		applysick();
 }
 
 void gamei::enter(indext index, int level, map_object_s stairs) {
@@ -159,13 +165,18 @@ void gamei::applyboost() {
 		auto player = bsmeta<creature>::elements + e.owner_id;
 		if(e.time > rounds) {
 			*ps++ = e;
-			if(!e.id && e.source.type == Spell)
-				player->suffer((spell_s)e.source.value);
 			continue;
 		}
 		player->add(e.id, e.modifier, player->is(Friendly));
 	}
 	bsmeta<boosti>::source.setcount(ps - bsmeta<boosti>::elements);
+}
+
+void gamei::applysick() {
+	for(auto& e : bsmeta<creature>()) {
+		if(e)
+			e.checksick();
+	}
 }
 
 void gamei::applypoison() {

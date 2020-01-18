@@ -114,7 +114,7 @@ enum skill_s : unsigned char {
 };
 enum state_s : unsigned char {
 	Darkvision, Dazzled, Drunken, Fear, Friendly, Hostile,
-	Invisible, Sick, Summoned,
+	Invisible, Poisoned, Sick, Summoned,
 	Unaware, Wounded,
 	LastState = Wounded,
 };
@@ -167,7 +167,7 @@ enum img_s : unsigned char {
 };
 enum spell_s : unsigned char {
 	ArmorSpell, BlessSpell, BlessItem, ChatPerson, CharmPerson, DetectEvil, DetectMagic, FearSpell, HealingSpell,
-	Identify, Invisibility, KnockDoor, LightSpell, MagicMissile, Poison,
+	Identify, Invisibility, KnockDoor, LightSpell, MagicMissile, PoisonSpell,
 	Repair, RemovePoisonSpell, RemoveSickSpell,
 	SickSpell, ShieldSpell, ShokingGrasp, Sleep, SlowMonster,
 	FirstSpell = ArmorSpell, LastSpell = SlowMonster
@@ -781,6 +781,7 @@ public:
 	void				chat(creature& opponent, const dialogi* source);
 	bool				charmresist(int bonus = 0) const;
 	void				checkpoison();
+	void				checksick();
 	void				create(race_s race, gender_s gender, class_s type);
 	void				create(role_s type);
 	void				clear();
@@ -830,6 +831,7 @@ public:
 	int					getmana() const { return mp; }
 	int					getmoney() const { return money; }
 	static creature*	getobject(short unsigned v);
+	int					getpoisondamage() const { return 1 + poison / 5; }
 	dicei				getraise(skill_s id) const;
 	role_s				getrole() const { return (role_s)value; }
 	site*				getsite() const { return 0; }
@@ -846,7 +848,7 @@ public:
 	bool				is(const creature* p) const { return this == p; }
 	bool				isactive() const { return getactive() == this; }
 	bool				isallow(item_s v) const;
-	bool				isbusy() const { return restore_energy <= -(StandartEnergyCost * 4); }
+	bool				isbusy() const { return restore_energy <= -(StandartEnergyCost * 4) && is(Unaware); }
 	bool				isenemy(const creature* target) const;
 	bool				isguard() const { return guard != Blocked; }
 	bool				ismatch(variant v) const;
@@ -891,7 +893,6 @@ public:
 	void				setguard(short unsigned value) { guard = value; }
 	void				setmoney(int value) { money = value; }
 	void				shoot();
-	void				suffer(spell_s id);
 	void				testweapons();
 	void				unlink();
 	bool				use(const creaturea& source, skill_s id);
@@ -904,6 +905,7 @@ public:
 	void				usewands();
 	void				wait() { consume(StandartEnergyCost); }
 	void				wait(int n) { consume(StandartEnergyCost * n); }
+	void				waitturn() { wait(10*3); }
 };
 class creaturea : public adat<creature*> {
 public:
@@ -1166,6 +1168,7 @@ class gamei : geoposable {
 	unsigned			rounds;
 	map_object_s		command;
 	void				applypoison();
+	void				applysick();
 	bool				checkalive();
 	void				checkcommand();
 	void				playactive();
@@ -1175,6 +1178,7 @@ public:
 	int					getrounds() const { return rounds; }
 	void				intialize();
 	static void			help();
+	void				passminute();
 	void				play();
 	void				use(map_object_s v);
 };

@@ -498,7 +498,7 @@ attacki creature::getattack(slot_s id, const item& weapon) const {
 	result.attack += get(Attack);
 	result.dice.min += get(Damage);
 	result.dice.max += get(Damage);
-	if(skill.type==Skill && skills[skill.value]) {
+	if(skill.type == Skill && skills[skill.value]) {
 		// Weapon focus modify damage, attack and speed
 		auto& ei = bsmeta<skilli>::elements[skill.value];
 		auto value = get(skill_s(skill.value));
@@ -1174,12 +1174,22 @@ void creature::aiturn(creaturea& creatures, creaturea& enemies, creature* enemy)
 	}
 }
 
+void creature::checksick() {
+	if(!is(Sick))
+		return;
+	if(hp >= get(LifePoints) / 3) {
+		damage(1, Magic, 100, false);
+		if(isactive())
+			sb.add("Болезнь прогрессирует.");
+	}
+}
+
 void creature::checkpoison() {
-	if(!is(Poison))
+	if(!is(Poisoned))
 		return;
 	if(roll(ResistPoison)) {
 		if(poison <= 0)
-			add(Poison, -1, true);
+			add(Poisoned, -1, true);
 		else
 			poison--;
 	} else {
@@ -1190,14 +1200,14 @@ void creature::checkpoison() {
 
 void creature::makemove() {
 	const auto pc = StandartEnergyCost * 20;
-	if(!is(Sick)) {
-		if(restore_hits > pc) {
+	if(restore_hits > pc) {
+		if(!is(Sick)) {
 			if(hp < get(LifePoints))
 				hp++;
-			restore_hits -= pc;
-		} else
-			restore_hits += get(LifeRate);
-	}
+		}
+		restore_hits -= pc;
+	} else
+		restore_hits += get(LifeRate);
 	if(restore_mana > pc) {
 		if(mp < get(ManaPoints))
 			mp++;
@@ -1353,8 +1363,6 @@ void creature::damage(int value, damage_s type, int pierce, bool interactive) {
 	}
 	if(value < 0) {
 		value = -value;
-		if(is(Sick))
-			value /= 3;
 		auto mhp = get(LifePoints);
 		if(hp + value > mhp)
 			value = mhp - hp;
@@ -1758,7 +1766,7 @@ bool creature::ismatch(const creature& opponent, variant id) const {
 }
 
 bool creature::ismatch(const creature& opponent, const varianta& source) const {
-	for(unsigned i = 0; i < sizeof(source)/sizeof(source[0]); i++) {
+	for(unsigned i = 0; i < sizeof(source) / sizeof(source[0]); i++) {
 		auto v = source[i];
 		if(!v)
 			break;

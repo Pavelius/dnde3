@@ -1724,6 +1724,7 @@ static hotkey adventure_keys[] = {{F1, "Выбрать первого героя", change_player, 0
 {Alpha + 'U', "Использовать объект", &creature::closedoor},
 {Alpha + 'T', "Использовать инструмент", &creature::usetools},
 {Alpha + 'C', "Поговорить к кем-то", &creature::chat},
+{KeySpace, "Подождать 10 минут", &creature::waitturn},
 {Ctrl + Alpha + 'D', "Выпить что-то", &creature::drink},
 {Ctrl + Alpha + 'E', "Съесть что-то", &creature::eat},
 {Ctrl + Alpha + 'R', "Прочитать что-то", &creature::readsomething},
