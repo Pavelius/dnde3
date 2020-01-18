@@ -222,6 +222,20 @@ bool item::use(spell_s id, creature& player, int level, int order, bool run) {
 
 bool item::use(skill_s id, creature& player, int order, bool run) {
 	switch(id) {
+	case Alchemy:
+		if(!is(Drinkable) || is(KnownPower))
+			return false;
+		if(run) {
+			if(!player.roll(Alchemy)) {
+				player.act("%герой пригубил%а %1, но так и не смог%ла понять что это.", getname());
+				player.fail(Alchemy);
+				return false;
+			}
+			set(KnownPower);
+			char temp[260]; stringbuilder sb(temp); getname(sb, true);
+			player.say("Похоже по вкусу на [%1].", temp);
+		}
+		break;
 	case Literacy:
 		if(!is(Readable))
 			return false;

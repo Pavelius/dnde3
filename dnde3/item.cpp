@@ -45,7 +45,8 @@ static variant common_cloack[] = {Protection, Survival, HideInShadow};
 static variant alchemy_receipts[] = {LifePoints, ManaPoints, LifeRate, ManaRate,
 Strenght, Dexterity, Constitution, Wisdow, Charisma,
 Armor, Protection,
-ResistAcid, ResistCharm, ResistCold, ResistElectricity, ResistFire, ResistParalize, ResistPoison, ResistWater};
+ResistAcid, ResistCharm, ResistCold, ResistElectricity, ResistFire, ResistParalize, ResistPoison, ResistWater,
+RemoveSickSpell, RemovePoisonSpell};
 static variant lute_songs[] = {{}, Attack, Damage, BlessSpell, LifePoints, ManaPoints};
 static variant flute_songs[] = {{}, Wisdow, Intellegence, Charisma};
 static variant booben_songs[] = {{}, Strenght, Dexterity, Constitution, Armor};

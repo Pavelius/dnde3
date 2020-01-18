@@ -68,7 +68,7 @@ static void modify_weapon(creature* p1) {
 
 static void create_indoor(landscape_s area) {
 	game.enter(loc.get(20, 20), 1, StairsDown);
-	auto p1 = create(Human, Male, Theif);
+	auto p1 = create(Human, Female, Mage);
 	auto p2 = create(Dwarf, Male, Cleric);
 	auto p3 = create(Elf, Male, Fighter);
 	p1->activate();
@@ -100,7 +100,7 @@ static void test_dungeon() {
 	loc.create(AreaDungeon, 1, true, false);
 	loc.setdungeon(true);
 	loc.setlight(-2);
-	auto p1 = create(Human, Male, Theif);
+	auto p1 = create(Human, Female, Mage);
 	auto p2 = create(Dwarf, Male, Cleric);
 	auto p3 = create(Human, Male, Fighter);
 	p1->activate();

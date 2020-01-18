@@ -1857,8 +1857,6 @@ bool creature::ask(const char* format, ...) {
 }
 
 bool creature::saybusy() {
-	if(!isbusy())
-		return false;
 	if(is(Sleep)) {
 		static const char* text[] = {"%герой мирно спит.",
 			"%герой смачно похрапывает.",
@@ -1867,6 +1865,8 @@ bool creature::saybusy() {
 		act(maprnd(text));
 		return true;
 	}
+	if(!isbusy())
+		return false;
 	static const char* text[] = {"Я занят",
 		"Мне надо закончить дело.",
 		"Дайте мне еще около [%1i] минут и я освобожусь."

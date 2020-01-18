@@ -725,6 +725,7 @@ class creature : public nameable, public paperdoll {
 	unsigned char		spells[LastSpell + 1];
 	item				wears[LastWear + 1];
 	int					restore_energy, restore_hits, restore_mana;
+	flagable<4>			recipes, recipes_invented;
 	char				hp, mp, poison;
 	statea				states;
 	short unsigned		location_id, site_id;
