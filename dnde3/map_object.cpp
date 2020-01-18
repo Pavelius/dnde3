@@ -2,12 +2,12 @@
 
 map_objecti bsmeta<map_objecti>::elements[] = {{""},
 {"Door", "Дверь"},
-{"Tree", "Дерево", 4, 3},
-{"Altar", "Алтарь"},
-{"Statue", "Статуя"},
+{"Tree", "Дерево", {BlockMovement}, 4, 3},
+{"Altar", "Алтарь", {BlockMovement}},
+{"Statue", "Статуя", {BlockMovement}},
 {"Trap", "Ловушка"},
 {"Plants", "Травы и растения"},
-{"StairsUp", "Лестница вверх", 57},
-{"StairsDown", "Лестница вниз", 56},
+{"StairsUp", "Лестница вверх", {BlockMovement}, 57},
+{"StairsDown", "Лестница вниз", {BlockMovement}, 56},
 };
 assert_enum(map_object, StairsDown);

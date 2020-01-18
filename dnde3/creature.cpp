@@ -786,6 +786,24 @@ void creature::move(indext index) {
 			return;
 		}
 		break;
+	case StairsDown:
+		if(isactive()) {
+			if(ask("Хотите спуститься вниз?")) {
+				wait();
+				game.use(StairsDown);
+			}
+		}
+		return;
+	case StairsUp:
+		if(isactive()) {
+			if(ask("Хотите подняться наверх?")) {
+				wait();
+				game.use(StairsUp);
+			}
+		}
+		return;
+	case Altar:
+		return;
 	case Tree:
 		cantmovehere();
 		return;
@@ -1154,6 +1172,20 @@ void creature::aiturn(creaturea& creatures, creaturea& enemies, creature* enemy)
 		}
 		// Investigate items
 		aimove();
+	}
+}
+
+void creature::checkpoison() {
+	if(!is(Poison))
+		return;
+	if(roll(ResistPoison)) {
+		if(poison <= 0)
+			add(Poison, -1, true);
+		else
+			poison--;
+	} else {
+		act("%герой страдает от яда.");
+		damage(1, Magic, 100, false);
 	}
 }
 

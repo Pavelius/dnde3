@@ -208,6 +208,9 @@
     <ClCompile Include="room.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="dungeon.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="answer.h">

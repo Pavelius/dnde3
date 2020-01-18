@@ -67,9 +67,7 @@ static void modify_weapon(creature* p1) {
 }
 
 static void create_indoor(landscape_s area, bool enemies = true) {
-	static slot_s drinkable[] = {Drinkable};
-	static slot_s weapons[] = {Melee, Ranged};
-	loc.create(area, false, false);
+	game.enter(loc.get(20, 20), 1, StairsUp);
 	auto p1 = create(Human, Male, Theif);
 	auto p2 = create(Dwarf, Male, Cleric);
 	auto p3 = create(Elf, Male, Fighter);

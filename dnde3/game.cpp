@@ -1,6 +1,6 @@
 #include "main.h"
 
-gamei game;
+gamei			game;
 
 static void update_los() {
 	auto player = creature::getactive();
@@ -27,15 +27,47 @@ void gamei::playactive() {
 	while(need_continue) {
 		need_continue = true;
 		for(auto i = 0; i < moves_per_minute; i++) {
+			checkcommand();
 			if((i % 5) == 0)
 				update_los();
 			move_creatures();
 			auto p = creature::getactive();
-			if(!p || p->isbusy() || p->is(Sleep))
+			if(!p || p->isbusy() || p->is(Sleep) || command)
 				need_continue = false;
 		}
 		rounds++; // One round is one minute
 		applyboost();
+		if((rounds % 5)==0)
+			applypoison();
+	}
+}
+
+void gamei::save(playera& players) {
+
+}
+
+void gamei::enter(indext index, int level, map_object_s stairs) {
+	static dungeoni meher_dungeon[] = {{AreaCity, 1},
+	{AreaDungeon, 16},
+	{AreaDungeonLair, 1},
+	};
+	playera players; save(players);
+	setposition(index, level);
+	if(!meher_dungeon->create(index, level))
+		return;
+	update_los();
+}
+
+void gamei::checkcommand() {
+	if(!command)
+		return;
+	switch(command) {
+	case StairsDown:
+		enter(getposition(), getlevel() + 1, StairsUp);
+		break;
+	case StairsUp:
+		enter(getposition(), getlevel() - 1, StairsDown);
+		break;
 	}
 }
 
@@ -74,4 +106,15 @@ void gamei::applyboost() {
 		player->add(e.id, e.modifier, player->is(Friendly));
 	}
 	bsmeta<boosti>::source.setcount(ps - bsmeta<boosti>::elements);
+}
+
+void gamei::applypoison() {
+	for(auto& e : bsmeta<creature>()) {
+		if(e)
+			e.checkpoison();
+	}
+}
+
+void gamei::use(map_object_s v) {
+	command = v;
 }

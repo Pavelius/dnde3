@@ -114,7 +114,7 @@ enum skill_s : unsigned char {
 };
 enum state_s : unsigned char {
 	Darkvision, Dazzled, Drunken, Fear, Friendly, Hostile,
-	Invisible, Sick,
+	Invisible, Sick, Summoned,
 	Unaware, Wounded,
 	LastState = Wounded,
 };
@@ -126,7 +126,7 @@ enum tile_s : unsigned char {
 };
 enum landscape_s : unsigned char {
 	AreaPlain, AreaForest, AreaSwamp,
-	AreaDungeon, AreaCity,
+	AreaDungeon, AreaDungeonLair, AreaCity,
 };
 enum room_s : unsigned char {
 	EmpthyRoom, TreasureRoom,
@@ -231,10 +231,14 @@ enum dialog_s : unsigned char {
 enum intellegence_s : unsigned char {
 	NoInt, AnimalInt, SemiInt, LowInt, AveInt, VeryInt, HighInt, ExpInt, GenInt, SupGenInt, GodInt
 };
+enum map_object_flag_s : unsigned char {
+	BlockMovement, BlockLight,
+};
 struct targeti;
 struct landscapei;
 class creature;
 class creaturea;
+typedef creature playera[16];
 typedef short unsigned indext;
 typedef adat<rect, 64> rooma;
 typedef flagable<1 + Chaotic / 8> alignmenta;
@@ -242,6 +246,7 @@ typedef flagable<1 + LastState / 8> statea;
 typedef flagable<1 + LastRace / 8> racea;
 typedef flagable<1 + ManyItems / 8>	itemf;
 typedef flagable<1 + Blooded / 8> mapflf;
+typedef cflags<map_object_flag_s> mapobjf;
 typedef casev<ability_s> abilityv;
 typedef aset<damage_s, 1 + WaterAttack> damagea;
 typedef void(*gentileproc)(indext index);
@@ -358,6 +363,7 @@ struct tilei {
 struct map_objecti {
 	const char*			id;
 	const char*			name;
+	mapobjf				flags;
 	short unsigned		start, count;
 };
 struct picture : point {
@@ -638,6 +644,13 @@ public:
 	constexpr indext	getposition() const { return index; }
 	constexpr void		setposition(indext v) { index = v; }
 };
+class geoposable : posable {
+	unsigned short		level;
+public:
+	constexpr int		getlevel() const { return level; }
+	constexpr indext	getposition() const { return posable::getposition(); }
+	constexpr void		setposition(indext v, int l) { posable::setposition(v); level = l; }
+};
 class nameable : public variant, public posable {
 	short unsigned		name;
 public:
@@ -699,7 +712,7 @@ class creature : public nameable, public paperdoll {
 	unsigned char		spells[LastSpell + 1];
 	item				wears[LastWear + 1];
 	int					restore_energy, restore_hits, restore_mana;
-	char				hp, mp;
+	char				hp, mp, poison;
 	statea				states;
 	short unsigned		location_id, site_id;
 	class_s				kind;
@@ -766,6 +779,7 @@ public:
 	void				chat(creature& opponent);
 	void				chat(creature& opponent, const dialogi* source);
 	bool				charmresist(int bonus = 0) const;
+	void				checkpoison();
 	void				create(race_s race, gender_s gender, class_s type);
 	void				create(role_s type);
 	void				clear();
@@ -920,10 +934,15 @@ struct dungeoni {
 		char			cursed;
 		char			magical;
 	};
-	tile_s				type;
+	landscape_s			type;
 	short				levels;
 	racea				denyrace;
 	itemc				items;
+	mapflf				flags;
+	explicit constexpr operator bool() const { return levels != 0; }
+	bool				create(indext index, int level) const;
+	const dungeoni*		find(int level) const;
+	bool				is(map_flag_s v) const { return flags.is(v); }
 };
 class indexa : public adat<indext> {
 public:
@@ -1040,7 +1059,6 @@ class location : public statistici {
 	bool				is_dungeon;
 	char				light_level;
 	//
-	indext				bpoint(indext index, int w, int h, direction_s dir) const;
 	bool				isdungeon() const { return is_dungeon; }
 	indext				getfree(indext i, procis proc, int radius_maximum) const;
 	site&				room(const rect& rc);
@@ -1067,6 +1085,7 @@ public:
 	void				clear();
 	static void			clearblock();
 	void				content(const rect& rc, room_s type);
+	creature*			commoner(indext index);
 	void				create(landscape_s landscape, bool explored, bool visualize);
 	void				drop(indext i, item v);
 	void				editor();
@@ -1090,12 +1109,14 @@ public:
 	indext				getpoint(const rect& rc, direction_s dir) const;
 	static int			getrange(indext i1, indext i2);
 	int					getrand(indext i) const { return random[i]; }
+	indext				getrand(const rect& rc) const;
 	static rect			getrect(indext i, int rx = 3, int ry = 2);
 	tile_s				gettile(indext i) const;
 	trap_s				gettrap(indext i) const;
 	void				indoor(point camera, bool show_fow = true, const picture* effects = 0);
 	bool				is(indext i, map_flag_s v) const { return flags[i].is(v); }
 	bool				isfree(indext i) const;
+	bool				isfreelt(indext i) const;
 	bool				isfreenc(indext i) const;
 	bool				isfreenw(indext i) const;
 	bool				ismatch(indext index, const rect& rectanle) const;
@@ -1111,6 +1132,7 @@ public:
 	creature*			monster(indext index);
 	static rect			normalize(const rect& rc);
 	bool				read(const char* url);
+	bool				read(indext index, int level);
 	void				remove(indext i, map_flag_s v) { flags[i].remove(v); }
 	void				set(indext i, map_flag_s v) { flags[i].set(v); }
 	void				set(indext i, tile_s v);
@@ -1132,26 +1154,28 @@ public:
 	static direction_s	to(direction_s d, direction_s v);
 	void				worldmap(point camera, bool show_fow = true) const;
 	bool				write(const char* url) const;
+	bool				write(indext index, int level);
 };
 struct outdoor : public posable {
-	struct leveli {
-		char			count;
-		race_s			habbitants[5];
-		constexpr operator bool() const { return count != 0; }
-	};
 	char				name[32];
-	leveli				levels[8];
 };
-class gamei {
+class gamei : geoposable {
 	unsigned			rounds;
+	map_object_s		command;
+	void				applypoison();
 	bool				checkalive();
+	void				checkcommand();
+	void				load(playera& v);
 	void				playactive();
+	void				save(playera& v);
 public:
 	void				applyboost();
+	void				enter(indext index, int level, map_object_s stairs);
 	int					getrounds() const { return rounds; }
 	void				intialize();
 	static void			help();
 	void				play();
+	void				use(map_object_s v);
 };
 extern gamei			game;
 extern location			loc;

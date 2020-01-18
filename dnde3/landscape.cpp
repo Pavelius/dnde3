@@ -304,9 +304,10 @@ static void create_city_level(const rect& rc, int level, rooma& rooms) {
 				r1.y2 = mmy - 1;
 			if(r1.y1 <= 2)
 				r1.y1 = 0;
-			create_road({r1.x1 + w1 - 2, r1.y1, r1.x1 + w1, r1.y2});
-			//for(int i = xrand(3, 6); i >= 0; i--)
-			//	loc.commoner(random(x + w1 - 3, y, 3, h));
+			rect r2 = {r1.x1 + w1 - 2, r1.y1, r1.x1 + w1, r1.y2};
+			create_road(r2);
+			for(int i = xrand(0, 4); i > 0; i--)
+				loc.commoner(loc.getrand(r2));
 		}
 	} else {
 		int h1 = (h*m) / 100; // vertial
@@ -318,9 +319,10 @@ static void create_city_level(const rect& rc, int level, rooma& rooms) {
 				r1.x2 = mmx - 1;
 			if(r1.x1 <= 2)
 				r1.x1 = 0;
-			create_road({r1.x1, r1.y1 + h1 - 2, r1.x2, r1.y1 + h1});
-			//for(int i = xrand(2, 4); i >= 0; i--)
-			//	create_commoner(random(x, y + h1 - 3, w, 3));
+			rect r2 = {r1.x1, r1.y1 + h1 - 2, r1.x2, r1.y1 + h1};
+			create_road(r2);
+			for(int i = xrand(0, 4); i > 0; i--)
+				loc.commoner(loc.getrand(r2));
 		}
 	}
 }
@@ -334,8 +336,10 @@ template<> landscapei bsmeta<landscapei>::elements[] = {{"Равнина", 0, Plain, {{
 {"Болото", 0, Plain, {{Tree, -40}, {Swamp, 1}, {Lake, 1}}},
 // 
 {"Подземелье", 1, Wall, {}, {StairsDownRoom, StairsUpRoom}, create_big_rooms, create_dungeon_content},
-{"Город", 1, Plain, {{Tree, 2}, {Water, -16}}, {StairsDownRoom, Barracs, Lair}, create_city, create_city_buildings},
+{"Логово", 1, Wall, {}, {StairsUpRoom}, create_big_rooms, create_dungeon_content},
+{"Город", 1, Plain, {{Tree, 2}, {Water, -16}}, {Barracs, StairsDownRoom, Lair}, create_city, create_city_buildings},
 };
+assert_enum(landscape, AreaCity);
 
 void location::create(landscape_s landscape, bool explored, bool visualize) {
 	auto& ei = bsmeta<landscapei>::elements[landscape];

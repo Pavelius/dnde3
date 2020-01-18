@@ -440,18 +440,32 @@ void location::forest(const rect& rc) {
 	loc.fill(rc, rc.width()*rc.height()*dense_forest / 100, Tree);
 }
 
+bool location::isfreelt(indext i) const {
+	if(i == Blocked)
+		return false;
+	if(tiles[i] == Wall)
+		return false;
+	auto v = objects[i];
+	switch(v) {
+	case Door:
+		return is(i, Opened);
+	default:
+		return !bsmeta<map_objecti>::elements[v].flags.is(BlockLight);
+	}
+	return true;
+}
+
 bool location::isfree(indext i) const {
 	if(i == Blocked)
 		return false;
 	if(tiles[i] == Wall)
 		return false;
-	switch(objects[i]) {
-	case Tree:
-		return false;
+	auto v = objects[i];
+	switch(v) {
 	case Door:
 		return is(i, Opened);
 	default:
-		break;
+		return !bsmeta<map_objecti>::elements[v].flags.is(BlockMovement);
 	}
 	return true;
 }
@@ -465,13 +479,11 @@ bool location::isfreenc(indext i) const {
 }
 
 bool location::isfreenw(indext i) const {
-	if(!isfree(i))
-		return false;
 	switch(tiles[i]) {
 	case Water:
 		return false;
 	default:
-		return isfree(i);
+		return isfreenc(i);
 	}
 	return true;
 }
@@ -643,7 +655,7 @@ static bool linelossv(int x0, int y0, int x1, int y1) {
 			auto i = loc.get(x0, y0);
 			loc.set(i, Visible);
 			loc.set(i, Explored);
-			if(!loc.isfree(i))
+			if(!loc.isfreelt(i))
 				return false;
 		}
 		if(x0 == x1 && y0 == y1)
@@ -667,7 +679,7 @@ bool location::linelos(int x0, int y0, int x1, int y1) const {
 	for(;;) {
 		if(x0 >= 0 && x0 < mmx && y0 >= 0 && y0 < mmy) {
 			auto i = get(x0, y0);
-			if(!isfree(i))
+			if(!isfreelt(i))
 				return false;
 		}
 		if(x0 == x1 && y0 == y1)
@@ -1049,4 +1061,14 @@ rect location::normalize(const rect& rc) {
 	if(result.y2 >= mmy)
 		result.y2 = mmy - 1;
 	return result;
+}
+
+creature* location::commoner(indext index) {
+	static role_s commoners[] = {HumanMale, HumanMale, HumanFemale, HumanChild};
+	return add(index, maprnd(commoners));
+}
+
+indext location::getrand(const rect& rc) const {
+	auto r1 = normalize(rc);
+	return get(xrand(r1.x1, rc.x2), xrand(r1.y1, r1.y2));
 }
