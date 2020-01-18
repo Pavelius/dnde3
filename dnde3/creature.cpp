@@ -94,10 +94,10 @@ void creature::add(variant id, int v, bool interactive) {
 }
 
 void creature::dispell(variant source, bool interactive) {
-	auto owner = getid();
+	auto id = getid();
 	auto ps = bsmeta<boosti>::elements;
 	for(auto& e : bsmeta<boosti>()) {
-		if(e.owner == owner || e.source == source) {
+		if(e.owner_id == id || e.source == source) {
 			if(e.id)
 				add(e.id, e.modifier, interactive);
 			else if(source.type == Spell) {
@@ -125,7 +125,7 @@ void creature::recall(variant id, variant source, int modifier, unsigned rounds)
 	p->source = source;
 	p->modifier = modifier;
 	p->time = rounds;
-	p->owner = getid();
+	p->owner_id = getid();
 }
 
 creature* creature::getobject(short unsigned v) {
@@ -135,10 +135,10 @@ creature* creature::getobject(short unsigned v) {
 }
 
 void creature::dispell(bool interactive) {
-	auto owner = getid();
+	auto id = getid();
 	auto ps = bsmeta<boosti>::elements;
 	for(auto& e : bsmeta<boosti>()) {
-		if(e.owner == owner) {
+		if(e.owner_id == id) {
 			add(e.id, e.modifier, interactive);
 			continue;
 		}
@@ -148,12 +148,10 @@ void creature::dispell(bool interactive) {
 }
 
 void creature::unlink() {
-	auto id = getid();
 	if(current_player == this)
 		current_player = 0;
 	dispell(false);
-	setposition(Blocked);
-	guard = Blocked;
+	site::unlink(*this);
 }
 
 void creature::dressoff() {
@@ -1604,7 +1602,7 @@ void creature::testweapons() {
 boosti*	creature::find(variant id) const {
 	auto owner_id = getid();
 	for(auto& e : bsmeta<boosti>()) {
-		if(e.owner == owner_id && e.id == id)
+		if(e.owner_id == owner_id && e.id == id)
 			return &e;
 	}
 	return 0;
@@ -1613,7 +1611,7 @@ boosti*	creature::find(variant id) const {
 boosti*	creature::finds(variant source) const {
 	auto owner_id = getid();
 	for(auto& e : bsmeta<boosti>()) {
-		if(e.owner == owner_id && e.source == source)
+		if(e.owner_id == owner_id && e.source == source)
 			return &e;
 	}
 	return 0;
@@ -1706,10 +1704,10 @@ void creature::backpack() {
 }
 
 int	creature::getboost(variant id) const {
-	auto owner = getid();
+	auto owner_id = getid();
 	auto result = 0;
 	for(auto& e : bsmeta<boosti>()) {
-		if(e.owner == owner && e.id == id)
+		if(e.owner_id == owner_id && e.id == id)
 			result += e.modifier;
 	}
 	return result;

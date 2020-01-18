@@ -66,16 +66,11 @@ static void modify_weapon(creature* p1) {
 	//pi->setidentify(1);
 }
 
-static void create_indoor(landscape_s area, bool enemies = true) {
+static void create_indoor(landscape_s area) {
 	game.enter(loc.get(20, 20), 1, StairsUp);
 	auto p1 = create(Human, Male, Theif);
 	auto p2 = create(Dwarf, Male, Cleric);
 	auto p3 = create(Elf, Male, Fighter);
-	if(enemies) {
-		create(GoblinWarrior);
-		create(GoblinWarrior);
-		create(GnollWarrior);
-	}
 	p1->activate();
 	p1->damage(6, Bludgeon, 100);
 	create(p1, Potion1);
@@ -155,7 +150,7 @@ int main(int argc, char* argv[]) {
 	//test_worldmap();
 	//test_analize();
 	//test_dungeon();
-	create_indoor(AreaCity, true);
+	create_indoor(AreaCity);
 }
 
 int __stdcall WinMain(void* ci, void* pi, char* cmd, int sw) {

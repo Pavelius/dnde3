@@ -46,3 +46,13 @@ creature* site::priest() {
 creature* site::shopkeeper() {
 	return loc.add(getposition(), Shopkeeper);
 }
+
+void site::unlink(const creature& player) {
+	auto id = player.getid();
+	for(auto& e : bsmeta<site>()) {
+		if(!e)
+			continue;
+		if(e.owner_id == id)
+			e.owner_id = Blocked;
+	}
+}

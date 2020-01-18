@@ -2,7 +2,7 @@
 #include "archive.h"
 
 static void getfilename(stringbuilder& sb, indext index, int level) {
-	sb.add("game/%05i%03i", index, level);
+	sb.add("game/%1.5i%2.3i.loc", index, level);
 }
 
 static bool serial(location& e, const char* url, bool write_mode) {
@@ -11,8 +11,9 @@ static bool serial(location& e, const char* url, bool write_mode) {
 		return false;
 	archive a(file, write_mode);
 	a.set(e);
-	a.set(bsmeta<outdoor>::source);
 	a.set(bsmeta<creature>::source);
+	a.set(bsmeta<site>::source);
+	a.set(bsmeta<boosti>::source);
 	return true;
 }
 

@@ -37,13 +37,36 @@ void gamei::playactive() {
 		}
 		rounds++; // One round is one minute
 		applyboost();
-		if((rounds % 5)==0)
+		if((rounds % 5) == 0)
 			applypoison();
 	}
 }
 
-void gamei::save(playera& players) {
+static void save(playera& players) {
+	int index = 0;
+	int index_maximum = sizeof(players) / sizeof(players[0]);
+	memset(players, 0, sizeof(players));
+	for(auto& e : bsmeta<creature>()) {
+		if(!e)
+			continue;
+		if(!e.is(Friendly))
+			continue;
+		e.unlink();
+		if(index < index_maximum)
+			players[index++] = e;
+		e.clear();
+	}
+}
 
+static void load(playera& players) {
+	int index = 0;
+	int index_maximum = sizeof(players) / sizeof(players[0]);
+	for(const auto& e : players) {
+		if(!e)
+			continue;
+		auto p = bsmeta<creature>::addz();
+		*p = e;
+	}
 }
 
 void gamei::enter(indext index, int level, map_object_s stairs) {
@@ -55,6 +78,7 @@ void gamei::enter(indext index, int level, map_object_s stairs) {
 	setposition(index, level);
 	if(!meher_dungeon->create(index, level))
 		return;
+	load(players);
 	update_los();
 }
 
@@ -94,15 +118,13 @@ void gamei::play() {
 void gamei::applyboost() {
 	auto ps = bsmeta<boosti>::elements;
 	for(auto& e : bsmeta<boosti>()) {
+		auto player = bsmeta<creature>::elements + e.owner_id;
 		if(e.time > rounds) {
 			*ps++ = e;
-			if(!e.id && e.source.type==Spell) {
-				auto player = bsmeta<creature>::elements + e.owner;
+			if(!e.id && e.source.type == Spell)
 				player->suffer((spell_s)e.source.value);
-			}
 			continue;
 		}
-		auto player = bsmeta<creature>::elements + e.owner;
 		player->add(e.id, e.modifier, player->is(Friendly));
 	}
 	bsmeta<boosti>::source.setcount(ps - bsmeta<boosti>::elements);

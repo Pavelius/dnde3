@@ -309,7 +309,7 @@ struct chancei {
 	state_s				state;
 };
 struct boosti {
-	short unsigned		owner;
+	short unsigned		owner_id;
 	variant				source;
 	variant				id;
 	char				modifier;
@@ -637,6 +637,7 @@ public:
 	void				set(variant v) { param = v; }
 	void				setowner(const creature* v);
 	creature*			shopkeeper();
+	static void			unlink(const creature& player);
 };
 class posable {
 	indext				index;
@@ -1165,9 +1166,7 @@ class gamei : geoposable {
 	void				applypoison();
 	bool				checkalive();
 	void				checkcommand();
-	void				load(playera& v);
 	void				playactive();
-	void				save(playera& v);
 public:
 	void				applyboost();
 	void				enter(indext index, int level, map_object_s stairs);
