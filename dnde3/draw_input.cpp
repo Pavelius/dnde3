@@ -1580,6 +1580,48 @@ static void pixel(int x, int y, color c1) {
 	}
 }
 
+static point getpos(point origin, short x, short y) {
+	return {origin.x + x*mmaps, origin.y + y*mmaps};
+}
+
+static void view_bullet(point origin, indext index, int number) {
+	char temp[260]; stringbuilder sb(temp);
+	sb.add("%1i", number);
+	auto p_fore = fore;
+	auto pm = getpos(origin, loc.getx(index), loc.gety(index));
+	circlef(pm.x, pm.y, 8, colors::white);
+	fore = colors::black;
+	circle(pm.x, pm.y, 8, colors::white);
+	fore = colors::black;
+	text(pm.x - textw(temp) / 2, pm.y - texth() / 2, temp);
+	fore = p_fore;
+}
+
+static void view_name(int x, int y, const site& e, int number) {
+	char temp[260]; stringbuilder sb(temp); e.getname(sb);
+	text(x, y, temp);
+	sb.clear();
+	sb.add("%1i.", number);
+	text(x - 26, y, temp);
+}
+
+static void view_legends(point origin) {
+	auto number = 1;
+	auto x1 = origin.x + mmx*mmaps + 40;
+	auto y1 = origin.y;
+	for(auto& e : bsmeta<site>()) {
+		auto index = loc.center(e);
+		if(index == Blocked)
+			continue;
+		if(!loc.is(index, Explored))
+			continue;
+		view_name(x1, y1, e, number);
+		view_bullet(origin, loc.center(e), number);
+		y1 += texth() + 4;
+		number++;
+	}
+}
+
 void location::minimap(int x, int y, point camera) const {
 	if(x < 8)
 		x = 8;
@@ -1666,7 +1708,7 @@ void location::minimap(int x, int y, point camera) const {
 	cm.x2 = x + (xs1 + viewport.x)*mmx1 / scx;
 	cm.y2 = y + (ys1 + viewport.y)*mmy1 / scy;
 	draw::rectb(cm, border);
-	//view_legends(x, y, map::size.x*mmaps + metrics::padding);
+	view_legends({(short)x, (short)y});
 }
 
 void location::minimap(indext index) const {

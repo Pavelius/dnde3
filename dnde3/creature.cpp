@@ -70,12 +70,15 @@ void creature::add(variant id, int v, bool interactive) {
 	case State: add((state_s)id.value, v, interactive); break;
 	case Skill: add((skill_s)id.value, v, interactive); break;
 	case Item:
-		equip(item(item_s(id.value), v));
+	{
+		item it; it.create(item_s(id.value), 0, 5, 0, 20);
+		equip(it);
 		if(bsmeta<itemi>::elements[id.value].weapon.ammunition) {
 			// Free ammunitons for items
 			item it(bsmeta<itemi>::elements[id.value].weapon.ammunition, v);
 			equip(it);
 		}
+	}
 		break;
 	case Harm:
 		switch(id.value) {

@@ -5,6 +5,8 @@ template<> adjectivei bsmeta<adjectivei>::elements[] = {{"шальное", "шальной", "
 {"смешное", "смешной", "смешная"},
 {"черное", "черный", "черная"},
 {"белое", "белый", "белая"},
+{"стальное", "стальной", "стальная"},
+{"золотое", "золотой", "золотая"},
 };
 DECLFULL(adjectivei);
 
@@ -13,7 +15,10 @@ template<> objectivei bsmeta<objectivei>::elements[] = {{"человек", Male},
 {"волк", Male},
 {"рысь", Female},
 {"дракон", Male},
+{"волк", Male},
 {"перстень", Male},
+{"сокровище", NoGender},
+{"река", Female},
 };
 DECLFULL(objectivei);
 
