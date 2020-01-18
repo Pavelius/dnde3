@@ -721,6 +721,10 @@ void creature::add(const effecti& e, item_s source) {
 const char* creature::isusedisable(skill_s id) const {
 	auto& ei = bsmeta<skilli>::elements[id];
 	switch(id) {
+	case PickPockets:
+		if(hp < get(LifePoints))
+			return "Вы не можете воровать пока ваше здоровье ниже максимума. Восстановите здоровье и попробуйте снова.";
+		return 0;
 	case Healing: return "Используется автоматически восстанавливая 1 очко [жизни] за определенный промежуток времени.";
 	case Concetration: return "Используется автоматически восстанавливая 1 очко [маны] за определенный промежуток времени.";
 	default:
