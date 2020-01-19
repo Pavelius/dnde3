@@ -6,6 +6,15 @@ struct chati {
 	constexpr explicit operator bool() const { return dialog != 0; }
 };
 
+static dialogi chat_commoner[] = {{1, Say, {Common}, "Хороший день, правда?"},
+{1, Say, {Common}, "Знаете какие удои у коров были меяц назад?"},
+{1, Say, {}, "Сена в этом году мало, как бы заготовить побольше."},
+{}};
+static dialogi chat_child[] = {{1, Say, {Common}, "Мама мне не разреает общаться с незнакомцами."},
+{1, Say, {Common}, "Как тебя зовут?"},
+{1, Say, {Common}, "Ты такой большой."},
+{1, Say, {}, "Не хочу разговаривать. Ты страшный."},
+{}};
 static dialogi chat_shopkeeper[] = {{1, Say, {Common}, "Как твой бизнес, друг?"},
 {1, Say, {Uncommon}, "Хороший день, да?", {}, 3},
 {1, Say, {}, "Чую запах денег."},
@@ -80,6 +89,8 @@ void creature::chat(creature& opponent, const dialogi* source) {
 
 void creature::chat(creature& opponent) {
 	static chati available_chats[] = {{Shopkeeper, chat_shopkeeper},
+	{HumanChild, chat_child},
+	{HumanMale, chat_commoner},
 	{}};
 	if(saybusy())
 		return;
