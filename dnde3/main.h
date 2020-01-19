@@ -1041,17 +1041,6 @@ struct vproc {
 	constexpr vproc(void(*v)()) : pinp(v), pcre(0) {}
 	constexpr vproc(void(creature::*v)()) : pinp(0), pcre(v) {}
 };
-struct dungeon {
-	struct layer {
-		tile_s			type;
-		unsigned char	count;
-	};
-	const char*			name; // name of area location
-	short unsigned		world_index; // overland index
-	unsigned char		icon; // overland icon overlay
-	unsigned char		level; // Start level: 0 form city, 1 for undeground dungeon
-	adat<layer, 8>		layers;
-};
 struct manual {
 	typedef void(*proc)(stringbuilder& sb, manual& e, answeri& an);
 	variant				parent;

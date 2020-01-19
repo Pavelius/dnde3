@@ -1,5 +1,11 @@
 #include "main.h"
 
+struct chati {
+	variant				v1;
+	dialogi*			dialog;
+	constexpr explicit operator bool() const { return dialog != 0; }
+};
+
 static dialogi chat_shopkeeper[] = {{1, Say, {Common}, "Как твой бизнес, друг?"},
 {1, Say, {Uncommon}, "Хороший день, да?", {}, 3},
 {1, Say, {}, "Чую запах денег."},
@@ -12,6 +18,14 @@ static dialogi chat_shopkeeper[] = {{1, Say, {Common}, "Как твой бизнес, друг?"}
 {3, Say, {}, "Поэтому предлагаю такой хороший день не превращать в побиение моей охраной еще одного воришки и прохиндея. Договорились?"},
 {3, Ask, {}, "Смело. Но ты хозяин и вправе заказывать музыку."},
 {}};
+
+static const chati* find_chat(const chati* pb, creature& player, creature& opponent) {
+	for(auto p = pb; *p; p++) {
+		if(opponent.ismatch(p->v1))
+			return p;
+	}
+	return 0;
+}
 
 static dialogi* addask(creature& player, creature& opponent, const dialogi* source, int index) {
 	answeri an;
@@ -65,9 +79,14 @@ void creature::chat(creature& opponent, const dialogi* source) {
 }
 
 void creature::chat(creature& opponent) {
+	static chati available_chats[] = {{Shopkeeper, chat_shopkeeper},
+	{}};
 	if(saybusy())
 		return;
-	chat(opponent, chat_shopkeeper);
+	auto pd = find_chat(available_chats, *this, opponent);
+	if(!pd)
+		return;
+	chat(opponent, pd->dialog);
 }
 
 void creature::chat() {
