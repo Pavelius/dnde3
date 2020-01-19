@@ -1144,8 +1144,8 @@ public:
 	void				loot(indext index, const aref<slot_s>& slots, int level, char chance_bigger_price = 0, identify_s identify = Unknown, char chance_curse = 10, char bonus_quality = 0);
 	void				loot(const rect& rc, const aref<slot_s>& slots, int chance, int level, char chance_bigger_price = 0, identify_s identify = Unknown, char chance_curse = 10, char bonus_quality = 0);
 	void				makewave(indext index);
-	void				minimap(int x, int y, point camera) const;
-	void				minimap(indext index) const;
+	void				minimap(int x, int y, point camera, bool fow) const;
+	void				minimap(indext index, bool fow) const;
 	creature*			monster(indext index);
 	static rect			normalize(const rect& rc);
 	bool				read(const char* url);

@@ -35,7 +35,7 @@ const int			elx = 64; // Map tile element width
 const int			ely = 48; // Map tile element height
 const int			scrx = 32;
 const int			scry = 32;
-static point		viewport;
+static point		viewport = {800, 600};
 static point		camera;
 static char			message_text[1024];
 stringbuilder		sb(message_text);
@@ -1605,7 +1605,7 @@ static void view_name(int x, int y, const site& e, int number) {
 	text(x - 26, y, temp);
 }
 
-static void view_legends(point origin) {
+static void view_legends(point origin, bool fow) {
 	auto number = 1;
 	auto x1 = origin.x + mmx*mmaps + 40;
 	auto y1 = origin.y;
@@ -1613,7 +1613,7 @@ static void view_legends(point origin) {
 		auto index = e.getposition();
 		if(index == Blocked)
 			continue;
-		if(!loc.is(index, Explored))
+		if(fow && !loc.is(index, Explored))
 			continue;
 		auto type = e.getkind();
 		if(type == House || type == EmpthyRoom)
@@ -1625,7 +1625,7 @@ static void view_legends(point origin) {
 	}
 }
 
-void location::minimap(int x, int y, point camera) const {
+void location::minimap(int x, int y, point camera, bool fow) const {
 	if(x < 8)
 		x = 8;
 	if(y < 64)
@@ -1654,7 +1654,7 @@ void location::minimap(int x, int y, point camera) const {
 		int x3 = x;
 		for(int x1 = 0; x1 < mmx; x1++, x3 += mmaps) {
 			auto i = get(x1, y1);
-			if(!is(i, Explored))
+			if(fow && !is(i, Explored))
 				continue;
 			switch(gettile(i)) {
 			case Hill:
@@ -1716,10 +1716,10 @@ void location::minimap(int x, int y, point camera) const {
 	cm.x2 = x + (xs1 + viewport.x)*mmx1 / scx;
 	cm.y2 = y + (ys1 + viewport.y)*mmy1 / scy;
 	draw::rectb(cm, border);
-	view_legends({(short)x, (short)y});
+	view_legends({(short)x, (short)y}, fow);
 }
 
-void location::minimap(indext index) const {
+void location::minimap(indext index, bool fow) const {
 	char temp[128]; stringbuilder sb(temp);
 	int w = mmx * mmaps + 280;
 	int h = mmy * mmaps;
@@ -1728,8 +1728,7 @@ void location::minimap(indext index) const {
 		draw::rectf({0, 0, draw::getwidth(), draw::getheight()}, colors::form);
 		if(loc.level)
 			sb.add("Уровень %1i", loc.level);
-		//view_dialog(bsgets(Minimap, Name), temp, 1);
-		loc.minimap((draw::getwidth() - w) / 2, (draw::getheight() - h) / 2, camera);
+		loc.minimap((draw::getwidth() - w) / 2, (draw::getheight() - h) / 2, camera, fow);
 		domodal();
 		switch(hot.key) {
 		case KeyEscape:

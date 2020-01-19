@@ -15,7 +15,7 @@ bool dungeoni::create(indext index, int level, bool visualize) const {
 	if(!p)
 		return false;
 	if(!loc.read(index, level)) {
-		loc.create(*p, level, p->is(Explored) || visualize, visualize);
+		loc.create(*p, level, p->is(Explored), visualize);
 		loc.write(index, level);
 	}
 	return true;

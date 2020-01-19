@@ -1728,7 +1728,7 @@ int	creature::getboost(variant id) const {
 }
 
 void creature::minimap() {
-	loc.minimap(getposition());
+	loc.minimap(getposition(), true);
 }
 
 bool creature::ismatch(variant v) const {

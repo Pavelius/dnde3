@@ -34,7 +34,7 @@ static item_s random(aref<item_s> source) {
 
 static void show_minimap_step(short unsigned index, bool visualize) {
 	if(visualize)
-		loc.minimap(index);
+		loc.minimap(index, false);
 }
 
 static void create_big_rooms(const rect& rc, rooma& rooms, const landscapei& land, bool visualize) {
@@ -215,6 +215,7 @@ static void create_dungeon_content(const rect& rc, rooma& rooms, const landscape
 			index++;
 		}
 		auto p = loc.addsite(t, e);
+		p->setposition(loc.center(e));
 		loc.content(e, t, p);
 	}
 	for(auto& e : rooms)
@@ -253,10 +254,11 @@ static void create_city_buildings(const rect& rc, rooma& rooms, const landscapei
 		rect r2; loc.interior(e, t, door, 0, &r2, p);
 		p->setposition(loc.center(r2));
 		current++;
+		show_minimap_step(p->getposition(), visualize);
 	}
 }
 
-static void create_city_level(const rect& rc, int level, rooma& rooms) {
+static void create_city_level(const rect& rc, int level, rooma& rooms, bool visualize) {
 	auto w = rc.width();
 	auto h = rc.height();
 	if(d100() < chance_special_area &&
@@ -287,8 +289,8 @@ static void create_city_level(const rect& rc, int level, rooma& rooms) {
 		r = (d100() < 50) ? 0 : 1;
 	if(r == 0) {
 		int w1 = (w*m) / 100; // horizontal
-		create_city_level({rc.x1, rc.y1, rc.x1 + w1, rc.y2}, level + 1, rooms);
-		create_city_level({rc.x1 + w1 + 1, rc.y1, rc.x2, rc.y2}, level + 1, rooms);
+		create_city_level({rc.x1, rc.y1, rc.x1 + w1, rc.y2}, level + 1, rooms, visualize);
+		create_city_level({rc.x1 + w1 + 1, rc.y1, rc.x2, rc.y2}, level + 1, rooms, visualize);
 		if(level <= 2) {
 			auto r1 = rc;
 			if(r1.y2 >= mmy - 3)
@@ -302,8 +304,8 @@ static void create_city_level(const rect& rc, int level, rooma& rooms) {
 		}
 	} else {
 		int h1 = (h*m) / 100; // vertial
-		create_city_level({rc.x1, rc.y1, rc.x2, rc.y1 + h1}, level + 1, rooms);
-		create_city_level({rc.x1, rc.y1 + h1 + 1, rc.x2, rc.y2}, level + 1, rooms);
+		create_city_level({rc.x1, rc.y1, rc.x2, rc.y1 + h1}, level + 1, rooms, visualize);
+		create_city_level({rc.x1, rc.y1 + h1 + 1, rc.x2, rc.y2}, level + 1, rooms, visualize);
 		if(level <= 2) {
 			auto r1 = rc;
 			if(r1.x2 >= mmx - 3)
@@ -319,7 +321,7 @@ static void create_city_level(const rect& rc, int level, rooma& rooms) {
 }
 
 static void create_city(const rect& rc, rooma& rooms, const landscapei& land, bool visualize) {
-	create_city_level(rc, 0, rooms);
+	create_city_level(rc, 0, rooms, visualize);
 }
 
 template<> landscapei bsmeta<landscapei>::elements[] = {{"Равнина", 0, Plain, {{Tree, 2}, {Water, -16}, {Hill, 1}, {Swamp, -20}}},
@@ -338,7 +340,6 @@ void location::create(const dungeoni& source, int level, bool explored, bool vis
 	auto& ei = bsmeta<landscapei>::elements[type];
 	this->level = level;
 	stack_get = stack_put = 0;
-	visualize = visualize && explored;
 	// Explore all map
 	if(explored) {
 		auto count = mmx * mmy;

@@ -114,7 +114,7 @@ void gamei::enter(indext index, int level, map_object_s stairs) {
 		if(loc)
 			loc.write(getposition(), loc.level);
 		setposition(index, level);
-		if(!meher_dungeon->create(index, level, true))
+		if(!meher_dungeon->create(index, level, false))
 			return;
 	}
 	auto start_position = loc.find(stairs);
