@@ -920,7 +920,7 @@ void location::loot(const rect& rc, const aref<slot_s>& slots, int chance, int l
 	}
 }
 
-void location::content(const rect& rc, room_s type) {
+void location::content(const rect& rc, room_s type, site* p) {
 	if(!rc)
 		return;
 	auto& ei = bsmeta<roomi>::elements[type];
@@ -935,27 +935,37 @@ void location::content(const rect& rc, room_s type) {
 	static slot_s edible[] = {Edible};
 	switch(type) {
 	case Temple:
-		//diety = (diety_s)xrand(GodBane, GodTyr);
-		//setowner(priest());
+		if(p) {
+			p->setparam((diety_s)xrand(GodBane, GodTyr));
+			p->setowner(p->priest());
+		}
 		break;
 	case Tavern:
-		//setowner(loc.add(index, Bartender));
+		if(p)
+			p->setowner(loc.add(index, Bartender));
 		for(auto i = xrand(1, 3); i > 0; i--)
 			loc.adventurer(index);
 		break;
 	case ShopWeaponAndArmor:
-		//setowner(shopkeeper());
-		loc.loot(rc, armors, 30, loc.level, 10, KnownPower, 0);
+		if(p)
+			p->setowner(shopkeeper(index));
+		loc.loot(rc, armors, 30, loc.level, 20, KnownPower, 0);
 		loc.loot(rc, weapons, 70, loc.level, 10, KnownPower, 0);
 		break;
-	case ShopPotionAndScrolls:
-		//setowner(shopkeeper());
+	case ShopPotions:
+		if(p)
+			p->setowner(shopkeeper(index));
+		loc.loot(rc, potions, 80, loc.level, 10, KnownPower, 0);
+		break;
+	case ShopScrolls:
+		if(p)
+			p->setowner(shopkeeper(index));
 		loc.loot(rc, scrolls, 70, loc.level, 10, KnownPower, 0);
-		loc.loot(rc, potions, 40, loc.level, 10, KnownPower, 0);
 		break;
 	case ShopFood:
-		//setowner(shopkeeper());
-		loc.loot(rc, edible, 90, loc.level, 20);
+		if(p)
+			p->setowner(shopkeeper(index));
+		loc.loot(rc, edible, 90, loc.level, 25);
 		break;
 	case TreasureRoom:
 		loc.loot(rc, treasures, 60, loc.level, 0, Unknown);
@@ -978,7 +988,7 @@ void location::addposition(indext i) {
 	}
 }
 
-void location::interior(const rect& rc, room_s type, indext entrance, int level, rect* result_rect) {
+void location::interior(const rect& rc, room_s type, indext entrance, int level, rect* result_rect, site* ps) {
 	if(rc.width() < 5 && rc.height() < 5) {
 		rect r2 = rc.getoffset(1, 1);
 		if(level == 0) {
@@ -986,7 +996,7 @@ void location::interior(const rect& rc, room_s type, indext entrance, int level,
 			if(result_rect)
 				*result_rect = r2;
 		}
-		content(r2, type);
+		content(r2, type, ps);
 		return;
 	}
 	if(entrance == Blocked)
@@ -1032,14 +1042,15 @@ void location::interior(const rect& rc, room_s type, indext entrance, int level,
 		if(result_rect)
 			*result_rect = r1.getoffset(1,1);
 	}
-	content(r1.getoffset(1,1), type);
+	content(r1.getoffset(1,1), type, ps);
 	switch(type) {
-	case ShopPotionAndScrolls:
+	case ShopPotions:
+	case ShopScrolls:
 	case ShopWeaponAndArmor:
-		interior(r2, TreasureRoom, entrance, level + 1);
+		interior(r2, TreasureRoom, entrance, level + 1, 0, ps);
 		break;
 	default:
-		interior(r2, EmpthyRoom, entrance, level + 1);
+		interior(r2, EmpthyRoom, entrance, level + 1, 0, ps);
 		break;
 	}
 }
@@ -1074,4 +1085,13 @@ indext location::find(map_object_s v) const {
 			return i;
 	}
 	return Blocked;
+}
+
+site* location::addsite(room_s type, const rect& rc) {
+	auto p = bsmeta<site>::add();
+	p->clear();
+	p->set(type);
+	p->set(rc);
+	p->randomname();
+	return p;
 }

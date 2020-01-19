@@ -115,7 +115,6 @@
     <ClCompile Include="ability.cpp" />
     <ClCompile Include="answer.cpp" />
     <ClCompile Include="archive.cpp" />
-    <ClCompile Include="building_names.cpp" />
     <ClCompile Include="chat.cpp" />
     <ClCompile Include="class_progress.cpp" />
     <ClCompile Include="converter.cpp" />

@@ -10,12 +10,12 @@ const dungeoni* dungeoni::find(int level) const {
 	return 0;
 }
 
-bool dungeoni::create(indext index, int level) const {
+bool dungeoni::create(indext index, int level, bool visualize) const {
 	auto p = find(level);
 	if(!p)
 		return false;
 	if(!loc.read(index, level)) {
-		loc.create(*p, level, p->is(Explored), false);
+		loc.create(*p, level, p->is(Explored) || visualize, visualize);
 		loc.write(index, level);
 	}
 	return true;

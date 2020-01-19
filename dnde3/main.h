@@ -132,7 +132,8 @@ enum room_s : unsigned char {
 	EmpthyRoom, TreasureRoom,
 	StairsDownRoom, StairsUpRoom, House, Lair,
 	Temple, Tavern, Barracs, CityHall,
-	ShopWeaponAndArmor, ShopPotionAndScrolls, ShopFood,
+	ShopWeaponAndArmor, ShopPotions, ShopScrolls,
+	ShopFood, // Last magazine
 };
 enum map_object_s : unsigned char {
 	NoTileObject,
@@ -199,7 +200,7 @@ enum variant_s : unsigned char {
 	NoVariant,
 	Ability, Alignment, Creature, Formula, Gender, God, Harm,
 	Item, ItemIdentify, ItemType,
-	Number, Object, ObjectFlags, Race, Range, Rarity, Role,
+	Number, Object, ObjectFlags, Race, Range, Rarity, Role, Room,
 	Skill, Slot, Spell, State, Target, Tile,
 	Variant,
 };
@@ -269,6 +270,7 @@ struct variant {
 	constexpr variant(race_s v) : type(Race), value(v) {}
 	constexpr variant(rarity_s v) : type(Rarity), value(v) {}
 	constexpr variant(role_s v) : type(Role), value(v) {}
+	constexpr variant(room_s v) : type(Room), value(v) {}
 	constexpr variant(skill_s v) : type(Skill), value(v) {}
 	constexpr variant(slot_s v) : type(Slot), value(v) {}
 	constexpr variant(spell_s v) : type(Spell), value(v) {}
@@ -625,36 +627,10 @@ struct roomi {
 	const char*			title;
 	map_object_s		heart;
 };
-class site : public rect {
-	room_s				type;
-	variant				param;
-	unsigned char		name[2];
-	short unsigned		owner_id;
-	unsigned char		found;
-	unsigned			recoil;
-	rect				area;
-public:
-	operator bool() const { return x2 > x1 && y2 > y1; }
-	static site*		find(indext index);
-	const rect&			getarea() const { return area; }
-	room_s				getkind() const { return type; }
-	void				getname(stringbuilder& sb) const;
-	creature*			getowner() const;
-	variant				getparam() const { return param; }
-	indext				getposition() const;
-	creature*			priest();
-	void				randomname();
-	void				set(const rect& v) { *static_cast<rect*>(this) = v; }
-	void				setarea(const rect& v) { area = v; }
-	void				set(room_s v) { type = v; }
-	void				set(variant v) { param = v; }
-	void				setowner(const creature* v);
-	creature*			shopkeeper();
-	static void			unlink(const creature& player);
-};
 class posable {
 	indext				index;
 public:
+	void				clear() { index = Blocked; }
 	constexpr indext	getposition() const { return index; }
 	constexpr void		setposition(indext v) { index = v; }
 };
@@ -666,7 +642,7 @@ public:
 	constexpr void		setposition(indext v, int l) { posable::setposition(v); level = l; }
 };
 class nameable : public variant, public posable {
-	short unsigned		name;
+	short unsigned		name[2];
 public:
 	void				act(const char* format, ...) const;
 	void				actv(stringbuilder& sb, const char* format, const char* param) const;
@@ -674,10 +650,32 @@ public:
 	bool				cansee() const;
 	gender_s			getgender() const;
 	const char*			getname() const;
+	void				getname(stringbuilder& sb) const;
+	void				randomname();
 	void				sayv(stringbuilder& st, const char* format, const char* param) const;
 	void				setname(race_s race, gender_s gender);
 	race_s				getrace() const;
 	bool				ischaracter() const { return value == Character; }
+};
+class site : public nameable, public rect {
+	variant				param;
+	short unsigned		owner_id;
+	unsigned char		found;
+	unsigned			recoil;
+public:
+	explicit operator bool() { return x2 > x1 && y2 > y1; }
+	void				clear();
+	static site*		find(indext index);
+	room_s				getkind() const { return (room_s)value; }
+	creature*			getowner() const;
+	variant				getparam() const { return param; }
+	creature*			priest();
+	void				set(const rect& v) { *static_cast<rect*>(this) = v; }
+	void				set(room_s v) { type = Room; value = v; }
+	void				setowner(const creature* v);
+	void				setparam(variant v) { param = v; }
+	creature*			shopkeeper();
+	static void			unlink(const creature& player);
 };
 struct rolei {
 	const char*			name;
@@ -958,7 +956,7 @@ struct dungeoni {
 	itemc				items;
 	mapflf				flags;
 	explicit constexpr operator bool() const { return level != 0; }
-	bool				create(indext index, int level) const;
+	bool				create(indext index, int level, bool visualize) const;
 	const dungeoni*		find(int level) const;
 	constexpr bool		is(map_flag_s v) const { return flags.is(v); }
 	constexpr bool		isdungeon() const { return type == AreaDungeon; }
@@ -1090,6 +1088,7 @@ public:
 	void				additems(indext i, stringbuilder& sb) const;
 	void				addobject(indext i, stringbuilder& sb) const;
 	void				addposition(indext i);
+	site*				addsite(room_s type, const rect& rc);
 	creature*			adventurer(indext index);
 	bool				apply(creature& player, indext index, variant id, int v, int order, bool run);
 	void				blockcreatures();
@@ -1101,7 +1100,7 @@ public:
 	indext				choose(bool allow_cancel);
 	void				clear();
 	static void			clearblock();
-	void				content(const rect& rc, room_s type);
+	void				content(const rect& rc, room_s type, site* p);
 	creature*			commoner(indext index);
 	void				create(const dungeoni& type, int level, bool explored, bool visualize);
 	void				drop(indext i, item v);
@@ -1140,7 +1139,7 @@ public:
 	bool				ismatch(indext index, const rect& rectanle) const;
 	bool				ismatch(indext index, variant v) const;
 	void				lake(const rect& rc);
-	void				interior(const rect& rc, room_s type, indext index, int level, rect* result_rect = 0);
+	void				interior(const rect& rc, room_s type, indext index, int level, rect* result_rect, site* ps);
 	void				loot(indext index, item_s type, int level, char chance_bigger_price = 0, identify_s identify = Unknown, char chance_curse = 10, char bonus_quality = 0);
 	void				loot(indext index, const aref<slot_s>& slots, int level, char chance_bigger_price = 0, identify_s identify = Unknown, char chance_curse = 10, char bonus_quality = 0);
 	void				loot(const rect& rc, const aref<slot_s>& slots, int chance, int level, char chance_bigger_price = 0, identify_s identify = Unknown, char chance_curse = 10, char bonus_quality = 0);

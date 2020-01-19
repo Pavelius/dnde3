@@ -7,9 +7,8 @@ struct vector {
 static vector			rooms[256];
 static unsigned char	stack_put, stack_get;
 static direction_s		connectors_side[] = {Up, Left, Right, Down};
-
-static slot_s	slots_weapons_armor[] = {Melee, Ranged, OffHand, Head, Elbows, Legs, Torso};
-static item_s	item_treasure[] = {Coin, Coin, Coin, Coin, Coin, Coin, Coin, CoinSP, CoinSP, CoinSP, CoinGP};
+static slot_s			slots_weapons_armor[] = {Melee, Ranged, OffHand, Head, Elbows, Legs, Torso};
+static item_s			item_treasure[] = {Coin, Coin, Coin, Coin, Coin, Coin, Coin, CoinSP, CoinSP, CoinSP, CoinGP};
 
 static int compare_rect(const void* p1, const void* p2) {
 	auto e1 = (rect*)p1;
@@ -209,17 +208,14 @@ static void create_dungeon_content(const rect& rc, rooma& rooms, const landscape
 	int index_maximum = sizeof(land.objects) / sizeof(land.objects[0]);
 	for(const auto& e : rooms) {
 		loc.fill(e, Floor);
-		auto p = bsmeta<site>::add();
-		p->set(e);
-		p->randomname();
 		auto t = EmpthyRoom;
 		if(index < index_maximum && land.objects[index]) {
 			t = land.objects[index];
 			loc.addposition(loc.center(e));
 			index++;
 		}
-		p->set(t);
-		loc.content(e, t);
+		auto p = loc.addsite(t, e);
+		loc.content(e, t, p);
 	}
 	for(auto& e : rooms)
 		create_corridor(e.x1, e.y1, e.width(), e.height(), maprnd(connectors_side));
@@ -252,13 +248,10 @@ static void create_city_buildings(const rect& rc, rooma& rooms, const landscapei
 			t = land.objects[index];
 			index++;
 		}
-		auto p = bsmeta<site>::add();
-		p->set(e);
-		p->set(t);
-		p->randomname();
+		auto p = loc.addsite(t, e);
 		auto door = loc.building(e);
-		rect r2; loc.interior(e, t, door, 0, &r2);
-		p->setarea(r2);
+		rect r2; loc.interior(e, t, door, 0, &r2, p);
+		p->setposition(loc.center(r2));
 		current++;
 	}
 }

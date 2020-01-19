@@ -1581,7 +1581,7 @@ static void pixel(int x, int y, color c1) {
 }
 
 static point getpos(point origin, short x, short y) {
-	return {origin.x + x*mmaps + mmaps/2, origin.y + y*mmaps + mmaps/2};
+	return {origin.x + x*mmaps + mmaps/2 + 1, origin.y + y*mmaps + mmaps/2 + 1};
 }
 
 static void view_bullet(point origin, indext index, int number) {
@@ -1610,7 +1610,7 @@ static void view_legends(point origin) {
 	auto x1 = origin.x + mmx*mmaps + 40;
 	auto y1 = origin.y;
 	for(auto& e : bsmeta<site>()) {
-		auto index = loc.center(e.getarea());
+		auto index = e.getposition();
 		if(index == Blocked)
 			continue;
 		if(!loc.is(index, Explored))
@@ -1619,7 +1619,7 @@ static void view_legends(point origin) {
 		if(type == House || type == EmpthyRoom)
 			continue;
 		view_name(x1, y1, e, number);
-		view_bullet(origin, loc.center(e.getarea()), number);
+		view_bullet(origin, index, number);
 		y1 += texth() + 4;
 		number++;
 	}
@@ -1631,20 +1631,25 @@ void location::minimap(int x, int y, point camera) const {
 	if(y < 64)
 		y = 64;
 	int y3 = y;
+	color floor, floor1;
 	auto is_dungeon = isdungeon();
-	color floor = colors::gray;
-	if(!is_dungeon)
+	if(!is_dungeon) {
 		floor = color::create(51, 140, 29);
-	color floor1 = floor.darken();
-	color object = colors::gray;
+		floor1 = color::create(95, 77, 62);
+	} else {
+		floor = colors::gray;
+		floor1 = floor.darken();
+	}
+	color object = colors::white;
 	if(!is_dungeon)
-		object = floor1.darken();
+		object = floor.darken();
 	color wall = colors::black.lighten();
 	color door = colors::red;
 	color stairs = colors::red.darken().darken();
 	color water = colors::blue;
 	color road = color::create(94, 70, 51).mix(floor, 192);
 	color border = colors::white;
+	color tree = color::create(40, 120, 19);
 	for(int y1 = 0; y1 < mmy; y1++) {
 		int x3 = x;
 		for(int x1 = 0; x1 < mmx; x1++, x3 += mmaps) {
@@ -1680,7 +1685,7 @@ void location::minimap(int x, int y, point camera) const {
 				pixel(x3, y3, door);
 				break;
 			case Tree:
-				pixel(x3, y3, object);
+				pixel(x3, y3, tree);
 				break;
 			case StairsDown:
 			case StairsUp:

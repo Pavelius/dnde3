@@ -1,5 +1,31 @@
 #include "main.h"
 
+template<> adjectivei bsmeta<adjectivei>::elements[] = {{"шальное", "шальной", "шальная"},
+{"волшебное", "вольшебный", "волшебная"},
+{"смешное", "смешной", "смешная"},
+{"черное", "черный", "черная"},
+{"белое", "белый", "белая"},
+{"стальное", "стальной", "стальная"},
+{"золотое", "золотой", "золотая"},
+};
+DECLFULL(adjectivei);
+
+template<> objectivei bsmeta<objectivei>::elements[] = {{"гном", Male},
+{"орк", Male},
+{"единорог", Male},
+{"волк", Male},
+{"рысь", Female},
+{"дракон", Male},
+{"волк", Male},
+{"перстень", Male},
+{"сокровище", NoGender},
+{"река", Female},
+{"гора", Female},
+{"лес", Male},
+{"дуб", Male},
+};
+DECLFULL(objectivei);
+
 struct nameablei {
 	race_s			race;
 	gender_s		gender;
@@ -43,6 +69,28 @@ nameablei bsmeta<nameablei>::elements[] = {{Human, Male, "Хавки"},
 {Dwarf, Male, "Ксоток"},
 };
 
+static const char* shop_end[] = {"из-за океана",
+"высокого качества",
+"по небольшим ценам",
+"с изюменкой",
+"для королей",
+"дешевле некуда",
+};
+static const char* shop_weapon[] = {"Кузница %1",
+"Мечи и доспехи %1",
+"Оружие %1",
+"Мечи %1",
+};
+static const char* shop_potions[] = {"Аптека %1",
+"Зелья и элексиры %1",
+"Алхимия %1",
+};
+static const char* shop_scrolls[] = {"Свитки %1",
+"Тома и заклинания %1",
+"Магия %1",
+"Волшебные папирусы %1",
+};
+
 static unsigned short getrandomname(race_s race, gender_s gender) {
 	const auto max_count = sizeof(bsmeta<nameablei>::elements) / sizeof(bsmeta<nameablei>::elements[0]);
 	unsigned short data[max_count];
@@ -57,35 +105,87 @@ static unsigned short getrandomname(race_s race, gender_s gender) {
 	return data[rand() % count];
 }
 
+void nameable::randomname() {
+	switch(type) {
+	case Role:
+		break;
+	case Room:
+		switch(value) {
+		case ShopWeaponAndArmor:
+			name[0] = rand() % (sizeof(shop_weapon) / sizeof(shop_weapon[0]));
+			name[1] = rand() % (sizeof(shop_end) / sizeof(shop_end[0]));
+			break;
+		case ShopPotions:
+			name[0] = rand() % (sizeof(shop_potions) / sizeof(shop_potions[0]));
+			name[1] = rand() % (sizeof(shop_end) / sizeof(shop_end[0]));
+			break;
+		case ShopScrolls:
+			name[0] = rand() % (sizeof(shop_scrolls) / sizeof(shop_scrolls[0]));
+			name[1] = rand() % (sizeof(shop_end) / sizeof(shop_end[0]));
+			break;
+		default:
+			name[0] = bsmeta<adjectivei>::source.random();
+			name[1] = bsmeta<objectivei>::source.random();
+			break;
+		}
+		break;
+	}
+}
+
 void nameable::setname(race_s race, gender_s gender) {
-	name = getrandomname(race, gender);
+	name[0] = getrandomname(race, gender);
 }
 
 gender_s nameable::getgender() const {
 	if(ischaracter()) {
-		if(name == Blocked)
+		if(name[0] == Blocked)
 			return Male;
-		return bsmeta<nameablei>::elements[name].gender;
+		return bsmeta<nameablei>::elements[name[0]].gender;
 	}
 	return bsmeta<rolei>::elements[value].gender;
 }
 
 race_s nameable::getrace() const {
 	if(ischaracter()) {
-		if(name == Blocked)
+		if(name[0] == Blocked)
 			return Human;
-		return bsmeta<nameablei>::elements[name].race;
+		return bsmeta<nameablei>::elements[name[0]].race;
 	}
 	return bsmeta<rolei>::elements[value].race;
 }
 
 const char* nameable::getname() const {
-	if(ischaracter()) {
-		if(name == Blocked)
-			return "Павел";
-		return bsmeta<nameablei>::elements[name].name;
+	switch(type) {
+	case Role:
+		if(ischaracter()) {
+			if(name[0] == Blocked)
+				return "Павел";
+			return bsmeta<nameablei>::elements[name[0]].name;
+		}
+		return bsmeta<rolei>::elements[value].name;
+	case Room: return bsmeta<roomi>::elements[value].name;
+	default: return "Что-то";
 	}
-	return bsmeta<rolei>::elements[value].name;
+}
+
+void nameable::getname(stringbuilder& sb) const {
+	switch(type) {
+	case Room:
+		switch(value) {
+		case ShopWeaponAndArmor: sb.add(shop_weapon[name[0]], shop_end[name[1]]); break;
+		case ShopPotions: sb.add(shop_potions[name[0]], shop_end[name[1]]); break;
+		case ShopScrolls: sb.add(shop_scrolls[name[0]], shop_end[name[1]]); break;
+		default:
+			sb.add(bsmeta<roomi>::elements[value].title,
+				bsmeta<adjectivei>::elements[name[0]].get(bsmeta<objectivei>::elements[name[1]].gender),
+				bsmeta<objectivei>::elements[name[1]].name);
+			break;
+		}
+		break;
+	default:
+		sb.add(getname());
+		break;
+	}
 }
 
 bool nameable::cansee() const {
@@ -153,4 +253,12 @@ void nameable::sayv(stringbuilder& st, const char* format, const char* param) co
 	sb.addv(format, param);
 	sb.add("\"");
 	st = sb;
+}
+
+const char* adjectivei::get(gender_s v) const {
+	switch(v) {
+	case Male: return name_male;
+	case Female: return name_female;
+	default: return name;
+	}
 }
