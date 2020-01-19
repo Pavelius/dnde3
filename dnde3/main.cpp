@@ -67,13 +67,15 @@ static void modify_weapon(creature* p1) {
 }
 
 static void create_indoor(landscape_s area) {
-	game.enter(loc.get(20, 20), 1, StairsDown);
-	auto p1 = create(Elf, Female, Mage);
-	auto p2 = create(Dwarf, Male, Cleric);
-	auto p3 = create(Elf, Male, Fighter);
-	p1->activate();
-	p1->damage(6, Bludgeon, 100);
-	create(p1, Potion2, PoisonSpell);
+	if(!game.read()) {
+		game.enter(loc.get(20, 20), 1, StairsDown);
+		auto p1 = create(Elf, Female, Mage);
+		auto p2 = create(Dwarf, Male, Cleric);
+		auto p3 = create(Elf, Male, Fighter);
+		p1->activate();
+		p1->damage(6, Bludgeon, 100);
+		create(p1, Potion2, PoisonSpell);
+	}
 	game.play();
 }
 

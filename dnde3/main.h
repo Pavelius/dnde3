@@ -884,6 +884,7 @@ public:
 	void				playui();
 	void				pickup();
 	void				potion(ability_s id, variant source, bool interactive, item_type_s magic, int quality, int minutes);
+	void				quitandsave();
 	void				raise(skill_s value);
 	void				raiseskills(int number);
 	void				raiseskills() { raiseskills(get(Intellegence) / 2); }
@@ -1176,7 +1177,7 @@ public:
 struct outdoor : public posable {
 	char				name[32];
 };
-class gamei : geoposable {
+class gamei : public geoposable {
 	unsigned			rounds;
 	map_object_s		command;
 	void				applypoison();
@@ -1192,7 +1193,9 @@ public:
 	static void			help();
 	void				passminute();
 	void				play();
+	bool				read();
 	void				use(map_object_s v);
+	bool				write();
 };
 extern gamei			game;
 extern location			loc;

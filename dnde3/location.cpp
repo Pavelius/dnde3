@@ -873,18 +873,16 @@ void location::loot(indext index, item_s type, int level, char chance_bigger_pri
 	it.set(identify);
 	if(it.is(Coinable))
 		it.setcount(xrand(1 * level, 10 * level));
-	else {
-		if(chance_bigger_price) {
-			if(d100() < chance_bigger_price)
-				it.set(Sale150);
-			else
-				it.set(Sale100);
-		} else if(chance_bigger_price < 0) {
-			if(d100() < (-chance_bigger_price))
-				it.set(Sale75);
-			else
-				it.set(Sale100);
-		}
+	if(chance_bigger_price) {
+		if(d100() < chance_bigger_price)
+			it.set(Sale150);
+		else
+			it.set(Sale100);
+	} else if(chance_bigger_price < 0) {
+		if(d100() < (-chance_bigger_price))
+			it.set(Sale75);
+		else
+			it.set(Sale100);
 	}
 	if(it.is(Artifact))
 		loc.artifacts++;

@@ -327,12 +327,10 @@ void item::getname(stringbuilder& sb, bool show_cab) const {
 		if(n > 1)
 			sb.adds("%1i шт", getcount());
 	}
-	if(is(KnownStats)) {
-		if(sale) {
-			auto n = getcost();
-			if(n > 0)
-				sb.adds("(цена %1i)", n);
-		}
+	if(sale) {
+		auto n = getcost();
+		if(n > 0)
+			sb.adds("(цена %1i)", n);
 	}
 }
 

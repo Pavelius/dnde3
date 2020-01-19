@@ -18,9 +18,13 @@ static bool serial(location& e, const char* url, bool write_mode) {
 	return true;
 }
 
-static void remove_party() {
-	boosti boost_source[64];
-	array source(boost_source);
+static bool serial(gamei& e, bool write_mode) {
+	io::file file("game/game.dat", write_mode ? StreamWrite : StreamRead);
+	if(!file)
+		return false;
+	archive a(file, write_mode);
+	a.set(e);
+	return true;
 }
 
 bool location::write(const char* url) const {
@@ -39,4 +43,20 @@ bool location::read(const char* url) {
 bool location::read(indext index, int level) {
 	char temp[260]; stringbuilder sb(temp); getfilename(sb, index, level);
 	return read(temp);
+}
+
+bool gamei::read() {
+	if(!serial(*this, false))
+		return false;
+	if(!loc.read(getposition(), getlevel()))
+		return false;
+	return true;
+}
+
+bool gamei::write() {
+	if(!serial(*this, true))
+		return false;
+	if(!loc.write(getposition(), getlevel()))
+		return false;
+	return true;
 }

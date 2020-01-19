@@ -866,6 +866,21 @@ void creature::move(indext index) {
 			}
 		}
 	}
+	auto psite = site::find(getposition());
+	if(psite && psite->getowner()==this) {
+		auto pnewsite = site::find(index);
+		// Владелец заведения не покидает его
+		if(psite != pnewsite) {
+			static const char* talk[] = {
+				"Пожалуй, покидать мое место обитания я не буду.",
+				"Там нечего делать. Вернусь к делам.",
+				"Зачем мне туда идти?",
+			};
+			say(maprnd(talk));
+			wait();
+			return;
+		}
+	}
 	movecost(index);
 	if(getposition() != index) {
 		setposition(index);
@@ -1884,4 +1899,11 @@ bool creature::saybusy() {
 void creature::usetools() {
 	creaturea creatures(*this);
 	use(creatures, wears[Tool]);
+}
+
+void creature::quitandsave() {
+	if(ask("Вы действительно хотите [сохранить] игру и выйти?")) {
+		game.write();
+		exit(0);
+	}
 }
