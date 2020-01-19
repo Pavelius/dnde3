@@ -978,11 +978,14 @@ void location::addposition(indext i) {
 	}
 }
 
-void location::interior(const rect& rc, room_s type, indext entrance, int level) {
+void location::interior(const rect& rc, room_s type, indext entrance, int level, rect* result_rect) {
 	if(rc.width() < 5 && rc.height() < 5) {
 		rect r2 = rc.getoffset(1, 1);
-		if(level == 0)
+		if(level == 0) {
 			addposition(center(r2));
+			if(result_rect)
+				*result_rect = r2;
+		}
 		content(r2, type);
 		return;
 	}
@@ -992,61 +995,51 @@ void location::interior(const rect& rc, room_s type, indext entrance, int level)
 	const auto h = rc.height();
 	auto dx = loc.getx(entrance);
 	auto dy = loc.gety(entrance);
-	auto x1 = rc.x1, y1 = rc.y1, w1 = rc.width(), h1 = rc.height();
-	auto x2 = rc.x1, y2 = rc.y1, w2 = rc.width(), h2 = rc.height();
+	rect r1 = rc, r2 = rc;
 	if(w > h && w >= 5) {
-		auto wp = rc.x1 + w / 2 + 1 - (rand() % 3);
+		r1.x2 = r1.x1 + r1.width() / 2 + 1 - (rand() % 3);
 		// Дверь может попасть прямо на линию
-		if(wp == dx) {
-			if(wp <= (rc.x1 + w / 2))
-				wp++;
+		if(r1.x2 == dx) {
+			if(r1.x2 <= (rc.x1 + rc.width() / 2))
+				r1.x2++;
 			else
-				wp--;
+				r1.x2--;
 		}
-		if((wp - rc.x1) < 2 || (rc.x1 + w - wp) <= 2)
+		r2.x1 = r1.x2;
+		if(r1.width() < 2 || r2.width() <= 2)
 			return;
-		entrance = setiwv(wp, rc.y1, h, Wall, Door, true);
-		if(dx < wp) {
-			x1 = wp;
-			w1 = (rc.x1 + w) - wp;
-			w2 = wp - rc.x1 + 1;
-		} else {
-			x2 = wp;
-			w1 = wp - rc.x1;
-			w2 = (rc.x1 + w) - wp;
-		}
+		entrance = setiwv(r1.x2, r1.y1, r1.height(), Wall, Door, true);
+		if(r1.x2 < dx)
+			iswap(r1, r2);
 	} else if(h >= 5) {
-		auto wp = rc.y1 + h / 2 + 1 - (rand() % 3);
-		if(wp == dy) {
-			if(wp <= (rc.y1 + h / 2))
-				wp++;
+		r1.y2 = r1.y1 + r1.height() / 2 + 1 - (rand() % 3);
+		// Дверь может попасть прямо на линию
+		if(r1.y2 == dy) {
+			if(r1.y2 <= (rc.y1 + rc.height() / 2))
+				r1.y2++;
 			else
-				wp--;
+				r1.y2--;
 		}
-		if((wp - rc.y1) < 2 || (rc.y1 + h - wp) <= 2)
+		r2.y1 = r1.y2;
+		if(r1.height() < 2 || r2.height() <= 2)
 			return;
-		entrance = setiwh(rc.x1, wp, w, Wall, Door, true);
-		if(dy < wp) {
-			y1 = wp;
-			h1 = (rc.y1 + h) - wp;
-			h2 = wp - rc.y1 + 1;
-		} else {
-			y2 = wp;
-			h1 = wp - rc.y1;
-			h2 = (rc.y1 + h) - wp;
-		}
+		entrance = setiwh(r1.x1, r1.y2, r1.width(), Wall, Door, true);
+		if(r1.y2 < dy)
+			iswap(r1, r2);
 	}
-	rect r2 = {x2 + 1, y2 + 1, x2 + w2 - 2, y2 + h2 - 2};
-	if(level == 0)
-		addposition(center(r2));
-	content(r2, type);
+	if(level == 0) {
+		addposition(center(r1.getoffset(1,1)));
+		if(result_rect)
+			*result_rect = r1.getoffset(1,1);
+	}
+	content(r1.getoffset(1,1), type);
 	switch(type) {
 	case ShopPotionAndScrolls:
 	case ShopWeaponAndArmor:
-		interior({x1, y1, x1 + w1, y1 + h1}, TreasureRoom, entrance, level + 1);
+		interior(r2, TreasureRoom, entrance, level + 1);
 		break;
 	default:
-		interior({x1, y1, x1 + w1, y1 + h1}, EmpthyRoom, entrance, level + 1);
+		interior(r2, EmpthyRoom, entrance, level + 1);
 		break;
 	}
 }

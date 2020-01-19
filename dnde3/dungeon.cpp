@@ -3,7 +3,7 @@
 const dungeoni* dungeoni::find(int level) const {
 	auto n = 0;
 	for(auto p = this; *p; p++) {
-		n += p->levels;
+		n += p->level;
 		if(n >= level)
 			return p;
 	}
@@ -15,7 +15,7 @@ bool dungeoni::create(indext index, int level) const {
 	if(!p)
 		return false;
 	if(!loc.read(index, level)) {
-		loc.create(p->type, level, is(Explored), is(Visible));
+		loc.create(*p, level, p->is(Explored), false);
 		loc.write(index, level);
 	}
 	return true;

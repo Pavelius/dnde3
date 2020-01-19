@@ -92,7 +92,8 @@ static void test_pause() {
 }
 
 static void test_dungeon() {
-	loc.create(AreaDungeon, 1, true, false);
+	static dungeoni dungeon = {AreaDungeon, 5, -2};
+	loc.create(dungeon, 1, true, false);
 	loc.setdungeon(true);
 	loc.setlight(-2);
 	auto p1 = create(Human, Female, Mage);

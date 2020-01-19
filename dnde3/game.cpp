@@ -106,8 +106,8 @@ void gamei::passminute() {
 
 void gamei::enter(indext index, int level, map_object_s stairs) {
 	static dungeoni meher_dungeon[] = {{AreaCity, 1},
-	{AreaDungeon, 16},
-	{AreaDungeonLair, 1},
+	{AreaDungeon, 16, -2},
+	{AreaDungeonLair, 1, -2},
 	};
 	if(true) {
 		gamestat players;

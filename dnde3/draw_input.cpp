@@ -1581,7 +1581,7 @@ static void pixel(int x, int y, color c1) {
 }
 
 static point getpos(point origin, short x, short y) {
-	return {origin.x + x*mmaps, origin.y + y*mmaps};
+	return {origin.x + x*mmaps + mmaps/2, origin.y + y*mmaps + mmaps/2};
 }
 
 static void view_bullet(point origin, indext index, int number) {
@@ -1610,13 +1610,16 @@ static void view_legends(point origin) {
 	auto x1 = origin.x + mmx*mmaps + 40;
 	auto y1 = origin.y;
 	for(auto& e : bsmeta<site>()) {
-		auto index = loc.center(e);
+		auto index = loc.center(e.getarea());
 		if(index == Blocked)
 			continue;
 		if(!loc.is(index, Explored))
 			continue;
+		auto type = e.getkind();
+		if(type == House || type == EmpthyRoom)
+			continue;
 		view_name(x1, y1, e, number);
-		view_bullet(origin, loc.center(e), number);
+		view_bullet(origin, loc.center(e.getarea()), number);
 		y1 += texth() + 4;
 		number++;
 	}

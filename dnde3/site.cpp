@@ -2,14 +2,21 @@
 
 DECLDATA(site, 128)
 
+static const char* shop_end[] = {"из-за океана",
+"высокого качества",
+"по небольшим ценам",
+"с изюменкой",
+"для королей",
+};
+
+static const char* shop_weapon[] = {"Кузница %1",
+"Мечи и доспехи %2",
+"Оружие %2",
+"Хорошие мечи %1",
+};
+
 creature* site::getowner() const {
 	return (owner_id == Blocked) ? 0 : bsmeta<creature>::elements + owner_id;
-}
-
-void site::getname(stringbuilder& sb) const {
-	sb.add(bsmeta<roomi>::elements[type].title,
-		bsmeta<adjectivei>::elements[name[0]].get(bsmeta<objectivei>::elements[name[1]].gender),
-		bsmeta<objectivei>::elements[name[1]]);
 }
 
 site* site::find(indext index) {
@@ -60,6 +67,37 @@ void site::unlink(const creature& player) {
 }
 
 void site::randomname() {
-	name[0] = bsmeta<objectivei>::source.random();
-	name[1] = bsmeta<adjectivei>::source.random();
+	switch(type) {
+	case ShopWeaponAndArmor:
+		name[0] = rand() % (sizeof(shop_weapon) / sizeof(shop_weapon[0]));
+		name[1] = rand() % (sizeof(shop_end) / sizeof(shop_end[0]));
+		break;
+	default:
+		name[0] = bsmeta<adjectivei>::source.random();
+		name[1] = bsmeta<objectivei>::source.random();
+		break;
+	}
+}
+
+void site::getname(stringbuilder& sb) const {
+	char temp[260]; stringbuilder sbt(temp);
+	const char* format = bsmeta<roomi>::elements[type].title;
+	const char* p1 = "";
+	const char* p2 = "";
+	switch(type) {
+	case ShopWeaponAndArmor:
+		format = shop_weapon[name[0]];
+		if(getowner()) {
+			sbt.addof(getowner()->getname());
+			p1 = temp;
+		} else
+			p1 = "Великий кузнец";
+		p2 = shop_end[name[1]];
+		break;
+	default:
+		p1 = bsmeta<adjectivei>::elements[name[0]].get(bsmeta<objectivei>::elements[name[1]].gender);
+		p2 = bsmeta<objectivei>::elements[name[1]].name;
+		break;
+	}
+	sb.add(format, p1, p2);
 }

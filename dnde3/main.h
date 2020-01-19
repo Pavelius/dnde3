@@ -632,11 +632,11 @@ class site : public rect {
 	short unsigned		owner_id;
 	unsigned char		found;
 	unsigned			recoil;
+	rect				area;
 public:
-	constexpr site() : rect{}, type(), param(), name(),
-		owner_id(Blocked), found(), recoil() {}
 	operator bool() const { return x2 > x1 && y2 > y1; }
 	static site*		find(indext index);
+	const rect&			getarea() const { return area; }
 	room_s				getkind() const { return type; }
 	void				getname(stringbuilder& sb) const;
 	creature*			getowner() const;
@@ -645,6 +645,7 @@ public:
 	creature*			priest();
 	void				randomname();
 	void				set(const rect& v) { *static_cast<rect*>(this) = v; }
+	void				setarea(const rect& v) { area = v; }
 	void				set(room_s v) { type = v; }
 	void				set(variant v) { param = v; }
 	void				setowner(const creature* v);
@@ -951,14 +952,16 @@ struct dungeoni {
 		char			magical;
 	};
 	landscape_s			type;
-	short				levels;
+	short				level;
+	char				light_level;
 	racea				denyrace;
 	itemc				items;
 	mapflf				flags;
-	explicit constexpr operator bool() const { return levels != 0; }
+	explicit constexpr operator bool() const { return level != 0; }
 	bool				create(indext index, int level) const;
 	const dungeoni*		find(int level) const;
-	bool				is(map_flag_s v) const { return flags.is(v); }
+	constexpr bool		is(map_flag_s v) const { return flags.is(v); }
+	constexpr bool		isdungeon() const { return type == AreaDungeon; }
 };
 class indexa : public adat<indext> {
 public:
@@ -1060,16 +1063,13 @@ struct manual {
 	explicit operator bool() const { return (bool)value; }
 	const char*			getname() const;
 };
-struct statistici {
+struct statistici : public dungeoni {
 	short				artifacts;
 	short				magic_items;
-	short				level;
 	indext				positions[8];
-	constexpr explicit operator bool() const { return level != 0; }
 };
 class location : public statistici {
 	typedef bool(location::*procis)(indext i) const;
-	landscape_s			landscape;
 	tile_s				tiles[mmx*mmy];
 	map_object_s		objects[mmx*mmy];
 	unsigned char		random[mmx*mmy];
@@ -1080,7 +1080,6 @@ class location : public statistici {
 	indext				getfree(indext i, procis proc, int radius_maximum) const;
 	site&				room(const rect& rc);
 	bool				linelos(int x0, int y0, int x1, int y1) const;
-	bool				isdungeon() const { return landscape == AreaDungeon; }
 	bool				wget(short unsigned i, direction_s direction, tile_s value) const;
 	bool				wget(short unsigned i, direction_s direction, tile_s value, bool default_result) const;
 	bool				xget(short unsigned i, direction_s direction) const;
@@ -1104,7 +1103,7 @@ public:
 	static void			clearblock();
 	void				content(const rect& rc, room_s type);
 	creature*			commoner(indext index);
-	void				create(landscape_s landscape, int level, bool explored, bool visualize);
+	void				create(const dungeoni& type, int level, bool explored, bool visualize);
 	void				drop(indext i, item v);
 	void				editor();
 	void				ellipse(rect rc, tile_s object);
@@ -1141,7 +1140,7 @@ public:
 	bool				ismatch(indext index, const rect& rectanle) const;
 	bool				ismatch(indext index, variant v) const;
 	void				lake(const rect& rc);
-	void				interior(const rect& rc, room_s type, indext index, int level);
+	void				interior(const rect& rc, room_s type, indext index, int level, rect* result_rect = 0);
 	void				loot(indext index, item_s type, int level, char chance_bigger_price = 0, identify_s identify = Unknown, char chance_curse = 10, char bonus_quality = 0);
 	void				loot(indext index, const aref<slot_s>& slots, int level, char chance_bigger_price = 0, identify_s identify = Unknown, char chance_curse = 10, char bonus_quality = 0);
 	void				loot(const rect& rc, const aref<slot_s>& slots, int chance, int level, char chance_bigger_price = 0, identify_s identify = Unknown, char chance_curse = 10, char bonus_quality = 0);

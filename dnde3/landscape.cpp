@@ -257,7 +257,8 @@ static void create_city_buildings(const rect& rc, rooma& rooms, const landscapei
 		p->set(t);
 		p->randomname();
 		auto door = loc.building(e);
-		loc.interior(e, t, door, 0);
+		rect r2; loc.interior(e, t, door, 0, &r2);
+		p->setarea(r2);
 		current++;
 	}
 }
@@ -338,10 +339,10 @@ template<> landscapei bsmeta<landscapei>::elements[] = {{"Равнина", 0, Plain, {{
 };
 assert_enum(landscape, AreaCity);
 
-void location::create(landscape_s landscape, int level, bool explored, bool visualize) {
-	auto& ei = bsmeta<landscapei>::elements[landscape];
+void location::create(const dungeoni& source, int level, bool explored, bool visualize) {
 	clear();
-	this->landscape = landscape;
+	*static_cast<dungeoni*>(this) = source;
+	auto& ei = bsmeta<landscapei>::elements[type];
 	this->level = level;
 	stack_get = stack_put = 0;
 	visualize = visualize && explored;
