@@ -28,12 +28,10 @@ static void create(creature* p1, item_s type, variant effect) {
 }
 
 static void test_worldmap() {
-	location loc;
-	loc.clear();
-	indext position = loc.get(10, 10);
 	auto i0 = loc.get(5, 4);
 	auto i1 = loc.get(5, 5);
 	auto i2 = loc.get(5, 6);
+	loc.clear();
 	loc.fill({0, 0, mmx - 1, 1}, Sea);
 	loc.fill({0, 0, 1, mmy - 1}, Sea);
 	loc.fill({mmx - 2, 0, mmx - 1, mmy - 1}, Sea);
@@ -44,8 +42,18 @@ static void test_worldmap() {
 	loc.set(i1 + 1, Sea);
 	loc.set(i1 - 1, Sea);
 	loc.set(i2, Sea);
-	loc.write("test.loc");
+	loc.write("game/overland.loc", true);
 	loc.editor();
+}
+
+static void test_adventure() {
+	loc.read("game/overland.loc", true);
+	auto p1 = create(Elf, Female, Mage);
+	auto p2 = create(Dwarf, Male, Cleric);
+	auto p3 = create(Elf, Male, Fighter);
+	p1->activate();
+	game.move(loc.get(10, 10));
+	loc.adventure();
 }
 
 static void test_answers() {
@@ -142,9 +150,10 @@ int main(int argc, char* argv[]) {
 	//test_answers();
 	//item_choose();
 	//test_worldmap();
+	test_adventure();
 	//test_analize();
 	//test_dungeon();
-	create_indoor(AreaCity);
+	//create_indoor(AreaCity);
 }
 
 int __stdcall WinMain(void* ci, void* pi, char* cmd, int sw) {

@@ -256,81 +256,6 @@ static void correct(point& camera) {
 		camera.y = my - viewport.y;
 }
 
-void location::worldmap(point camera, bool show_fow) const {
-	auto decals = gres(ResDecals);
-	viewport.x = draw::getwidth();
-	viewport.y = draw::getheight();
-	correct(camera);
-	rect rc;
-	rc.x1 = camera.x / elx;
-	rc.y1 = camera.y / ely;
-	rc.x2 = rc.x1 + viewport.x / elx + 2;
-	rc.y2 = rc.y1 + viewport.y / ely + 3;
-	int x0 = 0;
-	int y0 = 0;
-	// Нижний уровень
-	for(auto my = rc.y1; my <= rc.y2; my++) {
-		if(my < 0)
-			continue;
-		if(my >= mmy)
-			break;
-		for(auto mx = rc.x1; mx <= rc.x2; mx++) {
-			if(mx < 0 || mx >= mmx)
-				continue;
-			auto i = get(mx, my);
-			auto x = x0 + mx * elx - camera.x;
-			auto y = y0 + my * ely - camera.y;
-			auto t = gettile(i);
-			auto r = getrand(i) % 4;
-			switch(t) {
-			case Plain:
-			case Mountains:
-			case Forest:
-			case Swamp:
-				draw::image(x, y, gres(ResPlains), r, 0);
-				break;
-			case Sea:
-				draw::image(x, y, gres(ResSea), getindex(i, Sea), 0);
-				break;
-			case Foothills:
-				draw::image(x, y, gres(ResPlains), r, 0);
-				draw::image(x, y, gres(ResFoothills), getindex(i, Foothills), 0);
-				break;
-			}
-		}
-	}
-	// Средний уровень
-	for(auto my = rc.y1; my <= rc.y2; my++) {
-		if(my < 0)
-			continue;
-		if(my >= mmy)
-			break;
-		for(auto mx = rc.x1; mx <= rc.x2; mx++) {
-			if(mx < 0 || mx >= mmx)
-				continue;
-			auto x = x0 + mx * elx - camera.x;
-			auto y = y0 + my * ely - camera.y;
-			auto i = get(mx, my);
-			auto t = gettile(i);
-			auto r = getrand(i) % 4;
-			switch(t) {
-			case Mountains:
-				draw::image(x, y, gres(ResMountains), getindex(i, Mountains), 0);
-				break;
-			case CloudPeaks:
-				draw::image(x, y, gres(ResCloudPeaks), getindex(i, CloudPeaks), 0);
-				break;
-			case Forest:
-				draw::image(x, y, decals, 0 + (getrand(i) % 3), 0);
-				break;
-			case Swamp:
-				draw::image(x, y, decals, 3 + (getrand(i) % 3), 0);
-				break;
-			}
-		}
-	}
-}
-
 static bool controlmap() {
 	switch(hot.key) {
 	case KeyLeft: camera.x -= mmx; break;
@@ -376,10 +301,10 @@ static indext translate(indext i) {
 	case KeyPageUp: i1 = location::to(i, RightUp); break;
 	case KeyEnd: i1 = location::to(i, LeftDown); break;
 	case KeyPageDown: i1 = location::to(i, RightDown); break;
-	default: return i;
+	default: return Blocked;
 	}
 	if(i1 == Blocked)
-		return i;
+		return Blocked;
 	hot.key = 0;
 	correct(camera, i1);
 	return i1;
@@ -750,11 +675,12 @@ static void render_indoor() {
 }
 
 static void controls() {
-	current_index = translate(current_index);
+	auto i = translate(current_index);
+	if(i != Blocked)
+		current_index = i;
 }
 
 void location::editor() {
-	read("overland.map");
 	setbackground(render_editor);
 	while(ismodal()) {
 		current_background();
@@ -764,7 +690,7 @@ void location::editor() {
 			breakmodal(0);
 			break;
 		default:
-			current_index = translate(current_index);
+			controls();
 			break;
 		}
 	}
@@ -1521,7 +1447,7 @@ indext location::choose(bool allow_cancel) {
 			breakmodal(current_index);
 			break;
 		default:
-			current_index = translate(current_index);
+			controls();
 			break;
 		}
 	}
@@ -1756,7 +1682,36 @@ static void change_player() {
 	}
 }
 
-static hotkey adventure_keys[] = {{F1, "Выбрать первого героя", change_player, 0},
+static bool translate_move(creature* player) {
+	for(auto& e : move_keys) {
+		if(e.key == hot.key) {
+			auto ni = location::to(player->getposition(), e.direction);
+			player->move(ni);
+			breakmodal(0);
+			return true;
+		}
+	}
+	return false;
+}
+
+static bool translate_commands(creature* player, const hotkey* keys, bool terminate) {
+	for(auto k = keys; *k; k++) {
+		if(hot.key == k->key) {
+			hot.key = 0;
+			hot.param = k->param;
+			if(player && k->proc.pcre)
+				(player->*k->proc.pcre)();
+			else
+				k->proc.pinp();
+			if(terminate)
+				breakmodal(0);
+			return true;
+		}
+	}
+	return false;
+}
+
+static hotkey indoor_keys[] = {{F1, "Выбрать первого героя", change_player, 0},
 {F2, "Выбрать второго героя", change_player, 1},
 {F3, "Выбрать третьего героя", change_player, 2},
 {F4, "Выбрать четвертого героя", change_player, 3},
@@ -1782,34 +1737,6 @@ static hotkey adventure_keys[] = {{F1, "Выбрать первого героя", change_player, 0
 {Ctrl + Alpha + 'Q', "Сохранить и выйти", &creature::quitandsave},
 {}};
 
-static bool translate_move(creature* player) {
-	for(auto& e : move_keys) {
-		if(e.key == hot.key) {
-			auto ni = location::to(player->getposition(), e.direction);
-			player->move(ni);
-			breakmodal(0);
-			return true;
-		}
-	}
-	return false;
-}
-
-static bool translate_commands(creature* player) {
-	for(auto& e : adventure_keys) {
-		if(hot.key == e.key) {
-			hot.key = 0;
-			hot.param = e.param;
-			if(player && e.proc.pcre)
-				(player->*e.proc.pcre)();
-			else
-				e.proc.pinp();
-			breakmodal(0);
-			return true;
-		}
-	}
-	return false;
-}
-
 void creature::playui() {
 	current_index = Blocked;
 	setbackground(render_indoor);
@@ -1819,7 +1746,7 @@ void creature::playui() {
 		domodal();
 		if(translate_move(this))
 			continue;
-		if(translate_commands(this))
+		if(translate_commands(this, indoor_keys, true))
 			continue;
 	}
 }
@@ -1884,5 +1811,147 @@ void location::show(rooma& rooms) {
 			hot.key = 0;
 			break;
 		}
+	}
+}
+
+static void small_avatar(int x, int y, const creature& player) {
+	const int sx = 128;
+	const int sy = 128;
+	surface scaler(sx, sy, 32);
+	if(true) {
+		draw::state push;
+		draw::canvas = &scaler;
+		fore.r = fore.g = fore.b = 0; fore.a = 0xFF;
+		draw::rectf({0, 0, sx, sy});
+		avatar(sx / 2, sy - sy / 4, player, 0, 0xFF);
+	}
+	blit(*draw::canvas, x - (sx / 2) / 2, y - (sy - sy / 4) / 2, sx / 2, sy / 2, 0, scaler, 0, 0, sx, sy);
+}
+
+static void render_outdoor() {
+	const int x0 = 0;
+	const int y0 = 0;
+	loc.worldmap(camera, true);
+	auto player = creature::getactive();
+	if(player) {
+		//small_avatar(100, 100, *player);
+		auto index = game.getposition();
+		auto x = x0 + loc.getx(index) * elx - camera.x;
+		auto y = y0 + loc.gety(index) * ely - camera.y;
+		unsigned flags;
+		switch(player->getdirection()) {
+		case Left:
+		case LeftUp:
+		case LeftDown:
+			flags = ImageMirrorH;
+			break;
+		default:
+			flags = 0;
+			break;
+		}
+		avatar(x, y, *player, flags, 0xFF);
+		render_info(*player);
+	}
+}
+
+void location::worldmap(point camera, bool show_fow) const {
+	auto decals = gres(ResDecals);
+	viewport.x = draw::getwidth();
+	viewport.y = draw::getheight();
+	correct(camera);
+	rect rc;
+	rc.x1 = camera.x / elx;
+	rc.y1 = camera.y / ely;
+	rc.x2 = rc.x1 + viewport.x / elx + 2;
+	rc.y2 = rc.y1 + viewport.y / ely + 3;
+	int x0 = 0;
+	int y0 = 0;
+	// Нижний уровень
+	for(auto my = rc.y1; my <= rc.y2; my++) {
+		if(my < 0)
+			continue;
+		if(my >= mmy)
+			break;
+		for(auto mx = rc.x1; mx <= rc.x2; mx++) {
+			if(mx < 0 || mx >= mmx)
+				continue;
+			auto i = get(mx, my);
+			auto x = x0 + mx * elx - camera.x;
+			auto y = y0 + my * ely - camera.y;
+			auto t = gettile(i);
+			auto r = getrand(i) % 4;
+			switch(t) {
+			case Sea:
+				draw::image(x, y, gres(ResSea), getindex(i, Sea), 0);
+				break;
+			case Foothills:
+				draw::image(x, y, gres(ResPlains), r, 0);
+				draw::image(x, y, gres(ResFoothills), getindex(i, Foothills), 0);
+				break;
+			default:
+				draw::image(x, y, gres(ResPlains), r, 0);
+				break;
+			}
+		}
+	}
+	// Средний уровень
+	for(auto my = rc.y1; my <= rc.y2; my++) {
+		if(my < 0)
+			continue;
+		if(my >= mmy)
+			break;
+		for(auto mx = rc.x1; mx <= rc.x2; mx++) {
+			if(mx < 0 || mx >= mmx)
+				continue;
+			auto x = x0 + mx * elx - camera.x;
+			auto y = y0 + my * ely - camera.y;
+			auto i = get(mx, my);
+			auto t = gettile(i);
+			auto r = getrand(i) % 4;
+			switch(t) {
+			case Mountains:
+				draw::image(x, y, gres(ResMountains), getindex(i, Mountains), 0);
+				break;
+			case CloudPeaks:
+				draw::image(x, y, gres(ResCloudPeaks), getindex(i, CloudPeaks), 0);
+				break;
+			case Forest:
+				draw::image(x, y, decals, 0 + (getrand(i) % 3), 0);
+				break;
+			case Swamp:
+				draw::image(x, y, decals, 3 + (getrand(i) % 3), 0);
+				break;
+			}
+		}
+	}
+}
+
+static hotkey overland_keys[] = {{F1, "Выбрать первого героя", change_player, 0},
+{F2, "Выбрать второго героя", change_player, 1},
+{F3, "Выбрать третьего героя", change_player, 2},
+{F4, "Выбрать четвертого героя", change_player, 3},
+{Ctrl + Alpha + 'M', "Открыть мануал", gamei::help},
+{Alpha + 'I', "Открыть инвентарь", &creature::inventory},
+{Alpha + 'V', "Рюкзак", &creature::backpack},
+{Alpha + 'S', "Создать заклинание", &creature::usespells},
+{Ctrl + Alpha + 'D', "Выпить что-то", &creature::drink},
+{Ctrl + Alpha + 'E', "Съесть что-то", &creature::eat},
+{Ctrl + Alpha + 'R', "Прочитать что-то", &creature::readsomething},
+{Ctrl + Alpha + 'W', "Тестировать оружие", &creature::testweapons},
+{Ctrl + Alpha + 'Q', "Сохранить и выйти", &creature::quitandsave},
+{}};
+
+void location::adventure() {
+	current_index = Blocked;
+	setbackground(render_outdoor);
+	while(ismodal()) {
+		setcamera(game.getposition());
+		current_background();
+		domodal();
+		auto i = translate(game.getposition());
+		if(i != Blocked)
+			game.move(i);
+		else
+			translate_commands(creature::getactive(), overland_keys, false);
 	}
 }

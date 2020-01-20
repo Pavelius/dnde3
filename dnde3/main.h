@@ -1079,6 +1079,7 @@ public:
 	void				addobject(indext i, stringbuilder& sb) const;
 	void				addposition(indext i);
 	site*				addsite(room_s type, const rect& rc);
+	void				adventure();
 	creature*			adventurer(indext index);
 	bool				apply(creature& player, indext index, variant id, int v, int order, bool run);
 	void				blockcreatures();
@@ -1138,7 +1139,7 @@ public:
 	void				minimap(indext index, bool fow) const;
 	creature*			monster(indext index);
 	static rect			normalize(const rect& rc);
-	bool				read(const char* url);
+	bool				read(const char* url, bool overland);
 	bool				read(indext index, int level);
 	void				remove(indext i, map_flag_s v) { flags[i].remove(v); }
 	void				set(indext i, map_flag_s v) { flags[i].set(v); }
@@ -1160,7 +1161,7 @@ public:
 	static indext		to(indext index, direction_s v);
 	static direction_s	to(direction_s d, direction_s v);
 	void				worldmap(point camera, bool show_fow = true) const;
-	bool				write(const char* url) const;
+	bool				write(const char* url, bool overland) const;
 	bool				write(indext index, int level);
 };
 struct outdoor : public posable {
@@ -1179,6 +1180,7 @@ public:
 	void				enter(indext index, int level, map_object_s stairs);
 	int					getrounds() const { return rounds; }
 	void				intialize();
+	void				move(indext index);
 	static void			help();
 	void				passminute();
 	void				play();

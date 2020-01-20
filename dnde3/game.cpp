@@ -191,3 +191,15 @@ void gamei::applypoison() {
 void gamei::use(map_object_s v) {
 	command = v;
 }
+
+void gamei::move(indext index) {
+	if(getposition() != index) {
+		setposition(index, 0);
+		for(auto& e : bsmeta<creature>()) {
+			if(!e || !e.is(Friendly))
+				continue;
+			e.look(index);
+			e.setposition(index);
+		}
+	}
+}
