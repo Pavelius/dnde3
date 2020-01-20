@@ -132,10 +132,10 @@ static bool test_formula() {
 	return r == 102;
 }
 
-void util_main();
+//void util_main();
 
 int main(int argc, char* argv[]) {
-	util_main();
+	//sutil_main();
 	if(!test_formula())
 		return false;
 	game.intialize();
