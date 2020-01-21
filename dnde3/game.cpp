@@ -103,8 +103,7 @@ void gamei::playactive() {
 	bool need_continue = true;
 	while(need_continue) {
 		need_continue = true;
-		for(auto i = 0; i < moves_per_minute; i++) {
-			checkcommand();
+		for(auto i = 0; i < moves_per_minute && !command; i++) {
 			if((i % 5) == 0)
 				update_los();
 			move_creatures();
@@ -116,9 +115,31 @@ void gamei::playactive() {
 	}
 }
 
+static void applysick() {
+	for(auto& e : bsmeta<creature>()) {
+		if(e)
+			e.checksick();
+	}
+}
+
+static void applyrestore() {
+	for(auto& e : bsmeta<creature>()) {
+		if(e)
+			e.restoration();
+	}
+}
+
+static void applypoison() {
+	for(auto& e : bsmeta<creature>()) {
+		if(e)
+			e.checkpoison();
+	}
+}
+
 void gamei::passminute() {
 	rounds++; // One round is one minute
 	applyboost();
+	applyrestore();
 	if((rounds % 5) == 0)
 		applypoison();
 	if((rounds % 60) == 0)
@@ -178,8 +199,10 @@ bool gamei::checkalive() {
 }
 
 void gamei::play() {
-	while(checkalive())
+	while(checkalive()) {
+		checkcommand();
 		playactive();
+	}
 }
 
 void gamei::applyboost() {
@@ -193,20 +216,6 @@ void gamei::applyboost() {
 		player->add(e.id, e.modifier, player->is(Friendly));
 	}
 	bsmeta<boosti>::source.setcount(ps - bsmeta<boosti>::elements);
-}
-
-void gamei::applysick() {
-	for(auto& e : bsmeta<creature>()) {
-		if(e)
-			e.checksick();
-	}
-}
-
-void gamei::applypoison() {
-	for(auto& e : bsmeta<creature>()) {
-		if(e)
-			e.checkpoison();
-	}
 }
 
 void gamei::use(map_object_s v) {

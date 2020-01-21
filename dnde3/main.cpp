@@ -150,10 +150,10 @@ int main(int argc, char* argv[]) {
 	//test_answers();
 	//item_choose();
 	//test_worldmap();
-	test_adventure();
+	//test_adventure();
 	//test_analize();
 	//test_dungeon();
-	//create_indoor(AreaCity);
+	create_indoor(AreaCity);
 }
 
 int __stdcall WinMain(void* ci, void* pi, char* cmd, int sw) {

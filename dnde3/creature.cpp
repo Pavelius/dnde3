@@ -1216,8 +1216,8 @@ void creature::checkpoison() {
 	}
 }
 
-void creature::makemove() {
-	const auto pc = StandartEnergyCost * 20;
+void creature::restoration() {
+	const auto pc = StandartEnergyCost;
 	if(restore_hits > pc) {
 		if(!is(Sick)) {
 			if(hp < get(LifePoints))
@@ -1231,11 +1231,7 @@ void creature::makemove() {
 			mp++;
 		restore_mana -= pc;
 	} else
-		restore_mana += get(LifeRate);
-	if(restore_energy < StandartEnergyCost) {
-		restore_energy += get(Speed);
-		return;
-	}
+		restore_mana += get(ManaRate);
 	if(is(Wounded)) {
 		// Wounded creature loose 1 hit point each turn
 		if(roll(Constitution, 5))
@@ -1243,9 +1239,14 @@ void creature::makemove() {
 		else {
 			act("%герой истекает кровью.");
 			damage(1, Slashing, 100, false);
-			if(!(*this))
-				return;
 		}
+	}
+}
+
+void creature::makemove() {
+	if(restore_energy < StandartEnergyCost) {
+		restore_energy += get(Speed);
+		return;
 	}
 	// Dazzled creature don't make turn
 	if(is(Dazzled)) {

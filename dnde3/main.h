@@ -892,6 +892,7 @@ public:
 	void				raiseskills() { raiseskills(get(Intellegence) / 2); }
 	void				rangeattack(creature& enemy, int bonus = 0);
 	void				readsomething();
+	void				restoration();
 	bool				roll(ability_s v) const { return rollv(get(v)); }
 	bool				roll(ability_s v, int bonus) const { return rollv(get(v) + bonus); }
 	bool				roll(skill_s v) const { return rollv(get(v)); }
@@ -1171,8 +1172,6 @@ struct outdoor : public posable {
 class gamei : public geoposable {
 	unsigned			rounds;
 	map_object_s		command;
-	void				applypoison();
-	void				applysick();
 	bool				checkalive();
 	void				checkcommand();
 	void				playactive();
