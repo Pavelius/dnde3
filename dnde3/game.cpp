@@ -77,6 +77,27 @@ static void move_creatures() {
 	}
 }
 
+static void move_creatures_overland() {
+	for(auto& e : bsmeta<creature>()) {
+		if(!e)
+			continue;
+		e.makemove();
+	}
+}
+
+void gamei::playoverland() {
+	bool need_continue = true;
+	while(need_continue) {
+		need_continue = true;
+		checkcommand();
+		move_creatures_overland();
+		auto p = creature::getactive();
+		if(!p || p->isbusy() || p->is(Sleep) || command)
+			need_continue = false;
+		passminute();
+	}
+}
+
 void gamei::playactive() {
 	const int moves_per_minute = 30;
 	bool need_continue = true;

@@ -739,6 +739,7 @@ class creature : public nameable, public paperdoll {
 	void				add(ability_s id, variant source, int v, bool interactive, unsigned minutes);
 	bool				aiuse(const creaturea& creatures, const char* interactive, slot_s slot, variant effect);
 	void				aimove();
+	void				aioverland() {}
 	bool				aiskills(creaturea& creatures);
 	bool				aispells(creaturea& creatures);
 	void				aiturn(creaturea& creatures, creaturea& enemies, creature* enemy);
@@ -881,6 +882,7 @@ public:
 	bool				needrestore(ability_s id) const;
 	static void			pause();
 	void				paymana(int value, bool interactive);
+	void				playuioverland();
 	void				playui();
 	void				pickup();
 	void				potion(ability_s id, variant source, bool interactive, item_type_s magic, int quality, int minutes);
@@ -1079,7 +1081,6 @@ public:
 	void				addobject(indext i, stringbuilder& sb) const;
 	void				addposition(indext i);
 	site*				addsite(room_s type, const rect& rc);
-	void				adventure();
 	creature*			adventurer(indext index);
 	bool				apply(creature& player, indext index, variant id, int v, int order, bool run);
 	void				blockcreatures();
@@ -1175,6 +1176,7 @@ class gamei : public geoposable {
 	bool				checkalive();
 	void				checkcommand();
 	void				playactive();
+	void				playoverland();
 public:
 	void				applyboost();
 	void				enter(indext index, int level, map_object_s stairs);

@@ -1941,17 +1941,18 @@ static hotkey overland_keys[] = {{F1, "Выбрать первого героя", change_player, 0}
 {Ctrl + Alpha + 'Q', "Сохранить и выйти", &creature::quitandsave},
 {}};
 
-void location::adventure() {
+void creature::playuioverland() {
 	current_index = Blocked;
 	setbackground(render_outdoor);
 	while(ismodal()) {
-		setcamera(game.getposition());
+		location::setcamera(game.getposition());
 		current_background();
 		domodal();
 		auto i = translate(game.getposition());
-		if(i != Blocked)
+		if(i != Blocked) {
 			game.move(i);
-		else
-			translate_commands(creature::getactive(), overland_keys, false);
+			breakmodal(0);
+		} else
+			translate_commands(getactive(), overland_keys, true);
 	}
 }

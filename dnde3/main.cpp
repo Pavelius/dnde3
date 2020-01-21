@@ -53,7 +53,7 @@ static void test_adventure() {
 	auto p3 = create(Elf, Male, Fighter);
 	p1->activate();
 	game.move(loc.get(10, 10));
-	loc.adventure();
+	p1->playuioverland();
 }
 
 static void test_answers() {
