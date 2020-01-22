@@ -594,6 +594,7 @@ public:
 	void				match(item_flag_s v, bool remove);
 	void				matchp(int count, bool greater);
 	variant				random() const;
+	variant				randomw() const;
 };
 class skilla :public adat<skill_s, 64> {
 public:
@@ -1172,6 +1173,7 @@ struct outdoor : public posable {
 class gamei : public geoposable {
 	unsigned			rounds;
 	map_object_s		command;
+	bool				overland;
 	bool				checkalive();
 	void				checkcommand();
 	void				playactive();
@@ -1181,6 +1183,7 @@ public:
 	void				enter(indext index, int level, map_object_s stairs);
 	int					getrounds() const { return rounds; }
 	void				intialize();
+	bool				isoverland() const { return overland; }
 	void				move(indext index);
 	static void			help();
 	void				passminute();
@@ -1192,6 +1195,7 @@ public:
 extern gamei			game;
 extern location			loc;
 extern stringbuilder	sb;
+DECLENUM(ability);
 DECLENUM(class);
 DECLENUM(item);
 DECLENUM(map_object);

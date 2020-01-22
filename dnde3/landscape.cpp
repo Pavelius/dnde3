@@ -26,12 +26,6 @@ static vector& getb() {
 	return rooms[stack_get++];
 }
 
-static item_s random(aref<item_s> source) {
-	if(!source)
-		return NoItem;
-	return source.data[rand() % source.count];
-}
-
 static void show_minimap_step(short unsigned index, bool visualize) {
 	if(visualize)
 		loc.minimap(index, false);

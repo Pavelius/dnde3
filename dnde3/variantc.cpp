@@ -7,6 +7,37 @@ int	variantc::getweight() const {
 	return r;
 }
 
+variant variantc::randomw() const {
+	adat<char, 16> source;
+	for(auto& v : *this) {
+		if(source.indexof(v.value) == -1)
+			source.add(v.value);
+	}
+	auto rw = 0;
+	for(auto v : source)
+		rw += v;
+	if(!rw)
+		return variant();
+	auto value = 0;
+	auto n = rand() % rw;
+	auto r = 0;
+	for(auto v : source) {
+		r += v;
+		if(r > n) {
+			value = v;
+			break;
+		}
+	}
+	adat<variant> variants;
+	for(auto& e : *this) {
+		if(e.value == value)
+			variants.add(e.id);
+	}
+	if(!variants)
+		return variant();
+	return variants.data[rand() % variants.getcount()];
+}
+
 variant variantc::random() const {
 	auto w = getweight();
 	if(!w)
@@ -46,7 +77,7 @@ void variantc::add(variant v) {
 	case Item: r = bsmeta<itemi>::elements[v.value].rarity; break; break;
 	default: break;
 	}
-	if(r!=Unique)
+	if(r != Unique)
 		add(v, r);
 }
 

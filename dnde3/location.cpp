@@ -895,7 +895,7 @@ void location::loot(indext index, const aref<slot_s>& slots, int level, char cha
 	variantc source;
 	source.additems(slots);
 	source.match(Natural, true);
-	loot(index, (item_s)source.random().value, level, chance_bigger_price, identify, chance_curse, bonus_quality);
+	loot(index, (item_s)source.randomw().value, level, chance_bigger_price, identify, chance_curse, bonus_quality);
 }
 
 void location::loot(const rect& rc, const aref<slot_s>& slots, int chance, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality) {
@@ -913,7 +913,7 @@ void location::loot(const rect& rc, const aref<slot_s>& slots, int chance, int l
 			if(x < 0 || x >= mmx)
 				continue;
 			if(d100() < chance)
-				loot(get(x, y), (item_s)source.random().value, level, chance_bigger_price, identify, chance_curse, bonus_quality);
+				loot(get(x, y), (item_s)source.randomw().value, level, chance_bigger_price, identify, chance_curse, bonus_quality);
 		}
 	}
 }
@@ -953,7 +953,7 @@ void location::content(const rect& rc, room_s type, site* p) {
 	case ShopPotions:
 		if(p)
 			p->setowner(shopkeeper(index));
-		loc.loot(rc, potions, 80, loc.level, 10, KnownPower, 0);
+		loc.loot(rc, potions, 80, loc.level, 20, KnownPower, 0);
 		break;
 	case ShopScrolls:
 		if(p)
