@@ -42,7 +42,7 @@ enum item_s : unsigned char {
 	Scroll1, Scroll2, Scroll3,
 	Wand1, Wand2, Wand3, Wand4, Wand5,
 	Book1, Book2, Book3, Book4, Book5,
-	Bottle, Potion1, Potion2, Potion3, Potion4, Potion5,
+	AlchemyPotion, Potion1, Potion2, Potion3, Potion4, Potion5,
 	RingRed, RingBlue, RingGreen,
 	Amulet1, Amulet2, Amulet3, Amulet4, Amulet5,
 	ClimbingTool, FletcherySet, Forge, HealingKit, ScriblingKit, CrystalBall, AlchemySet, TheifTool, CookingSet,
@@ -546,6 +546,7 @@ public:
 	void				getname(stringbuilder& sb, bool show_cab) const;
 	indext				getposition() const;
 	int					getquality() const { return quality; }
+	static const aref<variant> getreceipts();
 	void				getstatistic(stringbuilder& sb) const;
 	creature*			getwearer() const;
 	slot_s				getwearerslot() const;
@@ -725,7 +726,7 @@ class creature : public nameable, public paperdoll {
 	unsigned char		spells[LastSpell + 1];
 	item				wears[LastWear + 1];
 	int					restore_energy, restore_hits, restore_mana;
-	flagable<4>			recipes, recipes_invented;
+	flagable<4>			recipes;
 	char				hp, mp, poison;
 	statea				states;
 	short unsigned		location_id, site_id;
@@ -871,6 +872,8 @@ public:
 	bool				ismatch(const creature& opponent, const varianta& source) const;
 	const char*			isusedisable(skill_s id) const;
 	void				kill();
+	bool				knownreceipt(variant id) const;
+	void				learnreceipt(variant id);
 	void				look(indext index);
 	void				lookaround();
 	void				makemove();

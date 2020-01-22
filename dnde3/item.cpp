@@ -123,7 +123,7 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", "item-1", Unique, 0, 0, 0, NoGender,
 {"Мануал", "item680", Rare, 800, 250 * GP, 1, Male, Paper, {}, {}, common_mage_spells, {}, Readable},
 {"Том", "item649", VeryRare, 1000, 300 * GP, 2, Male, Paper, {}, {}, common_mage_spells, {}, Readable},
 //
-{"Пустая бутылка", "item259", Rare, 5, 5 * CP, -1, Female, Glass, {}, {}, {}, {}, Drinkable},
+{"Зелье", "item259", VeryRare, 5, 10 * GP, 0, NoGender, Glass, {}, {}, alchemy_receipts, {}, Drinkable},
 {"Зелье", "item49", Common, 10, 10 * GP, -1, NoGender, Glass, {}, {}, common_potions, {}, Drinkable},
 {"Зелье", "item63", Common, 20, 35 * GP, 0, NoGender, Glass, {}, {}, uncommon_potions, {}, Drinkable},
 {"Зелье", "item64", Uncommon, 10, 40 * GP, 0, NoGender, Glass, {}, {}, uncommon_potions, {}, Drinkable},
@@ -690,4 +690,8 @@ bool item::is(identify_s v) const {
 	case KnownPower: return !iscountable() && identifye != 0;
 	default: return !identifys && !identifyc && !identifye;
 	}
+}
+
+const aref<variant> item::getreceipts() {
+	return alchemy_receipts;
 }

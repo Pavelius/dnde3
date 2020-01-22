@@ -81,7 +81,8 @@ static void create_indoor(landscape_s area) {
 		auto p2 = create(Dwarf, Male, Cleric);
 		auto p3 = create(Elf, Male, Fighter);
 		p1->activate();
-		p1->damage(6, Bludgeon, 100);
+		create(p1, AlchemySet);
+		p1->learnreceipt(Dexterity);
 		create(p1, Potion2, PoisonSpell);
 	}
 	game.play();

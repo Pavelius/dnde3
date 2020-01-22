@@ -1908,3 +1908,24 @@ void creature::quitandsave() {
 		exit(0);
 	}
 }
+
+bool creature::knownreceipt(variant id) const {
+	auto i = item::getreceipts().indexof(id);
+	if(i == -1)
+		return false;
+	return recipes.is(i);
+}
+
+void creature::learnreceipt(variant id) {
+	if(knownreceipt(id)) {
+		if(isactive())
+			sb.add("Вы почерпнули важные знания по алхимии.");
+		addexp(800);
+	} else {
+		auto i = item::getreceipts().indexof(id);
+		if(i == -1)
+			return;
+		act("%герой изучил%а алхимическую формулу [%1].", id.getnameof());
+		recipes.set(i);
+	}
+}

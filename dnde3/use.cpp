@@ -82,7 +82,7 @@ bool creature::use(const creaturea& creatures, item& it) {
 	case Tool:
 		if(skill.type == Ability) {
 			auto ability_value = get((ability_s)skill.value) * 2;
-			ability_value += it.getbonus() * 2;
+			ability_value += it.getbonus() * 2 + ei.quality * 4;
 			if(skill.value == Charisma) {
 				// Музыкальный инструмент
 				if(mp <= 3) {
@@ -135,6 +135,21 @@ bool creature::use(const creaturea& creatures, item& it) {
 					}
 				}
 				paymana(xrand(1, 3), false);
+			}
+		} else if(skill.type == Skill) {
+			if(!skills[skill.value]) {
+				if(isactive())
+					sb.add("Вы не владеете навыком [%1], поэтому не можете исопльзовать этот инструмент.", getstr((skill_s)skill.value));
+				return false;
+			}
+			auto ability_value = get((skill_s)skill.value);
+			ability_value += (it.getbonus() + ei.quality) * 4;
+			if(skill.value == Alchemy) {
+				if(!recipes) {
+					if(isactive())
+						sb.add("Вы не выучили ни одного алхимического рецепта.");
+					return false;
+				}
 			}
 		}
 		break;
@@ -245,6 +260,8 @@ bool item::use(skill_s id, creature& player, int order, bool run) {
 			auto b = (getitem().quality + level) * 3;
 			if(is(Unknown))
 				b += 10;
+			else if(is(SingleUse))
+				b += 80;
 			if(is(Blessed))
 				b += 10;
 			else if(is(Artifact))
