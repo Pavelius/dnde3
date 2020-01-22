@@ -1929,3 +1929,14 @@ void creature::learnreceipt(variant id) {
 		recipes.set(i);
 	}
 }
+
+variant creature::choosereceipt(const char* interactive) const {
+	auto source = item::getreceipts();
+	answeri an;
+	for(unsigned i = 0; i < source.count; i++) {
+		if(!knownreceipt(source[i]))
+			continue;
+		an.add(i, "Πεφεος %1", source[i].getnameof());
+	}
+	return source[an.choosev(interactive, false, false, interactive)];
+}

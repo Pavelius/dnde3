@@ -797,6 +797,7 @@ public:
 	bool				charmresist(int bonus = 0) const;
 	void				checkpoison();
 	void				checksick();
+	variant				choosereceipt(const char* interactive) const;
 	void				create(race_s race, gender_s gender, class_s type);
 	void				create(role_s type);
 	void				clear();
