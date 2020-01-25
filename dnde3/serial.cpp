@@ -11,10 +11,8 @@ static bool serial(location& e, const char* url, bool write_mode, bool overland)
 		return false;
 	archive a(file, write_mode);
 	a.set(e);
-	if(overland) {
-		a.set(bsmeta<creature>::source);
-	} else {
-		a.set(bsmeta<creature>::source);
+	a.set(bsmeta<creature>::source);
+	if(!overland) {
 		a.set(bsmeta<site>::source);
 		a.set(bsmeta<boosti>::source);
 		a.set(bsmeta<itemground>::source);
@@ -52,7 +50,7 @@ bool location::read(indext index, int level) {
 bool gamei::read() {
 	if(!serial(*this, false))
 		return false;
-	if(overland)
+	if(isoverland())
 		return loc.read("game/overland.loc", true);
 	else
 		return loc.read(getposition(), getlevel());
@@ -61,7 +59,7 @@ bool gamei::read() {
 bool gamei::write() {
 	if(!serial(*this, true))
 		return false;
-	if(overland)
+	if(isoverland())
 		return loc.write("game/overland.loc", true);
 	else
 		return loc.write(getposition(), getlevel());

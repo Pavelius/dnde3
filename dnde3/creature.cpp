@@ -1910,7 +1910,7 @@ bool creature::ask(const nameable& opponent, const char* format, ...) const {
 	return askv(sb, opponent, format, xva_start(format));
 }
 
-bool creature::askyn(const char* format, ...) {
+bool creature::askyn(const char* format, ...) const {
 	if(!isactive())
 		return true;
 	act(format);
@@ -1981,7 +1981,7 @@ variant creature::choosereceipt(const char* interactive) const {
 }
 
 site* creature::getsite() const {
-	return (site_id!=Blocked) ? &bsmeta<site>::elements[site_id] : 0;
+	return (site_id != Blocked) ? &bsmeta<site>::elements[site_id] : 0;
 }
 
 void creature::set(const site* v) {
@@ -1993,8 +1993,40 @@ void creature::set(const site* v) {
 
 item* creature::finditem(item_s v) {
 	for(auto& it : wears) {
-		if(it.getkind()==v)
+		if(it.getkind() == v)
 			return &it;
 	}
 	return 0;
+}
+
+void creature::zoomon() {
+	game.use(StairsDown);
+}
+
+bool creature::canleave(direction_s v) const {
+	auto i = getposition();
+	if(i == Blocked)
+		return false;
+	auto x = loc.getx(i);
+	auto y = loc.gety(i);
+	switch(v) {
+	case Left: return x == 0;
+	case Right: return x == mmx - 1;
+	case Down: return y == mmy - 1;
+	case Up: return y == 0;
+	default: return false;
+	}
+}
+
+bool creature::leaving(direction_s v) {
+	if(!isactive())
+		return false;
+	if(!canleave(v))
+		return false;
+	sb.add("¬ы действительно хотите покинуть это место?");
+	if(!askyn())
+		return false;
+	game.use(StairsUp);
+	wait();
+	return true;
 }

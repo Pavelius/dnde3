@@ -66,8 +66,8 @@ static void test_adventure() {
 		auto p2 = create(Dwarf, Male, Cleric);
 		auto p3 = create(Elf, Male, Fighter);
 		p1->activate();
-		game.enter();
-		game.move(loc.get(10, 10));
+		if(!game.enter(loc.get(8, 8), 0, NoTileObject))
+			return;
 	}
 	game.play();
 }
@@ -90,7 +90,18 @@ static void modify_weapon(creature* p1) {
 	//pi->setidentify(1);
 }
 
-static void create_indoor(landscape_s area) {
+static void create_outdoor() {
+	auto i = loc.get(20, 20);
+	auto p = bsmeta<outdoori>::add();
+	p->clear();
+	p->setposition(i);
+	p->levels[0] = {AreaCity, 1};
+	p->levels[1] = {AreaDungeon, 16, -2};
+	p->levels[2] = {AreaDungeonLair, 1, -2};
+}
+
+static void create_indoor() {
+	create_outdoor();
 	if(!game.read()) {
 		game.enter(loc.get(20, 20), 1, StairsDown);
 		auto p1 = create(Elf, Female, Mage);
@@ -170,7 +181,7 @@ int main(int argc, char* argv[]) {
 	test_adventure();
 	//test_analize();
 	//test_dungeon();
-	//create_indoor(AreaCity);
+	//create_indoor();
 }
 
 int __stdcall WinMain(void* ci, void* pi, char* cmd, int sw) {

@@ -235,6 +235,7 @@ enum intellegence_s : unsigned char {
 enum map_object_flag_s : unsigned char {
 	BlockMovement, BlockLight,
 };
+struct dungeoni;
 struct targeti;
 struct landscapei;
 class creature;
@@ -355,11 +356,6 @@ struct equipmenti {
 	race_s				race;
 	class_s				type;
 	varianta			features;;
-};
-struct tilei {
-	const char*			id;
-	const char*			name;
-	gender_s			gender;
 };
 struct map_objecti {
 	const char*			id;
@@ -633,6 +629,7 @@ struct roomi {
 class posable {
 	indext				index;
 public:
+	constexpr explicit operator bool() const { return index != Blocked; }
 	void				clear() { index = Blocked; }
 	constexpr indext	getposition() const { return index; }
 	constexpr void		setposition(indext v) { index = v; }
@@ -642,6 +639,7 @@ class geoposable : posable {
 public:
 	constexpr int		getlevel() const { return level; }
 	constexpr indext	getposition() const { return posable::getposition(); }
+	bool				isoverland() const { return level == 0; }
 	constexpr void		setposition(indext v, int l) { posable::setposition(v); level = l; }
 };
 class nameable : public variant, public posable {
@@ -787,12 +785,13 @@ public:
 	void				appear();
 	bool				apply(creature& target, variant id, int v, int order, bool run);
 	bool				ask(const nameable& opponent, const char* format, ...) const;
-	bool				askyn(const char* format, ...);
-	bool				askyn();
+	bool				askyn(const char* format, ...) const;
+	static bool			askyn();
 	void				backpack();
 	void				bloodstain() const;
 	int					calculate(const variant* formule) const;
 	bool				canhear(short unsigned index) const;
+	bool				canleave(direction_s v) const;
 	bool				cansee(indext i) const;
 	bool				canshoot() const;
 	void				chat();
@@ -879,6 +878,7 @@ public:
 	void				kill();
 	bool				knownreceipt(variant id) const;
 	void				learnreceipt(variant id);
+	bool				leaving(direction_s v);
 	void				look(indext index);
 	void				lookaround();
 	void				makemove();
@@ -900,6 +900,7 @@ public:
 	void				raiseskills(int number);
 	void				raiseskills() { raiseskills(get(Intellegence) / 2); }
 	void				rangeattack(creature& enemy, int bonus = 0);
+	static void			restore(const creature* sp, const creature* spe, const boosti* sb, const boosti* sbe);
 	void				readsomething();
 	void				restoration();
 	bool				roll(ability_s v) const { return rollv(get(v)); }
@@ -919,6 +920,7 @@ public:
 	void				setguard(short unsigned value) { guard = value; }
 	void				setmoney(int value) { money = value; }
 	void				shoot();
+	static void			store(creature* sp, const creature* spe, boosti* sb, const boosti* sbe);
 	void				testweapons();
 	void				unlink();
 	bool				use(const creaturea& source, skill_s id);
@@ -932,6 +934,7 @@ public:
 	void				wait() { consume(StandartEnergyCost); }
 	void				wait(int n) { consume(StandartEnergyCost * n); }
 	void				waitturn() { wait(10*3); }
+	void				zoomon();
 };
 class creaturea : public adat<creature*> {
 public:
@@ -1030,22 +1033,6 @@ struct spelli {
 };
 struct itemground : item {
 	short unsigned		index;
-};
-struct coordinate {
-	constexpr coordinate() : index(Blocked), level(1) {}
-	short unsigned		index; // Позиция на карте мира
-	unsigned char		level; // Уровень поздземелья
-};
-struct areainfo : coordinate {
-	unsigned char		rooms; // Количество комнат
-	unsigned char		artifacts;
-	bool				isdungeon; // Underground dungeons has 'true'
-	race_s				habbitants[4];
-	short unsigned		positions[8]; // Several positions
-	constexpr areainfo() : rooms(0), isdungeon(false),
-		artifacts(0), habbitants(),
-		positions{Blocked, Blocked, Blocked, Blocked, Blocked, Blocked, Blocked, Blocked} {
-	}
 };
 struct vproc {
 	void(*pinp)();
@@ -1176,32 +1163,44 @@ public:
 	bool				write(const char* url, bool overland) const;
 	bool				write(indext index, int level);
 };
-struct outdoor : public posable {
+struct outdoori : posable {
 	char				name[32];
+	dungeoni			levels[8];
+	void				clear();
+	static const outdoori* find(indext index);
+};
+struct tilei {
+	const char*			id;
+	const char*			name;
+	gender_s			gender;
+	const dungeoni*		wilderness;
 };
 class gamei : public geoposable {
 	unsigned			rounds;
 	map_object_s		command;
-	bool				overland;
+	tile_s				tile;
+	unsigned short		outdoor_id;
 	int					restore_energy;
+	//
 	bool				checkalive();
 	void				checkcommand();
 	void				playactive();
 	void				playoverland();
 public:
 	void				applyboost();
-	void				enter();
-	void				enter(indext index, int level, map_object_s stairs);
+	bool				enter(indext index, int level, map_object_s stairs);
 	item*				find(item_s v) const;
 	int					get(skill_s v) const;
+	const dungeoni*		getdungeon() const;
 	int					getrounds() const { return rounds; }
 	void				intialize();
-	bool				isoverland() const { return overland; }
 	void				move(indext index);
 	static void			help();
 	void				passminute();
 	void				play();
 	bool				read();
+	void				setposition(indext v, int l);
+	void				updatepos();
 	void				use(map_object_s v);
 	bool				write();
 	void				wait();

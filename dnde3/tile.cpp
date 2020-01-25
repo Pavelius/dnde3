@@ -1,6 +1,9 @@
 #include "main.h"
 
-tilei bsmeta<tilei>::elements[] = {{"Plain", "Равнина", Female},
+static const dungeoni plains[] = {{AreaPlain, 1, 1}, {}};
+static const dungeoni forest[] = {{AreaForest, 1}, {}};
+
+tilei bsmeta<tilei>::elements[] = {{"Plain", "Равнина", Female, plains},
 {"Water", "Вода", Female},
 {"Floor", "Пол", Male},
 {"Wall", "Стена", Female},
@@ -11,7 +14,7 @@ tilei bsmeta<tilei>::elements[] = {{"Plain", "Равнина", Female},
 {"Foothills", "Подгорье", Male},
 {"Mountains", "Горы", Male},
 {"CloudPeaks", "Туманные пики", Male},
-{"Forest", "Лес", Male},
+{"Forest", "Лес", Male, forest},
 {"Lake", "Озеро", NoGender},
 {"City", "Город", Male},
 };

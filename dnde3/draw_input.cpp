@@ -1693,6 +1693,10 @@ static void change_player() {
 static bool translate_move(creature* player) {
 	for(auto& e : move_keys) {
 		if(e.key == hot.key) {
+			if(player->leaving(e.direction)) {
+				breakmodal(0);
+				return true;
+			}
 			auto ni = location::to(player->getposition(), e.direction);
 			player->move(ni);
 			breakmodal(0);
@@ -1941,7 +1945,7 @@ static hotkey overland_keys[] = {{F1, "Выбрать первого героя", change_player, 0}
 {Ctrl + Alpha + 'M', "Открыть мануал", gamei::help},
 {Alpha + 'I', "Открыть инвентарь", &creature::inventory},
 {Alpha + 'V', "Рюкзак", &creature::backpack},
-{Alpha + 'S', "Создать заклинание", &creature::usespells},
+{Alpha + 'Z', "Зайти в локацию", &creature::zoomon},
 {Ctrl + Alpha + 'D', "Выпить что-то", &creature::drink},
 {Ctrl + Alpha + 'E', "Съесть что-то", &creature::eat},
 {Ctrl + Alpha + 'R', "Прочитать что-то", &creature::readsomething},

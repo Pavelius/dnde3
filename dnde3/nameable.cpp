@@ -286,5 +286,7 @@ const char* adjectivei::get(gender_s v) const {
 }
 
 bool nameable::isactive() const {
+	if(!this)
+		return false;
 	return creature::getactive() == this;
 }

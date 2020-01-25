@@ -6,38 +6,10 @@ gamei					game;
 class gamestat {
 	adat<creature, 8>	players;
 	adat<boosti>		boosts;
+
 public:
-	gamestat() {
-		for(auto& player : bsmeta<creature>()) {
-			if(!player)
-				continue;
-			if(!player.is(Friendly))
-				continue;
-			// Store player
-			auto i = players.getcount();
-			player.unlink();
-			auto p1 = players.add();
-			if(p1) {
-				*p1 = player;
-				// Store boost
-				auto owner_id = player.getid();
-				auto pb = bsmeta<boosti>::elements;
-				for(auto& b : bsmeta<boosti>()) {
-					if(b.owner_id == owner_id) {
-						auto pb = boosts.add();
-						if(pb) {
-							*pb = b;
-							pb->owner_id = i;
-						}
-					} else
-						*pb++ = b;
-				}
-				bsmeta<boosti>::source.setcount(pb - bsmeta<boosti>::elements);
-			}
-			player.clear();
-		}
-	}
-	~gamestat() {
+
+	void restore() {
 		auto pb = boosts.begin();
 		auto pe = boosts.end();
 		for(auto& player : players) {
@@ -57,6 +29,48 @@ public:
 			}
 		}
 	}
+
+	void store() {
+		auto sp = players.begin();
+		auto spe = players.endof();
+		auto sb = boosts.begin();
+		auto sbe = boosts.end();
+		auto spb = sp;
+		for(auto& player : bsmeta<creature>()) {
+			if(!player)
+				continue;
+			if(!player.is(Friendly))
+				continue;
+			// Store player
+			player.unlink();
+			if(sp < spe)
+				*sp = player;
+			// Store boost
+			auto owner_id = player.getid();
+			auto pb = bsmeta<boosti>::elements;
+			for(auto& b : bsmeta<boosti>()) {
+				if(b.owner_id == owner_id) {
+					if(sp < spe && sb < sbe) {
+						*sb = b;
+						sb->owner_id = sp - spb;
+						sb++;
+					}
+				} else
+					*pb++ = b;
+			}
+			bsmeta<boosti>::source.setcount(pb - bsmeta<boosti>::elements);
+			player.clear();
+			if(sp < spe)
+				sp++;
+		}
+		players.count = sp - players.data;
+		boosts.count = sb - boosts.data;
+	}
+
+	void clear() {
+		memset(this, 0, sizeof(*this));
+	}
+
 };
 
 static void update_los() {
@@ -160,33 +174,41 @@ void gamei::passminute() {
 		applysick();
 }
 
-
-void gamei::enter(indext index, int level, map_object_s stairs) {
-	static dungeoni meher_dungeon[] = {{AreaCity, 1},
-	{AreaDungeon, 16, -2},
-	{AreaDungeonLair, 1, -2},
-	};
-	overland = false;
-	if(true) {
-		gamestat players;
-		if(loc)
-			loc.write(getposition(), loc.level);
-		setposition(index, level);
-		if(!meher_dungeon->create(index, level, false))
-			return;
+bool gamei::enter(indext index, int level, map_object_s stairs) {
+	gamestat players;
+	players.clear();
+	players.store();
+	write();
+	setposition(index, level);
+	if(isoverland())
+		loc.read("game/overland.loc", true);
+	else if(!loc.read(getposition(), getlevel())) {
+		auto p = getdungeon();
+		if(!p)
+			return false;
+		loc.clear();
+		loc.create(*p, level, p->is(Explored), false);
+		if(!loc.write(getposition(), getlevel()))
+			return false;
 	}
-	auto start_position = loc.find(stairs);
-	if(start_position != Blocked) {
+	players.restore();
+	if(!creature::getactive()) {
+		auto p = creature::getactive(0);
+		if(p)
+			p->activate();
+	}
+	if(level > 0) {
+		auto start_position = loc.find(stairs);
+		if(start_position == Blocked)
+			start_position = loc.get(mmx / 2, mmy / 2);
 		for(auto& e : bsmeta <creature>()) {
 			if(e && e.is(Friendly))
 				e.setposition(loc.getfree(start_position));
 		}
-	}
-	update_los();
-}
-
-void gamei::enter() {
-	overland = true;
+		update_los();
+	} else
+		updatepos();
+	return true;
 }
 
 void gamei::checkcommand() {
@@ -221,7 +243,7 @@ bool gamei::checkalive() {
 void gamei::play() {
 	while(checkalive()) {
 		checkcommand();
-		if(overland)
+		if(isoverland())
 			playoverland();
 		else
 			playactive();
@@ -245,10 +267,18 @@ void gamei::use(map_object_s v) {
 	command = v;
 }
 
+void gamei::updatepos() {
+	auto index = getposition();
+	for(auto& e : bsmeta<creature>()) {
+		if(!e || !e.is(Friendly))
+			continue;
+		e.look(index);
+		e.setposition(index);
+	}
+}
+
 void gamei::move(indext index) {
 	auto p = creature::getactive();
-	if(!p)
-		return;
 	if(index == Blocked)
 		return;
 	// Пункты движения
@@ -256,7 +286,7 @@ void gamei::move(indext index) {
 	auto tile = loc.gettile(index);
 	switch(tile) {
 	case Sea:
-		if(current_tile!=Sea && !p->askyn("Вы действительно хотите пересечь воду?"))
+		if(current_tile != Sea && !p->askyn("Вы действительно хотите пересечь воду?"))
 			return;
 		restore_energy -= OverlandEnergyCost * 200 / 100;
 		break;
@@ -283,15 +313,19 @@ void gamei::move(indext index) {
 	// Расчитаем еду
 
 	// Движение
-	if(getposition() != index) {
-		setposition(index, 0);
-		for(auto& e : bsmeta<creature>()) {
-			if(!e || !e.is(Friendly))
-				continue;
-			e.look(index);
-			e.setposition(index);
-		}
-	}
+	setposition(index, 0);
+	updatepos();
+}
+
+void gamei::setposition(indext v, int l) {
+	geoposable::setposition(v, l);
+	if(isoverland())
+		tile = loc.gettile(v);
+	auto p = outdoori::find(v);
+	if(p)
+		outdoor_id = p - bsmeta<outdoori>::elements;
+	else
+		outdoor_id = Blocked;
 }
 
 void gamei::wait() {
@@ -307,4 +341,10 @@ item* gamei::find(item_s v) const {
 			return r;
 	}
 	return 0;
+}
+
+const dungeoni* gamei::getdungeon() const {
+	if(outdoor_id == Blocked)
+		return bsmeta<tilei>::elements[tile].wilderness;
+	return bsmeta<outdoori>::elements[outdoor_id].levels;
 }
