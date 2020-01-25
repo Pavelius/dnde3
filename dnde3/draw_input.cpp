@@ -1826,18 +1826,31 @@ void location::show(rooma& rooms) {
 	}
 }
 
-static void small_avatar(int x, int y, const creature& player) {
+static void small_avatar(int x, int y, const creature& player, unsigned flags) {
 	const int sx = 128;
 	const int sy = 128;
 	surface scaler(sx, sy, 32);
+	surface scaler2(sx / 2, sy / 2, 32);
+	color c1 = color::create(0, 0, 0);
+	c1.a = 0xFF;
 	if(true) {
 		draw::state push;
 		draw::canvas = &scaler;
-		fore.r = fore.g = fore.b = 0; fore.a = 0xFF;
+		fore = c1;
 		draw::rectf({0, 0, sx, sy});
-		avatar(sx / 2, sy - sy / 4, player, 0, 0xFF);
+		avatar(sx / 2, sy - sy / 4, player, flags, 0xFF);
+		for(auto y = scaler.height - 1; y >= 0; y--) {
+			auto pb = (color*)scaler.ptr(0, y);
+			auto pe = (color*)scaler.ptr(sx, y);
+			while(pb < pe) {
+				if(*((int*)pb) == *((int*)(&c1)))
+					pb->a = 0;
+				pb++;
+			}
+		}
 	}
-	blit(*draw::canvas, x - (sx / 2) / 2, y - (sy - sy / 4) / 2, sx / 2, sy / 2, 0, scaler, 0, 0, sx, sy);
+	draw::blit(scaler2, 0, 0, scaler2.width, scaler2.height, 0, scaler, 0, 0, scaler.width, scaler.height);
+	draw::blit(*draw::canvas, x - (sx / 2) / 2, y - (sy - sy / 4) / 2, sx / 2, sy / 2, ImageTransparent, scaler2, 0, 0);
 }
 
 static void render_outdoor() {
@@ -1846,7 +1859,6 @@ static void render_outdoor() {
 	loc.worldmap(camera, true);
 	auto player = creature::getactive();
 	if(player) {
-		//small_avatar(100, 100, *player);
 		auto index = game.getposition();
 		auto x = x0 + loc.getx(index) * elx - camera.x;
 		auto y = y0 + loc.gety(index) * ely - camera.y;
@@ -1861,6 +1873,7 @@ static void render_outdoor() {
 			flags = 0;
 			break;
 		}
+		//small_avatar(x, y, *player, flags);
 		avatar(x, y, *player, flags, 0xFF);
 		render_info(*player);
 	}
@@ -1936,6 +1949,31 @@ void location::worldmap(point camera, bool show_fow) const {
 			}
 		}
 	}
+	adat<picture, 256> pictures;
+	auto pb = pictures.begin();
+	auto pe = pictures.endof();
+	for(auto& e : bsmeta<outdoori>()) {
+		auto i = e.getposition();
+		if(i == Blocked)
+			continue;
+		auto x = x0 + loc.getx(i) * elx - camera.x;
+		if(x < x0 - 48 || x >= getwidth() + 48)
+			continue;
+		auto y = y0 + loc.gety(i) * ely - camera.y;
+		if(y < y0 - 64 || y >= getwidth() + 64)
+			continue;
+		pb->clear();
+		pb->x = x;
+		pb->y = y;
+		pb->img = ResDecals;
+		pb->frame = e.frame;
+		pb++;
+		if(pb>=pe)
+			break;
+	}
+	pictures.count = pb - pictures.data;
+	for(auto& e : pictures)
+		image(e.x, e.y, gres(e.img), e.frame, e.flags, e.alpha);
 }
 
 static hotkey overland_keys[] = {{F1, "Выбрать первого героя", change_player, 0},

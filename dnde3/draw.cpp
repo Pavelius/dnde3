@@ -170,7 +170,7 @@ static void set32(color* p, unsigned count) {
 
 static void set32a(color* p, unsigned count) {
 	auto p2 = p + count;
-	if(fore.a==255)
+	if(fore.a == 255)
 		set32(p, count);
 	else if(!fore.a)
 		return;

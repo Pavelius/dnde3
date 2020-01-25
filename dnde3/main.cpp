@@ -46,7 +46,19 @@ static void test_worldmap() {
 	loc.editor();
 }
 
+static void create_outdoor() {
+	auto i = loc.get(4, 7);
+	auto p = bsmeta<outdoori>::add();
+	p->clear();
+	p->setposition(i);
+	p->frame = 18;
+	p->levels[0] = {AreaCity, 1};
+	p->levels[1] = {AreaDungeon, 16, -2};
+	p->levels[2] = {AreaDungeonLair, 1, -2};
+}
+
 static void test_adventure() {
+	create_outdoor();
 	if(!game.read()) {
 		auto i0 = loc.get(5, 4);
 		auto i1 = loc.get(5, 5);
@@ -64,6 +76,8 @@ static void test_adventure() {
 		loc.set(i1 - 3, Forest);
 		loc.set(i1 - 2, Forest);
 		loc.set(i2, Sea);
+		loc.set(loc.get(3, 7), Foothills);
+		loc.set(loc.get(4, 7), Foothills);
 		auto p1 = create(Elf, Female, Mage);
 		auto p2 = create(Dwarf, Male, Cleric);
 		auto p3 = create(Elf, Male, Fighter);
@@ -92,18 +106,7 @@ static void modify_weapon(creature* p1) {
 	//pi->setidentify(1);
 }
 
-static void create_outdoor() {
-	auto i = loc.get(20, 20);
-	auto p = bsmeta<outdoori>::add();
-	p->clear();
-	p->setposition(i);
-	p->levels[0] = {AreaCity, 1};
-	p->levels[1] = {AreaDungeon, 16, -2};
-	p->levels[2] = {AreaDungeonLair, 1, -2};
-}
-
 static void create_indoor() {
-	create_outdoor();
 	if(!game.read()) {
 		game.enter(loc.get(20, 20), 1, StairsDown);
 		auto p1 = create(Elf, Female, Mage);

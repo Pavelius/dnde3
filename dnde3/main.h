@@ -1162,6 +1162,7 @@ public:
 };
 struct outdoori : posable {
 	char				name[32];
+	char				frame;
 	dungeoni			levels[8];
 	void				clear();
 	static const outdoori* find(indext index);
