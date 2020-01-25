@@ -556,6 +556,7 @@ public:
 	bool				is(identify_s v) const;
 	bool				is(item_flag_s v) const { return getitem().flags.is(v); }
 	bool				is(item_type_s v) const { return magic == v; }
+	bool				is(sale_s v) const { return sale == v; }
 	bool				isboost(variant id) const;
 	bool				ischargeable() const;
 	bool				iscountable() const;
@@ -649,6 +650,7 @@ public:
 	void				act(const char* format, ...) const;
 	void				actv(stringbuilder& sb, const char* format, const char* param) const;
 	void				actv(stringbuilder& sb, nameable& e, const char* format, const char* param) const;
+	bool				askv(stringbuilder& st, const nameable& e, const char* format, const char* param) const;
 	bool				cansee() const;
 	gender_s			getgender() const;
 	const char*			getname() const;
@@ -657,6 +659,7 @@ public:
 	void				sayv(stringbuilder& st, const char* format, const char* param) const;
 	void				setname(race_s race, gender_s gender);
 	race_s				getrace() const;
+	bool				isactive() const;
 	bool				ischaracter() const { return value == Character; }
 };
 class site : public nameable, public rect {
@@ -783,7 +786,8 @@ public:
 	void				addexp(int count, bool interactive = false);
 	void				appear();
 	bool				apply(creature& target, variant id, int v, int order, bool run);
-	bool				ask(const char* format, ...);
+	bool				ask(const nameable& opponent, const char* format, ...) const;
+	bool				askyn(const char* format, ...);
 	bool				askyn();
 	void				backpack();
 	void				bloodstain() const;
@@ -850,7 +854,7 @@ public:
 	int					getpoisondamage() const { return 1 + poison / 5; }
 	dicei				getraise(skill_s id) const;
 	role_s				getrole() const { return (role_s)value; }
-	site*				getsite() const { return 0; }
+	site*				getsite() const;
 	slot_s				getwearerslot(const item* p) const;
 	int					getweight() const;
 	void				heal(int value) { damage(-value, Magic); }
@@ -862,7 +866,6 @@ public:
 	bool				is(state_s v) const { return states.is(v); }
 	bool				is(spell_s v) const { return finds(v) != 0; }
 	bool				is(const creature* p) const { return this == p; }
-	bool				isactive() const { return getactive() == this; }
 	bool				isallow(item_s v) const;
 	bool				isbusy() const { return restore_energy <= -(StandartEnergyCost * 4) && is(Unaware); }
 	bool				isenemy(const creature* target) const;
@@ -911,6 +914,7 @@ public:
 	void				select(skilla& e) const;
 	void				set(ability_s id, int v);
 	void				set(skill_s id, int v);
+	void				set(const site* v);
 	void				setguard(short unsigned value) { guard = value; }
 	void				setmoney(int value) { money = value; }
 	void				shoot();
@@ -1178,13 +1182,16 @@ class gamei : public geoposable {
 	unsigned			rounds;
 	map_object_s		command;
 	bool				overland;
+	int					restore_energy;
 	bool				checkalive();
 	void				checkcommand();
 	void				playactive();
 	void				playoverland();
 public:
 	void				applyboost();
+	void				enter();
 	void				enter(indext index, int level, map_object_s stairs);
+	int					get(skill_s v) const;
 	int					getrounds() const { return rounds; }
 	void				intialize();
 	bool				isoverland() const { return overland; }
@@ -1195,6 +1202,7 @@ public:
 	bool				read();
 	void				use(map_object_s v);
 	bool				write();
+	void				wait();
 };
 extern gamei			game;
 extern location			loc;

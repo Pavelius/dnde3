@@ -308,7 +308,7 @@ bool item::use(skill_s id, creature& player, int order, bool run) {
 							player.act("%герой вытащил%а %-1 и громко прочитал%а.", getname());
 						destroy(Magic, true);
 					} else {
-						if(!player.ask("Чтение займет продолжительное время. Действительно хотите продолжить?"))
+						if(!player.askyn("Чтение займет продолжительное время. Действительно хотите продолжить?"))
 							return false;
 						player.act("%герой достал%а %-1 и занял%ась чтением.", getname());
 						player.wait(60);

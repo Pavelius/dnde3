@@ -47,13 +47,28 @@ static void test_worldmap() {
 }
 
 static void test_adventure() {
-	loc.read("game/overland.loc", true);
+	//loc.read("game/overland.loc", true);
+	auto i0 = loc.get(5, 4);
+	auto i1 = loc.get(5, 5);
+	auto i2 = loc.get(5, 6);
+	loc.clear();
+	loc.fill({0, 0, mmx - 1, 1}, Sea);
+	loc.fill({0, 0, 1, mmy - 1}, Sea);
+	loc.fill({mmx - 2, 0, mmx - 1, mmy - 1}, Sea);
+	loc.fill({0, mmy - 2, mmx - 1, mmy - 1}, Sea);
+	loc.set(i0, Mountains);
+	loc.set(i0 + 1, Mountains);
+	loc.set(i1, Sea);
+	loc.set(i1 + 1, Sea);
+	loc.set(i1 - 1, Sea);
+	loc.set(i2, Sea);
 	auto p1 = create(Elf, Female, Mage);
 	auto p2 = create(Dwarf, Male, Cleric);
 	auto p3 = create(Elf, Male, Fighter);
 	p1->activate();
+	game.enter();
 	game.move(loc.get(10, 10));
-	p1->playuioverland();
+	game.play();
 }
 
 static void test_answers() {

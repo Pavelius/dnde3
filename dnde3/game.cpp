@@ -1,5 +1,6 @@
 #include "main.h"
 
+const auto				OverlandEnergyCost = 24 * 60 * 33 / 7;
 gamei					game;
 
 class gamestat {
@@ -85,17 +86,30 @@ static void move_creatures_overland() {
 	}
 }
 
-void gamei::playoverland() {
-	bool need_continue = true;
-	while(need_continue) {
-		need_continue = true;
-		checkcommand();
-		move_creatures_overland();
-		auto p = creature::getactive();
-		if(!p || p->isbusy() || p->is(Sleep) || command)
-			need_continue = false;
-		passminute();
+int	gamei::get(skill_s v) const {
+	auto total = 0;
+	auto count = 0;
+	for(auto& e : bsmeta<creature>()) {
+		if(!e)
+			continue;
+		total += e.get(v);
+		count++;
 	}
+	if(count)
+		return total / count;
+	return 0;
+}
+
+void gamei::playoverland() {
+	const auto speed = get(Riding);
+	while(restore_energy < OverlandEnergyCost) {
+		passminute();
+		restore_energy += speed;
+	}
+	auto p = creature::getactive();
+	if(!p || p->isbusy() || p->is(Sleep) || command)
+		return;
+	p->playuioverland();
 }
 
 void gamei::playactive() {
@@ -146,11 +160,13 @@ void gamei::passminute() {
 		applysick();
 }
 
+
 void gamei::enter(indext index, int level, map_object_s stairs) {
 	static dungeoni meher_dungeon[] = {{AreaCity, 1},
 	{AreaDungeon, 16, -2},
 	{AreaDungeonLair, 1, -2},
 	};
+	overland = false;
 	if(true) {
 		gamestat players;
 		if(loc)
@@ -167,6 +183,10 @@ void gamei::enter(indext index, int level, map_object_s stairs) {
 		}
 	}
 	update_los();
+}
+
+void gamei::enter() {
+	overland = true;
 }
 
 void gamei::checkcommand() {
@@ -201,7 +221,10 @@ bool gamei::checkalive() {
 void gamei::play() {
 	while(checkalive()) {
 		checkcommand();
-		playactive();
+		if(overland)
+			playoverland();
+		else
+			playactive();
 	}
 }
 
@@ -223,6 +246,39 @@ void gamei::use(map_object_s v) {
 }
 
 void gamei::move(indext index) {
+	auto p = creature::getactive();
+	if(!p)
+		return;
+	if(index == Blocked)
+		return;
+	// Пункты движения
+	auto current_tile = loc.gettile(getposition());
+	auto tile = loc.gettile(index);
+	switch(tile) {
+	case Sea:
+		if(current_tile!=Sea && !p->askyn("Вы действительно хотите пересечь воду?"))
+			return;
+		restore_energy -= OverlandEnergyCost * 200 / 100;
+		break;
+	case Forest:
+		restore_energy -= OverlandEnergyCost * 150 / 100;
+		break;
+	case Mountains:
+		restore_energy -= OverlandEnergyCost * 250 / 100;
+		break;
+	case Hill:
+		restore_energy -= OverlandEnergyCost * 125 / 100;
+		break;
+	case Swamp:
+		restore_energy -= OverlandEnergyCost * 200 / 100;
+		break;
+	default:
+		restore_energy -= OverlandEnergyCost * 100 / 100;
+		break;
+	}
+	// Расчитаем еду
+
+	// Движение
 	if(getposition() != index) {
 		setposition(index, 0);
 		for(auto& e : bsmeta<creature>()) {
@@ -232,4 +288,8 @@ void gamei::move(indext index) {
 			e.setposition(index);
 		}
 	}
+}
+
+void gamei::wait() {
+	restore_energy += OverlandEnergyCost;
 }

@@ -560,6 +560,14 @@ static int fielr(int x, int y, int w, const char* name, int p1, int p2) {
 	return draw::texth();
 }
 
+static int fielt(int x, int y, int w, const char* name, int value) {
+	//header(x, y, name);
+	char temp[128]; stringbuilder sb(temp);
+	sb.add("День: %1i, час: %2i", value / (24 * 60), (value % (24 * 60)) / 60);
+	draw::text(x, y, sb);
+	return draw::texth();
+}
+
 static int field(int x, int y, int w, const char* name, int value) {
 	header(x, y, name);
 	char temp[128]; stringbuilder sb(temp); sb.add("%1i", value);
@@ -631,7 +639,7 @@ static void render_info(const creature& e) {
 	y += field(x, y, 52, "Деньги", e.getmoney());
 	x += dx + 58;
 	y = y1;
-	y += field(x, y, 52, "Время", game.getrounds());
+	y += fielt(x, y, 52, "Время", game.getrounds());
 	y += fiela(x, y, 52, "ПБ", e.get(Deflect), e.getboost(Deflect), "%1i%%");
 	x = x1;
 	y = y1 + draw::texth() * 2;
@@ -649,7 +657,7 @@ static void render_info(const creature& e) {
 			continue;
 		x += texth(x, y, ei.name, ei.flags.is(Hostile) ? 2 : 0);
 	}
-	auto ps = site::find(e.getposition());
+	auto ps = e.getsite();
 	if(ps) {
 		sb.clear(); ps->getname(sb);
 		text(x + width - textw(sb), y2, sb);
@@ -1507,7 +1515,7 @@ static void pixel(int x, int y, color c1) {
 }
 
 static point getpos(point origin, short x, short y) {
-	return {origin.x + x*mmaps + mmaps/2 + 1, origin.y + y*mmaps + mmaps/2 + 1};
+	return {origin.x + x*mmaps + mmaps / 2 + 1, origin.y + y*mmaps + mmaps / 2 + 1};
 }
 
 static void view_bullet(point origin, indext index, int number) {

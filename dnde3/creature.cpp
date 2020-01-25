@@ -79,7 +79,7 @@ void creature::add(variant id, int v, bool interactive) {
 			equip(it);
 		}
 	}
-		break;
+	break;
 	case Harm:
 		switch(id.value) {
 		case Piercing:
@@ -630,6 +630,40 @@ void creature::pickup() {
 	itema items; items.select(getposition());
 	auto pi = items.choose("Поднять предмет", 0, NoSlotName);
 	if(pi) {
+		auto site = getsite();
+		if(site && !pi->is(NotForSale)) {
+			auto seller = site->getowner();
+			if(seller && seller != this) {
+				int cost = pi->getcost();
+				if(!seller->ask(*this, "Хотите купить за [%1i] монет?", pi->getcost()))
+					return;
+				if(getmoney() < cost) {
+					static const char* text[] = {
+						"Возвращайся когда будет достаточно денег.",
+						"У тебя нету нужного количества монет.",
+						"Нет нужного количества монет - нет товара.",
+					};
+					seller->say(maprnd(text));
+					return;
+				}
+				if(rollv(get(Bargaining), seller->get(Bargaining)) > 0) {
+					cost = cost * 70 / 100;
+					static const char* ask_discount[] = {
+						"Сколько? Я не собираюсь платить по таким расценкам!",
+						"Твой товар бывший в упортеблении. Сделаешь скидку?",
+						"Я не буду покупать старье а цену нового. Или будет скидка, или сделки не будет!",
+					};
+					static const char* accept_discount[] = {
+						"Уговорил. Плати только [%1i] монет.",
+						"Эх, я сегодня добрый. Давай за [%1i] монет.",
+					};
+					say(maprnd(ask_discount), cost);
+					seller->say(maprnd(accept_discount), cost);
+				}
+				money -= cost;
+				pi->set(NotForSale);
+			}
+		}
 		if(add(*pi, true, true)) {
 			pi->clear();
 			consume(StandartEnergyCost / 4);
@@ -790,7 +824,7 @@ void creature::move(indext index) {
 		break;
 	case StairsDown:
 		if(isactive()) {
-			if(ask("Хотите спуститься вниз?")) {
+			if(askyn("Хотите спуститься вниз?")) {
 				wait();
 				game.use(StairsDown);
 			}
@@ -798,7 +832,7 @@ void creature::move(indext index) {
 		return;
 	case StairsUp:
 		if(isactive()) {
-			if(ask("Хотите подняться наверх?")) {
+			if(askyn("Хотите подняться наверх?")) {
 				wait();
 				game.use(StairsUp);
 			}
@@ -831,8 +865,8 @@ void creature::move(indext index) {
 			return;
 		} else {
 			// Игрок меняется позицией с неигроком
-			auto psite = site::find(p->getposition());
-			if(psite && psite->getowner() == p) {
+			auto site = p->getsite();
+			if(site && site->getowner() == p) {
 				// С владельцами области не поменяешся местами
 				static const char* talk[] = {
 					"Не толкай меня в моем заведении.",
@@ -866,11 +900,11 @@ void creature::move(indext index) {
 			}
 		}
 	}
-	auto psite = site::find(getposition());
-	if(psite && psite->getowner()==this) {
-		auto pnewsite = site::find(index);
+	auto site = getsite();
+	auto pnewsite = site::find(index);
+	if(site && site->getowner() == this) {
 		// Владелец заведения не покидает его
-		if(psite != pnewsite) {
+		if(site != pnewsite) {
 			static const char* talk[] = {
 				"Пожалуй, покидать мое место обитания я не буду.",
 				"Там нечего делать. Вернусь к делам.",
@@ -883,6 +917,7 @@ void creature::move(indext index) {
 	}
 	movecost(index);
 	if(getposition() != index) {
+		set(pnewsite);
 		setposition(index);
 		usestealth();
 		usetrap();
@@ -1516,7 +1551,7 @@ int creature::get(skill_s id) const {
 bool creature::isallow(item_s v) const {
 	auto& ci = bsmeta<classi>::elements[kind];
 	auto& ei = bsmeta<itemi>::elements[v];
-	if(ei.skill.type==Skill && skills[ei.skill.value] > 0)
+	if(ei.skill.type == Skill && skills[ei.skill.value] > 0)
 		return true;
 	if(ci.restricted.is(v))
 		return false;
@@ -1871,7 +1906,11 @@ void creature::damagewears(int count, damage_s type, int item_count) {
 		items[i]->damage(count, type, true);
 }
 
-bool creature::ask(const char* format, ...) {
+bool creature::ask(const nameable& opponent, const char* format, ...) const {
+	return askv(sb, opponent, format, xva_start(format));
+}
+
+bool creature::askyn(const char* format, ...) {
 	if(!isactive())
 		return true;
 	act(format);
@@ -1903,7 +1942,7 @@ void creature::usetools() {
 }
 
 void creature::quitandsave() {
-	if(ask("Вы действительно хотите [сохранить] игру и выйти?")) {
+	if(askyn("Вы действительно хотите [сохранить] игру и выйти?")) {
 		game.write();
 		exit(0);
 	}
@@ -1939,4 +1978,15 @@ variant creature::choosereceipt(const char* interactive) const {
 		an.add(i, "Рецепт %1", source[i].getnameof());
 	}
 	return source[an.choosev(interactive, false, false, interactive)];
+}
+
+site* creature::getsite() const {
+	return (site_id!=Blocked) ? &bsmeta<site>::elements[site_id] : 0;
+}
+
+void creature::set(const site* v) {
+	if(!v)
+		site_id = Blocked;
+	else
+		site_id = v - bsmeta<site>::elements;
 }

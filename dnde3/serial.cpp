@@ -12,7 +12,7 @@ static bool serial(location& e, const char* url, bool write_mode, bool overland)
 	archive a(file, write_mode);
 	a.set(e);
 	if(overland) {
-
+		a.set(bsmeta<creature>::source);
 	} else {
 		a.set(bsmeta<creature>::source);
 		a.set(bsmeta<site>::source);

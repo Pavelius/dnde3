@@ -239,6 +239,28 @@ void nameable::act(const char* format, ...) const {
 	actv(sb, format, xva_start(format));
 }
 
+bool nameable::askv(stringbuilder& st, const nameable& opponent, const char* format, const char* param) const {
+	if(!format)
+		return false;
+	if(!cansee() || !opponent.cansee())
+		return true;
+	string sb = st;
+	sb.name = getname();
+	sb.gender = getgender();
+	sb.opponent_name = opponent.getname();
+	sb.opponent_gender = opponent.getgender();
+	sb.addsep(' ');
+	sb.add("[%герой:]");
+	sb.add("\"");
+	sb.addv(format, param);
+	sb.add("\"");
+	st = sb;
+	auto player = creature::getactive();
+	if(player)
+		return player->askyn();
+	return true;
+}
+
 void nameable::sayv(stringbuilder& st, const char* format, const char* param) const {
 	if(!format)
 		return;
@@ -261,4 +283,8 @@ const char* adjectivei::get(gender_s v) const {
 	case Female: return name_female;
 	default: return name;
 	}
+}
+
+bool nameable::isactive() const {
+	return creature::getactive() == this;
 }
