@@ -1955,6 +1955,7 @@ void creature::playuioverland() {
 	while(ismodal()) {
 		location::setcamera(game.getposition());
 		current_background();
+		render_message();
 		domodal();
 		auto i = translate(game.getposition());
 		if(i != Blocked) {

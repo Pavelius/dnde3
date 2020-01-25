@@ -264,6 +264,10 @@ void gamei::move(indext index) {
 		restore_energy -= OverlandEnergyCost * 150 / 100;
 		break;
 	case Mountains:
+		if(!find(ClimbingTool)) {
+			sb.add("” вас нету оборудовани€ дл€ лазани€ по горам.");
+			return;
+		}
 		restore_energy -= OverlandEnergyCost * 250 / 100;
 		break;
 	case Hill:
@@ -292,4 +296,15 @@ void gamei::move(indext index) {
 
 void gamei::wait() {
 	restore_energy += OverlandEnergyCost;
+}
+
+item* gamei::find(item_s v) const {
+	for(auto& e : bsmeta<creature>()) {
+		if(!e || !e.is(Friendly))
+			continue;
+		auto r = e.finditem(v);
+		if(r)
+			return r;
+	}
+	return 0;
 }

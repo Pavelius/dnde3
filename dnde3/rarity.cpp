@@ -1,4 +1,4 @@
- #include "main.h"
+#include "main.h"
 
 template<> rarityi bsmeta<rarityi>::elements[] = {{"Обычный", 12, 70},
 {"Необычный", 8, 40},

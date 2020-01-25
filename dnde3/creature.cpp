@@ -1990,3 +1990,11 @@ void creature::set(const site* v) {
 	else
 		site_id = v - bsmeta<site>::elements;
 }
+
+item* creature::finditem(item_s v) {
+	for(auto& it : wears) {
+		if(it.getkind()==v)
+			return &it;
+	}
+	return 0;
+}

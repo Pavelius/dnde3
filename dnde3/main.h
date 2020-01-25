@@ -824,6 +824,7 @@ public:
 	static creature*	find(indext i);
 	boosti*				find(variant id) const;
 	boosti*				finds(variant id) const;
+	item*				finditem(item_s v);
 	int					get(ability_s v) const { return abilities[v]; }
 	int					get(spell_s v) const { return spells[v]; }
 	int					get(skill_s v) const;
@@ -1191,6 +1192,7 @@ public:
 	void				applyboost();
 	void				enter();
 	void				enter(indext index, int level, map_object_s stairs);
+	item*				find(item_s v) const;
 	int					get(skill_s v) const;
 	int					getrounds() const { return rounds; }
 	void				intialize();

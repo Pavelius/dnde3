@@ -52,15 +52,17 @@ bool location::read(indext index, int level) {
 bool gamei::read() {
 	if(!serial(*this, false))
 		return false;
-	if(!loc.read(getposition(), getlevel()))
-		return false;
-	return true;
+	if(overland)
+		return loc.read("game/overland.loc", true);
+	else
+		return loc.read(getposition(), getlevel());
 }
 
 bool gamei::write() {
 	if(!serial(*this, true))
 		return false;
-	if(!loc.write(getposition(), getlevel()))
-		return false;
-	return true;
+	if(overland)
+		return loc.write("game/overland.loc", true);
+	else
+		return loc.write(getposition(), getlevel());
 }

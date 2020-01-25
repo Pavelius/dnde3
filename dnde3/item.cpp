@@ -118,7 +118,7 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", "item-1", Unique, 0, 0, 0, NoGender,
 {"Жезл", "item230", Uncommon, 30, 180 * GP, 2, NoGender, Iron, {}, {}, wand_common_spells, {}, Zapable},
 //
 {"Книга", "item88", Rare, 500, 100 * GP, -1, Female, Paper, {}, {}, common_mage_spells, {}, Readable},
-{"Книга", "item200", Rare, 600, 150 * GP, 0, Female, Paper, {}, {}, common_mage_spells, {}, Readable},
+{"Книга", "item681", Rare, 600, 150 * GP, 0, Female, Paper, {}, {}, common_mage_spells, {}, Readable},
 {"Книга", "item514", Rare, 600, 200 * GP, 0, Female, Paper, {}, {}, common_mage_spells, {}, Readable},
 {"Мануал", "item680", Rare, 800, 250 * GP, 1, Male, Paper, {}, {}, common_mage_spells, {}, Readable},
 {"Том", "item649", VeryRare, 1000, 300 * GP, 2, Male, Paper, {}, {}, common_mage_spells, {}, Readable},
