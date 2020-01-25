@@ -188,8 +188,6 @@ bool gamei::enter(indext index, int level, map_object_s stairs) {
 			return false;
 		loc.clear();
 		loc.create(*p, level, p->is(Explored), false);
-		if(!loc.write(getposition(), getlevel()))
-			return false;
 	}
 	players.restore();
 	if(!creature::getactive()) {
@@ -208,7 +206,7 @@ bool gamei::enter(indext index, int level, map_object_s stairs) {
 		update_los();
 	} else
 		updatepos();
-	return true;
+	return write();
 }
 
 void gamei::checkcommand() {
