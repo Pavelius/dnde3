@@ -4,6 +4,7 @@ const auto				OverlandEnergyCost = 24 * 60 * 33 / 7;
 gamei					game;
 
 class gamestat {
+
 	adat<creature, 8>	players;
 	adat<boosti>		boosts;
 

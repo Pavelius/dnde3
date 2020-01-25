@@ -61,6 +61,8 @@ static void test_adventure() {
 		loc.set(i1, Sea);
 		loc.set(i1 + 1, Sea);
 		loc.set(i1 - 1, Sea);
+		loc.set(i1 - 3, Forest);
+		loc.set(i1 - 2, Forest);
 		loc.set(i2, Sea);
 		auto p1 = create(Elf, Female, Mage);
 		auto p2 = create(Dwarf, Male, Cleric);
@@ -132,7 +134,6 @@ static void test_pause() {
 static void test_dungeon() {
 	static dungeoni dungeon = {AreaDungeon, 5, -2};
 	loc.create(dungeon, 1, true, false);
-	loc.setdungeon(true);
 	loc.setlight(-2);
 	auto p1 = create(Human, Female, Mage);
 	auto p2 = create(Dwarf, Male, Cleric);

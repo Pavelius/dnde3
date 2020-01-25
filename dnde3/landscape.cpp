@@ -318,8 +318,8 @@ static void create_city(const rect& rc, rooma& rooms, const landscapei& land, bo
 	create_city_level(rc, 0, rooms, visualize);
 }
 
-template<> landscapei bsmeta<landscapei>::elements[] = {{"Равнина", 0, Plain, {{Tree, 2}, {Water, -16}, {Hill, 1}, {Swamp, -20}}},
-{"Лес", 0, Plain, {{Tree, 10}, {Hill, 1}, {Swamp, -20}}},
+template<> landscapei bsmeta<landscapei>::elements[] = {{"Равнина", 0, Plain, {{Tree, 2}, {Water, -16}, {Hill, 1}, {Swamp, -20}, {Plants, 1}}},
+{"Лес", 0, Plain, {{Tree, 12}, {Hill, 1}, {Swamp, -20}, {Plants, 1}}},
 {"Болото", 0, Plain, {{Tree, -40}, {Swamp, 1}, {Lake, 1}}},
 // 
 {"Подземелье", 1, Wall, {}, {StairsDownRoom, StairsUpRoom}, create_big_rooms, create_dungeon_content},

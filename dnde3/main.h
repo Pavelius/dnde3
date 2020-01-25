@@ -955,7 +955,7 @@ struct landscapei {
 	const char*			name;
 	char				border;
 	tile_s				tile;
-	casev<variant>		tiles[4];
+	casev<variant>		tiles[8];
 	room_s				objects[4];
 	genareaproc			genarea;
 	genareaproc			genroom;
@@ -973,7 +973,6 @@ struct dungeoni {
 	itemc				items;
 	mapflf				flags;
 	explicit constexpr operator bool() const { return level != 0; }
-	bool				create(indext index, int level, bool visualize) const;
 	const dungeoni*		find(int level) const;
 	constexpr bool		is(map_flag_s v) const { return flags.is(v); }
 	constexpr bool		isdungeon() const { return type == AreaDungeon; }
@@ -1062,7 +1061,6 @@ class location : public statistici {
 	map_object_s		objects[mmx*mmy];
 	unsigned char		random[mmx*mmy];
 	mapflf				flags[mmx*mmy];
-	bool				is_dungeon;
 	char				light_level;
 	//
 	indext				getfree(indext i, procis proc, int radius_maximum) const;
@@ -1148,7 +1146,6 @@ public:
 	void				setr(indext i, unsigned char v) { random[i] = v; }
 	static void			setcamera(short x, short y);
 	static void			setcamera(indext i);
-	void				setdungeon(bool v) { is_dungeon = v; }
 	indext				setiwh(int x, int y, int s, tile_s o, map_object_s r, bool locked_doors);
 	indext				setiwv(int x, int y, int s, tile_s o, map_object_s r, bool locked_doors);
 	void				setlight(int v) { light_level = v; }
