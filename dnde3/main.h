@@ -198,7 +198,7 @@ enum item_flag_s : unsigned char {
 };
 enum variant_s : unsigned char {
 	NoVariant,
-	Ability, Alignment, Command, Creature, Formula, Gender, God, Harm,
+	Ability, Alignment, Class, Command, Creature, Formula, Gender, God, Harm,
 	Item, ItemIdentify, ItemType,
 	Number, Object, ObjectFlags, Outdoor, Race, Range, Rarity, Role, Room,
 	Skill, Slot, Spell, State, Target, Tile,
@@ -268,6 +268,7 @@ struct variant {
 	constexpr variant() : type(NoVariant), value(0) {}
 	constexpr variant(ability_s v) : type(Ability), value(v) {}
 	constexpr variant(alignment_s v) : type(Alignment), value(v) {}
+	constexpr variant(class_s v) : type(Class), value(v) {}
 	constexpr variant(command_s v) : type(Command), value(v) {}
 	constexpr variant(damage_s v) : type(Harm), value(v) {}
 	constexpr variant(diety_s v) : type(God), value(v) {}
@@ -942,7 +943,7 @@ public:
 	void				setguard(short unsigned value) { guard = value; }
 	void				setmoney(int value) { money = value; }
 	void				shoot();
-	static void			store(creature* sp, const creature* spe, boosti* sb, const boosti* sbe);
+	void				testevents();
 	void				testweapons();
 	void				unlink();
 	bool				use(const creaturea& source, skill_s id);
@@ -1208,11 +1209,14 @@ struct tilei {
 struct eventi {
 	unsigned short		index;
 	unsigned short		type;
-	varianta			actions;
+	variant				actions[8];
 	const char*			text;
 	const char*			answer1;
 	const char*			answer2;
 	explicit operator bool() const { return text != 0; }
+	void				apply();
+	bool				isallow() const;
+	static void			play(int number);
 };
 class gamei : public geoposable {
 	unsigned			rounds;
@@ -1238,6 +1242,7 @@ public:
 	int					getreputation() const { return reputation; }
 	int					getrounds() const { return rounds; }
 	void				intialize();
+	bool				is(variant v) const;
 	void				move(indext index);
 	static void			help();
 	void				passminute();

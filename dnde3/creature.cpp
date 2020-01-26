@@ -1785,6 +1785,7 @@ void creature::minimap() {
 bool creature::ismatch(variant v) const {
 	switch(v.type) {
 	case Alignment: return true;
+	case Class: return kind == v.value;
 	case Gender: return getgender() == v.value;
 	case Race: return getrace() == v.value;
 	case Role: return getrole() == v.value;
@@ -2029,4 +2030,8 @@ bool creature::leaving(direction_s v) {
 	game.use(StairsUp);
 	wait();
 	return true;
+}
+
+void creature::testevents() {
+	eventi::play(1);
 }

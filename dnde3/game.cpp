@@ -359,3 +359,13 @@ const dungeoni* gamei::getdungeon() const {
 		return bsmeta<tilei>::elements[tile].wilderness;
 	return bsmeta<outdoori>::elements[outdoor_id].levels;
 }
+
+bool gamei::is(variant v) const {
+	for(auto& e : bsmeta<creature>()) {
+		if(!e || !e.is(Friendly))
+			continue;
+		if(e.ismatch(v))
+			return true;
+	}
+	return false;
+}
