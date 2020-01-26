@@ -1527,7 +1527,7 @@ static void view_bullet(point origin, indext index, int number) {
 	fore = colors::black;
 	circle(pm.x, pm.y, 8, colors::white);
 	fore = colors::black;
-	text(pm.x - textw(temp) / 2, pm.y - texth() / 2, temp);
+	text(pm.x - textw(temp) / 2 - 1, pm.y - texth() / 2, temp);
 	fore = p_fore;
 }
 

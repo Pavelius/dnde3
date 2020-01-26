@@ -52,6 +52,7 @@ static void create_outdoor() {
 	auto sz = sizeof(*p);
 	p->clear();
 	p->setposition(i);
+	strcmp(p->name, "Мехер");
 	p->avatar.clear();
 	p->avatar.set(i);
 	p->avatar.y -= 4;
@@ -88,7 +89,8 @@ static void test_adventure() {
 		auto p2 = create(Dwarf, Male, Cleric);
 		auto p3 = create(Elf, Male, Fighter);
 		p1->activate();
-		if(!game.enter(loc.get(8, 8), 0, NoTileObject))
+		game.setposition(loc.get(8, 8));
+		if(!game.enter(0, NoTileObject))
 			return;
 	}
 	game.play();
@@ -114,7 +116,8 @@ static void modify_weapon(creature* p1) {
 
 static void create_indoor() {
 	if(!game.read()) {
-		game.enter(loc.get(20, 20), 1, StairsDown);
+		game.setposition(loc.get(20, 20));
+		game.enter(1, StairsDown);
 		auto p1 = create(Elf, Female, Mage);
 		auto p2 = create(Dwarf, Male, Cleric);
 		auto p3 = create(Elf, Male, Fighter);

@@ -175,18 +175,20 @@ void gamei::passminute() {
 		applysick();
 }
 
-bool gamei::enter(indext index, int level, map_object_s stairs) {
+bool gamei::enter(int level, map_object_s stairs) {
+	auto p = getdungeon();
+	if(p)
+		p = p->find(level);
+	if(!p)
+		return false;
 	gamestat players;
 	players.clear();
 	players.store();
 	write();
-	setposition(index, level);
+	setlevel(level);
 	if(isoverland())
 		loc.read("game/overland.loc", true);
 	else if(!loc.read(getposition(), getlevel())) {
-		auto p = getdungeon();
-		if(!p)
-			return false;
 		loc.clear();
 		loc.create(*p, level, p->is(Explored), false);
 	}
@@ -222,10 +224,11 @@ void gamei::checkcommand() {
 		return;
 	switch(command) {
 	case StairsDown:
-		enter(getposition(), getlevel() + 1, StairsUp);
+		enter(getlevel() + 1, StairsUp);
 		break;
 	case StairsUp:
-		enter(getposition(), getlevel() - 1, StairsDown);
+		if(getlevel()>0)
+			enter(getlevel() - 1, StairsDown);
 		break;
 	}
 	command = NoTileObject;
@@ -319,19 +322,17 @@ void gamei::move(indext index) {
 	// Расчитаем еду
 
 	// Движение
-	setposition(index, 0);
+	setposition(index);
 	updatepos();
 }
 
-void gamei::setposition(indext v, int l) {
-	geoposable::setposition(v, l);
-	if(isoverland())
-		tile = loc.gettile(v);
+void gamei::setposition(indext v) {
+	geoposable::setposition(v);
+	outdoor_id = Blocked;
+	tile = loc.gettile(v);
 	auto p = outdoori::find(v);
 	if(p)
 		outdoor_id = p - bsmeta<outdoori>::elements;
-	else
-		outdoor_id = Blocked;
 }
 
 void gamei::wait() {

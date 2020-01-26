@@ -643,13 +643,12 @@ public:
 	constexpr indext	getposition() const { return index; }
 	constexpr void		setposition(indext v) { index = v; }
 };
-class geoposable : posable {
+class geoposable : public posable {
 	unsigned short		level;
 public:
 	constexpr int		getlevel() const { return level; }
-	constexpr indext	getposition() const { return posable::getposition(); }
 	bool				isoverland() const { return level == 0; }
-	constexpr void		setposition(indext v, int l) { posable::setposition(v); level = l; }
+	constexpr void		setlevel(int v) { level = v; }
 };
 class nameable : public variant, public posable {
 	short unsigned		name[2];
@@ -1199,7 +1198,7 @@ class gamei : public geoposable {
 	void				playoverland();
 public:
 	void				applyboost();
-	bool				enter(indext index, int level, map_object_s stairs);
+	bool				enter(int level, map_object_s stairs);
 	item*				find(item_s v) const;
 	int					get(skill_s v) const;
 	const dungeoni*		getdungeon() const;
@@ -1210,7 +1209,7 @@ public:
 	void				passminute();
 	void				play();
 	bool				read();
-	void				setposition(indext v, int l);
+	void				setposition(indext v);
 	void				updatepos();
 	void				use(map_object_s v);
 	bool				write();
