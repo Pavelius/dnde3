@@ -47,11 +47,17 @@ static void test_worldmap() {
 }
 
 static void create_outdoor() {
-	auto i = loc.get(4, 7);
+	auto i = loc.get(4, 8);
 	auto p = bsmeta<outdoori>::add();
+	auto sz = sizeof(*p);
 	p->clear();
 	p->setposition(i);
-	p->frame = 18;
+	p->avatar.clear();
+	p->avatar.set(i);
+	p->avatar.y -= 4;
+	p->avatar.x += 4;
+	p->avatar.img = ResDecals;
+	p->avatar.frame = 10;
 	p->levels[0] = {AreaCity, 1};
 	p->levels[1] = {AreaDungeon, 16, -2};
 	p->levels[2] = {AreaDungeonLair, 1, -2};
@@ -175,10 +181,11 @@ static bool test_formula() {
 void util_main();
 
 int main(int argc, char* argv[]) {
-	util_main();
 	if(!test_formula())
 		return false;
+	spritei::initialize();
 	game.intialize();
+	util_main();
 	//test_answers();
 	//item_choose();
 	//test_worldmap();

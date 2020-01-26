@@ -492,6 +492,25 @@ bool location::isfreenw(indext i) const {
 	return true;
 }
 
+static tile_s tile_value;
+
+bool location::istile(indext i) const {
+	return gettile(i) == tile_value;
+}
+
+bool location::istile2(indext i) const {
+	if(gettile(i) != tile_value)
+		return false;
+	for(auto d : all_aroud) {
+		auto i1 = to(i, d);
+		if(i1 == Blocked)
+			return false;
+		if(gettile(i1) != tile_value)
+			return false;
+	}
+	return true;
+}
+
 indext location::getfree(indext i, procis proc, int radius_maximum) const {
 	if(i == Blocked)
 		return i;
@@ -1083,6 +1102,13 @@ indext location::find(map_object_s v) const {
 			return i;
 	}
 	return Blocked;
+}
+
+indext location::find(tile_s v, const rect& rc) const {
+	auto x = xrand(rc.x1, rc.x2);
+	auto y = xrand(rc.y1, rc.y2);
+	tile_value = v;
+	return loc.getfree(get(x, y), &location::istile, 32);
 }
 
 site* location::addsite(room_s type, const rect& rc) {

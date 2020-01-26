@@ -211,6 +211,9 @@
     <ClCompile Include="dungeon.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="sprite.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="answer.h">

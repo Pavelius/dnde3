@@ -318,13 +318,34 @@ static void create_city(const rect& rc, rooma& rooms, const landscapei& land, bo
 	create_city_level(rc, 0, rooms, visualize);
 }
 
-template<> landscapei bsmeta<landscapei>::elements[] = {{"Равнина", 0, Plain, {{Tree, 2}, {Water, -16}, {Hill, 1}, {Swamp, -20}, {Plants, 1}}},
-{"Лес", 0, Plain, {{Tree, 12}, {Hill, 1}, {Swamp, -20}, {Plants, 1}}},
-{"Болото", 0, Plain, {{Tree, -40}, {Swamp, 1}, {Lake, 1}}},
+static indext center_start(direction_s dir) {
+	return loc.get(mmx / 2, mmy / 2);
+}
+
+static indext road_start(direction_s dir) {
+	switch(dir) {
+	case Right:
+	case RightUp:
+	case RightDown:
+		return loc.find(Road, {mmx - 8, 8, 8, mmx - 1});
+	case Left:
+	case LeftUp:
+	case LeftDown:
+		return loc.find(Road, {0, 16, 16, mmy - 16});
+	case Up:
+		return loc.find(Road, {0, mmy - 8, mmx - 1, mmy - 1});
+	default:
+		return loc.find(Road, {0, 0, mmx - 1, 8});
+	}
+}
+
+template<> landscapei bsmeta<landscapei>::elements[] = {{"Равнина", 0, Plain, {{Tree, 2}, {Water, -16}, {Hill, 1}, {Swamp, -20}, {Plants, 1}}, {}, 0, 0, center_start},
+{"Лес", 0, Plain, {{Tree, 12}, {Hill, 1}, {Swamp, -20}, {Plants, 1}}, {}, 0, 0, center_start},
+{"Болото", 0, Plain, {{Tree, -40}, {Swamp, 1}, {Lake, 1}}, {}, 0, 0, center_start},
 // 
-{"Подземелье", 1, Wall, {}, {StairsDownRoom, StairsUpRoom}, create_big_rooms, create_dungeon_content},
-{"Логово", 1, Wall, {}, {StairsUpRoom}, create_big_rooms, create_dungeon_content},
-{"Город", 1, Plain, {{Tree, 2}, {Water, -16}}, {StairsDownRoom, Barracs, Lair}, create_city, create_city_buildings},
+{"Подземелье", 1, Wall, {}, {StairsDownRoom, StairsUpRoom}, create_big_rooms, create_dungeon_content, center_start},
+{"Логово", 1, Wall, {}, {StairsUpRoom}, create_big_rooms, create_dungeon_content, center_start},
+{"Город", 1, Plain, {{Tree, 2}, {Water, -16}}, {StairsDownRoom, Barracs, Lair}, create_city, create_city_buildings, road_start},
 };
 assert_enum(landscape, AreaCity);
 

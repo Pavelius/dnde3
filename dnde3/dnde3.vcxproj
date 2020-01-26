@@ -142,6 +142,7 @@
     <ClCompile Include="png_util.cpp" />
     <ClCompile Include="rarity.cpp" />
     <ClCompile Include="room.cpp" />
+    <ClCompile Include="sprite.cpp" />
     <ClCompile Include="sprite_util.cpp" />
     <ClCompile Include="surface_util.cpp" />
     <ClCompile Include="variantc.cpp" />

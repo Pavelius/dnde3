@@ -251,6 +251,7 @@ typedef cflags<map_object_flag_s> mapobjf;
 typedef casev<ability_s> abilityv;
 typedef aset<damage_s, 1 + WaterAttack> damagea;
 typedef void(*gentileproc)(indext index);
+typedef indext(*getposproc)(direction_s i);
 typedef void(*genareaproc)(const rect& rc, rooma& rooms, const landscapei& landscape, bool visualize);
 struct variant {
 	variant_s			type;
@@ -363,13 +364,21 @@ struct map_objecti {
 	mapobjf				flags;
 	short unsigned		start, count;
 };
+struct spritei {
+	img_s				image;
+	const char*			id;
+	const char*			name;
+	short				frame;
+	static void			initialize();
+};
 struct picture : point {
 	img_s				img;
 	unsigned short		frame;
 	unsigned short		flags;
 	unsigned char		alpha;
 	unsigned char		level;
-	constexpr explicit operator bool() const { return img != ResNone; }
+	variant				object;
+	explicit operator bool() const { return img != ResNone; }
 	void				clear() { memset(this, 0, sizeof(*this)); alpha = 0xFF; }
 	void				render(int x, int y) const;
 	void				set(indext i);
@@ -959,6 +968,7 @@ struct landscapei {
 	room_s				objects[4];
 	genareaproc			genarea;
 	genareaproc			genroom;
+	getposproc			getstart;
 };
 struct dungeoni {
 	struct itemc {
@@ -1064,6 +1074,8 @@ class location : public statistici {
 	char				light_level;
 	//
 	indext				getfree(indext i, procis proc, int radius_maximum) const;
+	bool				istile(indext i) const;
+	bool				istile2(indext i) const;
 	site&				room(const rect& rc);
 	bool				linelos(int x0, int y0, int x1, int y1) const;
 	bool				wget(short unsigned i, direction_s direction, tile_s value) const;
@@ -1100,6 +1112,7 @@ public:
 	void				fill(const rect& rc, map_object_s v);
 	void				fill(const rect& rc, tile_s v);
 	indext				find(map_object_s v) const;
+	indext				find(tile_s v, const rect& rc) const;
 	void				forest(const rect& rc);
 	static indext		get(short x, short y) { return y * mmx + x; }
 	int					getlight() const { return light_level; }
@@ -1162,7 +1175,7 @@ public:
 };
 struct outdoori : posable {
 	char				name[32];
-	char				frame;
+	picture				avatar;
 	dungeoni			levels[8];
 	void				clear();
 	static const outdoori* find(indext index);

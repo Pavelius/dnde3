@@ -1949,31 +1949,26 @@ void location::worldmap(point camera, bool show_fow) const {
 			}
 		}
 	}
+	rect screen;
 	adat<picture, 256> pictures;
 	auto pb = pictures.begin();
 	auto pe = pictures.endof();
+	screen.x1 = x0 + camera.x; screen.x2 = screen.x1 + getwidth() - 1;
+	screen.y1 = y0 + camera.y; screen.y2 = screen.y1 + getheight() - 1;
+	screen.offset(-64, -64);
 	for(auto& e : bsmeta<outdoori>()) {
 		auto i = e.getposition();
 		if(i == Blocked)
 			continue;
-		auto x = x0 + loc.getx(i) * elx - camera.x;
-		if(x < x0 - 48 || x >= getwidth() + 48)
+		if(!e.avatar.in(screen))
 			continue;
-		auto y = y0 + loc.gety(i) * ely - camera.y;
-		if(y < y0 - 64 || y >= getwidth() + 64)
-			continue;
-		pb->clear();
-		pb->x = x;
-		pb->y = y;
-		pb->img = ResDecals;
-		pb->frame = e.frame;
-		pb++;
+		*pb++ = e.avatar;
 		if(pb>=pe)
 			break;
 	}
 	pictures.count = pb - pictures.data;
 	for(auto& e : pictures)
-		image(e.x, e.y, gres(e.img), e.frame, e.flags, e.alpha);
+		e.render(x0 - camera.x, y0 - camera.y);
 }
 
 static hotkey overland_keys[] = {{F1, "Выбрать первого героя", change_player, 0},
