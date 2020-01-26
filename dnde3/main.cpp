@@ -1,14 +1,8 @@
 #include "main.h"
 
 static creature* create(race_s race, gender_s gender, class_s cls) {
-	auto p = loc.add(loc.positions[0], race, gender, cls);
+	auto p = loc.add(Blocked, race, gender, cls);
 	p->add(Friendly, 1, false);
-	return p;
-}
-
-static creature* create(role_s type) {
-	auto p = loc.add(loc.positions[1], type);
-	p->add(Hostile, 1, false);
 	return p;
 }
 

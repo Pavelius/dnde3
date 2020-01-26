@@ -1062,7 +1062,6 @@ struct manual {
 struct statistici : public dungeoni {
 	short				artifacts;
 	short				magic_items;
-	indext				positions[8];
 };
 class location : public statistici {
 	typedef bool(location::*procis)(indext i) const;
@@ -1086,7 +1085,6 @@ public:
 	void				addinfo(indext i, stringbuilder& sb) const;
 	void				additems(indext i, stringbuilder& sb) const;
 	void				addobject(indext i, stringbuilder& sb) const;
-	void				addposition(indext i);
 	site*				addsite(room_s type, const rect& rc);
 	creature*			adventurer(indext index);
 	bool				apply(creature& player, indext index, variant id, int v, int order, bool run);

@@ -143,8 +143,6 @@ void location::clear() {
 	memset(this, 0, sizeof(*this));
 	for(auto& e : random)
 		e = rand() % 256;
-	for(auto& e : positions)
-		e = Blocked;
 	bsmeta<creature>::source.clear();
 	bsmeta<site>::source.clear();
 	bsmeta<boosti>::source.clear();
@@ -996,20 +994,10 @@ void location::content(const rect& rc, room_s type, site* p) {
 	}
 }
 
-void location::addposition(indext i) {
-	for(auto& e : positions) {
-		if(e != Blocked)
-			continue;
-		e = i;
-		break;
-	}
-}
-
 void location::interior(const rect& rc, room_s type, indext entrance, int level, rect* result_rect, site* ps) {
 	if(rc.width() < 5 && rc.height() < 5) {
 		rect r2 = rc.getoffset(1, 1);
 		if(level == 0) {
-			addposition(center(r2));
 			if(result_rect)
 				*result_rect = r2;
 		}
@@ -1055,7 +1043,6 @@ void location::interior(const rect& rc, room_s type, indext entrance, int level,
 			iswap(r1, r2);
 	}
 	if(level == 0) {
-		addposition(center(r1.getoffset(1,1)));
 		if(result_rect)
 			*result_rect = r1.getoffset(1,1);
 	}

@@ -205,7 +205,6 @@ static void create_dungeon_content(const rect& rc, rooma& rooms, const landscape
 		auto t = EmpthyRoom;
 		if(index < index_maximum && land.objects[index]) {
 			t = land.objects[index];
-			loc.addposition(loc.center(e));
 			index++;
 		}
 		auto p = loc.addsite(t, e);
