@@ -126,7 +126,7 @@ enum tile_s : unsigned char {
 };
 enum landscape_s : unsigned char {
 	AreaPlain, AreaForest, AreaSwamp,
-	AreaDungeon, AreaDungeonLair, AreaCity,
+	AreaDungeon, AreaCity,
 };
 enum room_s : unsigned char {
 	EmpthyRoom, TreasureRoom,
@@ -964,7 +964,6 @@ struct landscapei {
 	char				border;
 	tile_s				tile;
 	casev<variant>		tiles[8];
-	room_s				objects[4];
 	genareaproc			genarea;
 	genareaproc			genroom;
 	getposproc			getstart;
@@ -978,12 +977,11 @@ struct dungeoni {
 	landscape_s			type;
 	short				level;
 	char				light_level;
+	room_s				rooms[4];
 	racea				denyrace;
 	itemc				items;
-	mapflf				flags;
 	explicit constexpr operator bool() const { return level != 0; }
 	const dungeoni*		find(int level) const;
-	constexpr bool		is(map_flag_s v) const { return flags.is(v); }
 	constexpr bool		isdungeon() const { return type == AreaDungeon; }
 };
 class indexa : public adat<indext> {
@@ -1111,7 +1109,7 @@ public:
 	indext				find(map_object_s v) const;
 	indext				find(tile_s v, const rect& rc) const;
 	void				forest(const rect& rc);
-	static indext		get(short x, short y) { return y * mmx + x; }
+	constexpr static indext	get(short x, short y) { return y * mmx + x; }
 	int					getlight() const { return light_level; }
 	static direction_s	getdirection(indext from, indext to);
 	static direction_s	getdirection(point from, point to);
@@ -1170,12 +1168,22 @@ public:
 	bool				write(const char* url, bool overland) const;
 	bool				write(indext index, int level);
 };
-struct outdoori : posable {
-	char				name[32];
+struct outdoori {
+	struct picture {
+		img_s			image;
+		unsigned char	frame;
+		point			pos;
+	};
+	indext				index;
+	const char*			name;
+	const char*			descriptor;
 	picture				avatar;
-	dungeoni			levels[8];
+	dungeoni			levels[4];
+	constexpr explicit operator bool() const { return index != Blocked; }
 	void				clear();
 	static const outdoori* find(indext index);
+	constexpr indext	getposition() const { return index; }
+	constexpr void		setposition(indext v) { index = v; }
 };
 struct tilei {
 	const char*			id;

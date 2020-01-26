@@ -1,6 +1,6 @@
 #include "main.h"
 
-const auto				OverlandEnergyCost = 24 * 60 * 33 / 7;
+const auto				OverlandEnergyCost = 24 * 60 * 30 / 8;
 gamei					game;
 
 class gamestat {
@@ -190,7 +190,7 @@ bool gamei::enter(int level, map_object_s stairs) {
 		loc.read("game/overland.loc", true);
 	else if(!loc.read(getposition(), getlevel())) {
 		loc.clear();
-		loc.create(*p, level, p->is(Explored), false);
+		loc.create(*p, level, false, false);
 	}
 	players.restore();
 	if(!creature::getactive()) {
@@ -297,23 +297,23 @@ void gamei::move(indext index) {
 	case Sea:
 		if(current_tile != Sea && !p->askyn("¬ы действительно хотите пересечь воду?"))
 			return;
-		restore_energy -= OverlandEnergyCost * 200 / 100;
+		restore_energy -= OverlandEnergyCost * 300 / 100;
 		break;
 	case Forest:
-		restore_energy -= OverlandEnergyCost * 150 / 100;
+		restore_energy -= OverlandEnergyCost * 200 / 100;
 		break;
 	case Mountains:
 		if(!find(ClimbingTool)) {
 			sb.add("” вас нету оборудовани€ дл€ лазани€ по горам.");
 			return;
 		}
-		restore_energy -= OverlandEnergyCost * 250 / 100;
+		restore_energy -= OverlandEnergyCost * 350 / 100;
 		break;
 	case Hill:
-		restore_energy -= OverlandEnergyCost * 125 / 100;
+		restore_energy -= OverlandEnergyCost * 150 / 100;
 		break;
 	case Swamp:
-		restore_energy -= OverlandEnergyCost * 200 / 100;
+		restore_energy -= OverlandEnergyCost * 300 / 100;
 		break;
 	default:
 		restore_energy -= OverlandEnergyCost * 100 / 100;
@@ -331,8 +331,11 @@ void gamei::setposition(indext v) {
 	outdoor_id = Blocked;
 	tile = loc.gettile(v);
 	auto p = outdoori::find(v);
-	if(p)
+	if(p) {
 		outdoor_id = p - bsmeta<outdoori>::elements;
+		if(p->descriptor)
+			sb.add(p->descriptor);
+	}
 }
 
 void gamei::wait() {

@@ -1960,9 +1960,17 @@ void location::worldmap(point camera, bool show_fow) const {
 		auto i = e.getposition();
 		if(i == Blocked)
 			continue;
-		if(!e.avatar.in(screen))
+		point pt;
+		pt.x = x0 + loc.getx(i) * elx + e.avatar.pos.x;
+		pt.y = y0 + loc.gety(i) * ely + e.avatar.pos.y;
+		if(!pt.in(screen))
 			continue;
-		*pb++ = e.avatar;
+		pb->clear();
+		pb->x = pt.x;
+		pb->y = pt.y;
+		pb->img = e.avatar.image;
+		pb->frame = e.avatar.frame;
+		pb++;
 		if(pb>=pe)
 			break;
 	}

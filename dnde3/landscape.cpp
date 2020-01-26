@@ -199,12 +199,12 @@ static void create_dungeon_content(const rect& rc, rooma& rooms, const landscape
 	rooms.count -= 2; // Two room of lesser size would cutted off
 	zshuffle(rooms.data, rooms.count);
 	int index = 0;
-	int index_maximum = sizeof(land.objects) / sizeof(land.objects[0]);
+	int index_maximum = sizeof(loc.rooms) / sizeof(loc.rooms[0]);
 	for(const auto& e : rooms) {
 		loc.fill(e, Floor);
 		auto t = EmpthyRoom;
-		if(index < index_maximum && land.objects[index]) {
-			t = land.objects[index];
+		if(index < index_maximum && loc.rooms[index]) {
+			t = loc.rooms[index];
 			index++;
 		}
 		auto p = loc.addsite(t, e);
@@ -233,13 +233,13 @@ static void create_city_buildings(const rect& rc, rooma& rooms, const landscapei
 	if(max_possible_points > 25)
 		max_possible_points = 25;
 	int index = 0;
-	int index_maximum = sizeof(land.objects)/ sizeof(land.objects[0]);
+	int index_maximum = sizeof(loc.rooms)/ sizeof(loc.rooms[0]);
 	for(auto& e : rooms) {
 		auto t = (room_s)xrand(Temple, ShopFood);
 		if(current > max_possible_points)
 			t = House;
-		if(index < index_maximum && land.objects[index]) {
-			t = land.objects[index];
+		if(index < index_maximum && loc.rooms[index]) {
+			t = loc.rooms[index];
 			index++;
 		}
 		auto p = loc.addsite(t, e);
@@ -330,7 +330,7 @@ static indext road_start(direction_s dir) {
 	case Left:
 	case LeftUp:
 	case LeftDown:
-		return loc.find(Road, {0, 16, 16, mmy - 16});
+		return loc.find(Road, {0, 8, 8, mmy - 16});
 	case Up:
 		return loc.find(Road, {0, mmy - 8, mmx - 1, mmy - 1});
 	default:
@@ -338,13 +338,12 @@ static indext road_start(direction_s dir) {
 	}
 }
 
-template<> landscapei bsmeta<landscapei>::elements[] = {{"Равнина", 0, Plain, {{Tree, 2}, {Water, -16}, {Hill, 1}, {Swamp, -20}, {Plants, 1}}, {}, 0, 0, center_start},
-{"Лес", 0, Plain, {{Tree, 12}, {Hill, 1}, {Swamp, -20}, {Plants, 1}}, {}, 0, 0, center_start},
-{"Болото", 0, Plain, {{Tree, -40}, {Swamp, 1}, {Lake, 1}}, {}, 0, 0, center_start},
+template<> landscapei bsmeta<landscapei>::elements[] = {{"Равнина", 0, Plain, {{Tree, 2}, {Water, -16}, {Hill, 1}, {Swamp, -20}, {Plants, 1}}, 0, 0, center_start},
+{"Лес", 0, Plain, {{Tree, 12}, {Hill, 1}, {Swamp, -20}, {Plants, 1}}, 0, 0, center_start},
+{"Болото", 0, Plain, {{Tree, -40}, {Swamp, 1}, {Lake, 1}}, 0, 0, center_start},
 // 
-{"Подземелье", 1, Wall, {}, {StairsDownRoom, StairsUpRoom}, create_big_rooms, create_dungeon_content, center_start},
-{"Логово", 1, Wall, {}, {StairsUpRoom}, create_big_rooms, create_dungeon_content, center_start},
-{"Город", 1, Plain, {{Tree, 2}, {Water, -16}}, {StairsDownRoom, Barracs, Lair}, create_city, create_city_buildings, road_start},
+{"Подземелье", 1, Wall, {}, create_big_rooms, create_dungeon_content, center_start},
+{"Город", 1, Plain, {{Tree, 2}, {Water, -16}}, create_city, create_city_buildings, road_start},
 };
 assert_enum(landscape, AreaCity);
 

@@ -40,26 +40,8 @@ static void test_worldmap() {
 	loc.editor();
 }
 
-static void create_outdoor() {
-	auto i = loc.get(4, 8);
-	auto p = bsmeta<outdoori>::add();
-	auto sz = sizeof(*p);
-	p->clear();
-	p->setposition(i);
-	strcmp(p->name, "Мехер");
-	p->avatar.clear();
-	p->avatar.set(i);
-	p->avatar.y -= 4;
-	p->avatar.x += 4;
-	p->avatar.img = ResDecals;
-	p->avatar.frame = 10;
-	p->levels[0] = {AreaCity, 1};
-	p->levels[1] = {AreaDungeon, 16, -2};
-	p->levels[2] = {AreaDungeonLair, 1, -2};
-}
-
 static void test_adventure() {
-	create_outdoor();
+	bsmeta<outdoori>::elements[0].index = loc.get(4, 8);
 	if(!game.read()) {
 		auto i0 = loc.get(5, 4);
 		auto i1 = loc.get(5, 5);
