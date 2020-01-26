@@ -41,7 +41,7 @@ static void test_worldmap() {
 }
 
 static void test_adventure() {
-	bsmeta<outdoori>::elements[0].index = loc.get(4, 8);
+	bsmeta<outdoori>::elements[CityMeher].index = loc.get(4, 8);
 	if(!game.read()) {
 		auto i0 = loc.get(5, 4);
 		auto i1 = loc.get(5, 5);

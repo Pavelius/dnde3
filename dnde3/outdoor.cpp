@@ -10,8 +10,12 @@ template<> outdoori bsmeta<outdoori>::elements[] = {{Blocked, "Тига",
 {{AreaCity, 1, 0, {StairsDownRoom, ShopFood, ShopWeaponAndArmor}},
 {AreaDungeon, 8, -2, {StairsDownRoom, StairsUpRoom}},
 {AreaDungeon, 1, -2, {StairsUpRoom}}}},
+{Blocked, "Заброшенная шахта",
+"В скале находится заброшенная шахта. Проход уходит вниз, в темноту. Похоже здесь давно никого не было.", {ResDecals, 8},
+{{AreaDungeon, 10, -2, {StairsDownRoom, StairsUpRoom}},
+{AreaDungeon, 1, -2, {StairsUpRoom}}}},
 };
-DECLFULL(outdoori);
+assert_enum(outdoor, LastOutdoor);
 
 const outdoori* outdoori::find(indext index) {
 	for(auto& e : bsmeta<outdoori>()) {

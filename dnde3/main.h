@@ -200,9 +200,13 @@ enum variant_s : unsigned char {
 	NoVariant,
 	Ability, Alignment, Creature, Formula, Gender, God, Harm,
 	Item, ItemIdentify, ItemType,
-	Number, Object, ObjectFlags, Race, Range, Rarity, Role, Room,
+	Number, Object, ObjectFlags, Outdoor, Race, Range, Rarity, Role, Room,
 	Skill, Slot, Spell, State, Target, Tile,
 	Variant,
+};
+enum outdoor_s : unsigned char{
+	VillageTaho, CityMeher, LostMine,
+	LastOutdoor = LostMine,
 };
 enum formula_s : unsigned char {
 	Negative,
