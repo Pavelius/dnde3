@@ -326,11 +326,11 @@ static indext road_start(direction_s dir) {
 	case Right:
 	case RightUp:
 	case RightDown:
-		return loc.find(Road, {mmx - 8, 8, 8, mmx - 1});
+		return loc.find(Road, {0, 8, 8, mmy - 16});
 	case Left:
 	case LeftUp:
 	case LeftDown:
-		return loc.find(Road, {0, 8, 8, mmy - 16});
+		return loc.find(Road, {mmx - 8, 8, 8, mmx - 1});
 	case Up:
 		return loc.find(Road, {0, mmy - 8, mmx - 1, mmy - 1});
 	default:

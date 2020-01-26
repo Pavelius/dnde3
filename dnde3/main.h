@@ -1197,7 +1197,6 @@ struct tilei {
 };
 class gamei : public geoposable {
 	unsigned			rounds;
-	map_object_s		command;
 	tile_s				tile;
 	unsigned short		outdoor_id;
 	int					restore_energy;

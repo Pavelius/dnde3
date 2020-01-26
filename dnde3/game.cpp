@@ -2,6 +2,7 @@
 
 const auto				OverlandEnergyCost = 24 * 60 * 30 / 8;
 gamei					game;
+static 	map_object_s	command;
 
 class gamestat {
 
