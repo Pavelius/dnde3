@@ -117,6 +117,7 @@
     <ClCompile Include="archive.cpp" />
     <ClCompile Include="chat.cpp" />
     <ClCompile Include="class_progress.cpp" />
+    <ClCompile Include="commandi.cpp" />
     <ClCompile Include="converter.cpp" />
     <ClCompile Include="damage.cpp" />
     <ClCompile Include="boost.cpp" />
@@ -127,6 +128,7 @@
     <ClCompile Include="creaturea.cpp" />
     <ClCompile Include="crt.cpp" />
     <ClCompile Include="crt_strings.cpp" />
+    <ClCompile Include="deck.cpp" />
     <ClCompile Include="description.cpp" />
     <ClCompile Include="dice.cpp" />
     <ClCompile Include="draw.cpp" />
@@ -135,6 +137,7 @@
     <ClCompile Include="draw_textf.cpp" />
     <ClCompile Include="dungeon.cpp" />
     <ClCompile Include="equipment.cpp" />
+    <ClCompile Include="event.cpp" />
     <ClCompile Include="food.cpp" />
     <ClCompile Include="indexa.cpp" />
     <ClCompile Include="intellegence.cpp" />

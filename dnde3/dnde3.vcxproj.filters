@@ -214,6 +214,15 @@
     <ClCompile Include="sprite.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="event.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="deck.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="commandi.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="answer.h">

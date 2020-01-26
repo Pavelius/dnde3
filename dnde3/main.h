@@ -198,7 +198,7 @@ enum item_flag_s : unsigned char {
 };
 enum variant_s : unsigned char {
 	NoVariant,
-	Ability, Alignment, Creature, Formula, Gender, God, Harm,
+	Ability, Alignment, Command, Creature, Formula, Gender, God, Harm,
 	Item, ItemIdentify, ItemType,
 	Number, Object, ObjectFlags, Outdoor, Race, Range, Rarity, Role, Room,
 	Skill, Slot, Spell, State, Target, Tile,
@@ -239,6 +239,11 @@ enum intellegence_s : unsigned char {
 enum map_object_flag_s : unsigned char {
 	BlockMovement, BlockLight,
 };
+enum command_s : unsigned char {
+	AddReputation, LoseReputation, BadReputation, GoodReputation,
+	AddMoney10, AddMoney20, AddMoney50, LoseMoney10, LoseMoney20, LoseMoney50,
+	LastCommand = LoseMoney50,
+};
 struct dungeoni;
 struct targeti;
 struct landscapei;
@@ -263,6 +268,7 @@ struct variant {
 	constexpr variant() : type(NoVariant), value(0) {}
 	constexpr variant(ability_s v) : type(Ability), value(v) {}
 	constexpr variant(alignment_s v) : type(Alignment), value(v) {}
+	constexpr variant(command_s v) : type(Command), value(v) {}
 	constexpr variant(damage_s v) : type(Harm), value(v) {}
 	constexpr variant(diety_s v) : type(God), value(v) {}
 	constexpr variant(formula_s v) : type(Formula), value(v) {}
@@ -294,6 +300,10 @@ struct variant {
 };
 typedef variant			varianta[12];
 typedef adat<casev<variant>, 8> chancev;
+struct deck : adat<unsigned short> {
+	void				drop(short unsigned v);
+	short unsigned		take();
+};
 struct string : stringbuilder {
 	const char			*name, *opponent_name;
 	gender_s			gender, opponent_gender;
@@ -1195,22 +1205,37 @@ struct tilei {
 	gender_s			gender;
 	const dungeoni*		wilderness;
 };
+struct eventi {
+	unsigned short		index;
+	unsigned short		type;
+	varianta			actions;
+	const char*			text;
+	const char*			answer1;
+	const char*			answer2;
+	explicit operator bool() const { return text != 0; }
+};
 class gamei : public geoposable {
 	unsigned			rounds;
 	tile_s				tile;
 	unsigned short		outdoor_id;
+	char				reputation;
 	int					restore_energy;
+	deck				events;
 	//
 	bool				checkalive();
 	void				checkcommand();
 	void				playactive();
 	void				playoverland();
 public:
+	void				addmoney(int v) {}
+	void				addreputation(int v) { reputation += v; }
 	void				applyboost();
 	bool				enter(int level, map_object_s stairs);
 	item*				find(item_s v) const;
 	int					get(skill_s v) const;
 	const dungeoni*		getdungeon() const;
+	int					getmoney() const { return 0; }
+	int					getreputation() const { return reputation; }
 	int					getrounds() const { return rounds; }
 	void				intialize();
 	void				move(indext index);
@@ -1223,6 +1248,13 @@ public:
 	void				use(map_object_s v);
 	bool				write();
 	void				wait();
+};
+struct commandi {
+	typedef void(gamei::*addproc)(int v);
+	typedef int(gamei::*getproc)() const;
+	int					value;
+	getproc				get;
+	addproc				add;
 };
 extern gamei			game;
 extern location			loc;
