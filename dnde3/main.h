@@ -1085,6 +1085,8 @@ class location : public statistici {
 	char				light_level;
 	//
 	indext				getfree(indext i, procis proc, int radius_maximum) const;
+	indext				getfreex(int x1, int x2, int y, procis proc) const;
+	indext				getfreey(int x, int y1, int y2, procis proc) const;
 	bool				istile(indext i) const;
 	bool				istile2(indext i) const;
 	site&				room(const rect& rc);

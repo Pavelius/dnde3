@@ -509,6 +509,36 @@ bool location::istile2(indext i) const {
 	return true;
 }
 
+indext location::getfreex(int x1, int x2, int y, procis proc) const {
+	if(y < 0 || y >= mmy)
+		return Blocked;
+	if(x1 < 0)
+		x1 = 0;
+	if(x2 >= mmx)
+		x2 = mmx - 1;
+	for(; x1 <= x2; x1++) {
+		auto i1 = get(x1, y);
+		if((this->*proc)(i1))
+			return i1;
+	}
+	return Blocked;
+}
+
+indext location::getfreey(int x, int y1, int y2, procis proc) const {
+	if(x < 0 || x >= mmx)
+		return Blocked;
+	if(y1 < 0)
+		y1 = 0;
+	if(y2 >= mmy)
+		y2 = mmy - 1;
+	for(; y1 <= y2; y1++) {
+		auto i1 = get(x, y1);
+		if((this->*proc)(i1))
+			return i1;
+	}
+	return Blocked;
+}
+
 indext location::getfree(indext i, procis proc, int radius_maximum) const {
 	if(i == Blocked)
 		return i;
@@ -516,39 +546,34 @@ indext location::getfree(indext i, procis proc, int radius_maximum) const {
 		return i;
 	auto x = getx(i);
 	auto y = gety(i);
+	indext i1;
 	for(auto r = 1; r < radius_maximum; r++) {
 		if(rand() % 2) {
-			for(auto x1 = x - r; x1 <= x + r; x1++) {
-				if(x1 < 0)
-					continue;
-				if(x1 >= mmx)
-					break;
-				for(auto y1 = y - r; y1 <= y + r; y1++) {
-					if(y1 < 0)
-						continue;
-					if(y1 >= mmy)
-						break;
-					auto i1 = get(x1, y1);
-					if((this->*proc)(i1))
-						return i1;
-				}
-			}
+			i1 = getfreex(x - r, x + r, y + r, proc);
+			if(i1 != Blocked)
+				return i1;
+			i1 = getfreex(x - r, x + r, y - r, proc);
+			if(i1 != Blocked)
+				return i1;
+			i1 = getfreey(x - r, y - r, y + r, proc);
+			if(i1 != Blocked)
+				return i1;
+			i1 = getfreey(x + r, y - r, y + r, proc);
+			if(i1 != Blocked)
+				return i1;
 		} else {
-			for(auto y1 = y - r; y1 <= y + r; y1++) {
-				if(y1 < 0)
-					continue;
-				if(y1 >= mmy)
-					break;
-				for(auto x1 = x - r; x1 <= x + r; x1++) {
-					if(x1 < 0)
-						continue;
-					if(x1 >= mmx)
-						break;
-					auto i1 = get(x1, y1);
-					if((this->*proc)(i1))
-						return i1;
-				}
-			}
+			i1 = getfreey(x - r, y - r, y + r, proc);
+			if(i1 != Blocked)
+				return i1;
+			i1 = getfreey(x + r, y - r, y + r, proc);
+			if(i1 != Blocked)
+				return i1;
+			i1 = getfreex(x - r, x + r, y + r, proc);
+			if(i1 != Blocked)
+				return i1;
+			i1 = getfreex(x - r, x + r, y - r, proc);
+			if(i1 != Blocked)
+				return i1;
 		}
 	}
 	return Blocked;
