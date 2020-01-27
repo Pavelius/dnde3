@@ -1562,8 +1562,6 @@ static void view_legends(point origin, bool fow) {
 void location::minimap(int x, int y, point camera, bool fow) const {
 	if(x < 8)
 		x = 8;
-	if(y < 64)
-		y = 64;
 	int y3 = y;
 	color floor, floor1;
 	auto is_dungeon = isdungeon();
@@ -1654,15 +1652,25 @@ void location::minimap(int x, int y, point camera, bool fow) const {
 }
 
 void location::minimap(indext index, bool fow) const {
+	const bool show_title = true;
 	char temp[128]; stringbuilder sb(temp);
+	sb.add("%+1", getstr(loc.type));
+	if(loc.level > 0)
+		sb.add(" - уровень %1i", loc.level);
 	int w = mmx * mmaps + 280;
 	int h = mmy * mmaps;
 	point camera = {getx(index)*elx - viewport.x / 2, gety(index)*ely - viewport.y / 2};
 	while(ismodal()) {
 		draw::rectf({0, 0, draw::getwidth(), draw::getheight()}, colors::form);
-		if(loc.level)
-			sb.add("Уровень %1i", loc.level);
-		loc.minimap((draw::getwidth() - w) / 2, (draw::getheight() - h) / 2, camera, fow);
+		auto y = 4;
+		if(show_title) {
+			auto pf = font;
+			font = metrics::h1;
+			text((draw::getwidth() - textw(temp)) / 2, y, temp);
+			y += texth() + 8;
+			font = pf;
+		}
+		loc.minimap((draw::getwidth() - w) / 2, y, camera, fow);
 		domodal();
 		switch(hot.key) {
 		case KeyEscape:

@@ -1269,6 +1269,7 @@ extern stringbuilder	sb;
 DECLENUM(ability);
 DECLENUM(class);
 DECLENUM(item);
+DECLENUM(landscape);
 DECLENUM(map_object);
 DECLENUM(skill);
 DECLENUM(tile);
