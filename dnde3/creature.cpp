@@ -1957,17 +1957,19 @@ bool creature::knownreceipt(variant id) const {
 }
 
 void creature::learnreceipt(variant id) {
+	act("%герой внимательно изучил%а рецепт.");
 	if(knownreceipt(id)) {
 		if(isactive())
-			sb.add("Вы почерпнули важные знания по алхимии.");
-		addexp(800);
+			sb.add("В нем были важные сведения по алхимии, которых вам не доставало.");
+		addexp(2000*get(Alchemy)/100);
 	} else {
 		auto i = item::getreceipts().indexof(id);
 		if(i == -1)
 			return;
-		act("%герой изучил%а алхимическую формулу [%1].", id.getnameof());
+		act("В нем подробно излагалась алхимическая формула [%1]. Теперь, имея набор алхимика вы сможете создавать зелья такого типа.", id.getnameof());
 		recipes.set(i);
 	}
+	wait(30);
 }
 
 variant creature::choosereceipt(const char* interactive) const {

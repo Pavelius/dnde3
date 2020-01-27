@@ -301,11 +301,8 @@ bool item::use(skill_s id, creature& player, int order, bool run) {
 					break;
 				case Ability:
 					if(is(SingleUse)) {
-						if(bsmeta<itemi>::elements[type].skill == Alchemy) {
-							player.act("%герой изучил%а %-1 и записал%а себе его в книгу. Теперь из него можно делать ахимические зелья.", getname());
-							player.wait(10);
+						if(bsmeta<itemi>::elements[type].skill == Alchemy)
 							player.learnreceipt(v);
-						}
 						destroy(Magic, true);
 					}
 					break;
