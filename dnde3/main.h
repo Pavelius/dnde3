@@ -39,7 +39,7 @@ enum item_s : unsigned char {
 	Cloack1, Cloack2, Cloack3, Cloack4, Cloack5,
 	Boot1, Boot2, IronBoot1, IronBoot2, IronBoot3,
 	Ration, Apple, BreadHalflings, BreadEvlen, BreadDwarven, Cake, Sausage, Meat,
-	Scroll1, Scroll2, Scroll3,
+	Scroll1, Scroll2, Scroll3, AlchemyReceipt,
 	Wand1, Wand2, Wand3, Wand4, Wand5,
 	Book1, Book2, Book3, Book4, Book5,
 	AlchemyPotion, Potion1, Potion2, Potion3, Potion4, Potion5,

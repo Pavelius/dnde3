@@ -42,7 +42,7 @@ static variant common_amulet[] = {Charisma, Strenght, Lockpicking};
 static variant common_shield[] = {{}, Protection, Deflect,
 ResistFire, ResistAcid, ResistElectricity, ResistCharm};
 static variant common_cloack[] = {Protection, Survival, HideInShadow};
-static variant alchemy_receipts[] = {LifePoints, ManaPoints, LifeRate, ManaRate,
+static variant alchemy_receipts[] = {LifePoints, ManaPoints,
 Strenght, Dexterity, Constitution, Wisdow, Charisma,
 Armor, Protection,
 ResistAcid, ResistCharm, ResistCold, ResistElectricity, ResistFire, ResistParalize, ResistPoison, ResistWater,
@@ -110,6 +110,7 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", "item-1", Unique, 0, 0, 0, NoGender,
 {"Свиток", "item188", Common, 1, 10 * GP, -1, Male, Paper, {}, {}, common_scroll, {SingleUse}, Readable},
 {"Свиток", "item185", Common, 1, 12 * GP, 0, Male, Paper, {}, {}, common_scroll, {SingleUse}, Readable},
 {"Свиток", "item186", Uncommon, 1, 15 * GP, 1, Male, Paper, {}, {}, common_scroll, {SingleUse}, Readable},
+{"Рецепт", "item200", Rare, 1, 5 * GP, 1, Male, Paper, {}, {}, alchemy_receipts, {SingleUse}, Readable, Alchemy},
 //
 {"Жезл", "item231", Uncommon, 10, 100 * GP, -2, NoGender, Wood, {}, {}, wand_common_spells, {}, Zapable},
 {"Жезл", "item232", Uncommon, 10, 120 * GP, -1, NoGender, Wood, {}, {}, wand_common_spells, {}, Zapable},

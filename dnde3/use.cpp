@@ -272,15 +272,10 @@ bool item::use(skill_s id, creature& player, int order, bool run) {
 				b += 10;
 			else if(is(Artifact))
 				b += 25;
-			if(is(SingleUse))
-				b += 35;
-			else {
-				auto effect = geteffect();
-				auto player_rang = 0;
-				switch(effect.type) {
+			if(!is(SingleUse)) {
+				switch(v.type) {
 				case Spell:
-					player_rang = player.get((spell_s)effect.value);
-					b -= player_rang * 12;
+					b -= player.get((spell_s)v.value) * 12;
 					break;
 				}
 			}
@@ -295,11 +290,25 @@ bool item::use(skill_s id, creature& player, int order, bool run) {
 						sb.adds("¬ам удалось пон€ть, что это [%+1].", temp);
 					}
 				} else {
-					if(player.isactive())
+					if(player.isactive()) {
 						player.act("ќднако, вам так и не удалось ничего пон€ть.");
+						player.fail(Literacy);
+					}
 				}
 			} else {
 				switch(v.type) {
+				case Skill:
+					break;
+				case Ability:
+					if(is(SingleUse)) {
+						if(bsmeta<itemi>::elements[type].skill == Alchemy) {
+							player.act("%герой изучил%а %-1 и записал%а себе его в книгу. “еперь из него можно делать ахимические зель€.", getname());
+							player.wait(10);
+							player.learnreceipt(v);
+						}
+						destroy(Magic, true);
+					}
+					break;
 				case Spell:
 					if(is(SingleUse)) {
 						if(is(Blessed) || is(Artifact))
