@@ -29,21 +29,7 @@ static void create(creature* p1, item_s type, variant effect) {
 }
 
 static void test_worldmap() {
-	auto i0 = loc.get(5, 4);
-	auto i1 = loc.get(5, 5);
-	auto i2 = loc.get(5, 6);
-	loc.clear();
-	loc.fill({0, 0, mmx - 1, 1}, Sea);
-	loc.fill({0, 0, 1, mmy - 1}, Sea);
-	loc.fill({mmx - 2, 0, mmx - 1, mmy - 1}, Sea);
-	loc.fill({0, mmy - 2, mmx - 1, mmy - 1}, Sea);
-	loc.set(i0, Mountains);
-	loc.set(i0 + 1, Mountains);
-	loc.set(i1, Sea);
-	loc.set(i1 + 1, Sea);
-	loc.set(i1 - 1, Sea);
-	loc.set(i2, Sea);
-	loc.write("game/overland.loc", true);
+	loc.read("game/overland.loc", true);
 	loc.editor();
 }
 
@@ -177,8 +163,8 @@ int main(int argc, char* argv[]) {
 	util_main();
 	//test_answers();
 	//item_choose();
-	//test_worldmap();
-	test_adventure();
+	test_worldmap();
+	//test_adventure();
 	//test_analize();
 	//test_dungeon();
 	//create_indoor();
