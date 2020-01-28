@@ -13,7 +13,7 @@ const short unsigned mmy = 96;
 const unsigned short Blocked = 0xFFFF;
 const int StandartEnergyCost = 1000;
 
-const int chance_corridor_content = 10;
+const int chance_corridor_content = 8;
 const int chance_door_closed = 10;
 const int chance_generate_room = 40;
 const int chance_special_area = 5;

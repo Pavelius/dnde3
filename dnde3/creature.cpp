@@ -262,7 +262,7 @@ void creature::equip(item it, slot_s id) {
 
 bool creature::add(item v, bool run, bool talk) {
 	if(v.is(Coinable)) {
-		money += v.getcost();
+		money += v.getcost()*v.getcount();
 		return true;
 	}
 	// Second place item to backpack
@@ -1957,8 +1957,10 @@ bool creature::knownreceipt(variant id) const {
 }
 
 void creature::learnreceipt(variant id) {
+	int receipt_count = recipes.getcount();
+	int receipt_maximum = get(Alchemy) / 10;
 	act("%герой внимательно изучил%а рецепт.");
-	if(knownreceipt(id)) {
+	if(knownreceipt(id) || receipt_count>=receipt_maximum) {
 		if(isactive())
 			sb.add("В нем были важные сведения по алхимии, которых вам не доставало.");
 		addexp(2000*get(Alchemy)/100);

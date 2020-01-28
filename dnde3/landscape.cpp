@@ -119,7 +119,7 @@ static void create_door(indext index) {
 
 static void create_corridor_content(indext index) {
 	//static gentileproc chances[] = {create_trap};
-	static gentileproc chances[] = {create_trap, create_treasure, create_dungeon_item,
+	static gentileproc chances[] = {create_trap, create_treasure, create_treasure, create_dungeon_item,
 		create_monster, create_monster, create_monster,
 	};
 	maprnd(chances)(index);

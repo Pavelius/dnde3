@@ -65,6 +65,7 @@ static void test_adventure() {
 		auto p2 = create(Dwarf, Male, Cleric);
 		auto p3 = create(Elf, Male, Fighter);
 		create(p1, AlchemyReceipt);
+		create(p1, AlchemySet);
 		p1->activate();
 		game.setposition(loc.get(8, 8));
 		if(!game.enter(0, NoTileObject))
