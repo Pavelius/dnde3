@@ -42,7 +42,7 @@ static variant common_amulet[] = {Charisma, Strenght, Lockpicking};
 static variant common_shield[] = {{}, Protection, Deflect,
 ResistFire, ResistAcid, ResistElectricity, ResistCharm};
 static variant common_cloack[] = {Protection, Survival, HideInShadow};
-static variant alchemy_receipts[] = {LifePoints, ManaPoints, LifeRate, ManaRate,
+static variant alchemy_receipts[] = {LifePoints, ManaPoints,
 Strenght, Dexterity, Constitution, Wisdow, Charisma,
 Armor, Protection,
 ResistAcid, ResistCharm, ResistCold, ResistElectricity, ResistFire, ResistParalize, ResistPoison, ResistWater,
@@ -110,6 +110,7 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", "item-1", Unique, 0, 0, 0, NoGender,
 {"Свиток", "item188", Common, 1, 10 * GP, -1, Male, Paper, {}, {}, common_scroll, {SingleUse}, Readable},
 {"Свиток", "item185", Common, 1, 12 * GP, 0, Male, Paper, {}, {}, common_scroll, {SingleUse}, Readable},
 {"Свиток", "item186", Uncommon, 1, 15 * GP, 1, Male, Paper, {}, {}, common_scroll, {SingleUse}, Readable},
+{"Рецепт", "item200", Rare, 1, 5 * GP, 1, Male, Paper, {}, {}, alchemy_receipts, {SingleUse}, Readable, Alchemy},
 //
 {"Жезл", "item231", Uncommon, 10, 100 * GP, -2, NoGender, Wood, {}, {}, wand_common_spells, {}, Zapable},
 {"Жезл", "item232", Uncommon, 10, 120 * GP, -1, NoGender, Wood, {}, {}, wand_common_spells, {}, Zapable},
@@ -118,12 +119,12 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", "item-1", Unique, 0, 0, 0, NoGender,
 {"Жезл", "item230", Uncommon, 30, 180 * GP, 2, NoGender, Iron, {}, {}, wand_common_spells, {}, Zapable},
 //
 {"Книга", "item88", Rare, 500, 100 * GP, -1, Female, Paper, {}, {}, common_mage_spells, {}, Readable},
-{"Книга", "item200", Rare, 600, 150 * GP, 0, Female, Paper, {}, {}, common_mage_spells, {}, Readable},
+{"Книга", "item681", Rare, 600, 150 * GP, 0, Female, Paper, {}, {}, common_mage_spells, {}, Readable},
 {"Книга", "item514", Rare, 600, 200 * GP, 0, Female, Paper, {}, {}, common_mage_spells, {}, Readable},
 {"Мануал", "item680", Rare, 800, 250 * GP, 1, Male, Paper, {}, {}, common_mage_spells, {}, Readable},
 {"Том", "item649", VeryRare, 1000, 300 * GP, 2, Male, Paper, {}, {}, common_mage_spells, {}, Readable},
 //
-{"Пустая бутылка", "item259", Rare, 5, 5 * CP, -1, Female, Glass, {}, {}, {}, {}, Drinkable},
+{"Зелье", "item259", VeryRare, 20, 10 * GP, 0, NoGender, Glass, {}, {}, alchemy_receipts, {}, Drinkable},
 {"Зелье", "item49", Common, 10, 10 * GP, -1, NoGender, Glass, {}, {}, common_potions, {}, Drinkable},
 {"Зелье", "item63", Common, 20, 35 * GP, 0, NoGender, Glass, {}, {}, uncommon_potions, {}, Drinkable},
 {"Зелье", "item64", Uncommon, 10, 40 * GP, 0, NoGender, Glass, {}, {}, uncommon_potions, {}, Drinkable},
@@ -690,4 +691,8 @@ bool item::is(identify_s v) const {
 	case KnownPower: return !iscountable() && identifye != 0;
 	default: return !identifys && !identifyc && !identifye;
 	}
+}
+
+const aref<variant> item::getreceipts() {
+	return alchemy_receipts;
 }

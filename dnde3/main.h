@@ -13,7 +13,7 @@ const short unsigned mmy = 96;
 const unsigned short Blocked = 0xFFFF;
 const int StandartEnergyCost = 1000;
 
-const int chance_corridor_content = 10;
+const int chance_corridor_content = 8;
 const int chance_door_closed = 10;
 const int chance_generate_room = 40;
 const int chance_special_area = 5;
@@ -39,10 +39,10 @@ enum item_s : unsigned char {
 	Cloack1, Cloack2, Cloack3, Cloack4, Cloack5,
 	Boot1, Boot2, IronBoot1, IronBoot2, IronBoot3,
 	Ration, Apple, BreadHalflings, BreadEvlen, BreadDwarven, Cake, Sausage, Meat,
-	Scroll1, Scroll2, Scroll3,
+	Scroll1, Scroll2, Scroll3, AlchemyReceipt,
 	Wand1, Wand2, Wand3, Wand4, Wand5,
 	Book1, Book2, Book3, Book4, Book5,
-	Bottle, Potion1, Potion2, Potion3, Potion4, Potion5,
+	AlchemyPotion, Potion1, Potion2, Potion3, Potion4, Potion5,
 	RingRed, RingBlue, RingGreen,
 	Amulet1, Amulet2, Amulet3, Amulet4, Amulet5,
 	ClimbingTool, FletcherySet, Forge, HealingKit, ScriblingKit, CrystalBall, AlchemySet, TheifTool, CookingSet,
@@ -106,7 +106,7 @@ enum skill_s : unsigned char {
 	Bargaining, Bluff, Diplomacy,
 	Acrobatics, Alertness, Athletics, Backstabbing, Climbing, Concetration,
 	DisarmTraps, FindWeakness, HearNoises, HideInShadow, Lockpicking, MoveSilently, PickPockets,
-	Alchemy, Dancing, Engineering, Gambling, History, Healing, Herbalism,
+	Alchemy, Cooking, Dancing, Engineering, Gambling, History, Healing, Herbalism,
 	Literacy, Mining, Riding, Smithing, Survival, Swimming,
 	FocusBows, FocusSwords, FocusAxes, FocusTwohanded,
 	TwoWeaponFighting,
@@ -126,7 +126,7 @@ enum tile_s : unsigned char {
 };
 enum landscape_s : unsigned char {
 	AreaPlain, AreaForest, AreaSwamp,
-	AreaDungeon, AreaDungeonLair, AreaCity,
+	AreaDungeon, AreaCity,
 };
 enum room_s : unsigned char {
 	EmpthyRoom, TreasureRoom,
@@ -198,11 +198,15 @@ enum item_flag_s : unsigned char {
 };
 enum variant_s : unsigned char {
 	NoVariant,
-	Ability, Alignment, Creature, Formula, Gender, God, Harm,
+	Ability, Alignment, Class, Command, Creature, Formula, Gender, God, Harm,
 	Item, ItemIdentify, ItemType,
-	Number, Object, ObjectFlags, Race, Range, Rarity, Role, Room,
+	Number, Object, ObjectFlags, Outdoor, Race, Range, Rarity, Role, Room,
 	Skill, Slot, Spell, State, Target, Tile,
 	Variant,
+};
+enum outdoor_s : unsigned char{
+	VillageTaho, CityMeher, LostMine,
+	LastOutdoor = LostMine,
 };
 enum formula_s : unsigned char {
 	Negative,
@@ -235,6 +239,12 @@ enum intellegence_s : unsigned char {
 enum map_object_flag_s : unsigned char {
 	BlockMovement, BlockLight,
 };
+enum command_s : unsigned char {
+	AddReputation, LoseReputation, BadReputation, GoodReputation,
+	AddMoney10, AddMoney20, AddMoney50, LoseMoney10, LoseMoney20, LoseMoney50,
+	LastCommand = LoseMoney50,
+};
+struct dungeoni;
 struct targeti;
 struct landscapei;
 class creature;
@@ -250,6 +260,7 @@ typedef cflags<map_object_flag_s> mapobjf;
 typedef casev<ability_s> abilityv;
 typedef aset<damage_s, 1 + WaterAttack> damagea;
 typedef void(*gentileproc)(indext index);
+typedef indext(*getposproc)(direction_s i);
 typedef void(*genareaproc)(const rect& rc, rooma& rooms, const landscapei& landscape, bool visualize);
 struct variant {
 	variant_s			type;
@@ -257,6 +268,8 @@ struct variant {
 	constexpr variant() : type(NoVariant), value(0) {}
 	constexpr variant(ability_s v) : type(Ability), value(v) {}
 	constexpr variant(alignment_s v) : type(Alignment), value(v) {}
+	constexpr variant(class_s v) : type(Class), value(v) {}
+	constexpr variant(command_s v) : type(Command), value(v) {}
 	constexpr variant(damage_s v) : type(Harm), value(v) {}
 	constexpr variant(diety_s v) : type(God), value(v) {}
 	constexpr variant(formula_s v) : type(Formula), value(v) {}
@@ -288,6 +301,10 @@ struct variant {
 };
 typedef variant			varianta[12];
 typedef adat<casev<variant>, 8> chancev;
+struct deck : adat<unsigned short> {
+	void				drop(short unsigned v);
+	short unsigned		take();
+};
 struct string : stringbuilder {
 	const char			*name, *opponent_name;
 	gender_s			gender, opponent_gender;
@@ -356,16 +373,18 @@ struct equipmenti {
 	class_s				type;
 	varianta			features;;
 };
-struct tilei {
-	const char*			id;
-	const char*			name;
-	gender_s			gender;
-};
 struct map_objecti {
 	const char*			id;
 	const char*			name;
 	mapobjf				flags;
 	short unsigned		start, count;
+};
+struct spritei {
+	img_s				image;
+	const char*			id;
+	const char*			name;
+	short				frame;
+	static void			initialize();
 };
 struct picture : point {
 	img_s				img;
@@ -373,7 +392,8 @@ struct picture : point {
 	unsigned short		flags;
 	unsigned char		alpha;
 	unsigned char		level;
-	constexpr explicit operator bool() const { return img != ResNone; }
+	variant				object;
+	explicit operator bool() const { return img != ResNone; }
 	void				clear() { memset(this, 0, sizeof(*this)); alpha = 0xFF; }
 	void				render(int x, int y) const;
 	void				set(indext i);
@@ -546,6 +566,7 @@ public:
 	void				getname(stringbuilder& sb, bool show_cab) const;
 	indext				getposition() const;
 	int					getquality() const { return quality; }
+	static const aref<variant> getreceipts();
 	void				getstatistic(stringbuilder& sb) const;
 	creature*			getwearer() const;
 	slot_s				getwearerslot() const;
@@ -555,6 +576,7 @@ public:
 	bool				is(identify_s v) const;
 	bool				is(item_flag_s v) const { return getitem().flags.is(v); }
 	bool				is(item_type_s v) const { return magic == v; }
+	bool				is(sale_s v) const { return sale == v; }
 	bool				isboost(variant id) const;
 	bool				ischargeable() const;
 	bool				iscountable() const;
@@ -594,6 +616,7 @@ public:
 	void				match(item_flag_s v, bool remove);
 	void				matchp(int count, bool greater);
 	variant				random() const;
+	variant				randomw() const;
 };
 class skilla :public adat<skill_s, 64> {
 public:
@@ -630,16 +653,17 @@ struct roomi {
 class posable {
 	indext				index;
 public:
+	constexpr explicit operator bool() const { return index != Blocked; }
 	void				clear() { index = Blocked; }
 	constexpr indext	getposition() const { return index; }
 	constexpr void		setposition(indext v) { index = v; }
 };
-class geoposable : posable {
+class geoposable : public posable {
 	unsigned short		level;
 public:
 	constexpr int		getlevel() const { return level; }
-	constexpr indext	getposition() const { return posable::getposition(); }
-	constexpr void		setposition(indext v, int l) { posable::setposition(v); level = l; }
+	bool				isoverland() const { return level == 0; }
+	constexpr void		setlevel(int v) { level = v; }
 };
 class nameable : public variant, public posable {
 	short unsigned		name[2];
@@ -647,6 +671,7 @@ public:
 	void				act(const char* format, ...) const;
 	void				actv(stringbuilder& sb, const char* format, const char* param) const;
 	void				actv(stringbuilder& sb, nameable& e, const char* format, const char* param) const;
+	bool				askv(stringbuilder& st, const nameable& e, const char* format, const char* param) const;
 	bool				cansee() const;
 	gender_s			getgender() const;
 	const char*			getname() const;
@@ -655,6 +680,7 @@ public:
 	void				sayv(stringbuilder& st, const char* format, const char* param) const;
 	void				setname(race_s race, gender_s gender);
 	race_s				getrace() const;
+	bool				isactive() const;
 	bool				ischaracter() const { return value == Character; }
 };
 class site : public nameable, public rect {
@@ -724,7 +750,7 @@ class creature : public nameable, public paperdoll {
 	unsigned char		spells[LastSpell + 1];
 	item				wears[LastWear + 1];
 	int					restore_energy, restore_hits, restore_mana;
-	flagable<4>			recipes, recipes_invented;
+	flagable<4>			recipes;
 	char				hp, mp, poison;
 	statea				states;
 	short unsigned		location_id, site_id;
@@ -739,6 +765,7 @@ class creature : public nameable, public paperdoll {
 	void				add(ability_s id, variant source, int v, bool interactive, unsigned minutes);
 	bool				aiuse(const creaturea& creatures, const char* interactive, slot_s slot, variant effect);
 	void				aimove();
+	void				aioverland() {}
 	bool				aiskills(creaturea& creatures);
 	bool				aispells(creaturea& creatures);
 	void				aiturn(creaturea& creatures, creaturea& enemies, creature* enemy);
@@ -780,12 +807,14 @@ public:
 	void				addexp(int count, bool interactive = false);
 	void				appear();
 	bool				apply(creature& target, variant id, int v, int order, bool run);
-	bool				ask(const char* format, ...);
-	bool				askyn();
+	bool				ask(const nameable& opponent, const char* format, ...) const;
+	bool				askyn(const char* format, ...) const;
+	static bool			askyn();
 	void				backpack();
 	void				bloodstain() const;
 	int					calculate(const variant* formule) const;
 	bool				canhear(short unsigned index) const;
+	bool				canleave(direction_s v) const;
 	bool				cansee(indext i) const;
 	bool				canshoot() const;
 	void				chat();
@@ -794,6 +823,7 @@ public:
 	bool				charmresist(int bonus = 0) const;
 	void				checkpoison();
 	void				checksick();
+	variant				choosereceipt(const char* interactive) const;
 	void				create(race_s race, gender_s gender, class_s type);
 	void				create(role_s type);
 	void				clear();
@@ -816,6 +846,7 @@ public:
 	static creature*	find(indext i);
 	boosti*				find(variant id) const;
 	boosti*				finds(variant id) const;
+	item*				finditem(item_s v);
 	int					get(ability_s v) const { return abilities[v]; }
 	int					get(spell_s v) const { return spells[v]; }
 	int					get(skill_s v) const;
@@ -846,7 +877,7 @@ public:
 	int					getpoisondamage() const { return 1 + poison / 5; }
 	dicei				getraise(skill_s id) const;
 	role_s				getrole() const { return (role_s)value; }
-	site*				getsite() const { return 0; }
+	site*				getsite() const;
 	slot_s				getwearerslot(const item* p) const;
 	int					getweight() const;
 	void				heal(int value) { damage(-value, Magic); }
@@ -858,7 +889,6 @@ public:
 	bool				is(state_s v) const { return states.is(v); }
 	bool				is(spell_s v) const { return finds(v) != 0; }
 	bool				is(const creature* p) const { return this == p; }
-	bool				isactive() const { return getactive() == this; }
 	bool				isallow(item_s v) const;
 	bool				isbusy() const { return restore_energy <= -(StandartEnergyCost * 4) && is(Unaware); }
 	bool				isenemy(const creature* target) const;
@@ -869,6 +899,9 @@ public:
 	bool				ismatch(const creature& opponent, const varianta& source) const;
 	const char*			isusedisable(skill_s id) const;
 	void				kill();
+	bool				knownreceipt(variant id) const;
+	void				learnreceipt(variant id);
+	bool				leaving(direction_s v);
 	void				look(indext index);
 	void				lookaround();
 	void				makemove();
@@ -881,6 +914,7 @@ public:
 	bool				needrestore(ability_s id) const;
 	static void			pause();
 	void				paymana(int value, bool interactive);
+	void				playuioverland();
 	void				playui();
 	void				pickup();
 	void				potion(ability_s id, variant source, bool interactive, item_type_s magic, int quality, int minutes);
@@ -889,7 +923,9 @@ public:
 	void				raiseskills(int number);
 	void				raiseskills() { raiseskills(get(Intellegence) / 2); }
 	void				rangeattack(creature& enemy, int bonus = 0);
+	static void			restore(const creature* sp, const creature* spe, const boosti* sb, const boosti* sbe);
 	void				readsomething();
+	void				restoration();
 	bool				roll(ability_s v) const { return rollv(get(v)); }
 	bool				roll(ability_s v, int bonus) const { return rollv(get(v) + bonus); }
 	bool				roll(skill_s v) const { return rollv(get(v)); }
@@ -903,9 +939,11 @@ public:
 	void				select(skilla& e) const;
 	void				set(ability_s id, int v);
 	void				set(skill_s id, int v);
+	void				set(const site* v);
 	void				setguard(short unsigned value) { guard = value; }
 	void				setmoney(int value) { money = value; }
 	void				shoot();
+	void				testevents();
 	void				testweapons();
 	void				unlink();
 	bool				use(const creaturea& source, skill_s id);
@@ -919,6 +957,7 @@ public:
 	void				wait() { consume(StandartEnergyCost); }
 	void				wait(int n) { consume(StandartEnergyCost * n); }
 	void				waitturn() { wait(10*3); }
+	void				zoomon();
 };
 class creaturea : public adat<creature*> {
 public:
@@ -939,10 +978,10 @@ struct landscapei {
 	const char*			name;
 	char				border;
 	tile_s				tile;
-	casev<variant>		tiles[4];
-	room_s				objects[4];
+	casev<variant>		tiles[8];
 	genareaproc			genarea;
 	genareaproc			genroom;
+	getposproc			getstart;
 };
 struct dungeoni {
 	struct itemc {
@@ -953,13 +992,11 @@ struct dungeoni {
 	landscape_s			type;
 	short				level;
 	char				light_level;
+	room_s				rooms[4];
 	racea				denyrace;
 	itemc				items;
-	mapflf				flags;
 	explicit constexpr operator bool() const { return level != 0; }
-	bool				create(indext index, int level, bool visualize) const;
 	const dungeoni*		find(int level) const;
-	constexpr bool		is(map_flag_s v) const { return flags.is(v); }
 	constexpr bool		isdungeon() const { return type == AreaDungeon; }
 };
 class indexa : public adat<indext> {
@@ -1018,22 +1055,6 @@ struct spelli {
 struct itemground : item {
 	short unsigned		index;
 };
-struct coordinate {
-	constexpr coordinate() : index(Blocked), level(1) {}
-	short unsigned		index; // Позиция на карте мира
-	unsigned char		level; // Уровень поздземелья
-};
-struct areainfo : coordinate {
-	unsigned char		rooms; // Количество комнат
-	unsigned char		artifacts;
-	bool				isdungeon; // Underground dungeons has 'true'
-	race_s				habbitants[4];
-	short unsigned		positions[8]; // Several positions
-	constexpr areainfo() : rooms(0), isdungeon(false),
-		artifacts(0), habbitants(),
-		positions{Blocked, Blocked, Blocked, Blocked, Blocked, Blocked, Blocked, Blocked} {
-	}
-};
 struct vproc {
 	void(*pinp)();
 	void(creature::*pcre)();
@@ -1054,7 +1075,6 @@ struct manual {
 struct statistici : public dungeoni {
 	short				artifacts;
 	short				magic_items;
-	indext				positions[8];
 };
 class location : public statistici {
 	typedef bool(location::*procis)(indext i) const;
@@ -1062,10 +1082,13 @@ class location : public statistici {
 	map_object_s		objects[mmx*mmy];
 	unsigned char		random[mmx*mmy];
 	mapflf				flags[mmx*mmy];
-	bool				is_dungeon;
 	char				light_level;
 	//
 	indext				getfree(indext i, procis proc, int radius_maximum) const;
+	indext				getfreex(int x1, int x2, int y, procis proc) const;
+	indext				getfreey(int x, int y1, int y2, procis proc) const;
+	bool				istile(indext i) const;
+	bool				istile2(indext i) const;
 	site&				room(const rect& rc);
 	bool				linelos(int x0, int y0, int x1, int y1) const;
 	bool				wget(short unsigned i, direction_s direction, tile_s value) const;
@@ -1077,7 +1100,6 @@ public:
 	void				addinfo(indext i, stringbuilder& sb) const;
 	void				additems(indext i, stringbuilder& sb) const;
 	void				addobject(indext i, stringbuilder& sb) const;
-	void				addposition(indext i);
 	site*				addsite(room_s type, const rect& rc);
 	creature*			adventurer(indext index);
 	bool				apply(creature& player, indext index, variant id, int v, int order, bool run);
@@ -1102,8 +1124,9 @@ public:
 	void				fill(const rect& rc, map_object_s v);
 	void				fill(const rect& rc, tile_s v);
 	indext				find(map_object_s v) const;
+	indext				find(tile_s v, const rect& rc) const;
 	void				forest(const rect& rc);
-	static indext		get(short x, short y) { return y * mmx + x; }
+	constexpr static indext	get(short x, short y) { return y * mmx + x; }
 	int					getlight() const { return light_level; }
 	static direction_s	getdirection(indext from, indext to);
 	static direction_s	getdirection(point from, point to);
@@ -1138,7 +1161,7 @@ public:
 	void				minimap(indext index, bool fow) const;
 	creature*			monster(indext index);
 	static rect			normalize(const rect& rc);
-	bool				read(const char* url);
+	bool				read(const char* url, bool overland);
 	bool				read(indext index, int level);
 	void				remove(indext i, map_flag_s v) { flags[i].remove(v); }
 	void				set(indext i, map_flag_s v) { flags[i].set(v); }
@@ -1148,7 +1171,6 @@ public:
 	void				setr(indext i, unsigned char v) { random[i] = v; }
 	static void			setcamera(short x, short y);
 	static void			setcamera(indext i);
-	void				setdungeon(bool v) { is_dungeon = v; }
 	indext				setiwh(int x, int y, int s, tile_s o, map_object_s r, bool locked_doors);
 	indext				setiwv(int x, int y, int s, tile_s o, map_object_s r, bool locked_doors);
 	void				setlight(int v) { light_level = v; }
@@ -1160,37 +1182,94 @@ public:
 	static indext		to(indext index, direction_s v);
 	static direction_s	to(direction_s d, direction_s v);
 	void				worldmap(point camera, bool show_fow = true) const;
-	bool				write(const char* url) const;
+	bool				write(const char* url, bool overland) const;
 	bool				write(indext index, int level);
 };
-struct outdoor : public posable {
-	char				name[32];
+struct outdoori {
+	struct picture {
+		img_s			image;
+		unsigned char	frame;
+		point			pos;
+	};
+	indext				index;
+	const char*			name;
+	const char*			descriptor;
+	picture				avatar;
+	dungeoni			levels[4];
+	constexpr explicit operator bool() const { return index != Blocked; }
+	void				clear();
+	static const outdoori* find(indext index);
+	constexpr indext	getposition() const { return index; }
+	constexpr void		setposition(indext v) { index = v; }
+};
+struct tilei {
+	const char*			id;
+	const char*			name;
+	gender_s			gender;
+	const dungeoni*		wilderness;
+};
+struct eventi {
+	unsigned short		index;
+	unsigned short		type;
+	variant				actions[8];
+	const char*			text;
+	const char*			answer1;
+	const char*			answer2;
+	explicit operator bool() const { return text != 0; }
+	void				apply();
+	bool				isallow() const;
+	static void			play(int number);
 };
 class gamei : public geoposable {
 	unsigned			rounds;
-	map_object_s		command;
-	void				applypoison();
-	void				applysick();
+	tile_s				tile;
+	unsigned short		outdoor_id;
+	char				reputation;
+	int					restore_energy;
+	deck				events;
+	//
 	bool				checkalive();
 	void				checkcommand();
 	void				playactive();
+	void				playoverland();
 public:
+	void				addmoney(int v) {}
+	void				addreputation(int v) { reputation += v; }
 	void				applyboost();
-	void				enter(indext index, int level, map_object_s stairs);
+	bool				enter(int level, map_object_s stairs);
+	item*				find(item_s v) const;
+	int					get(skill_s v) const;
+	const dungeoni*		getdungeon() const;
+	int					getmoney() const { return 0; }
+	int					getreputation() const { return reputation; }
 	int					getrounds() const { return rounds; }
 	void				intialize();
+	bool				is(variant v) const;
+	void				move(indext index);
 	static void			help();
 	void				passminute();
 	void				play();
 	bool				read();
+	void				setposition(indext v);
+	void				updatepos();
 	void				use(map_object_s v);
 	bool				write();
+	void				wait();
+};
+struct commandi {
+	typedef void(gamei::*addproc)(int v);
+	typedef int(gamei::*getproc)() const;
+	int					value;
+	getproc				get;
+	addproc				add;
 };
 extern gamei			game;
 extern location			loc;
 extern stringbuilder	sb;
+DECLENUM(ability);
 DECLENUM(class);
 DECLENUM(item);
+DECLENUM(landscape);
 DECLENUM(map_object);
 DECLENUM(skill);
 DECLENUM(tile);

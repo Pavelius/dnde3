@@ -1,14 +1,8 @@
 #include "main.h"
 
 static creature* create(race_s race, gender_s gender, class_s cls) {
-	auto p = loc.add(loc.positions[0], race, gender, cls);
+	auto p = loc.add(Blocked, race, gender, cls);
 	p->add(Friendly, 1, false);
-	return p;
-}
-
-static creature* create(role_s type) {
-	auto p = loc.add(loc.positions[1], type);
-	p->add(Hostile, 1, false);
 	return p;
 }
 
@@ -28,12 +22,10 @@ static void create(creature* p1, item_s type, variant effect) {
 }
 
 static void test_worldmap() {
-	location loc;
-	loc.clear();
-	indext position = loc.get(10, 10);
 	auto i0 = loc.get(5, 4);
 	auto i1 = loc.get(5, 5);
 	auto i2 = loc.get(5, 6);
+	loc.clear();
 	loc.fill({0, 0, mmx - 1, 1}, Sea);
 	loc.fill({0, 0, 1, mmy - 1}, Sea);
 	loc.fill({mmx - 2, 0, mmx - 1, mmy - 1}, Sea);
@@ -44,8 +36,42 @@ static void test_worldmap() {
 	loc.set(i1 + 1, Sea);
 	loc.set(i1 - 1, Sea);
 	loc.set(i2, Sea);
-	loc.write("test.loc");
+	loc.write("game/overland.loc", true);
 	loc.editor();
+}
+
+static void test_adventure() {
+	bsmeta<outdoori>::elements[CityMeher].index = loc.get(4, 8);
+	if(!game.read()) {
+		auto i0 = loc.get(5, 4);
+		auto i1 = loc.get(5, 5);
+		auto i2 = loc.get(5, 6);
+		loc.clear();
+		loc.fill({0, 0, mmx - 1, 1}, Sea);
+		loc.fill({0, 0, 1, mmy - 1}, Sea);
+		loc.fill({mmx - 2, 0, mmx - 1, mmy - 1}, Sea);
+		loc.fill({0, mmy - 2, mmx - 1, mmy - 1}, Sea);
+		loc.set(i0, Mountains);
+		loc.set(i0 + 1, Mountains);
+		loc.set(i1, Sea);
+		loc.set(i1 + 1, Sea);
+		loc.set(i1 - 1, Sea);
+		loc.set(i1 - 3, Forest);
+		loc.set(i1 - 2, Forest);
+		loc.set(i2, Sea);
+		loc.set(loc.get(3, 7), Foothills);
+		loc.set(loc.get(4, 7), Foothills);
+		auto p1 = create(Elf, Female, Mage);
+		auto p2 = create(Dwarf, Male, Cleric);
+		auto p3 = create(Elf, Male, Fighter);
+		create(p1, AlchemyReceipt);
+		create(p1, AlchemySet);
+		p1->activate();
+		game.setposition(loc.get(8, 8));
+		if(!game.enter(0, NoTileObject))
+			return;
+	}
+	game.play();
 }
 
 static void test_answers() {
@@ -66,14 +92,16 @@ static void modify_weapon(creature* p1) {
 	//pi->setidentify(1);
 }
 
-static void create_indoor(landscape_s area) {
+static void create_indoor() {
 	if(!game.read()) {
-		game.enter(loc.get(20, 20), 1, StairsDown);
+		game.setposition(loc.get(20, 20));
+		game.enter(1, StairsDown);
 		auto p1 = create(Elf, Female, Mage);
 		auto p2 = create(Dwarf, Male, Cleric);
 		auto p3 = create(Elf, Male, Fighter);
 		p1->activate();
-		p1->damage(6, Bludgeon, 100);
+		create(p1, AlchemySet);
+		p1->learnreceipt(Dexterity);
 		create(p1, Potion2, PoisonSpell);
 	}
 	game.play();
@@ -96,7 +124,6 @@ static void test_pause() {
 static void test_dungeon() {
 	static dungeoni dungeon = {AreaDungeon, 5, -2};
 	loc.create(dungeon, 1, true, false);
-	loc.setdungeon(true);
 	loc.setlight(-2);
 	auto p1 = create(Human, Female, Mage);
 	auto p2 = create(Dwarf, Male, Cleric);
@@ -132,19 +159,21 @@ static bool test_formula() {
 	return r == 102;
 }
 
-//void util_main();
+void util_main();
 
 int main(int argc, char* argv[]) {
-	//sutil_main();
 	if(!test_formula())
 		return false;
+	spritei::initialize();
 	game.intialize();
+	util_main();
 	//test_answers();
 	//item_choose();
 	//test_worldmap();
+	test_adventure();
 	//test_analize();
 	//test_dungeon();
-	create_indoor(AreaCity);
+	//create_indoor();
 }
 
 int __stdcall WinMain(void* ci, void* pi, char* cmd, int sw) {

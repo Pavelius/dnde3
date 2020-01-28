@@ -26,12 +26,6 @@ static vector& getb() {
 	return rooms[stack_get++];
 }
 
-static item_s random(aref<item_s> source) {
-	if(!source)
-		return NoItem;
-	return source.data[rand() % source.count];
-}
-
 static void show_minimap_step(short unsigned index, bool visualize) {
 	if(visualize)
 		loc.minimap(index, false);
@@ -125,7 +119,7 @@ static void create_door(indext index) {
 
 static void create_corridor_content(indext index) {
 	//static gentileproc chances[] = {create_trap};
-	static gentileproc chances[] = {create_trap, create_treasure, create_dungeon_item,
+	static gentileproc chances[] = {create_trap, create_treasure, create_treasure, create_dungeon_item,
 		create_monster, create_monster, create_monster,
 	};
 	maprnd(chances)(index);
@@ -205,13 +199,12 @@ static void create_dungeon_content(const rect& rc, rooma& rooms, const landscape
 	rooms.count -= 2; // Two room of lesser size would cutted off
 	zshuffle(rooms.data, rooms.count);
 	int index = 0;
-	int index_maximum = sizeof(land.objects) / sizeof(land.objects[0]);
+	int index_maximum = sizeof(loc.rooms) / sizeof(loc.rooms[0]);
 	for(const auto& e : rooms) {
 		loc.fill(e, Floor);
 		auto t = EmpthyRoom;
-		if(index < index_maximum && land.objects[index]) {
-			t = land.objects[index];
-			loc.addposition(loc.center(e));
+		if(index < index_maximum && loc.rooms[index]) {
+			t = loc.rooms[index];
 			index++;
 		}
 		auto p = loc.addsite(t, e);
@@ -240,13 +233,13 @@ static void create_city_buildings(const rect& rc, rooma& rooms, const landscapei
 	if(max_possible_points > 25)
 		max_possible_points = 25;
 	int index = 0;
-	int index_maximum = sizeof(land.objects)/ sizeof(land.objects[0]);
+	int index_maximum = sizeof(loc.rooms)/ sizeof(loc.rooms[0]);
 	for(auto& e : rooms) {
 		auto t = (room_s)xrand(Temple, ShopFood);
 		if(current > max_possible_points)
 			t = House;
-		if(index < index_maximum && land.objects[index]) {
-			t = land.objects[index];
+		if(index < index_maximum && loc.rooms[index]) {
+			t = loc.rooms[index];
 			index++;
 		}
 		auto p = loc.addsite(t, e);
@@ -324,13 +317,33 @@ static void create_city(const rect& rc, rooma& rooms, const landscapei& land, bo
 	create_city_level(rc, 0, rooms, visualize);
 }
 
-template<> landscapei bsmeta<landscapei>::elements[] = {{"Равнина", 0, Plain, {{Tree, 2}, {Water, -16}, {Hill, 1}, {Swamp, -20}}},
-{"Лес", 0, Plain, {{Tree, 10}, {Hill, 1}, {Swamp, -20}}},
-{"Болото", 0, Plain, {{Tree, -40}, {Swamp, 1}, {Lake, 1}}},
+static indext center_start(direction_s dir) {
+	return loc.get(mmx / 2, mmy / 2);
+}
+
+static indext road_start(direction_s dir) {
+	switch(dir) {
+	case Right:
+	case RightUp:
+	case RightDown:
+		return loc.find(Road, {0, 8, 8, mmy - 16});
+	case Left:
+	case LeftUp:
+	case LeftDown:
+		return loc.find(Road, {mmx - 8, 8, 8, mmx - 1});
+	case Up:
+		return loc.find(Road, {0, mmy - 8, mmx - 1, mmy - 1});
+	default:
+		return loc.find(Road, {0, 0, mmx - 1, 8});
+	}
+}
+
+template<> landscapei bsmeta<landscapei>::elements[] = {{"Равнина", 0, Plain, {{Tree, 2}, {Water, -16}, {Hill, 1}, {Swamp, -20}, {Plants, 1}}, 0, 0, center_start},
+{"Лес", 0, Plain, {{Tree, 12}, {Hill, 1}, {Swamp, -20}, {Plants, 1}}, 0, 0, center_start},
+{"Болото", 0, Plain, {{Tree, -40}, {Swamp, 1}, {Lake, 1}}, 0, 0, center_start},
 // 
-{"Подземелье", 1, Wall, {}, {StairsDownRoom, StairsUpRoom}, create_big_rooms, create_dungeon_content},
-{"Логово", 1, Wall, {}, {StairsUpRoom}, create_big_rooms, create_dungeon_content},
-{"Город", 1, Plain, {{Tree, 2}, {Water, -16}}, {StairsDownRoom, Barracs, Lair}, create_city, create_city_buildings},
+{"Подземелье", 1, Wall, {}, create_big_rooms, create_dungeon_content, center_start},
+{"Город", 1, Plain, {{Tree, 2}, {Water, -16}}, create_city, create_city_buildings, road_start},
 };
 assert_enum(landscape, AreaCity);
 

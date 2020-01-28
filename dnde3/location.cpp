@@ -143,8 +143,6 @@ void location::clear() {
 	memset(this, 0, sizeof(*this));
 	for(auto& e : random)
 		e = rand() % 256;
-	for(auto& e : positions)
-		e = Blocked;
 	bsmeta<creature>::source.clear();
 	bsmeta<site>::source.clear();
 	bsmeta<boosti>::source.clear();
@@ -492,6 +490,55 @@ bool location::isfreenw(indext i) const {
 	return true;
 }
 
+static tile_s tile_value;
+
+bool location::istile(indext i) const {
+	return gettile(i) == tile_value;
+}
+
+bool location::istile2(indext i) const {
+	if(gettile(i) != tile_value)
+		return false;
+	for(auto d : all_aroud) {
+		auto i1 = to(i, d);
+		if(i1 == Blocked)
+			return false;
+		if(gettile(i1) != tile_value)
+			return false;
+	}
+	return true;
+}
+
+indext location::getfreex(int x1, int x2, int y, procis proc) const {
+	if(y < 0 || y >= mmy)
+		return Blocked;
+	if(x1 < 0)
+		x1 = 0;
+	if(x2 >= mmx)
+		x2 = mmx - 1;
+	for(; x1 <= x2; x1++) {
+		auto i1 = get(x1, y);
+		if((this->*proc)(i1))
+			return i1;
+	}
+	return Blocked;
+}
+
+indext location::getfreey(int x, int y1, int y2, procis proc) const {
+	if(x < 0 || x >= mmx)
+		return Blocked;
+	if(y1 < 0)
+		y1 = 0;
+	if(y2 >= mmy)
+		y2 = mmy - 1;
+	for(; y1 <= y2; y1++) {
+		auto i1 = get(x, y1);
+		if((this->*proc)(i1))
+			return i1;
+	}
+	return Blocked;
+}
+
 indext location::getfree(indext i, procis proc, int radius_maximum) const {
 	if(i == Blocked)
 		return i;
@@ -499,39 +546,34 @@ indext location::getfree(indext i, procis proc, int radius_maximum) const {
 		return i;
 	auto x = getx(i);
 	auto y = gety(i);
+	indext i1;
 	for(auto r = 1; r < radius_maximum; r++) {
 		if(rand() % 2) {
-			for(auto x1 = x - r; x1 <= x + r; x1++) {
-				if(x1 < 0)
-					continue;
-				if(x1 >= mmx)
-					break;
-				for(auto y1 = y - r; y1 <= y + r; y1++) {
-					if(y1 < 0)
-						continue;
-					if(y1 >= mmy)
-						break;
-					auto i1 = get(x1, y1);
-					if((this->*proc)(i1))
-						return i1;
-				}
-			}
+			i1 = getfreex(x - r, x + r, y + r, proc);
+			if(i1 != Blocked)
+				return i1;
+			i1 = getfreex(x - r, x + r, y - r, proc);
+			if(i1 != Blocked)
+				return i1;
+			i1 = getfreey(x - r, y - r, y + r, proc);
+			if(i1 != Blocked)
+				return i1;
+			i1 = getfreey(x + r, y - r, y + r, proc);
+			if(i1 != Blocked)
+				return i1;
 		} else {
-			for(auto y1 = y - r; y1 <= y + r; y1++) {
-				if(y1 < 0)
-					continue;
-				if(y1 >= mmy)
-					break;
-				for(auto x1 = x - r; x1 <= x + r; x1++) {
-					if(x1 < 0)
-						continue;
-					if(x1 >= mmx)
-						break;
-					auto i1 = get(x1, y1);
-					if((this->*proc)(i1))
-						return i1;
-				}
-			}
+			i1 = getfreey(x - r, y - r, y + r, proc);
+			if(i1 != Blocked)
+				return i1;
+			i1 = getfreey(x + r, y - r, y + r, proc);
+			if(i1 != Blocked)
+				return i1;
+			i1 = getfreex(x - r, x + r, y + r, proc);
+			if(i1 != Blocked)
+				return i1;
+			i1 = getfreex(x - r, x + r, y - r, proc);
+			if(i1 != Blocked)
+				return i1;
 		}
 	}
 	return Blocked;
@@ -895,7 +937,7 @@ void location::loot(indext index, const aref<slot_s>& slots, int level, char cha
 	variantc source;
 	source.additems(slots);
 	source.match(Natural, true);
-	loot(index, (item_s)source.random().value, level, chance_bigger_price, identify, chance_curse, bonus_quality);
+	loot(index, (item_s)source.randomw().value, level, chance_bigger_price, identify, chance_curse, bonus_quality);
 }
 
 void location::loot(const rect& rc, const aref<slot_s>& slots, int chance, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality) {
@@ -913,7 +955,7 @@ void location::loot(const rect& rc, const aref<slot_s>& slots, int chance, int l
 			if(x < 0 || x >= mmx)
 				continue;
 			if(d100() < chance)
-				loot(get(x, y), (item_s)source.random().value, level, chance_bigger_price, identify, chance_curse, bonus_quality);
+				loot(get(x, y), (item_s)source.randomw().value, level, chance_bigger_price, identify, chance_curse, bonus_quality);
 		}
 	}
 }
@@ -953,7 +995,7 @@ void location::content(const rect& rc, room_s type, site* p) {
 	case ShopPotions:
 		if(p)
 			p->setowner(shopkeeper(index));
-		loc.loot(rc, potions, 80, loc.level, 10, KnownPower, 0);
+		loc.loot(rc, potions, 80, loc.level, 20, KnownPower, 0);
 		break;
 	case ShopScrolls:
 		if(p)
@@ -977,20 +1019,10 @@ void location::content(const rect& rc, room_s type, site* p) {
 	}
 }
 
-void location::addposition(indext i) {
-	for(auto& e : positions) {
-		if(e != Blocked)
-			continue;
-		e = i;
-		break;
-	}
-}
-
 void location::interior(const rect& rc, room_s type, indext entrance, int level, rect* result_rect, site* ps) {
 	if(rc.width() < 5 && rc.height() < 5) {
 		rect r2 = rc.getoffset(1, 1);
 		if(level == 0) {
-			addposition(center(r2));
 			if(result_rect)
 				*result_rect = r2;
 		}
@@ -1036,7 +1068,6 @@ void location::interior(const rect& rc, room_s type, indext entrance, int level,
 			iswap(r1, r2);
 	}
 	if(level == 0) {
-		addposition(center(r1.getoffset(1,1)));
 		if(result_rect)
 			*result_rect = r1.getoffset(1,1);
 	}
@@ -1083,6 +1114,13 @@ indext location::find(map_object_s v) const {
 			return i;
 	}
 	return Blocked;
+}
+
+indext location::find(tile_s v, const rect& rc) const {
+	auto x = xrand(rc.x1, rc.x2);
+	auto y = xrand(rc.y1, rc.y2);
+	tile_value = v;
+	return loc.getfree(get(x, y), &location::istile, 32);
 }
 
 site* location::addsite(room_s type, const rect& rc) {

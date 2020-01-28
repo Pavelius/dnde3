@@ -587,6 +587,27 @@ typedef void(CALLBACK *PIMAGE_TLS_CALLBACK)(void* DllHandle, unsigned long Reaso
 #define INTERNET_FLAG_TRANSFER_ASCII FTP_TRANSFER_TYPE_ASCII
 #define INTERNET_FLAG_TRANSFER_BINARY FTP_TRANSFER_TYPE_BINARY
 
+#define WHITE_BRUSH         0
+#define LTGRAY_BRUSH        1
+#define GRAY_BRUSH          2
+#define DKGRAY_BRUSH        3
+#define BLACK_BRUSH         4
+#define NULL_BRUSH          5
+#define HOLLOW_BRUSH        NULL_BRUSH
+#define WHITE_PEN           6
+#define BLACK_PEN           7
+#define NULL_PEN            8
+#define OEM_FIXED_FONT      10
+#define ANSI_FIXED_FONT     11
+#define ANSI_VAR_FONT       12
+#define SYSTEM_FONT         13
+#define DEVICE_DEFAULT_FONT 14
+#define DEFAULT_PALETTE     15
+#define SYSTEM_FIXED_FONT   16
+#define DEFAULT_GUI_FONT    17
+#define DC_BRUSH            18
+#define DC_PEN              19
+
 struct POINT {
 	LONG		x;
 	LONG		y;
@@ -852,6 +873,7 @@ DLL int WINAPI				ChooseColorA(CHOOSECOLOR*);
 DLL int WINAPI				ClientToScreen(void*, POINT*);
 DLL int WINAPI				CloseClipboard(void);
 DLL int WINAPI				CloseHandle(void* hObject);
+WINGDIAPI void* WINAPI		CreateCompatibleBitmap(HDC hdc, int cx, int cy);
 WINGDIAPI void* WINAPI		CreateCompatibleDC(void*);
 DLL int WINAPI				CreateDirectoryA(const char* lpPathName, void* lpSecurityAttributes);
 DLL void* WINAPI			CreateFileA(const char* lpFileName, unsigned dwDesiredAccess, unsigned dwShareMode, void* lpSecurityAttributes, unsigned dwCreationDisposition, unsigned dwFlagsAndAttributes, void* hTemplateFile);
@@ -870,6 +892,7 @@ WINGDIAPI int WINAPI		DeleteObject(void*);
 DLL int WINAPI				DestroyMenu(void*);
 DLL int WINAPI				DestroyWindow(void*);
 DLL long WINAPI				DispatchMessageA(const MSG*);
+DLL int WINAPI				DrawTextA(void* hdc, const char* lpchText, int cchText, RECT* lprc, unsigned flags);
 DLL int WINAPI				EmptyClipboard(void);
 DLL int WINAPI				EnableWindow(void*, int);
 DLL void WINAPI				EnterCriticalSection(void* p);
@@ -877,6 +900,7 @@ DLL void WINAPI				ExitProcess(unsigned uExitCode);
 DLL int WINAPI				FindClose(void* hFindFile);
 DLL void* WINAPI			FindFirstFileA(const char* lpFileName, WIN32_FIND_DATA* lpFindFileData);
 DLL int WINAPI				FindNextFileA(void* hFindFile, WIN32_FIND_DATA* lpFindFileData);
+DLL int WINAPI				FillRect(HDC hDC, const RECT *lprc, void* hbr);
 DLL unsigned WINAPI			FlsAlloc(void (_stdcall *lpCallback)(void* pfd));
 DLL int WINAPI				FlsFree(unsigned dwFlsIndex);
 DLL void* WINAPI			FlsGetValue(unsigned dwFlsIndex);
@@ -891,6 +915,7 @@ DLL int WINAPI				GetExitCodeThread(void* hThread, unsigned* lpExitCode);
 WINGDIAPI DWORD WINAPI		GetGlyphOutlineW(void*, UINT, UINT, GLYPHMETRICS*, DWORD, void*, const MAT2*);
 DLL void WINAPI				GetLocalTime(SYSTEMTIME* lpSystemTime);
 DLL unsigned WINAPI			GetModuleFileNameA(void* hModule, char* lpFilename, unsigned nSize);
+WINGDIAPI COLORREF WINAPI	GetPixel(HDC hdc, int x, int y);
 DLL void* WINAPI			GetProcessHeap(void);
 WINGDIAPI int WINAPI		GetTextMetricsA(void*, TEXTMETRICA*);
 DLL unsigned WINAPI			GetTickCount(void);
@@ -916,6 +941,7 @@ DLL int WINAPI				GetOpenFileNameA(OPENFILENAME*);
 DLL void* WINAPI			GetParent(void*);
 DLL int WINAPI				GetSaveFileNameA(OPENFILENAME*);
 DLL void* WINAPI			GetStdHandle(unsigned nStdHandle);
+WINGDIAPI void* WINAPI		GetStockObject(int i);
 DLL int WINAPI				GetSystemMetrics(int);
 DLL LONG WINAPI				GetWindowLongA(void*, int);
 DLL int WINAPI				GetWindowPlacement(void* hWnd, WINDOWPLACEMENT* lpwndpl);
@@ -950,6 +976,7 @@ DLL int WINAPI				ReleaseCapture(void);
 DLL int WINAPI				ReleaseDC(void*, void*);
 DLL int WINAPI				ScreenToClient(void* hWnd, POINT* lpPoint);
 WINGDIAPI void* WINAPI		SelectObject(void*, void*);
+WINGDIAPI int WINAPI		SetBkMode(HDC hdc, int mode);
 DLL void* WINAPI			SetCapture(void*);
 DLL void* WINAPI			SetClipboardData(UINT, void*);
 DLL int WINAPI				SetCurrentDirectoryA(const char* path);
@@ -961,7 +988,7 @@ DLL int WINAPI				SetPixelFormat(void*, int, const PIXELFORMATDESCRIPTOR*);
 DLL UINT WINAPI				SetTimer(HWND, UINT, UINT, TIMERPROC);
 DLL int WINAPI				SetWindowTextA(HWND, const char*);
 DLL LRESULT WINAPI			SendMessageA(void*, UINT, int, int);
-DLL void WINAPI				Sleep(unsigned dwMilliseconds);
+//DLL void WINAPI				Sleep(unsigned dwMilliseconds);
 DLL void* WINAPI			SHBrowseForFolderA(BROWSEINFOA*);
 DLL int WINAPI				SHGetPathFromIDListA(void*, char*);
 DLL int WINAPI				ShowWindow(HWND, int);

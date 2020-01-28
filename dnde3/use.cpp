@@ -82,7 +82,7 @@ bool creature::use(const creaturea& creatures, item& it) {
 	case Tool:
 		if(skill.type == Ability) {
 			auto ability_value = get((ability_s)skill.value) * 2;
-			ability_value += it.getbonus() * 2;
+			ability_value += it.getbonus() * 2 + ei.quality * 4;
 			if(skill.value == Charisma) {
 				// Музыкальный инструмент
 				if(mp <= 3) {
@@ -135,6 +135,27 @@ bool creature::use(const creaturea& creatures, item& it) {
 					}
 				}
 				paymana(xrand(1, 3), false);
+			}
+		} else if(skill.type == Skill) {
+			if(!skills[skill.value]) {
+				if(isactive())
+					sb.add("Вы не владеете навыком [%1], поэтому не можете исопльзовать этот инструмент.", getstr((skill_s)skill.value));
+				return false;
+			}
+			auto ability_value = get((skill_s)skill.value);
+			ability_value += (it.getbonus() + ei.quality) * 4;
+			if(skill.value == Alchemy) {
+				if(!recipes) {
+					if(isactive())
+						sb.add("Вы не выучили ни одного алхимического рецепта.");
+					return false;
+				}
+				auto power = choosereceipt(isactive() ? "По какому рецепту хотите создать зелье?" : 0);
+				item it;
+				it.create(AlchemyPotion, ability_value/5, 0, 0, 0);
+				it.seteffect(power);
+				add(it, true, true);
+				wait(60);
 			}
 		}
 		break;
@@ -222,6 +243,16 @@ bool item::use(spell_s id, creature& player, int level, int order, bool run) {
 
 bool item::use(skill_s id, creature& player, int order, bool run) {
 	switch(id) {
+	case Cooking:
+		if(!is(Edible))
+			return false;
+		if(run) {
+			player.act("%герой приготовил%а %1.", getname());
+			if(!player.roll(Cooking)) {
+				return false;
+			}
+		}
+		break;
 	case Alchemy:
 		if(!is(Drinkable) || is(KnownPower))
 			return false;
@@ -245,19 +276,16 @@ bool item::use(skill_s id, creature& player, int order, bool run) {
 			auto b = (getitem().quality + level) * 3;
 			if(is(Unknown))
 				b += 10;
+			else if(is(SingleUse))
+				b += 80;
 			if(is(Blessed))
 				b += 10;
 			else if(is(Artifact))
 				b += 25;
-			if(is(SingleUse))
-				b += 35;
-			else {
-				auto effect = geteffect();
-				auto player_rang = 0;
-				switch(effect.type) {
+			if(!is(SingleUse)) {
+				switch(v.type) {
 				case Spell:
-					player_rang = player.get((spell_s)effect.value);
-					b -= player_rang * 12;
+					b -= player.get((spell_s)v.value) * 12;
 					break;
 				}
 			}
@@ -272,11 +300,22 @@ bool item::use(skill_s id, creature& player, int order, bool run) {
 						sb.adds("Вам удалось понять, что это [%+1].", temp);
 					}
 				} else {
-					if(player.isactive())
+					if(player.isactive()) {
 						player.act("Однако, вам так и не удалось ничего понять.");
+						player.fail(Literacy);
+					}
 				}
 			} else {
 				switch(v.type) {
+				case Skill:
+					break;
+				case Ability:
+					if(is(SingleUse)) {
+						if(bsmeta<itemi>::elements[type].skill == Alchemy)
+							player.learnreceipt(v);
+						destroy(Magic, true);
+					}
+					break;
 				case Spell:
 					if(is(SingleUse)) {
 						if(is(Blessed) || is(Artifact))
@@ -285,7 +324,7 @@ bool item::use(skill_s id, creature& player, int order, bool run) {
 							player.act("%герой вытащил%а %-1 и громко прочитал%а.", getname());
 						destroy(Magic, true);
 					} else {
-						if(!player.ask("Чтение займет продолжительное время. Действительно хотите продолжить?"))
+						if(!player.askyn("Чтение займет продолжительное время. Действительно хотите продолжить?"))
 							return false;
 						player.act("%герой достал%а %-1 и занял%ась чтением.", getname());
 						player.wait(60);

@@ -117,6 +117,7 @@
     <ClCompile Include="archive.cpp" />
     <ClCompile Include="chat.cpp" />
     <ClCompile Include="class_progress.cpp" />
+    <ClCompile Include="commandi.cpp" />
     <ClCompile Include="converter.cpp" />
     <ClCompile Include="damage.cpp" />
     <ClCompile Include="boost.cpp" />
@@ -127,6 +128,7 @@
     <ClCompile Include="creaturea.cpp" />
     <ClCompile Include="crt.cpp" />
     <ClCompile Include="crt_strings.cpp" />
+    <ClCompile Include="deck.cpp" />
     <ClCompile Include="description.cpp" />
     <ClCompile Include="dice.cpp" />
     <ClCompile Include="draw.cpp" />
@@ -135,23 +137,17 @@
     <ClCompile Include="draw_textf.cpp" />
     <ClCompile Include="dungeon.cpp" />
     <ClCompile Include="equipment.cpp" />
+    <ClCompile Include="event.cpp" />
     <ClCompile Include="food.cpp" />
     <ClCompile Include="indexa.cpp" />
     <ClCompile Include="intellegence.cpp" />
-    <ClCompile Include="main_util.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="png_util.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="main_util.cpp" />
+    <ClCompile Include="png_util.cpp" />
     <ClCompile Include="rarity.cpp" />
     <ClCompile Include="room.cpp" />
-    <ClCompile Include="sprite_util.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="surface_util.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="sprite.cpp" />
+    <ClCompile Include="sprite_util.cpp" />
+    <ClCompile Include="surface_util.cpp" />
     <ClCompile Include="variantc.cpp" />
     <ClCompile Include="material.cpp" />
     <ClCompile Include="spella.cpp" />
@@ -189,9 +185,7 @@
     <ClCompile Include="variant.cpp" />
     <ClCompile Include="win_draw.cpp" />
     <ClCompile Include="win_io_file.cpp" />
-    <ClCompile Include="zip_util.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="zip_util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="answer.h" />
@@ -207,14 +201,6 @@
     <ClInclude Include="rect.h" />
     <ClInclude Include="stringbuilder.h" />
     <ClInclude Include="win.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="images.xml">
-      <SubType>Designer</SubType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)xmlimg.exe "$(SolutionDir)dnde3\images.xml"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)art\font.pma</Outputs>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

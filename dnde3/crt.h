@@ -121,10 +121,11 @@ class flagable {
 	unsigned char			data[c];
 public:
 	constexpr flagable() : data{0} {}
-	constexpr explicit operator bool() const { for(unsigned i = 0; i < last; i++) if(data[i]) return true; return false; }
+	constexpr explicit operator bool() const { for(auto e : data) if(e) return true; return false; }
 	template<class T> constexpr flagable(const std::initializer_list<T>& v) : data{0} { for(auto e : v) set(e); }
 	void					clear() { memset(this, 0, sizeof(*this)); }
 	constexpr bool			is(short unsigned v) const { return (data[v / 8] & (1 << (v % 8))) != 0; }
+	constexpr unsigned		getcount() const { unsigned r = 0; for(unsigned i = 0; i < c * 8; i++) if(is(i)) r++; return r; }
 	constexpr void			remove(short unsigned v) { data[v / 8] &= ~(1 << (v % 8)); }
 	constexpr void			set(const flagable& e) { for(unsigned i = 0; i < c; i++) data[i] |= e.data[i]; }
 	constexpr void			set(short unsigned v) { data[v / 8] |= 1 << (v % 8); }
