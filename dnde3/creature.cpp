@@ -614,6 +614,15 @@ void creature::select(itema& a, slot_s i1, slot_s i2, bool filled_only) {
 void creature::dropdown(item& item) {
 	if(!remove(item, false, true))
 		return;
+	if(item.ispersonal()) {
+		static const char* text[] = {
+			"Я не отбам свое.",
+			"Это только для моего личного использования.",
+			"Не могу. Это мое личное. Оно дорого мне, как память."
+		};
+		say(maprnd(text));
+		return;
+	}
 	loc.drop(getposition(), item);
 	remove(item, true, true);
 	consume(StandartEnergyCost / 4);

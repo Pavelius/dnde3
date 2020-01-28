@@ -581,6 +581,7 @@ public:
 	bool				ischargeable() const;
 	bool				iscountable() const;
 	bool				isdamaged() const { return getdamage() > 0; }
+	bool				ispersonal() const { return !iscountable() && personal != 0; }
 	void				loot();
 	bool				ismatch(variant v) const;
 	void				set(item_type_s v);
@@ -588,6 +589,7 @@ public:
 	void				set(sale_s v) { sale = v; }
 	void				setcount(int v);
 	void				seteffect(variant v);
+	void				setpersonal(int v);
 	void				setquality(int v);
 	bool				stack(item& v);
 	void				use();

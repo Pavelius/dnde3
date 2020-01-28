@@ -13,6 +13,13 @@ static void create(creature* p1, item_s type) {
 	p1->equip(it);
 }
 
+static void createp(creature* p1, item_s type) {
+	item it;
+	it.create(type, 3, 20, 6, 30);
+	it.setpersonal(true);
+	p1->equip(it);
+}
+
 static void create(creature* p1, item_s type, variant effect) {
 	item it;
 	it.create(type, 5, 20, 6, 40);
@@ -66,6 +73,7 @@ static void test_adventure() {
 		auto p3 = create(Elf, Male, Fighter);
 		create(p1, AlchemyReceipt);
 		create(p1, AlchemySet);
+		createp(p1, Staff);
 		p1->activate();
 		game.setposition(loc.get(8, 8));
 		if(!game.enter(0, NoTileObject))
@@ -159,14 +167,14 @@ static bool test_formula() {
 	return r == 102;
 }
 
-void util_main();
+//void util_main();
 
 int main(int argc, char* argv[]) {
 	if(!test_formula())
 		return false;
 	spritei::initialize();
 	game.intialize();
-	util_main();
+	//util_main();
 	//test_answers();
 	//item_choose();
 	//test_worldmap();

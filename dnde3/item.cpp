@@ -463,6 +463,10 @@ attacki item::getattack() const {
 	return result;
 }
 
+void item::setpersonal(int v) {
+	personal = v;
+}
+
 void item::set(item_type_s v) {
 	auto p = getwearer();
 	if(p)
