@@ -106,7 +106,7 @@ enum skill_s : unsigned char {
 	Bargaining, Bluff, Diplomacy,
 	Acrobatics, Alertness, Athletics, Backstabbing, Climbing, Concetration,
 	DisarmTraps, FindWeakness, HearNoises, HideInShadow, Lockpicking, MoveSilently, PickPockets,
-	Alchemy, Dancing, Engineering, Gambling, History, Healing, Herbalism,
+	Alchemy, Cooking, Dancing, Engineering, Gambling, History, Healing, Herbalism,
 	Literacy, Mining, Riding, Smithing, Survival, Swimming,
 	FocusBows, FocusSwords, FocusAxes, FocusTwohanded,
 	TwoWeaponFighting,

@@ -18,6 +18,7 @@ skilli bsmeta<skilli>::elements[] = {{"Торговля", "торговли", {Charisma, Intelle
 {"Двигаться тихо", "тихого движения", {Dexterity, Dexterity}},
 {"Очистить карманы", "воровства", {Dexterity, Charisma}, {}, {Creature, {NotYou}, Close, "Кого обворовать?"}},
 {"Алхимия", "алхимии", {Intellegence, Intellegence}, {}, {Item, {AlwaysChoose}, You, "Какое зелье хотите попробывать?"}},
+{"Готовка еды", "куховарения", {Charisma, Intellegence}, {}, {Item, {AlwaysChoose}, You, "Что хотите приготовить?"}},
 {"Танцы", "танцев", {Dexterity, Charisma}},
 {"Инженерное дело", "инженерии", {Intellegence, Intellegence}},
 {"Азартные игры", "азартных игр", {Charisma, Dexterity}, {}, {Creature, {Friends, NotYou}, Close, "С кем поиграть?"}},
