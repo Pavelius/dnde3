@@ -19,6 +19,7 @@ const char*	variant::getname() const {
 const char*	variant::getnameof() const {
 	switch(type) {
 	case Ability: return bsmeta<abilityi>::elements[value].nameof;
+	case Role: return bsmeta<rolei>::elements[value].nameof;
 	case Skill: return bsmeta<skilli>::elements[value].name_tome;
 	case Spell: return bsmeta<spelli>::elements[value].nameof;
 	case State: return bsmeta<statei>::elements[value].nameof;

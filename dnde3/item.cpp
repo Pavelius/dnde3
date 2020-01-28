@@ -171,7 +171,7 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", "item-1", Unique, 0, 0, 0, NoGender,
 {"Скрипка", "item85", Rare, 300, 35 * GP, 0, Female, Wood, {}, {}, flute_songs, {}, Tool, Charisma},
 {"Флейта", "item86", Rare, 300, 35 * GP, 0, Female, Wood, {}, {}, flute_songs, {}, Tool, Charisma},
 //
-{"Тело", "item103", Unique, 1000, 0 * GP, 0, NoGender, Organic, {}, {}, corpse, {}, Edible},
+{"Тело", "item103", Unique, 1500, 0 * GP, 0, NoGender, Organic, {}, {}, corpse, {}, Edible},
 {"Ключ", "item354", Common, 0, 0 * GP, 0, Male, Iron, {}, {}, {}, {}},
 //
 {"Монета", "items37", Common, 0, 1 * CP, -1, Female, Iron, {}, {}, {}, {}, Coinable},

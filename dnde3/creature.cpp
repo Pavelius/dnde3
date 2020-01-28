@@ -974,7 +974,7 @@ void creature::usetrap() {
 	if(loc.is(i, Hidden))
 		bonus -= 20;
 	else
-		bonus += 15;
+		bonus += 20;
 	if(roll(Alertness, bonus)) {
 		if(loc.is(i, Hidden) && is(Friendly)) {
 			act("%герой обнаружил%а ловушку.");
@@ -1405,6 +1405,7 @@ void creature::kill() {
 	if(item::iscorpse((role_s)value) && d100() < 30) {
 		item it(Corpse);
 		it.seteffect((role_s)value);
+		it.set(KnownPower);
 		loc.drop(getposition(), it);
 	}
 	hp = mp = 0;
