@@ -167,14 +167,14 @@ static bool test_formula() {
 	return r == 102;
 }
 
-//void util_main();
+void util_main();
 
 int main(int argc, char* argv[]) {
 	if(!test_formula())
 		return false;
 	spritei::initialize();
 	game.intialize();
-	//util_main();
+	util_main();
 	//test_answers();
 	//item_choose();
 	//test_worldmap();

@@ -1402,6 +1402,11 @@ void creature::dropitems() {
 void creature::kill() {
 	if(d100() < chance_blood_when_dead)
 		bloodstain();
+	if(item::iscorpse((role_s)value) && d100() < 30) {
+		item it(Corpse);
+		it.seteffect((role_s)value);
+		loc.drop(getposition(), it);
+	}
 	hp = mp = 0;
 	applyaward();
 	dressoff();

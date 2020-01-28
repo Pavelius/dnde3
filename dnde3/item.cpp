@@ -50,6 +50,19 @@ RemoveSickSpell, RemovePoisonSpell};
 static variant lute_songs[] = {{}, Attack, Damage, BlessSpell, LifePoints, ManaPoints};
 static variant flute_songs[] = {{}, Wisdow, Intellegence, Charisma};
 static variant booben_songs[] = {{}, Strenght, Dexterity, Constitution, Armor};
+static variant corpse[] = {GoblinWarrior, GoblinRockthrower, OrcWarrior, LargeBat, GiantRat,
+HumanMale, HumanGuard, HumanChild, HumanFemale,
+Shopkeeper, DwarvenSmith, Bartender, Skeleton, Zombie,
+KobolWarrior, KoboldShaman,
+LargeDog, Lynx, GiantFrog,
+AntWorker, AntWarrior, AntQueen,
+GnollWarrior,
+GoblinRockthrowerWarrior, GoblinRockthrowerWarriorF,
+OrcWarrio2r, OrcWarrior2F,
+LargeBat2, LargeBat3,
+Bee, Bee2, Bee3,
+OrgeCommoner, OrgeCommonerF,
+Bugbear, BugbearF};
 
 itemi bsmeta<itemi>::elements[] = {{"Рука", "item-1", Unique, 0, 0, 0, NoGender, Organic, {0, 3, {1, 3}, Bludgeon, 4, 2}, {}, {}, {}, Melee},
 {"Боевой топор", "item5", Common, 850, 5 * GP, 0, Male, Iron, {-4, 3, {1, 8}, Slashing, 0, 2}, {}, weapon_enchanments, {Versatile}, Melee, FocusAxes},
@@ -158,7 +171,7 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", "item-1", Unique, 0, 0, 0, NoGender,
 {"Скрипка", "item85", Rare, 300, 35 * GP, 0, Female, Wood, {}, {}, flute_songs, {}, Tool, Charisma},
 {"Флейта", "item86", Rare, 300, 35 * GP, 0, Female, Wood, {}, {}, flute_songs, {}, Tool, Charisma},
 //
-{"Тело", "item103", Unique, 1000, 0 * GP, 0, NoGender, Organic, {}, {}, {}, {}},
+{"Тело", "item103", Unique, 1000, 0 * GP, 0, NoGender, Organic, {}, {}, corpse, {}},
 {"Ключ", "item354", Common, 0, 0 * GP, 0, Male, Iron, {}, {}, {}, {}},
 //
 {"Монета", "items37", Common, 0, 1 * CP, -1, Female, Iron, {}, {}, {}, {}, Coinable},
@@ -699,4 +712,8 @@ bool item::is(identify_s v) const {
 
 const aref<variant> item::getreceipts() {
 	return alchemy_receipts;
+}
+
+bool item::iscorpse(role_s v) {
+	return aref<variant>(corpse).indexof(v) != -1;
 }

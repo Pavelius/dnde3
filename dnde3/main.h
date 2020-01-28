@@ -537,6 +537,7 @@ class item {
 public:
 	item() = default;
 	item(item_s type, int level);
+	constexpr item(item_s type) : i(type) {}
 	explicit operator bool() const { return type != NoItem; }
 	void				act(const char* format, ...) const;
 	void				actv(stringbuilder& st, const char* format, const char* format_param) const;
@@ -579,6 +580,7 @@ public:
 	bool				is(sale_s v) const { return sale == v; }
 	bool				isboost(variant id) const;
 	bool				ischargeable() const;
+	static bool			iscorpse(role_s v);
 	bool				iscountable() const;
 	bool				isdamaged() const { return getdamage() > 0; }
 	bool				ispersonal() const { return !iscountable() && personal != 0; }
