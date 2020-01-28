@@ -709,6 +709,7 @@ public:
 };
 struct rolei {
 	const char*			name;
+	const char*			nameof;
 	const char*			avatar_id;
 	race_s				race;
 	gender_s			gender;
