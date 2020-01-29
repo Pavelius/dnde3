@@ -31,6 +31,7 @@ static void create(creature* p1, item_s type, variant effect) {
 static void test_worldmap() {
 	loc.read("game/overland.loc", true);
 	loc.editor();
+	loc.write("game/overland.loc", true);
 }
 
 static void test_adventure() {
@@ -163,8 +164,8 @@ int main(int argc, char* argv[]) {
 	util_main();
 	//test_answers();
 	//item_choose();
-	test_worldmap();
-	//test_adventure();
+	//test_worldmap();
+	test_adventure();
 	//test_analize();
 	//test_dungeon();
 	//create_indoor();

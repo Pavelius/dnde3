@@ -445,68 +445,10 @@ static void setbackground(eventproc proc) {
 	current_background = proc;
 }
 
-static int render_info(int x, int y, int width) {
-	auto y0 = y;
-	char temp[512]; stringbuilder sb(temp);
-	auto tile = loc.gettile(current_index);
-	sb.adds("Это %1.", getstr(tile));
-	sb.adds("Кординаты %1i,%2i (индекс %3i).",
-		loc.getx(current_index), loc.gety(current_index), current_index);
-	y += detail(x, y, width, sb);
-	return y - y0;
-}
-
-static void help() {
-
-}
-
-static void put_tile() {
-	loc.set(current_index, current_tile);
-}
-
-static void choose_tile() {
-	current_tile = (tile_s)hot.param;
-}
-
-static hotkey hotkeys[] = {{Alpha + '1', getstr(Plain), choose_tile, Plain},
-{Alpha + '2', getstr(Sea), choose_tile, Sea},
-{Alpha + '3', getstr(Foothills), choose_tile, Foothills},
-{Alpha + '4', getstr(Mountains), choose_tile, Mountains},
-{Alpha + '5', getstr(CloudPeaks), choose_tile, CloudPeaks},
-{Alpha + '6', getstr(Forest), choose_tile, Forest},
-{}};
-
-static int render_keys(int x, int y, int width) {
-	auto x0 = x;
-	char temp[260]; stringbuilder sb(temp);
-	sb.add("Вывести [%1]", getstr(current_tile));
-	button(x, y, temp, KeySpace, put_tile, current_tile);
-	x += detaih(x, y, width, hotkeys);
-	return x - x0;
-}
-
-static void render_bottom(int x, int y, int width) {
-	y += render_info(x, y, width);
-	render_keys(x, y, width - 168); y += texth() + 2;
-}
-
-static void render_bottom() {
-	auto w = 700;
-	auto h = texth() * 2;
-	rect r1;
-	r1.x1 = (getwidth() - w - gui_border * 2) / 2;
-	r1.x2 = r1.x1 + w;
-	r1.y1 = getheight() - h - gui_border * 2;
-	r1.y2 = r1.y1 + h;
-	window(r1, false, 0);
-	render_bottom(r1.x1, r1.y1, r1.width());
-}
-
 static void render_editor() {
 	loc.worldmap(camera, true);
 	picture effects[1]; effects[0].setcursor(current_index, 1);
 	render(effects);
-	render_bottom();
 }
 
 static void header(int x, int y, const char* name) {
@@ -686,22 +628,6 @@ static void controls() {
 	auto i = translate(current_index);
 	if(i != Blocked)
 		current_index = i;
-}
-
-void location::editor() {
-	setbackground(render_editor);
-	while(ismodal()) {
-		current_background();
-		domodal();
-		switch(hot.key) {
-		case KeyEscape:
-			breakmodal(0);
-			break;
-		default:
-			controls();
-			break;
-		}
-	}
 }
 
 static void breakparam() {
@@ -2017,5 +1943,43 @@ void creature::playuioverland() {
 			breakmodal(0);
 		} else
 			translate_commands(getactive(), overland_keys, true);
+	}
+}
+
+static void put_tile() {
+	loc.set(current_index, current_tile);
+}
+
+static void choose_tile() {
+	current_tile = (tile_s)hot.param;
+}
+
+static hotkey editor_keys[] = {{Alpha + '1', "Выбрать равнину", choose_tile, Plain},
+{Alpha + '2', "Выбрать Океан", choose_tile, Sea},
+{Alpha + '3', "Выбрать Болото", choose_tile, Swamp},
+{Alpha + '4', "Выбрать Холмы", choose_tile, Foothills},
+{Alpha + '5', "Выбрать Горы", choose_tile, Mountains},
+{Alpha + '6', "Выбрать снежные Пики", choose_tile, CloudPeaks},
+{Alpha + '7', "Выбрать Лес", choose_tile, Forest},
+{KeySpace, "Нарисовать выбранный тайл", put_tile},
+{KeyEscape, "Покинуть редактор", buttoncancel},
+{}};
+
+void location::editor() {
+	setbackground(render_editor);
+	while(ismodal()) {
+		current_background();
+		if(current_index != Blocked) {
+			sb.adds("Это %1.", getstr(loc.gettile(current_index)));
+			sb.adds("Кординаты %1i,%2i (индекс %3i).",
+				loc.getx(current_index), loc.gety(current_index), current_index);
+		}
+		render_message();
+		domodal();
+		auto i = translate(current_index);
+		if(i != Blocked)
+			current_index = i;
+		else
+			translate_commands(0, editor_keys, false);
 	}
 }
