@@ -164,8 +164,8 @@ int main(int argc, char* argv[]) {
 	util_main();
 	//test_answers();
 	//item_choose();
-	//test_worldmap();
-	test_adventure();
+	test_worldmap();
+	//test_adventure();
 	//test_analize();
 	//test_dungeon();
 	//create_indoor();

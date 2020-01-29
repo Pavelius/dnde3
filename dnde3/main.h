@@ -995,9 +995,9 @@ struct dungeoni {
 		char			magical;
 	};
 	landscape_s			type;
-	short				level;
+	char				level;
 	char				light_level;
-	room_s				rooms[4];
+	room_s				rooms[8];
 	racea				denyrace;
 	itemc				items;
 	explicit constexpr operator bool() const { return level != 0; }
@@ -1087,7 +1087,6 @@ class location : public statistici {
 	map_object_s		objects[mmx*mmy];
 	unsigned char		random[mmx*mmy];
 	mapflf				flags[mmx*mmy];
-	char				light_level;
 	//
 	indext				getfree(indext i, procis proc, int radius_maximum) const;
 	indext				getfreex(int x1, int x2, int y, procis proc) const;
