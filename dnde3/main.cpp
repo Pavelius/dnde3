@@ -28,39 +28,9 @@ static void create(creature* p1, item_s type, variant effect) {
 	p1->add(it, true, false);
 }
 
-static void test_worldmap() {
-	if(!loc.read("game/overland.loc", true)) {
-		loc.clear();
-		loc.fill({0, 0, mmx - 1, 1}, Sea);
-		loc.fill({0, 0, 1, mmy - 1}, Sea);
-		loc.fill({mmx - 2, 0, mmx - 1, mmy - 1}, Sea);
-		loc.fill({0, mmy - 2, mmx - 1, mmy - 1}, Sea);
-	}
-	loc.editor();
-	loc.write("game/overland.loc", true);
-}
-
 static void test_adventure() {
 	bsmeta<outdoori>::elements[CityMeher].index = loc.get(4, 8);
 	if(!game.read()) {
-		auto i0 = loc.get(5, 4);
-		auto i1 = loc.get(5, 5);
-		auto i2 = loc.get(5, 6);
-		loc.clear();
-		loc.fill({0, 0, mmx - 1, 1}, Sea);
-		loc.fill({0, 0, 1, mmy - 1}, Sea);
-		loc.fill({mmx - 2, 0, mmx - 1, mmy - 1}, Sea);
-		loc.fill({0, mmy - 2, mmx - 1, mmy - 1}, Sea);
-		loc.set(i0, Mountains);
-		loc.set(i0 + 1, Mountains);
-		loc.set(i1, Sea);
-		loc.set(i1 + 1, Sea);
-		loc.set(i1 - 1, Sea);
-		loc.set(i1 - 3, Forest);
-		loc.set(i1 - 2, Forest);
-		loc.set(i2, Sea);
-		loc.set(loc.get(3, 7), Foothills);
-		loc.set(loc.get(4, 7), Foothills);
 		auto p1 = create(Elf, Female, Mage);
 		auto p2 = create(Dwarf, Male, Cleric);
 		auto p3 = create(Elf, Male, Fighter);
@@ -162,6 +132,43 @@ static bool test_formula() {
 
 //void util_main();
 
+static void begin_game() {
+}
+
+static void run_editor() {
+	if(!loc.read("game/overland.loc", true)) {
+		loc.clear();
+		loc.fill({0, 0, mmx - 1, 1}, Sea);
+		loc.fill({0, 0, 1, mmy - 1}, Sea);
+		loc.fill({mmx - 2, 0, mmx - 1, mmy - 1}, Sea);
+		loc.fill({0, mmy - 2, mmx - 1, mmy - 1}, Sea);
+	}
+	loc.editor();
+	loc.write("game/overland.loc", true);
+}
+
+static void exit_game() {
+	exit(0);
+}
+
+static stageproc choose_stage() {
+	answeri an;
+	an.add((int)begin_game, "Начать игру");
+	an.add((int)run_editor, "Редактор карт");
+	an.add(0, "Выйти из игры");
+	return (stageproc)an.menuv(true, "Главное меню");
+}
+
+static void main_menu() {
+	while(true) {
+		auto stage = choose_stage();
+		if(!stage)
+			break;
+		stage();
+		game.setnobackground();
+	}
+}
+
 int main(int argc, char* argv[]) {
 	if(!test_formula())
 		return false;
@@ -170,11 +177,12 @@ int main(int argc, char* argv[]) {
 	//util_main();
 	//test_answers();
 	//item_choose();
-	test_worldmap();
+	//test_worldmap();
 	//test_adventure();
 	//test_analize();
 	//test_dungeon();
 	//create_indoor();
+	main_menu();
 }
 
 int __stdcall WinMain(void* ci, void* pi, char* cmd, int sw) {

@@ -260,6 +260,7 @@ typedef cflags<map_object_flag_s> mapobjf;
 typedef casev<ability_s> abilityv;
 typedef aset<damage_s, 1 + WaterAttack> damagea;
 typedef void(*gentileproc)(indext index);
+typedef void(*stageproc)();
 typedef indext(*getposproc)(direction_s i);
 typedef void(*genareaproc)(const rect& rc, rooma& rooms, const landscapei& landscape, bool visualize);
 struct variant {
@@ -1254,6 +1255,7 @@ public:
 	void				passminute();
 	void				play();
 	bool				read();
+	static void			setnobackground();
 	void				setposition(indext v);
 	void				updatepos();
 	void				use(map_object_s v);

@@ -175,10 +175,14 @@ static void no_background() {
 	rectf({0, 0, getwidth(), getheight()}, colors::window);
 }
 
+void gamei::setnobackground() {
+	current_background = no_background;
+}
+
 void gamei::intialize() {
 	draw::initialize();
+	setnobackground();
 	draw::create(-1, -1, 800, 600, WFResize | WFMinmax, 32);
-	current_background = no_background;
 }
 
 static indext gets2i(const point& camera) {
@@ -1114,6 +1118,34 @@ int	answeri::dialogv(bool allow_cancel, const char* title, const char* format) c
 		domodal();
 		if(allow_cancel && hot.key == KeyEscape)
 			breakmodal(0);
+	}
+	return getresult();
+}
+
+int	answeri::menuv(bool allow_cancel, const char* format) const {
+	const int width = 300;
+	while(ismodal()) {
+		current_background();
+		auto x = getwidth() - width - metrics::padding*3;
+		auto y = metrics::padding * 3;
+		auto index = 0;
+		for(auto& e : elements) {
+			rect rc = {x, y, x + width, y + texth() * 2};
+			window(rc, false, 0);
+			auto k = Alpha + '1' + index;
+			auto z = 22;
+			char temp[2] = {(char)(k - Alpha), 0};
+			buttonr(x, y + texth()/2, z - 6, k);
+			rc.x1 += 20;
+			text(rc, e.text, AlignCenterCenter);
+			y += texth() * 2 + metrics::padding * 5;
+			if(hot.key == k)
+				execute(breakparam, e.param);
+			index++;
+		}
+		domodal();
+		if(allow_cancel && hot.key == KeyEscape)
+			buttoncancel();
 	}
 	return getresult();
 }

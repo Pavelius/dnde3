@@ -29,5 +29,6 @@ public:
 	int							dialogv(bool allow_cancel, const char* title, const char* format) const;
 	static int					getindex(char v);
 	static char					getkey(int v);
+	int							menuv(bool allow_cancel, const char* format) const;
 	void						sort();
 };
