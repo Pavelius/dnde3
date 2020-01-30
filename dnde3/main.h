@@ -249,6 +249,7 @@ struct targeti;
 struct landscapei;
 class creature;
 class creaturea;
+class location;
 typedef short unsigned indext;
 typedef adat<rect, 64> rooma;
 typedef flagable<1 + Chaotic / 8> alignmenta;
@@ -1064,9 +1065,11 @@ struct itemground : item {
 struct vproc {
 	void(*pinp)();
 	void(creature::*pcre)();
-	constexpr vproc() : pinp(0), pcre(0) {}
-	constexpr vproc(void(*v)()) : pinp(v), pcre(0) {}
-	constexpr vproc(void(creature::*v)()) : pinp(0), pcre(v) {}
+	void(location::*ploc)(indext i);
+	constexpr vproc() : pinp(0), pcre(0), ploc(0) {}
+	constexpr vproc(void(*v)()) : pinp(v), pcre(0), ploc(0) {}
+	constexpr vproc(void(creature::*v)()) : pinp(0), pcre(v), ploc(0) {}
+	constexpr vproc(void(location::*v)(indext i)) : pinp(0), pcre(0), ploc(v) {}
 };
 struct manual {
 	typedef void(*proc)(stringbuilder& sb, manual& e, answeri& an);
@@ -1139,6 +1142,8 @@ public:
 	static short		getx(indext i) { return i % mmx; }
 	static short		gety(indext i) { return i / mmx; }
 	int					getindex(indext i, tile_s e) const;
+	int					getindex2(indext i, tile_s e, int r) const;
+	int					getindex3(indext i, tile_s e) const;
 	int					getitemscount(indext i) const;
 	map_object_s		getobject(indext i) const { return objects[i]; }
 	indext				getpoint(const rect& rc, direction_s dir) const;
@@ -1169,6 +1174,7 @@ public:
 	bool				read(const char* url, bool overland);
 	bool				read(indext index, int level);
 	void				remove(indext i, map_flag_s v) { flags[i].remove(v); }
+	void				remove(indext i);
 	void				set(indext i, map_flag_s v) { flags[i].set(v); }
 	void				set(indext i, tile_s v);
 	void				set(indext i, trap_s v);
@@ -1202,8 +1208,9 @@ struct outdoori {
 	picture				avatar;
 	dungeoni			levels[4];
 	constexpr explicit operator bool() const { return index != Blocked; }
+	static outdoori*	choose();
 	void				clear();
-	static const outdoori* find(indext index);
+	static outdoori*	find(indext index);
 	constexpr indext	getposition() const { return index; }
 	constexpr void		setposition(indext v) { index = v; }
 };

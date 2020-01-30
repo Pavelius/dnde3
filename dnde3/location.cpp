@@ -33,6 +33,44 @@ int location::getindex(indext i, tile_s e) const {
 	return m;
 }
 
+int location::getindex3(indext i, tile_s e) const {
+	static direction_s dir[] = {Up, Down, Left, Right};
+	auto m = 0;
+	auto f = 1;
+	for(auto d : dir) {
+		auto i1 = to(i, d);
+		if(i1 != Blocked) {
+			auto n = gettile(i1);
+			if(n != e)
+				m |= f;
+		}
+		f = f << 1;
+	}
+	return m;
+}
+
+int location::getindex2(indext i, tile_s t, int r) const {
+	struct element {
+		direction_s	dir;
+		int			frame;
+	};
+	static element data[] = {{RightDown, 16},
+	{LeftDown, 17},
+	{LeftUp, 18},
+	{RightUp, 19},
+	};
+	if(!r) {
+		for(auto& e : data) {
+			auto i1 = to(i, e.dir);
+			if(i1 == Blocked)
+				continue;
+			if(gettile(i1) != t)
+				return e.frame;
+		}
+	}
+	return -1;
+}
+
 direction_s location::to(direction_s from, direction_s side) {
 	switch(side) {
 	case Up:
@@ -1130,4 +1168,10 @@ site* location::addsite(room_s type, const rect& rc) {
 	p->set(rc);
 	p->randomname();
 	return p;
+}
+
+void location::remove(indext i) {
+	auto p = outdoori::find(i);
+	if(p)
+		p->index = Blocked;
 }

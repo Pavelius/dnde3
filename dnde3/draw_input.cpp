@@ -248,8 +248,8 @@ static void dialogw(int& x, int& y, int width, int height, const char* title, in
 }
 
 static void correct(point& camera) {
-	auto mx = mmx * elx;
-	auto my = mmy * ely;
+	auto mx = mmx * elx - elx / 2;
+	auto my = mmy * ely - ely / 2;
 	if(camera.x < 0)
 		camera.x = 0;
 	if(camera.y < 0)
@@ -1123,22 +1123,23 @@ int	answeri::dialogv(bool allow_cancel, const char* title, const char* format) c
 }
 
 int	answeri::menuv(bool allow_cancel, const char* format) const {
-	const int width = 300;
+	const int width = 200;
 	while(ismodal()) {
 		current_background();
-		auto x = getwidth() - width - metrics::padding*3;
-		auto y = metrics::padding * 3;
+		auto x = getwidth() - width - metrics::padding * 4;
+		auto y = metrics::padding * 5;
 		auto index = 0;
 		for(auto& e : elements) {
-			rect rc = {x, y, x + width, y + texth() * 2};
+			rect rc = {x, y, x + width, y + texth()};
 			window(rc, false, 0);
 			auto k = Alpha + '1' + index;
 			auto z = 22;
 			char temp[2] = {(char)(k - Alpha), 0};
-			buttonr(x, y + texth()/2, z - 6, k);
-			rc.x1 += 20;
+			buttonr(x, y, z - 6, k);
+			rc.x1 += 22;
+			//rectb(rc, colors::red);
 			text(rc, e.text, AlignCenterCenter);
-			y += texth() * 2 + metrics::padding * 5;
+			y += texth() + metrics::padding * 4 + 2;
 			if(hot.key == k)
 				execute(breakparam, e.param);
 			index++;
@@ -1679,6 +1680,8 @@ static bool translate_commands(creature* player, const hotkey* keys, bool termin
 			hot.param = k->param;
 			if(player && k->proc.pcre)
 				(player->*k->proc.pcre)();
+			else if(k->proc.ploc)
+				(loc.*k->proc.ploc)(current_index);
 			else
 				k->proc.pinp();
 			if(terminate)
@@ -1873,7 +1876,11 @@ void location::worldmap(point camera, bool show_fow) const {
 			auto r = getrand(i) % 4;
 			switch(t) {
 			case Sea:
-				draw::image(x, y, gres(ResSea), getindex(i, Sea), 0);
+				r = getindex3(i, Sea);
+				draw::image(x, y, gres(ResSea), r, 0);
+				r = getindex2(i, Sea, r);
+				if(r!=-1)
+					draw::image(x, y, gres(ResSea), r, 0);
 				break;
 			case Foothills:
 				draw::image(x, y, gres(ResPlains), r, 0);
@@ -1937,7 +1944,7 @@ void location::worldmap(point camera, bool show_fow) const {
 		pb->img = e.avatar.image;
 		pb->frame = e.avatar.frame;
 		pb++;
-		if(pb>=pe)
+		if(pb >= pe)
 			break;
 	}
 	pictures.count = pb - pictures.data;
@@ -1984,6 +1991,13 @@ static void put_tile() {
 
 static void choose_tile() {
 	current_tile = (tile_s)hot.param;
+}
+
+static void place_settlement() {
+	auto p = outdoori::choose();
+	if(!p)
+		return;
+	p->index = current_index;
 }
 
 static hotkey editor_keys[] = {{Alpha + '1', "Выбрать равнину", choose_tile, Plain},
