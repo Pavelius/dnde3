@@ -68,6 +68,7 @@ imgi bsmeta<imgi>::elements[] = {{""},
 {"mount", "art"},
 {"tmount", "art"},
 {"decals", "art"},
+{"trail", "art"},
 {"ui", "art"},
 {"pcmar", "art"},
 {"pcmbd", "art"},
@@ -1890,6 +1891,14 @@ void location::worldmap(point camera, bool show_fow) const {
 				draw::image(x, y, gres(ResPlains), r, 0);
 				break;
 			}
+			if(is(i, Trailed)) {
+				auto r = getindex(i, Trailed);
+				switch(r) {
+				default:
+					draw::image(x, y, gres(ResTrail), r, 0);
+					break;
+				}
+			}
 		}
 	}
 	// Средний уровень
@@ -2007,6 +2016,7 @@ static hotkey editor_keys[] = {{Alpha + '1', "Выбрать равнину", choose_tile, Pla
 {Alpha + '5', "Выбрать Горы", choose_tile, Mountains},
 {Alpha + '6', "Выбрать снежные Пики", choose_tile, CloudPeaks},
 {Alpha + '7', "Выбрать Лес", choose_tile, Forest},
+{Alpha + 'R', "Дорога", &location::trail},
 {KeySpace, "Нарисовать выбранный тайл", put_tile},
 {KeyEscape, "Покинуть редактор", buttoncancel},
 {}};

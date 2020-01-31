@@ -15,6 +15,19 @@ static const direction_s orientations_7b7[49] = {
 	LeftDown, LeftDown, Down, Down, Down, RightDown, RightDown,
 };
 
+int location::getindex(indext i, map_flag_s e) const {
+	static direction_s dir[] = {Up, Down, Left, Right};
+	auto m = 0;
+	auto f = 1;
+	for(auto d : dir) {
+		auto i1 = to(i, d);
+		if(i1 == Blocked || is(i1, e))
+			m |= f;
+		f = f << 1;
+	}
+	return m;
+}
+
 int location::getindex(indext i, tile_s e) const {
 	static direction_s dir[] = {Up, Down, Left, Right};
 	auto m = 0;
@@ -1174,4 +1187,11 @@ void location::remove(indext i) {
 	auto p = outdoori::find(i);
 	if(p)
 		p->index = Blocked;
+}
+
+void location::trail(indext i) {
+	if(is(i, Trailed))
+		remove(i, Trailed);
+	else
+		set(i, Trailed);
 }

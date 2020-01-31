@@ -162,7 +162,7 @@ enum img_s : unsigned char {
 	ResFog,
 	ResFeature,
 	ResTraps,
-	ResSea, ResPlains, ResFoothills, ResMountains, ResCloudPeaks, ResDecals,
+	ResSea, ResPlains, ResFoothills, ResMountains, ResCloudPeaks, ResDecals, ResTrail,
 	ResUI,
 	ResPCmar, ResPCmbd, ResPCmac
 };
@@ -174,7 +174,7 @@ enum spell_s : unsigned char {
 	FirstSpell = ArmorSpell, LastSpell = SlowMonster
 };
 enum map_flag_s : unsigned char {
-	Visible, Hidden, Opened, Sealed, Explored, Webbed, Blooded,
+	Visible, Hidden, Opened, Sealed, Explored, Webbed, Trailed = Webbed, Blooded,
 };
 enum item_type_s : unsigned char {
 	Mundane, Cursed, Blessed, Artifact,
@@ -1142,6 +1142,7 @@ public:
 	static short		getx(indext i) { return i % mmx; }
 	static short		gety(indext i) { return i / mmx; }
 	int					getindex(indext i, tile_s e) const;
+	int					getindex(indext i, map_flag_s e) const;
 	int					getindex2(indext i, tile_s e, int r) const;
 	int					getindex3(indext i, tile_s e) const;
 	int					getitemscount(indext i) const;
@@ -1192,6 +1193,7 @@ public:
 	indext				stepfrom(indext index);
 	static indext		to(indext index, direction_s v);
 	static direction_s	to(direction_s d, direction_s v);
+	void				trail(indext i);
 	void				worldmap(point camera, bool show_fow = true) const;
 	bool				write(const char* url, bool overland) const;
 	bool				write(indext index, int level);
