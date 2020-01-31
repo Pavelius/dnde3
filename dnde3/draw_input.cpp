@@ -86,6 +86,12 @@ static hotkeym move_keys[] = {{KeyLeft, Left},
 {KeyEnd, LeftDown},
 };
 
+static picture trail_images[] = {{}, {ResTrail, 6, ImageMirrorV}, {ResTrail, 6}, {ResTrail, 4},
+{ResTrail, 3, ImageMirrorH}, {ResTrail, 0, ImageMirrorH | ImageMirrorV}, {ResTrail, 0, ImageMirrorH}, {ResTrail, 5, ImageMirrorH},
+{ResTrail, 3}, {ResTrail, 0, ImageMirrorV}, {ResTrail, 0}, {ResTrail, 5},
+{ResTrail, 2}, {ResTrail, 7, ImageMirrorV}, {ResTrail, 7}, {ResTrail, 1},
+};
+
 static const sprite* gres(img_s i) {
 	auto& e = bsmeta<imgi>::elements[i];
 	if(e.notfound)
@@ -316,12 +322,12 @@ static indext translate(indext i) {
 }
 
 void picture::set(short x, short y) {
-	this->x = x * elx;
-	this->y = y * ely;
+	pos.x = x * elx;
+	pos.y = y * ely;
 }
 
 void picture::render(int x, int y) const {
-	image(this->x + x, this->y + y, gres(img), frame, flags, alpha);
+	image(pos.x + x, pos.y + y, gres(img), frame, flags, alpha ? alpha : 0xFF);
 }
 
 static void render(aref<picture> source) {
@@ -1880,7 +1886,7 @@ void location::worldmap(point camera, bool show_fow) const {
 				r = getindex3(i, Sea);
 				draw::image(x, y, gres(ResSea), r, 0);
 				r = getindex2(i, Sea, r);
-				if(r!=-1)
+				if(r != -1)
 					draw::image(x, y, gres(ResSea), r, 0);
 				break;
 			case Foothills:
@@ -1893,11 +1899,8 @@ void location::worldmap(point camera, bool show_fow) const {
 			}
 			if(is(i, Trailed)) {
 				auto r = getindex(i, Trailed);
-				switch(r) {
-				default:
-					draw::image(x, y, gres(ResTrail), r, 0);
-					break;
-				}
+				if(r)
+					trail_images[r].render(x, y);
 			}
 		}
 	}
@@ -1947,11 +1950,10 @@ void location::worldmap(point camera, bool show_fow) const {
 		pt.y = y0 + loc.gety(i) * ely + e.avatar.pos.y;
 		if(!pt.in(screen))
 			continue;
-		pb->clear();
-		pb->x = pt.x;
-		pb->y = pt.y;
-		pb->img = e.avatar.image;
-		pb->frame = e.avatar.frame;
+		*pb = e.avatar;
+		pb->pos = pt;
+		if(!pb->alpha)
+			pb->alpha = 0xFF;
 		pb++;
 		if(pb >= pe)
 			break;

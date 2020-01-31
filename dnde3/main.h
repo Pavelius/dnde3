@@ -388,12 +388,12 @@ struct spritei {
 	short				frame;
 	static void			initialize();
 };
-struct picture : point {
+struct picture {
 	img_s				img;
 	unsigned short		frame;
 	unsigned short		flags;
+	point				pos;
 	unsigned char		alpha;
-	unsigned char		level;
 	variant				object;
 	explicit operator bool() const { return img != ResNone; }
 	void				clear() { memset(this, 0, sizeof(*this)); alpha = 0xFF; }
@@ -1199,11 +1199,6 @@ public:
 	bool				write(indext index, int level);
 };
 struct outdoori {
-	struct picture {
-		img_s			image;
-		unsigned char	frame;
-		point			pos;
-	};
 	indext				index;
 	const char*			name;
 	const char*			descriptor;
