@@ -225,6 +225,10 @@ void creature::dresssa(int m) {
 		auto& ei = bsmeta<abilityi>::elements[i];
 		abilities[i] += m*calculate(ei.formula);
 	}
+	if(getrole() == Character)
+		abilities[LifePoints] += abilities[Constitution] * m;
+	else
+		abilities[LifePoints] += abilities[Constitution] * m / 2;
 }
 
 const char* creature::getlevelname(skill_s v) const {
