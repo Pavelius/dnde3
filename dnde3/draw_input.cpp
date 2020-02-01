@@ -1723,6 +1723,7 @@ static hotkey indoor_keys[] = {{F1, "Выбрать первого героя", change_player, 0},
 {Ctrl + Alpha + 'B', "Поработить для отладки", &creature::enslave},
 {Ctrl + Alpha + 'W', "Тестировать оружие", &creature::testweapons},
 {Ctrl + Alpha + 'Q', "Сохранить и выйти", &creature::quitandsave},
+{Ctrl + Alpha + 'T', "Тестировать зелья", &creature::testpotion},
 {}};
 
 void creature::playui() {

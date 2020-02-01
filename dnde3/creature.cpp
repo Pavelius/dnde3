@@ -366,6 +366,37 @@ bool creature::equip(item& v1, item& v2, bool run) {
 	return true;
 }
 
+void creature::raiseathletics() {
+	static ability_s source[] = {Strenght, Dexterity};
+	adat<ability_s, 4> raised;
+	auto n = get(Athletics);
+	if(!skills[Athletics])
+		return;
+	for(auto s : source) {
+		auto v = get(s);
+		auto chance = n - (v - 10) * 10;
+		if(rollv(chance)) {
+			abilities[s]++;
+			raised.add(s);
+		}
+	}
+	if(raised && is(Friendly)) {
+		sb.add("Ѕлагодар€ атлетическому сложению повысилась ");
+		auto count = 0;
+		for(auto s : raised) {
+			count++;
+			if(count > 1) {
+				if(count==raised.getcount())
+					sb.add(" и ");
+				else
+					sb.add(", ");
+			}
+			sb.add("%-1", getstr(s));
+		}
+		sb.add(".");
+	}
+}
+
 void creature::raiseskills(int number) {
 	skillu source(this);
 	source.select(*this);
@@ -1491,6 +1522,7 @@ void creature::raiselevel() {
 	abilities[Level] += 1;
 	auto start_log = sb.get();
 	raiseability();
+	raiseathletics();
 	if(sb.get() > start_log)
 		pause();
 	raiseskills();
@@ -2058,4 +2090,11 @@ bool creature::leaving(direction_s v) {
 
 void creature::testevents() {
 	eventi::play(1);
+}
+
+void creature::testpotion() {
+	item it(Potion3);
+	it.seteffect(Level);
+	it.set(Blessed);
+	add(it, true, false);
 }

@@ -928,6 +928,7 @@ public:
 	void				potion(ability_s id, variant source, bool interactive, item_type_s magic, int quality, int minutes);
 	void				quitandsave();
 	void				raise(skill_s value);
+	void				raiseathletics();
 	void				raiseskills(int number);
 	void				raiseskills() { raiseskills(get(Intellegence) / 2); }
 	void				rangeattack(creature& enemy, int bonus = 0);
@@ -952,6 +953,7 @@ public:
 	void				setmoney(int value) { money = value; }
 	void				shoot();
 	void				testevents();
+	void				testpotion();
 	void				testweapons();
 	void				unlink();
 	bool				use(const creaturea& source, skill_s id);

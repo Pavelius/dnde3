@@ -13,7 +13,7 @@ classi bsmeta<classi>::elements[] = {{"Крестьянин", 4, 0, 0, {-1, 1, 0, -1, 1, 0
 {SwordTwoHanded}},
 {"Вор", 6, 6, 0, {0, 4, 0, 0, -1, 1}, {45, 4}, {PickPockets, Lockpicking, HideInShadow, Acrobatics, DisarmTraps, Bluff, MoveSilently}, {},
 {AxeBattle, HammerWar, BowLong, PlateMail}},
-{"Монстер", 8, 4, 0, {}, {50, 5}, {}, {},
+{"Монстер", 8, 4, 0, {}, {40, 5}, {}, {},
 {}},
 };
 assert_enum(class, Monster);
