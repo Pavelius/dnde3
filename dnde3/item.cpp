@@ -52,17 +52,17 @@ static variant flute_songs[] = {{}, Wisdow, Intellegence, Charisma};
 static variant booben_songs[] = {{}, Strenght, Dexterity, Constitution, Armor};
 static variant corpse[] = {GoblinWarrior, GoblinRockthrower, OrcWarrior, LargeBat, GiantRat,
 HumanMale, HumanGuard, HumanChild, HumanFemale,
-Shopkeeper, DwarvenSmith, Bartender, Skeleton, Zombie,
+Shopkeeper, DwarvenSmith, Bartender,
 KobolWarrior, KoboldShaman,
 LargeDog, Lynx, GiantFrog,
-AntWorker, AntWarrior, AntQueen,
 GnollWarrior,
 GoblinRockthrowerWarrior, GoblinRockthrowerWarriorF,
 OrcWarrio2r, OrcWarrior2F,
 LargeBat2, LargeBat3,
-Bee, Bee2, Bee3,
 OrgeCommoner, OrgeCommonerF,
 Bugbear, BugbearF};
+static variant bones[] = {Skeleton};
+static variant bugshell[] = {AntWorker, AntWarrior, AntQueen, Bee, Bee2, Bee3, };
 
 itemi bsmeta<itemi>::elements[] = {{"Рука", "item-1", Unique, 0, 0, 0, NoGender, Organic, {0, 3, {1, 3}, Bludgeon, 4, 2}, {}, {}, {}, Melee},
 {"Боевой топор", "item5", Common, 850, 5 * GP, 0, Male, Iron, {-4, 3, {1, 8}, Slashing, 0, 2}, {}, weapon_enchanments, {Versatile}, Melee, FocusAxes},
@@ -172,6 +172,8 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", "item-1", Unique, 0, 0, 0, NoGender,
 {"Флейта", "item86", Rare, 300, 35 * GP, 0, Female, Wood, {}, {}, flute_songs, {}, Tool, Charisma},
 //
 {"Тело", "item103", Unique, 1500, 0 * GP, 0, NoGender, Organic, {}, {}, corpse, {}, Edible},
+{"Кости", "items383", Unique, 500, 0 * GP, 0, NoGender, Organic, {}, {}, bones, {}},
+{"Панцирь", "item258", Unique, 400, 0 * GP, 0, NoGender, Organic, {}, {}, bugshell, {}},
 {"Ключ", "item354", Common, 0, 0 * GP, 0, Male, Iron, {}, {}, {}, {}},
 //
 {"Монета", "items37", Common, 0, 1 * CP, -1, Female, Iron, {}, {}, {}, {}, Coinable},
@@ -714,6 +716,18 @@ const aref<variant> item::getreceipts() {
 	return alchemy_receipts;
 }
 
-bool item::iscorpse(role_s v) {
-	return aref<variant>(corpse).indexof(v) != -1;
+item_s item::findcorpse(role_s v) {
+	for(auto& e : bsmeta<itemi>()) {
+		if(!e.effects)
+			continue;
+		if(e.effects[0].type != Role)
+			continue;
+		if(e.effects.indexof(v) != -1)
+			return e.getid();
+	}
+	return NoItem;
+}
+
+item_s itemi::getid() const {
+	return item_s(this - bsmeta<itemi>::elements);
 }

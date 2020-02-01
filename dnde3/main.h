@@ -47,7 +47,7 @@ enum item_s : unsigned char {
 	Amulet1, Amulet2, Amulet3, Amulet4, Amulet5,
 	ClimbingTool, FletcherySet, Forge, HealingKit, ScriblingKit, CrystalBall, AlchemySet, TheifTool, CookingSet,
 	Lute, Arfa, Baboon, Guitar, Vilanchelle, Flute,
-	Corpse, DoorKey, Coin, CoinSP, CoinGP,
+	Corpse, Bones, Shell, DoorKey, Coin, CoinSP, CoinGP,
 	Claws, Slam, Bite, Hitin, Fur,
 	ManyItems
 };
@@ -509,6 +509,7 @@ struct itemi {
 	slot_s				slot;
 	variant				skill;
 	//
+	item_s				getid() const;
 	bool				is(slot_s v) const;
 	bool				is(const aref<slot_s>& source) const;
 	variant				randeffect() const;
@@ -550,6 +551,7 @@ public:
 	void				damage(int count, damage_s type, bool interactive);
 	void				decoy(damage_s type, bool interactive, bool include_artifact = false);
 	void				destroy(damage_s type, bool interactive);
+	static item_s		findcorpse(role_s v);
 	item_s				getammo() const { return getitem().weapon.ammunition; }
 	armori				getarmor() const;
 	attacki				getattack() const;
@@ -582,7 +584,6 @@ public:
 	bool				is(sale_s v) const { return sale == v; }
 	bool				isboost(variant id) const;
 	bool				ischargeable() const;
-	static bool			iscorpse(role_s v);
 	bool				iscountable() const;
 	bool				isdamaged() const { return getdamage() > 0; }
 	bool				ispersonal() const { return !iscountable() && personal != 0; }

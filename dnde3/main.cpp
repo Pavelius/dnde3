@@ -63,21 +63,6 @@ static void modify_weapon(creature* p1) {
 	//pi->setidentify(1);
 }
 
-static void create_indoor() {
-	if(!game.read()) {
-		game.setposition(loc.get(20, 20));
-		game.enter(1, StairsDown);
-		auto p1 = create(Elf, Female, Mage);
-		auto p2 = create(Dwarf, Male, Cleric);
-		auto p3 = create(Elf, Male, Fighter);
-		p1->activate();
-		create(p1, AlchemySet);
-		p1->learnreceipt(Dexterity);
-		create(p1, Potion2, PoisonSpell);
-	}
-	game.play();
-}
-
 static void test_stack(creature* p1) {
 	item i1(Arrow, 1);
 	item i2 = i1;
@@ -132,7 +117,31 @@ static bool test_formula() {
 
 //void util_main();
 
+static void continue_game() {
+	if(!game.read())
+		return;
+	game.play();
+}
+
 static void begin_game() {
+	if(!game.read()) {
+		loc.clear();
+		loc.fill({0, 0, mmx - 1, 1}, Sea);
+		loc.fill({0, 0, 1, mmy - 1}, Sea);
+		loc.fill({mmx - 2, 0, mmx - 1, mmy - 1}, Sea);
+		loc.fill({0, mmy - 2, mmx - 1, mmy - 1}, Sea);
+		auto p1 = create(Elf, Female, Mage);
+		auto p2 = create(Dwarf, Male, Cleric);
+		auto p3 = create(Elf, Male, Fighter);
+		create(p1, AlchemyReceipt);
+		create(p1, AlchemySet);
+		createp(p1, Staff);
+		p1->activate();
+		game.setposition(loc.get(8, 8));
+		if(!game.enter(0, NoTileObject))
+			return;
+	}
+	game.play();
 }
 
 static void run_editor() {
@@ -154,6 +163,7 @@ static void exit_game() {
 static stageproc choose_stage() {
 	answeri an;
 	an.add((int)begin_game, "Начать игру");
+	an.add((int)continue_game, "Продолжить игру");
 	an.add((int)run_editor, "Редактор карт");
 	an.add(0, "Выйти из игры");
 	return (stageproc)an.menuv(true, "Главное меню");
@@ -179,11 +189,9 @@ int main(int argc, char* argv[]) {
 	util_main();
 	//test_answers();
 	//item_choose();
-	//test_worldmap();
 	//test_adventure();
 	//test_analize();
 	//test_dungeon();
-	//create_indoor();
 	main_menu();
 }
 

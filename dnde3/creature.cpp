@@ -1402,8 +1402,9 @@ void creature::dropitems() {
 void creature::kill() {
 	if(d100() < chance_blood_when_dead)
 		bloodstain();
-	if(item::iscorpse((role_s)value) && d100() < 30) {
-		item it(Corpse);
+	auto corpse = item::findcorpse((role_s)value);
+	if(corpse && d100() < 30) {
+		item it(corpse);
 		it.seteffect((role_s)value);
 		it.set(KnownPower);
 		loc.drop(getposition(), it);
