@@ -294,32 +294,44 @@ void gamei::move(indext index) {
 	// Пункты движения
 	auto current_tile = loc.gettile(getposition());
 	auto tile = loc.gettile(index);
+	auto difficult = 0;
 	switch(tile) {
 	case Sea:
 		if(current_tile != Sea && !p->askyn("Вы действительно хотите пересечь воду?"))
 			return;
-		restore_energy -= OverlandEnergyCost * 300 / 100;
+		difficult += OverlandEnergyCost * 300 / 100;
 		break;
 	case Forest:
-		restore_energy -= OverlandEnergyCost * 200 / 100;
+		difficult += OverlandEnergyCost * 200 / 100;
 		break;
 	case Mountains:
 		if(!find(ClimbingTool)) {
 			sb.add("У вас нету оборудования для лазания по горам.");
 			return;
 		}
-		restore_energy -= OverlandEnergyCost * 350 / 100;
+		difficult += OverlandEnergyCost * 300 / 100;
+		for(auto& e : bsmeta<creature>()) {
+			if(!e || !e.is(Friendly))
+				continue;
+			if(!e.roll(Climbing)) {
+				e.act("%герой очень долго залазил%а на утес.");
+				difficult += OverlandEnergyCost * 50 / 100;
+			}
+		}
 		break;
 	case Hill:
-		restore_energy -= OverlandEnergyCost * 150 / 100;
+		difficult += OverlandEnergyCost * 150 / 100;
 		break;
 	case Swamp:
-		restore_energy -= OverlandEnergyCost * 300 / 100;
+		difficult += OverlandEnergyCost * 300 / 100;
 		break;
 	default:
-		restore_energy -= OverlandEnergyCost * 100 / 100;
+		difficult += OverlandEnergyCost * 100 / 100;
 		break;
 	}
+	if(loc.is(index, Trailed))
+		difficult = difficult * 60 / 100;
+	restore_energy -= difficult;
 	// Расчитаем еду
 
 	// Движение

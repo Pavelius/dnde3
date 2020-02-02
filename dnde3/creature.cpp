@@ -1297,23 +1297,23 @@ void creature::checkpoison() {
 
 void creature::restoration() {
 	const auto pc = StandartEnergyCost;
-	if(restore_hits > pc) {
+	while(restore_hits > pc) {
 		if(!is(Sick)) {
 			if(hp < get(LifePoints))
 				hp++;
 		}
 		restore_hits -= pc;
-	} else
-		restore_hits += get(LifeRate);
-	if(restore_mana > pc) {
+	}
+	restore_hits += get(LifeRate);
+	while(restore_mana > pc) {
 		if(mp < get(ManaPoints))
 			mp++;
 		restore_mana -= pc;
-	} else
-		restore_mana += get(ManaRate);
+	}
+	restore_mana += get(ManaRate);
 	if(is(Wounded)) {
 		// Wounded creature loose 1 hit point each turn
-		if(roll(Constitution, 5))
+		if(roll(Constitution))
 			add(Wounded, -1, true);
 		else {
 			act("%герой истекает кровью.");
