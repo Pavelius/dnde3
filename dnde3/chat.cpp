@@ -6,6 +6,12 @@ struct chati {
 	constexpr explicit operator bool() const { return dialog != 0; }
 };
 
+static dialogi party_member[] = {{1, Say, {Common}, "Чего тебе?"},
+{1, Say, {Common}, "Что надо, друг?"},
+{1, Say, {}, "Что там?"},
+{1, Ask, {}, "Охраняй это место.", {GuardPosition}},
+{1, Ask, {}, "Все нормально. Так просто решуил поболтать."},
+{}};
 static dialogi neutral_character[] = {{1, Say, {Common}, "Чего тебе?"},
 {1, Say, {Common}, "Я рад теб приветствовать. Чем могу быть полезен?"},
 {1, Say, {}, "Да?"},
@@ -60,6 +66,8 @@ static dialogi* addask(creature& player, creature& opponent, const dialogi* sour
 			continue;
 		if(!player.ismatch(opponent, p->conditions))
 			continue;
+		if(!player.ismatch(opponent, p->actions))
+			continue;
 		an.add((int)p, "\"%2\"", player.getname(), p->text);
 	}
 	if(an)
@@ -75,14 +83,22 @@ static int addsay(creature& player, creature& opponent, const dialogi* source, i
 			continue;
 		if(!player.ismatch(opponent, p->conditions))
 			continue;
+		if(!player.ismatch(opponent, p->actions))
+			continue;
 		opponent.say(p->text);
 		if(p->next) {
 			player.pause();
 			return p->next;
 		}
 		auto p1 = addask(player, opponent, source, index);
-		if(p1)
+		if(p1) {
+			for(auto v : p1->actions) {
+				switch(v.type) {
+				case Action: opponent.execute((action_s)v.value, true); break;
+				}
+			}
 			return p1->next;
+		}
 		break;
 	}
 	return 0;
@@ -106,14 +122,17 @@ void creature::chat(creature& opponent) {
 	static chati available_chats[] = {{Shopkeeper, chat_shopkeeper},
 	{HumanChild, chat_child},
 	{HumanMale, chat_commoner},
-	{Character, neutral_character},
 	{}};
 	if(saybusy())
 		return;
 	auto pd = find_chat(available_chats, *this, opponent);
-	if(!pd)
-		return;
-	chat(opponent, pd->dialog);
+	const dialogi* dg = 0;
+	if(pd)
+		dg = pd->dialog;
+	else if(opponent.is(Friendly) && is(Friendly))
+		dg = party_member;
+	if(dg)
+		chat(opponent, dg);
 }
 
 void creature::chat() {

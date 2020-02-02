@@ -1063,6 +1063,8 @@ void location::indoor(point camera, bool show_fow, const picture* effects) {
 
 int	answeri::paint(int x, int y, int width, int i, int& maximum_width) const {
 	auto k = Alpha + '1' + i;
+	if(i >= 9)
+		k = Alpha + 'A' + (i - 9);
 	auto z = 22;
 	char temp[2] = {(char)(k - Alpha), 0};
 	buttonr(x, y, z - 6, k);

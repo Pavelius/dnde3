@@ -198,7 +198,7 @@ enum item_flag_s : unsigned char {
 };
 enum variant_s : unsigned char {
 	NoVariant,
-	Ability, Alignment, Class, Command, Creature, Formula, Gender, God, Harm,
+	Ability, Action, Alignment, Class, Command, Creature, Formula, Gender, God, Harm,
 	Item, ItemIdentify, ItemType,
 	Number, Object, ObjectFlags, Outdoor, Race, Range, Rarity, Role, Room,
 	Skill, Slot, Spell, State, Target, Tile,
@@ -239,6 +239,9 @@ enum intellegence_s : unsigned char {
 enum map_object_flag_s : unsigned char {
 	BlockMovement, BlockLight,
 };
+enum action_s : unsigned char {
+	GuardPosition, StopGuardPosition,
+};
 enum command_s : unsigned char {
 	AddReputation, LoseReputation, BadReputation, GoodReputation,
 	AddMoney10, AddMoney20, AddMoney50, LoseMoney10, LoseMoney20, LoseMoney50,
@@ -269,6 +272,7 @@ struct variant {
 	unsigned char		value;
 	constexpr variant() : type(NoVariant), value(0) {}
 	constexpr variant(ability_s v) : type(Ability), value(v) {}
+	constexpr variant(action_s v) : type(Action), value(v) {}
 	constexpr variant(alignment_s v) : type(Alignment), value(v) {}
 	constexpr variant(class_s v) : type(Class), value(v) {}
 	constexpr variant(command_s v) : type(Command), value(v) {}
@@ -430,6 +434,7 @@ struct racei {
 	skill_s				skills[3];
 	adat<abilityv, 8>	abilityvs;
 	statea				states;
+	bool				is(skill_s v) const { return skills[0] == v || skills[1] == v || skills[2] == v; }
 };
 struct dicei {
 	char				min;
@@ -851,6 +856,7 @@ public:
 	bool				equip(item value);
 	bool				equip(item& v1, item& v2, bool run);
 	void				enslave();
+	bool				execute(action_s v, bool run);
 	void				fail(skill_s id);
 	void				feel(ability_s id, bool raise);
 	static creature*	find(indext i);
@@ -906,6 +912,7 @@ public:
 	bool				isenemy(const creature* target) const;
 	bool				isguard() const { return guard != Blocked; }
 	bool				ismatch(variant v) const;
+	bool				ismatch(action_s v) const;
 	bool				ismatch(const creature& opponent, variant id) const;
 	bool				ismatch(const creature& opponent, skill_s id, int value) const;
 	bool				ismatch(const creature& opponent, const varianta& source) const;

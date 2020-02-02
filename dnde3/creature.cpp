@@ -1861,6 +1861,7 @@ void creature::minimap() {
 
 bool creature::ismatch(variant v) const {
 	switch(v.type) {
+	case Action: return const_cast<creature*>(this)->execute((action_s)v.value, false);
 	case Alignment: return true;
 	case Class: return kind == v.value;
 	case Gender: return getgender() == v.value;
@@ -2126,4 +2127,22 @@ void creature::testpotion() {
 
 int	creature::getallowedweight() const {
 	return get(Strenght) * 500;
+}
+
+bool creature::execute(action_s v, bool run) {
+	switch(v) {
+	case GuardPosition:
+		if(guard != Blocked)
+			return false;
+		if(run)
+			guard = getposition();
+		break;
+	case StopGuardPosition:
+		if(guard == Blocked)
+			return false;
+		if(run)
+			guard = Blocked;
+		break;
+	}
+	return true;
 }
