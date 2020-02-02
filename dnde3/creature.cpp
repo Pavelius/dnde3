@@ -158,9 +158,33 @@ void creature::unlink() {
 	setposition(Blocked);
 }
 
+void creature::dressen(int m) {
+	auto aw = getallowedweight();
+	auto mw = getweight();
+	auto penalty_attack = 0;
+	auto penalty_speed = 0;
+	auto penalty_deflect = 0;
+	encumbrance = NoEncumbered;
+	if(mw > aw) {
+		penalty_speed += 25;
+		penalty_deflect += 5;
+		encumbrance = Encumbered;
+	}
+	if(mw > aw * 2) {
+		penalty_speed += 25;
+		penalty_attack += 15;
+		penalty_deflect += 10;
+		encumbrance = HeavilyEncumbered;
+	}
+	abilities[Speed] -= penalty_speed*m;
+	abilities[Attack] -= penalty_attack*m;
+	abilities[Protection] -= penalty_deflect*m;
+}
+
 void creature::dressoff() {
 	if(!this)
 		return;
+	dressen(-1);
 	dresssa(-1);
 	dress(-1);
 }
@@ -170,6 +194,7 @@ void creature::dresson() {
 		return;
 	dress(1);
 	dresssa(1);
+	dressen(1);
 }
 
 void creature::dress(int m) {
@@ -386,7 +411,7 @@ void creature::raiseathletics() {
 		for(auto s : raised) {
 			count++;
 			if(count > 1) {
-				if(count==raised.getcount())
+				if(count == raised.getcount())
 					sb.add(" и ");
 				else
 					sb.add(", ");
@@ -2012,10 +2037,10 @@ void creature::learnreceipt(variant id) {
 	int receipt_count = recipes.getcount();
 	int receipt_maximum = get(Alchemy) / 10;
 	act("%герой внимательно изучил%а рецепт.");
-	if(knownreceipt(id) || receipt_count>=receipt_maximum) {
+	if(knownreceipt(id) || receipt_count >= receipt_maximum) {
 		if(isactive())
 			sb.add("В нем были важные сведения по алхимии, которых вам не доставало.");
-		addexp(2000*get(Alchemy)/100);
+		addexp(2000 * get(Alchemy) / 100);
 	} else {
 		auto i = item::getreceipts().indexof(id);
 		if(i == -1)
@@ -2097,4 +2122,8 @@ void creature::testpotion() {
 	it.seteffect(Level);
 	it.set(Blessed);
 	add(it, true, false);
+}
+
+int	creature::getallowedweight() const {
+	return get(Strenght) * 500;
 }

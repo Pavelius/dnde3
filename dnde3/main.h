@@ -767,6 +767,7 @@ class creature : public nameable, public paperdoll {
 	direction_s			direction;
 	unsigned			experience;
 	unsigned			money;
+	encumbrance_s		encumbrance;
 	//
 	void				add(skill_s id, int v, bool interactive);
 	void				add(spell_s id, unsigned minutes);
@@ -785,6 +786,7 @@ class creature : public nameable, public paperdoll {
 	bool				cantakeoff(slot_s id, bool interactive);
 	bool				canuse(const item& e, bool talk) const;
 	void				dress(int m);
+	void				dressen(int m);
 	void				dresssk(int m);
 	void				dresssa(int m);
 	void				dropdown(item& item);
@@ -861,6 +863,7 @@ public:
 	const item&			get(slot_s v) const { return wears[v]; }
 	static creature*	getactive();
 	static creature*	getactive(int index);
+	int					getallowedweight() const;
 	attacki				getattack(slot_s slot, const item& weapon) const;
 	attacki				getattack(slot_s slot) const { return getattack(slot, wears[slot]); }
 	int					getaward() const { return 10 + 15 * get(Level); }
@@ -868,6 +871,7 @@ public:
 	int					getboost(variant id) const;
 	const classi&		getclass() const { return bsmeta<classi>::elements[kind]; }
 	direction_s			getdirection() const { return direction; }
+	encumbrance_s		getencumbred() const { return encumbrance; }
 	int					getexperience() const { return experience; }
 	void				getfullname(stringbuilder& sb) const;
 	short unsigned		getguard() const { return guard; }
