@@ -1195,3 +1195,26 @@ void location::trail(indext i) {
 	else
 		set(i, Trailed);
 }
+
+void location::restoration() {
+	int n, r;
+	for(indext i = 0; i < mmx*mmy; i++) {
+		auto t = getobject(i);
+		switch(t) {
+		case Plants:
+			n = getplantgrow();
+			random[i] += xrand(1, 4);
+			r = getplantgrow();
+			if(n != r) {
+				if(r >= 3)
+					r = 0;
+				random[i] = 0;
+			}
+			break;
+		}
+	}
+}
+
+int location::getplantgrow(indext i) const {
+	return random[i] / 60;
+}

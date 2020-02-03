@@ -651,9 +651,8 @@ public:
 struct dialogi {
 	char				index;
 	dialog_s			type;
-	varianta			conditions;
+	varianta			actions, opponent_actions;
 	const char*			text;
-	varianta			actions;
 	int					next;
 	explicit operator bool() const { return text != 0; }
 };
@@ -1161,6 +1160,7 @@ public:
 	int					getindex3(indext i, tile_s e) const;
 	int					getitemscount(indext i) const;
 	map_object_s		getobject(indext i) const { return objects[i]; }
+	int					getplantgrow(indext i) const;
 	indext				getpoint(const rect& rc, direction_s dir) const;
 	static int			getrange(indext i1, indext i2);
 	int					getrand(indext i) const { return random[i]; }
@@ -1190,6 +1190,7 @@ public:
 	bool				read(indext index, int level);
 	void				remove(indext i, map_flag_s v) { flags[i].remove(v); }
 	void				remove(indext i);
+	void				restoration();
 	void				set(indext i, map_flag_s v) { flags[i].set(v); }
 	void				set(indext i, tile_s v);
 	void				set(indext i, trap_s v);

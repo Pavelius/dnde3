@@ -174,6 +174,8 @@ void gamei::passminute() {
 		applypoison();
 	if((rounds % 60) == 0)
 		applysick();
+	if((rounds % (24 * 60)) == 0)
+		loc.restoration();
 }
 
 bool gamei::enter(int level, map_object_s stairs) {
