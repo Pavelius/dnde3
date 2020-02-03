@@ -1815,7 +1815,9 @@ void creature::paymana(int value, bool interactive) {
 }
 
 bool creature::aiuse(const creaturea& creatures, const char* title, slot_s slot, variant effect) {
-	itema source; source.selectb(*this);
+	itema source;
+	source.selectb(*this);
+	source.select(getposition(), true);
 	source.match(slot, false);
 	if(effect)
 		source.matchboost(effect);

@@ -12,10 +12,12 @@ void itema::selectb(creature& e) {
 	e.select(*this, Backpack, LastBackpack, true);
 }
 
-void itema::select(indext index) {
+void itema::select(indext index, bool extend) {
 	if(index == Blocked)
 		return;
 	auto ps = data;
+	if(extend)
+		ps += count;
 	auto pe = endof();
 	for(auto& e : bsmeta<itemground>()) {
 		if(!e)

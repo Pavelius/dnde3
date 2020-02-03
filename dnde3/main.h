@@ -613,7 +613,7 @@ public:
 	void				matcha(creature& player, variant id, int v);
 	void				matchboost(variant v);
 	void				select(creature& e);
-	void				select(indext index);
+	void				select(indext index, bool extend = false);
 	void				selecta(creature& e);
 	void				selectb(creature& e);
 };
