@@ -1194,7 +1194,7 @@ public:
 	void				set(indext i, map_flag_s v) { flags[i].set(v); }
 	void				set(indext i, tile_s v);
 	void				set(indext i, trap_s v);
-	void				set(indext i, map_object_s v) { objects[i] = v; }
+	void				set(indext i, map_object_s v);// { objects[i] = v; }
 	void				setr(indext i, unsigned char v) { random[i] = v; }
 	static void			setcamera(short x, short y);
 	static void			setcamera(indext i);

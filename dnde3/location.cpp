@@ -1218,3 +1218,12 @@ void location::restoration() {
 int location::getplantgrow(indext i) const {
 	return random[i] / 60;
 }
+
+void location::set(indext i, map_object_s v) {
+	objects[i] = v;
+	switch(v) {
+	case Plants:
+		random[i] = xrand(0, 60);
+		break;
+	}
+}
