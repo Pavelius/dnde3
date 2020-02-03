@@ -726,7 +726,7 @@ bool creature::use(const creaturea& source, spell_s id, int level, item* magic_s
 		if(magic_source)
 			act("С кончика %1.", ei.throw_text);
 		else
-			act("С кончика пальце %1.", ei.throw_text);
+			act("С кончика пальцев %1.", ei.throw_text);
 	}
 	ei.target.use(*this, source, creatures, items, indecies, id, v);
 	if(magic_source) {
