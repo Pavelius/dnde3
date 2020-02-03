@@ -1202,9 +1202,9 @@ void location::restoration() {
 		auto t = getobject(i);
 		switch(t) {
 		case Plants:
-			n = getplantgrow();
+			n = getplantgrow(i);
 			random[i] += xrand(1, 4);
-			r = getplantgrow();
+			r = getplantgrow(i);
 			if(n != r) {
 				if(r >= 3)
 					r = 0;
