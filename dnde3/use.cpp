@@ -243,16 +243,6 @@ bool item::use(spell_s id, creature& player, int level, int order, bool run) {
 
 bool item::use(skill_s id, creature& player, int order, bool run) {
 	switch(id) {
-	case Cooking:
-		if(!is(Edible))
-			return false;
-		if(run) {
-			player.act("%герой приготовил%а %1.", getname());
-			if(!player.roll(Cooking)) {
-				return false;
-			}
-		}
-		break;
 	case Alchemy:
 		if(!is(Drinkable) || is(KnownPower))
 			return false;
@@ -265,6 +255,17 @@ bool item::use(skill_s id, creature& player, int order, bool run) {
 			set(KnownPower);
 			char temp[260]; stringbuilder sb(temp); getname(sb, true);
 			player.say("Похоже по вкусу на [%1].", temp);
+		}
+		break;
+	case Cooking:
+		if(!is(Edible))
+			return false;
+		if(run) {
+			player.act("%герой приготовил%а %1.", getname());
+			if(!player.roll(Cooking)) {
+				player.fail(Cooking);
+				return false;
+			}
 		}
 		break;
 	case Literacy:

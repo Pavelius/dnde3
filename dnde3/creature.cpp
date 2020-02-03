@@ -2127,7 +2127,7 @@ void creature::testpotion() {
 	//add(it, true, false);
 	//item i1(AlchemyReceipt, 5);
 	//add(i1, true, true);
-	loc.restoration();
+	loc.growplants();
 }
 
 int	creature::getallowedweight() const {

@@ -39,6 +39,7 @@ enum item_s : unsigned char {
 	Cloack1, Cloack2, Cloack3, Cloack4, Cloack5,
 	Boot1, Boot2, IronBoot1, IronBoot2, IronBoot3,
 	Ration, Apple, BreadHalflings, BreadEvlen, BreadDwarven, Cake, Sausage, Meat,
+	RoseHip, Physalis, BirdCherry, Viburnum, Clover, Mint, Cherry, Tarnelle,
 	Scroll1, Scroll2, Scroll3, AlchemyReceipt,
 	Wand1, Wand2, Wand3, Wand4, Wand5,
 	Book1, Book2, Book3, Book4, Book5,
@@ -1168,6 +1169,7 @@ public:
 	static rect			getrect(indext i, int rx = 3, int ry = 2);
 	tile_s				gettile(indext i) const;
 	trap_s				gettrap(indext i) const;
+	void				growplants();
 	void				indoor(point camera, bool show_fow = true, const picture* effects = 0);
 	bool				is(indext i, map_flag_s v) const { return flags[i].is(v); }
 	bool				isfree(indext i) const;
@@ -1190,7 +1192,6 @@ public:
 	bool				read(indext index, int level);
 	void				remove(indext i, map_flag_s v) { flags[i].remove(v); }
 	void				remove(indext i);
-	void				restoration();
 	void				set(indext i, map_flag_s v) { flags[i].set(v); }
 	void				set(indext i, tile_s v);
 	void				set(indext i, trap_s v);

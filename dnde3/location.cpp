@@ -4,6 +4,7 @@ location				loc;
 static short unsigned	movements[mmx*mmy];
 static short unsigned	stack[256 * 256];
 static direction_s		all_aroud[] = {Left, Right, Up, Down, LeftDown, LeftUp, RightDown, RightUp};
+static item_s			common_plants[] = {Tarnelle, Cherry, RoseHip, Physalis};
 
 static const direction_s orientations_7b7[49] = {
 	LeftUp, LeftUp, Up, Up, Up, RightUp, RightUp,
@@ -935,6 +936,27 @@ bool location::apply(creature& player, indext index, variant id, int v, int orde
 				player.addexp(50);
 			}
 			break;
+		case Herbalism:
+			if(getobject(index) != Plants || !getplantgrow(index))
+				return false;
+			if(run) {
+				auto power = getplantgrow(index);
+				item it(maprnd(common_plants));
+				it.setquality(0);
+				if(power > 1)
+					it.setquality(xrand(0, 3));
+				it.setcount(xrand(1, 3));
+				if(!player.roll((skill_s)id.value))
+					it.set(Cursed);
+				if(d100() < 15 * power)
+					set(index, NoTileObject);
+				else
+					random[index] = 0;
+				player.addexp(10);
+				player.act("%герой собрал%а %1.", it.getname());
+				player.add(it, true, true);
+			}
+			break;
 		case Lockpicking:
 			if(getobject(index) != Door || !is(index, Sealed) || is(index, Opened) || is(index, Hidden))
 				return false;
@@ -1120,9 +1142,9 @@ void location::interior(const rect& rc, room_s type, indext entrance, int level,
 	}
 	if(level == 0) {
 		if(result_rect)
-			*result_rect = r1.getoffset(1,1);
+			*result_rect = r1.getoffset(1, 1);
 	}
-	content(r1.getoffset(1,1), type, ps);
+	content(r1.getoffset(1, 1), type, ps);
 	switch(type) {
 	case ShopPotions:
 	case ShopScrolls:
@@ -1196,21 +1218,17 @@ void location::trail(indext i) {
 		set(i, Trailed);
 }
 
-void location::restoration() {
+void location::growplants() {
 	int n, r;
 	for(indext i = 0; i < mmx*mmy; i++) {
 		auto t = getobject(i);
-		switch(t) {
-		case Plants:
-			n = getplantgrow(i);
-			random[i] += xrand(1, 4);
-			r = getplantgrow(i);
-			if(n != r && r >= 3) {
-				random[i] = 0;
-				// TODO: растение размножается
-			}
-			break;
-		}
+		if(t != Plants)
+			continue;
+		n = getplantgrow(i);
+		random[i] += xrand(1, 4);
+		r = getplantgrow(i);
+		if(n != r && r >= 3)
+			random[i] = 0;
 	}
 }
 
@@ -1222,7 +1240,7 @@ void location::set(indext i, map_object_s v) {
 	objects[i] = v;
 	switch(v) {
 	case Plants:
-		random[i] = xrand(0, 60);
+		random[i] = xrand(0, 60 * 3 - 1);
 		break;
 	}
 }
