@@ -1205,10 +1205,9 @@ void location::restoration() {
 			n = getplantgrow(i);
 			random[i] += xrand(1, 4);
 			r = getplantgrow(i);
-			if(n != r) {
-				if(r >= 3)
-					r = 0;
+			if(n != r && r >= 3) {
 				random[i] = 0;
+				// TODO: растение размножается
 			}
 			break;
 		}

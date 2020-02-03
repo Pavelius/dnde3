@@ -2121,12 +2121,13 @@ void creature::testevents() {
 }
 
 void creature::testpotion() {
-	item it(Potion3);
-	it.seteffect(Level);
-	it.set(Blessed);
-	add(it, true, false);
-	item i1(AlchemyReceipt, 5);
-	add(i1, true, true);
+	//item it(Potion3);
+	//it.seteffect(Level);
+	//it.set(Blessed);
+	//add(it, true, false);
+	//item i1(AlchemyReceipt, 5);
+	//add(i1, true, true);
+	loc.restoration();
 }
 
 int	creature::getallowedweight() const {
