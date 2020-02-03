@@ -186,7 +186,7 @@ int main(int argc, char* argv[]) {
 		return false;
 	spritei::initialize();
 	game.intialize();
-	util_main();
+	//util_main();
 	main_menu();
 }
 
