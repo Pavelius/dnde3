@@ -757,7 +757,7 @@ public:
 	void				sethairf(int v) { face_hair = v; }
 };
 class creature : public nameable, public paperdoll {
-	char				abilities[ManaRate + 1];
+	short				abilities[ManaRate + 1];
 	unsigned char		skills[LastSkill + 1];
 	unsigned char		skills_potency[LastSkill + 1];
 	unsigned char		spells[LastSpell + 1];

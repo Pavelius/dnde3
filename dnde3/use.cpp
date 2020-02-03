@@ -471,7 +471,7 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 		break;
 	case SlowMonster:
 		if(run)
-			add(Movement, id, level, true, 60);
+			add(Movement, id, -level, true, 60);
 		break;
 	default:
 		if(!ei.bonus)

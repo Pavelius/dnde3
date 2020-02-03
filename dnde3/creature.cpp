@@ -1330,10 +1330,10 @@ void creature::restoration() {
 		restore_hits -= pc;
 	}
 	restore_hits += get(LifeRate);
-	while(restore_mana > pc) {
+	while(restore_mana > pc / 4) {
 		if(mp < get(ManaPoints))
 			mp++;
-		restore_mana -= pc;
+		restore_mana -= pc / 4;
 	}
 	restore_mana += get(ManaRate);
 	if(is(Wounded)) {
@@ -2123,6 +2123,8 @@ void creature::testpotion() {
 	it.seteffect(Level);
 	it.set(Blessed);
 	add(it, true, false);
+	item i1(AlchemyReceipt, 5);
+	add(i1, true, true);
 }
 
 int	creature::getallowedweight() const {
