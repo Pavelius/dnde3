@@ -1,5 +1,7 @@
 #include "main.h"
 
+static item_s common_plants[] = {Tarnelle, Cherry, RoseHip, Physalis};
+
 skilli bsmeta<skilli>::elements[] = {{"Торговля", "торговли", {Charisma, Intellegence}, {}, {Creature, {NotYou}, Close, "С кем хотите поторговаться?"}},
 {"Блеф", "обмана", {Charisma, Dexterity}, {}, {Creature, {NotYou}, Close, "Кого будете обманывать?"}},
 {"Дипломатия", "дипломатии", {Charisma, Wisdow}, {}, {Creature, {NotYou}, Close, "С кем будете вести переговоры?"}},
@@ -42,4 +44,74 @@ assert_enum(skill, LastSkill);
 
 skill_s	skilli::getid() const {
 	return skill_s(this - bsmeta<skilli>::elements);
+}
+
+bool location::use(indext index, skill_s id, creature& player, int level, int order, bool run) {
+	switch(id) {
+	case Athletics:
+		if(getobject(index) != Door || !is(index, Sealed) || is(index, Opened) || is(index, Hidden))
+			return false;
+		if(run) {
+			// Random bonus for door to open
+			if(!player.roll(id, (getrand(index) % 21) - 10)) {
+				player.act("%герой ударил%а двери, но те не поддались.");
+				player.fail(id);
+				return false;
+			}
+			player.act("%герой разнес%ла двери в щепки.");
+			set(index, NoTileObject);
+			player.addexp(20);
+		}
+		break;
+	case DisarmTraps:
+		if(getobject(index) != Trap || is(index, Hidden))
+			return false;
+		if(run) {
+			if(!player.roll(id)) {
+				player.act("%герой попытал%ась обезвредить ловушку, но что-то пошло не так.");
+				player.fail(id);
+				return false;
+			}
+			player.act("%герой обезвредил%а ловушку.");
+			set(index, NoTileObject);
+			player.addexp(50);
+		}
+		break;
+	case Herbalism:
+		if(getobject(index) != Plants || !getplantgrow(index))
+			return false;
+		if(run) {
+			auto power = getplantgrow(index);
+			item it(maprnd(common_plants));
+			it.setquality(0);
+			if(power > 1)
+				it.setquality(xrand(0, 3));
+			it.setcount(xrand(1, 3));
+			if(!player.roll(id))
+				it.set(Cursed);
+			if(d100() < 15 * power)
+				set(index, NoTileObject);
+			else
+				random[index] = 0;
+			player.addexp(10);
+			player.act("%герой собрал%а %1.", it.getname());
+			player.add(it, true, true);
+		}
+		break;
+	case Lockpicking:
+		if(getobject(index) != Door || !is(index, Sealed) || is(index, Opened) || is(index, Hidden))
+			return false;
+		if(run) {
+			if(!player.roll(id, (getrand(index) % 31) - 15)) {
+				player.act("%герой не смог%ла вскрыть замок.");
+				player.fail(id);
+				return false;
+			}
+			player.act("%герой взломал%а замок.");
+			remove(index, Sealed);
+			player.addexp(100);
+		}
+		break;
+	}
+	return true;
 }

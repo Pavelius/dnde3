@@ -234,6 +234,22 @@ bool item::use(spell_s id, creature& player, int level, int order, bool run) {
 	return true;
 }
 
+bool location::use(indext index, spell_s id, creature& player, int level, int order, bool run) {
+	switch(id) {
+	case KnockDoor:
+		if(getobject(index) != Door || is(index, Opened))
+			return false;
+		if(run) {
+			set(index, Opened);
+			remove(index, Sealed);
+			if(order == 0)
+				player.act("Двери волшебным образом открылись.");
+		}
+		break;
+	}
+	return true;
+}
+
 bool creature::use(const creaturea& source, spell_s id, int level, item* magic_source, bool show_errors) {
 	if(!(*this))
 		return true;

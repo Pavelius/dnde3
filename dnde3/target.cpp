@@ -104,7 +104,7 @@ void targeti::use(creature& player, const creaturea& source, creaturea& creature
 		break;
 	default:
 		for(unsigned i = 0; i < count; i++)
-			loc.apply(player, indecies[i], id, v, i, true);
+			loc.use(indecies[i], id, player, v, i, true);
 		break;
 	}
 }

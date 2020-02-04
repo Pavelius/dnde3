@@ -1134,7 +1134,6 @@ public:
 	void				addobject(indext i, stringbuilder& sb) const;
 	site*				addsite(room_s type, const rect& rc);
 	creature*			adventurer(indext index);
-	bool				apply(creature& player, indext index, variant id, int v, int order, bool run);
 	void				blockcreatures();
 	void				blockwalls(bool water = true);
 	indext				building(const rect& rc, direction_s dir = Center);
@@ -1222,6 +1221,9 @@ public:
 	static indext		to(indext index, direction_s v);
 	static direction_s	to(direction_s d, direction_s v);
 	void				trail(indext i);
+	bool				use(indext index, spell_s id, creature& player, int level, int order, bool run);
+	bool				use(indext index, skill_s id, creature& player, int level, int order, bool run);
+	bool				use(indext index, variant id, creature& player, int level, int order, bool run);
 	void				worldmap(point camera, bool show_fow = true) const;
 	bool				write(const char* url, bool overland) const;
 	bool				write(indext index, int level);

@@ -4,7 +4,6 @@ location				loc;
 static short unsigned	movements[mmx*mmy];
 static short unsigned	stack[256 * 256];
 static direction_s		all_aroud[] = {Left, Right, Up, Down, LeftDown, LeftUp, RightDown, RightUp};
-static item_s			common_plants[] = {Tarnelle, Cherry, RoseHip, Physalis};
 
 static const direction_s orientations_7b7[49] = {
 	LeftUp, LeftUp, Up, Up, Up, RightUp, RightUp,
@@ -908,94 +907,6 @@ bool location::ismatch(indext index, variant v) const {
 	return false;
 }
 
-bool location::apply(creature& player, indext index, variant id, int v, int order, bool run) {
-	switch(id.type) {
-	case Spell:
-		switch(id.value) {
-		case KnockDoor:
-			if(getobject(index) != Door || is(index, Opened))
-				return false;
-			if(run) {
-				set(index, Opened);
-				remove(index, Sealed);
-				if(order == 0)
-					player.act("Двери волшебным образом открылись.");
-			}
-			break;
-		}
-		break;
-	case Skill:
-		switch(id.value) {
-		case Athletics:
-			if(getobject(index) != Door || !is(index, Sealed) || is(index, Opened) || is(index, Hidden))
-				return false;
-			if(run) {
-				// Random bonus for door to open
-				if(!player.roll((skill_s)id.value, (getrand(index) % 21) - 10)) {
-					player.act("%герой ударил%а двери, но те не поддались.");
-					player.fail((skill_s)id.value);
-					return false;
-				}
-				player.act("%герой разнес%ла двери в щепки.");
-				set(index, NoTileObject);
-				player.addexp(20);
-			}
-			break;
-		case DisarmTraps:
-			if(getobject(index) != Trap || is(index, Hidden))
-				return false;
-			if(run) {
-				if(!player.roll((skill_s)id.value)) {
-					player.act("%герой попытал%ась обезвредить ловушку, но что-то пошло не так.");
-					player.fail((skill_s)id.value);
-					return false;
-				}
-				player.act("%герой обезвредил%а ловушку.");
-				set(index, NoTileObject);
-				player.addexp(50);
-			}
-			break;
-		case Herbalism:
-			if(getobject(index) != Plants || !getplantgrow(index))
-				return false;
-			if(run) {
-				auto power = getplantgrow(index);
-				item it(maprnd(common_plants));
-				it.setquality(0);
-				if(power > 1)
-					it.setquality(xrand(0, 3));
-				it.setcount(xrand(1, 3));
-				if(!player.roll((skill_s)id.value))
-					it.set(Cursed);
-				if(d100() < 15 * power)
-					set(index, NoTileObject);
-				else
-					random[index] = 0;
-				player.addexp(10);
-				player.act("%герой собрал%а %1.", it.getname());
-				player.add(it, true, true);
-			}
-			break;
-		case Lockpicking:
-			if(getobject(index) != Door || !is(index, Sealed) || is(index, Opened) || is(index, Hidden))
-				return false;
-			if(run) {
-				if(!player.roll((skill_s)id.value, (getrand(index) % 31) - 15)) {
-					player.act("%герой не смог%ла вскрыть замок.");
-					player.fail((skill_s)id.value);
-					return false;
-				}
-				player.act("%герой взломал%а замок.");
-				remove(index, Sealed);
-				player.addexp(100);
-			}
-			break;
-		}
-		break;
-	}
-	return true;
-}
-
 void location::loot(indext index, item_s type, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality) {
 	if(index == Blocked || type == NoItem)
 		return;
@@ -1261,5 +1172,13 @@ void location::set(indext i, map_object_s v) {
 	case Plants:
 		random[i] = xrand(0, 60 * 3 - 1);
 		break;
+	}
+}
+
+bool location::use(indext index, variant id, creature& player, int level, int order, bool run) {
+	switch(id.type) {
+	case Spell: return use(index, (spell_s)id.value, player, level, order, run);
+	case Skill: return use(index, (skill_s)id.value, player, level, order, run);
+	default: return false;
 	}
 }
