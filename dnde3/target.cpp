@@ -9,10 +9,10 @@ unsigned targeti::getcount(creaturea& creatures, itema& items, indexa& indecies)
 }
 
 bool targeti::prepare(creature& player, creaturea& creatures, itema& items, indexa& indecies, variant id, int v, bool show_errors) const {
-	static int range_value[] = {0, 1, 2, 4, 7};
+	static int range_value[] = {0, 1, 2, 4, 7, -1};
 	auto r = range_value[range];
 	auto los = player.getlos();
-	if(r > los)
+	if(r != -1 && r > los)
 		r = los;
 	switch(type) {
 	case Item:
@@ -25,7 +25,10 @@ bool targeti::prepare(creature& player, creaturea& creatures, itema& items, inde
 		indecies.sort(player.getposition());
 		break;
 	case Creature:
-		creatures.matchr(player.getposition(), r);
+		if(r == -1)
+			creatures.select();
+		else
+			creatures.matchr(player.getposition(), r);
 		if(flags.is(Enemies))
 			creatures.match(player, Hostile, false);
 		else if(flags.is(Friends))

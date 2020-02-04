@@ -167,7 +167,8 @@ enum img_s : unsigned char {
 	ResPCmar, ResPCmbd, ResPCmac
 };
 enum spell_s : unsigned char {
-	ArmorSpell, BlessSpell, BlessItem, ChatPerson, CharmPerson, DetectEvil, DetectMagic, FearSpell, HealingSpell,
+	ArmorSpell, BlessSpell, BlessItem, ChatPerson, CharmPerson, DetectEvil, DetectMagic, Domination,
+	FearSpell, HealingSpell,
 	Identify, Invisibility, KnockDoor, LightSpell, MagicMissile, PoisonSpell,
 	Repair, RemovePoisonSpell, RemoveSickSpell,
 	SickSpell, ShieldSpell, ShokingGrasp, Sleep, SlowMonster, Web,
@@ -191,7 +192,7 @@ enum encumbrance_s : unsigned char {
 	Encumbered, HeavilyEncumbered,
 };
 enum range_s : unsigned char {
-	You, Close, Reach, Near, Far
+	You, Close, Reach, Near, Far, Everywhere
 };
 enum item_flag_s : unsigned char {
 	SingleUse, TwoHanded, Versatile, Light, Natural,
@@ -686,6 +687,7 @@ class nameable : public variant, public posable {
 	short unsigned		name[2];
 public:
 	void				act(const char* format, ...) const;
+	void				actev(stringbuilder& st, const char* format, const char* param) const;
 	void				actv(stringbuilder& sb, const char* format, const char* param) const;
 	void				actv(stringbuilder& sb, nameable& e, const char* format, const char* param) const;
 	bool				askv(stringbuilder& st, const nameable& e, const char* format, const char* param) const;

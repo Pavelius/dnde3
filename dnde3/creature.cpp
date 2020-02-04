@@ -2133,7 +2133,7 @@ void creature::testevents() {
 void creature::testpotion() {
 	//loc.growplants();
 	//game.decoyfood();
-	additem(Wand1, Web);
+	additem(Wand1, Domination);
 }
 
 int	creature::getallowedweight() const {

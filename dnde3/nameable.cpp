@@ -215,17 +215,21 @@ bool nameable::cansee() const {
 	return true;
 }
 
-void nameable::actv(stringbuilder& st, const char* format, const char* param) const {
-	if(!format)
-		return;
-	if(!cansee())
-		return;
+void nameable::actev(stringbuilder& st, const char* format, const char* param) const {
 	string sb = st;
 	sb.name = getname();
 	sb.gender = getgender();
 	sb.addsep(' ');
 	sb.addv(format, param);
 	st = sb;
+}
+
+void nameable::actv(stringbuilder& st, const char* format, const char* param) const {
+	if(!format)
+		return;
+	if(!cansee())
+		return;
+	actev(st, format, param);
 }
 
 void nameable::actv(stringbuilder& st, nameable& e, const char* format, const char* param) const {
