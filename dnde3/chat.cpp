@@ -10,6 +10,7 @@ static dialogi party_member[] = {{1, Say, {Common}, {}, "Чего тебе?"},
 {1, Say, {Common}, {}, "Что надо, друг?"},
 {1, Say, {}, {}, "Что там?"},
 {1, Ask, {}, {GuardPosition}, "Охраняй это место."},
+{1, Ask, {}, {StopGuardPosition}, "Пошли со мной."},
 {1, Ask, {}, {}, "Все нормально. Так просто решуил поболтать."},
 {}};
 static dialogi neutral_character[] = {{1, Say, {Common}, {}, "Чего тебе?"},
