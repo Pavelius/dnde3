@@ -431,6 +431,7 @@ struct objectivei {
 struct racei {
 	const char*			name;
 	char				abilities[6];
+	const char*			avatar_id;
 	skill_s				skills[3];
 	adat<abilityv, 8>	abilityvs;
 	statea				states;
