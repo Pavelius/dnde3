@@ -776,7 +776,8 @@ void creature::inventory() {
 bool creature::remove(item& e, bool run, bool talk) {
 	if(!e)
 		return false;
-	if(e.is(Cursed)) {
+	auto slot = e.getwearerslot();
+	if(e.is(Cursed) && slot >= Head && slot <= LastWear) {
 		if(talk) {
 			static const char* text[] = {
 				"Уберите руки! Это мое!",

@@ -6,6 +6,7 @@ variant::variant(const creature* v) : type(v ? Creature : NoVariant), value(v - 
 const char*	variant::getname() const {
 	switch(type) {
 	case Ability: return bsmeta<abilityi>::elements[value].name;
+	case God: return bsmeta<dietyi>::elements[value].name;
 	case Object: return bsmeta<map_objecti>::elements[value].name;
 	case Race: return bsmeta<racei>::elements[value].name;
 	case Role: return bsmeta<rolei>::elements[value].name;
@@ -19,6 +20,7 @@ const char*	variant::getname() const {
 const char*	variant::getnameof() const {
 	switch(type) {
 	case Ability: return bsmeta<abilityi>::elements[value].nameof;
+	case God: return bsmeta<dietyi>::elements[value].nameof;
 	case Role: return bsmeta<rolei>::elements[value].nameof;
 	case Skill: return bsmeta<skilli>::elements[value].name_tome;
 	case Spell: return bsmeta<spelli>::elements[value].nameof;

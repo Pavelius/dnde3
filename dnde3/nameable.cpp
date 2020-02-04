@@ -90,6 +90,10 @@ static const char* shop_scrolls[] = {"Свитки %1",
 "Магия %1",
 "Волшебные папирусы %1",
 };
+static const char* temple[] = {"Храм %1",
+"Святилище %1",
+"Молебня %1",
+};
 
 static unsigned short getrandomname(race_s race, gender_s gender) {
 	const auto max_count = sizeof(bsmeta<nameablei>::elements) / sizeof(bsmeta<nameablei>::elements[0]);
@@ -122,6 +126,9 @@ void nameable::randomname() {
 		case ShopScrolls:
 			name[0] = rand() % (sizeof(shop_scrolls) / sizeof(shop_scrolls[0]));
 			name[1] = rand() % (sizeof(shop_end) / sizeof(shop_end[0]));
+			break;
+		case Temple:
+			name[0] = rand() % (sizeof(temple) / sizeof(temple[0]));
 			break;
 		default:
 			name[0] = bsmeta<adjectivei>::source.random();
@@ -175,6 +182,7 @@ void nameable::getname(stringbuilder& sb) const {
 		case ShopWeaponAndArmor: sb.add(shop_weapon[name[0]], shop_end[name[1]]); break;
 		case ShopPotions: sb.add(shop_potions[name[0]], shop_end[name[1]]); break;
 		case ShopScrolls: sb.add(shop_scrolls[name[0]], shop_end[name[1]]); break;
+		case Temple: sb.add(temple[name[0]], getnameof(), variant::getname()); break;
 		default:
 			sb.add(bsmeta<roomi>::elements[value].title,
 				bsmeta<adjectivei>::elements[name[0]].get(bsmeta<objectivei>::elements[name[1]].gender),

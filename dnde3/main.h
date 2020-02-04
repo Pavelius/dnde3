@@ -53,7 +53,6 @@ enum item_s : unsigned char {
 	ManyItems
 };
 enum diety_s : unsigned char {
-	NoGod,
 	GodBane, GodBhaal, GodGruumsh, GodHelm, GodMistra, GodTempus, GodTyr
 };
 enum slot_s : unsigned char {
@@ -329,6 +328,10 @@ struct sloti {
 	const char*			id;
 	const char*			name;
 	const char*			name_where;
+};
+struct dietyi {
+	const char*			name;
+	const char*			nameof;
 };
 struct chancei {
 	state_s				state;

@@ -132,6 +132,7 @@
     <ClCompile Include="deck.cpp" />
     <ClCompile Include="description.cpp" />
     <ClCompile Include="dice.cpp" />
+    <ClCompile Include="diety.cpp" />
     <ClCompile Include="draw.cpp" />
     <ClCompile Include="draw_input.cpp" />
     <ClCompile Include="draw_text.cpp" />
