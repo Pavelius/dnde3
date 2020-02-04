@@ -1104,7 +1104,7 @@ void creature::attack(creature& enemy, const attacki& ai, int bonus, int danger)
 	}
 	if(enemy.is(Fear)) {
 		bonus += 20;
-		danger += 10;
+		danger += 20;
 	}
 	if(bonus < 5)
 		bonus = 5;
@@ -1587,7 +1587,7 @@ void creature::addexp(int v, bool interactive) {
 
 void creature::enslave() {
 	creaturea source;
-	source.select();
+	source.select(getposition(), 6);
 	source.match(*this, Hostile, false);
 	auto p = source.choose("В кого хотите вселиться?");
 	p->activate();
