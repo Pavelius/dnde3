@@ -4,6 +4,7 @@ racei bsmeta<racei>::elements[] = {{"Человек", {10, 10, 10, 10, 10, 10}, "human"
 {"Гном", {11, 8, 12, 10, 10, 9}, "dwarf", {Smithing, Mining, Athletics}, {{ResistPoison, 30}}, {Darkvision}},
 {"Эльф", {9, 12, 8, 10, 10, 11}, "helf", {MoveSilently, FocusSwords, Swimming}, {{ResistCharm, 30}, {Visibility, 1}}, {}},
 {"Полурослик", {7, 13, 12, 10, 8, 10}, "hurth", {HideInShadow, MoveSilently, Swimming}, {{ResistPoison, 30}}, {}},
+{"Крысолюд", {9, 11, 12, 7, 9, 8}, "ratling", {HideInShadow, Healing, Gambling}, {{ResistPoison, 20}}, {Darkvision}},
 //
 {"Гоблин", {5, 12, 8, 6, 9, 6}, 0, {HideInShadow, MoveSilently, Swimming}, {}, {Darkvision}},
 {"Кобольд", {5, 13, 7, 6, 9, 6}, 0, {HideInShadow, MoveSilently, Swimming}, {}, {Darkvision}},

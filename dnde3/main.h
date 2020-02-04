@@ -61,7 +61,7 @@ enum slot_s : unsigned char {
 	LastWear = Tool,
 };
 enum race_s : unsigned char {
-	Human, Dwarf, Elf, Halfling,
+	Human, Dwarf, Elf, Halfling, Ratling,
 	Goblin, Kobold, Ogre, Orc, Gnoll,
 	Animal, Insect, Undead,
 	LastRace = Undead

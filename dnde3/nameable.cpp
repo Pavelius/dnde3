@@ -67,6 +67,16 @@ nameablei bsmeta<nameablei>::elements[] = {{Human, Male, "Хавки"},
 {Dwarf, Male, "Рундриг"},
 {Dwarf, Male, "Жарл"},
 {Dwarf, Male, "Ксоток"},
+{Ratling, Male, "Хуч"},
+{Ratling, Male, "Чша"},
+{Ratling, Female, "Лун"},
+{Ratling, Female, "Кан"},
+{Ratling, Male, "Раз"},
+{Ratling, Female, "Джиз"},
+{Ratling, Male, "Кин"},
+{Ratling, Male, "Хон"},
+{Ratling, Male, "Лин"},
+{Ratling, Male, "Чук"},
 };
 
 static unsigned short getrandomname(race_s race, gender_s gender) {
