@@ -334,6 +334,14 @@ void location::fill(const rect& rc, int count, map_object_s v) {
 	}
 }
 
+void location::fill(const rect& rc, int count, map_flag_s v) {
+	for(int i = 0; i < count; i++) {
+		int x1 = xrand(rc.x1, rc.x2);
+		int y1 = xrand(rc.y1, rc.y2);
+		set(get(x1, y1), v);
+	}
+}
+
 void location::fill(const rect& rc, int count, tile_s v) {
 	for(int i = 0; i < count; i++) {
 		int x1 = xrand(rc.x1, rc.x2);
@@ -346,6 +354,7 @@ void location::fill(const rect& rc, int count, variant id) {
 	switch(id.type) {
 	case Tile: fill(rc, count, (tile_s)id.value); break;
 	case Object: fill(rc, count, (map_object_s)id.value); break;
+	case ObjectFlags: fill(rc, count, (map_flag_s)id.value); break;
 	}
 }
 
@@ -354,6 +363,16 @@ void location::fill(const rect& rc, tile_s v) {
 	for(auto y = r1.y1; y <= r1.y2; y++)
 		for(auto x = r1.x1; x <= r1.x2; x++)
 			set(get(x, y), v);
+}
+
+void location::fill(const rect& r1, map_flag_s v) {
+	for(auto y = r1.y1; y <= r1.y2; y++)
+		for(auto x = r1.x1; x <= r1.x2; x++) {
+			auto i = get(x, y);
+			if(i == Blocked || !isfree(i))
+				continue;
+			set(get(x, y), v);
+		}
 }
 
 void location::fill(const rect& rc, map_object_s v) {

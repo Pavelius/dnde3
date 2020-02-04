@@ -474,6 +474,14 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 		if(run)
 			add(Movement, id, -level, true, 60);
 		break;
+	case Web:
+		if(run) {
+			auto i = getposition();
+			auto x = loc.getx(i);
+			auto y = loc.gety(i);
+			loc.fill(loc.normalize({x - 1, y - 1, x + 1, y + 1}), Webbed);
+		}
+		break;
 	default:
 		if(!ei.bonus)
 			return false;

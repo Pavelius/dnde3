@@ -170,8 +170,8 @@ enum spell_s : unsigned char {
 	ArmorSpell, BlessSpell, BlessItem, ChatPerson, CharmPerson, DetectEvil, DetectMagic, FearSpell, HealingSpell,
 	Identify, Invisibility, KnockDoor, LightSpell, MagicMissile, PoisonSpell,
 	Repair, RemovePoisonSpell, RemoveSickSpell,
-	SickSpell, ShieldSpell, ShokingGrasp, Sleep, SlowMonster,
-	FirstSpell = ArmorSpell, LastSpell = SlowMonster
+	SickSpell, ShieldSpell, ShokingGrasp, Sleep, SlowMonster, Web,
+	FirstSpell = ArmorSpell, LastSpell = Web
 };
 enum map_flag_s : unsigned char {
 	Visible, Hidden, Opened, Sealed, Explored, Webbed, Trailed = Webbed, Blooded,
@@ -602,6 +602,7 @@ public:
 	void				set(item_type_s v);
 	void				set(identify_s v);
 	void				set(sale_s v) { sale = v; }
+	void				setcharge(int v) { if(ischargeable()) charge = v; }
 	void				setcount(int v);
 	void				seteffect(variant v);
 	void				setpersonal(int v);
@@ -781,6 +782,7 @@ class creature : public nameable, public paperdoll {
 	void				add(skill_s id, int v, bool interactive);
 	void				add(spell_s id, unsigned minutes);
 	void				add(ability_s id, variant source, int v, bool interactive, unsigned minutes);
+	void				additem(item_s type, variant effect, bool identified = true);
 	bool				aiuse(const creaturea& creatures, const char* interactive, slot_s slot, variant effect);
 	void				aimove();
 	void				aioverland() {}
@@ -1069,6 +1071,7 @@ struct skilli {
 	constexpr bool		isweapon() const { return weapon.attack != 0; }
 };
 struct spelli {
+	char				priority;
 	const char*			name;
 	const char*			nameof;
 	unsigned char		mp;
@@ -1147,7 +1150,9 @@ public:
 	void				ellipse(rect rc, tile_s object);
 	void				fill(const rect& rc, int count, map_object_s v);
 	void				fill(const rect& rc, int count, tile_s v);
+	void				fill(const rect& rc, int count, map_flag_s v);
 	void				fill(const rect& rc, int count, variant id);
+	void				fill(const rect& rc, map_flag_s v);
 	void				fill(const rect& rc, map_object_s v);
 	void				fill(const rect& rc, tile_s v);
 	indext				find(map_object_s v) const;

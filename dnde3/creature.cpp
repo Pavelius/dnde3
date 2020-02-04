@@ -879,6 +879,15 @@ void creature::move(indext index) {
 		cantmovehere();
 		return;
 	}
+	if(loc.is(getposition(), Webbed)) {
+		if(rollv(get(Strenght) * 3))
+			loc.remove(getposition(), Webbed);
+		else {
+			act("%герой запутал%ась в паутине.");
+			wait();
+			return;
+		}
+	}
 	switch(loc.getobject(index)) {
 	case Door:
 		if(!loc.is(index, Opened)) {
@@ -2122,14 +2131,9 @@ void creature::testevents() {
 }
 
 void creature::testpotion() {
-	//item it(Potion3);
-	//it.seteffect(Level);
-	//it.set(Blessed);
-	//add(it, true, false);
-	//item i1(AlchemyReceipt, 5);
-	//add(i1, true, true);
 	//loc.growplants();
-	game.decoyfood();
+	//game.decoyfood();
+	additem(Wand1, Web);
 }
 
 int	creature::getallowedweight() const {
@@ -2160,4 +2164,14 @@ void creature::decoyfood() {
 			continue;
 		e.decoy();
 	}
+}
+
+void creature::additem(item_s type, variant effect, bool identified) {
+	item it(type);
+	it.seteffect(effect);
+	if(it.ischargeable())
+		it.setcharge(xrand(2, 12));
+	if(identified)
+		it.set(KnownPower);
+	add(it, true, false);
 }
