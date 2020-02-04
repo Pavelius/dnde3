@@ -50,6 +50,14 @@ static const chati* find_chat(const chati* pb, creature& player, creature& oppon
 	return 0;
 }
 
+static void apply(creature& player, creature& opponent, const varianta& source) {
+	for(auto v : source) {
+		if(v.type != Action)
+			continue;
+		player.execute((action_s)v.value, true);
+	}
+}
+
 static dialogi* addask(creature& player, creature& opponent, const dialogi* source, int index) {
 	answeri an;
 	for(auto p = source; *p; p++) {
@@ -85,11 +93,8 @@ static int addsay(creature& player, creature& opponent, const dialogi* source, i
 		}
 		auto p1 = addask(player, opponent, source, index);
 		if(p1) {
-			for(auto v : p1->actions) {
-				switch(v.type) {
-				case Action: opponent.execute((action_s)v.value, true); break;
-				}
-			}
+			apply(player, opponent, p1->actions);
+			apply(opponent, player, p1->opponent_actions);
 			return p1->next;
 		}
 		break;
