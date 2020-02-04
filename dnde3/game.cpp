@@ -176,6 +176,8 @@ void gamei::passminute() {
 		applysick();
 	if((rounds % (24 * 60)) == 0)
 		loc.growplants();
+	if((rounds % (4 * 60)) == 0)
+		decoyfood();
 }
 
 bool gamei::enter(int level, map_object_s stairs) {
@@ -382,4 +384,17 @@ bool gamei::is(variant v) const {
 			return true;
 	}
 	return false;
+}
+
+void gamei::decoyfood() {
+	for(auto& e : bsmeta<creature>()) {
+		if(!e)
+			continue;
+		e.decoyfood();
+	}
+	for(auto& e : bsmeta<itemground>()) {
+		if(!e)
+			continue;
+		e.decoy();
+	}
 }

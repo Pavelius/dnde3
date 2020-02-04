@@ -111,14 +111,14 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", "item-1", Unique, 0, 0, 0, NoGender,
 {"Сапоги", "item128", Common, 500, 15 * GP, 0, NoGender, Iron, {}, {3, 1, 10}, common_boots, {}, Legs},
 {"Сапоги", "item149", Uncommon, 600, 17 * GP, 1, NoGender, Iron, {}, {3, 1, 10}, common_boots, {}, Legs},
 //
-{"Еда", "item21", Common, 100, 5 * SP, 0, NoGender, Organic, {}, {}, {}, {}, Edible},
+{"Еда", "item21", Common, 100, 5 * SP, 5, Female, Organic, {}, {}, {}, {}, Edible},
 {"Яблоко", "item55", Common, 10, 5 * CP, 0, NoGender, Organic, {}, {}, {}, {}, Edible},
-{"Хлеб хоббитов", "item240", Uncommon, 50, 1 * SP, 0, NoGender, Organic, {}, {}, {}, {}, Edible},
-{"Хлеб эльфов", "item56", Uncommon, 50, 2 * SP, 1, NoGender, Organic, {}, {}, {}, {}, Edible},
-{"Хлеб гномов", "item57", Uncommon, 80, 8 * CP, -1, NoGender, Organic, {}, {}, {}, {}, Edible},
-{"Пирожное", "item239", Uncommon, 20, 1 * GP, 0, NoGender, Organic, {}, {}, {}, {}, Edible},
-{"Колбаса", "item238", Common, 60, 8 * SP, 0, NoGender, Organic, {}, {}, {}, {}, Edible},
-{"Мясо", "item22", Common, 80, 5 * CP, -1, NoGender, Organic, {}, {}, {}, {}, Edible},
+{"Хлеб хоббитов", "item240", Uncommon, 50, 1 * SP, 1, Male, Organic, {}, {}, {}, {}, Edible},
+{"Хлеб эльфов", "item56", Uncommon, 50, 2 * SP, 2, Male, Organic, {}, {}, {}, {}, Edible},
+{"Хлеб гномов", "item57", Uncommon, 80, 8 * CP, 2, Male, Organic, {}, {}, {}, {}, Edible},
+{"Пирожное", "item239", Uncommon, 20, 1 * GP, -3, NoGender, Organic, {}, {}, {}, {}, Edible},
+{"Колбаса", "item238", Common, 60, 8 * SP, 0, Female, Organic, {}, {}, {}, {}, Edible},
+{"Мясо", "item22", Common, 80, 5 * CP, -4, NoGender, Organic, {}, {}, {}, {}, Edible},
 //
 {"Шиповник", "item177", Unique, 10, 2 * CP, -1, Male, Organic, {}, {}, {}, {}, Edible},
 {"Физалис", "item178", Unique, 10, CP, -1, Male, Organic, {}, {}, {}, {}, Edible},
@@ -635,9 +635,6 @@ bool item::stack(item& v) {
 }
 
 void item::destroy(damage_s type, bool interactive) {
-	auto p = getwearer();
-	if(p)
-		p->dressoff();
 	if(interactive) {
 		auto& ei = bsmeta<itemi>::elements[getkind()];
 		static descriptioni text[] = {
@@ -646,15 +643,26 @@ void item::destroy(damage_s type, bool interactive) {
 			{Wood, Fire, "%герой сгорел%а до тла."},
 			{Paper, Fire, "%герой моментально превратил%ась в пепел."},
 			{Paper, Magic, "%герой превратил%ась в пыль и рассыпал%ась."},
+			{Organic, Magic, "%герой полностью сгнил%а."},
 			{{}, Fire, "%герой расплавил%ась."},
 			{{}, Cold, "%герой замерз%ла и разлетел%ась на куски."},
 			{{}, {}, "%герой уничтожен%а."}
 		};
 		act(text->get(ei.material, type));
 	}
-	clear();
-	if(p)
-		p->dresson();
+	setcount(getcount() - 1);
+}
+
+void item::decoy() {
+	auto& ei = getitem();
+	if(ei.slot != Edible)
+		return;
+	if(creature::rollv(40 + ei.quality * 10))
+		return;
+	if(quality)
+		quality--;
+	else
+		destroy(Magic, true);
 }
 
 void item::decoy(damage_s type, bool interactive, bool include_artifact) {

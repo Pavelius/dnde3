@@ -2128,7 +2128,8 @@ void creature::testpotion() {
 	//add(it, true, false);
 	//item i1(AlchemyReceipt, 5);
 	//add(i1, true, true);
-	loc.growplants();
+	//loc.growplants();
+	game.decoyfood();
 }
 
 int	creature::getallowedweight() const {
@@ -2151,4 +2152,12 @@ bool creature::execute(action_s v, bool run) {
 		break;
 	}
 	return true;
+}
+
+void creature::decoyfood() {
+	for(auto& e : wears) {
+		if(!e)
+			continue;
+		e.decoy();
+	}
 }

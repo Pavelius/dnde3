@@ -558,6 +558,7 @@ public:
 	void				create(item_s type, int chance_artifact, int chance_magic, int chance_cursed, int chance_quality);
 	void				breaktest();
 	void				damage(int count, damage_s type, bool interactive);
+	void				decoy();
 	void				decoy(damage_s type, bool interactive, bool include_artifact = false);
 	void				destroy(damage_s type, bool interactive);
 	static item_s		findcorpse(role_s v);
@@ -849,6 +850,7 @@ public:
 	void				closedoor();
 	void				damage(int count, damage_s type, int pierce = 0, bool interactive = true);
 	void				damagewears(int count, damage_s type, int item_count = 1);
+	void				decoyfood();
 	void				dispell(bool interactive);
 	void				dispell(variant source, bool interactive);
 	void				dressoff();
@@ -1264,6 +1266,7 @@ public:
 	void				addmoney(int v) {}
 	void				addreputation(int v) { reputation += v; }
 	void				applyboost();
+	void				decoyfood();
 	bool				enter(int level, map_object_s stairs);
 	item*				find(item_s v) const;
 	int					get(skill_s v) const;
