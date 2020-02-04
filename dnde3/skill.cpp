@@ -311,3 +311,27 @@ bool location::use(indext index, skill_s id, creature& player, int level, int or
 	}
 	return true;
 }
+
+bool creature::use(const creaturea& source, skill_s id) {
+	auto v = get(id);
+	if(v <= 0)
+		return false;
+	auto pu = isusedisable(id);
+	if(pu) {
+		if(isactive())
+			sb.add(pu, getstr(id));
+		return false;
+	}
+	auto& ei = bsmeta<skilli>::elements[id];
+	creaturea creatures = source; itema items; indexa indecies;
+	if(!ei.target.prepare(*this, creatures, items, indecies, id, get(id), true))
+		return false;
+	ei.target.use(*this, source, creatures, items, indecies, id, v);
+	// Appear when do some activity
+	if(is(Invisible)) {
+		if(ei.target.range != You)
+			appear();
+	}
+	wait();
+	return true;
+}

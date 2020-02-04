@@ -299,3 +299,8 @@ bool creature::use(const creaturea& source, spell_s id, int level, item* magic_s
 		paymana(ei.mp, false);
 	return true;
 }
+
+bool creature::use(spell_s id, int level, item* magic_source, bool show_errors) {
+	creaturea creatures(*this);
+	return use(creatures, id, level, magic_source, show_errors);
+}

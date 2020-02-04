@@ -86,7 +86,7 @@ bool creature::use(const creaturea& creatures, item& it) {
 					return false;
 				}
 				static const char* text[] = {"Храбрый %герой отправился в путь, парочку монстров хотел он нагнуть.",
-					"%герой спустился в темнейший лабиринт и тут он увидал, лежащий бинт, лежвший прямо на полу и, безусловно, он очень пригодился бы ему, если бы он знал, что монстр огромный ...",
+					"%герой спустился в темнейший лабиринт и тут он увидал, лежащий бинт, лежавший прямо на полу и, безусловно, он очень пригодился бы ему, если бы он знал, что монстр огромный ...",
 					"Заплати, ведьмаку чеканной монетой, чеканной монетой, оу-оу-оу!!",
 					"Бей его бей! Бей, да точней!",
 					"Да здраствует королева! Королева-Вьюга! Королева всего севера и всего юга.",
@@ -154,30 +154,6 @@ bool creature::use(const creaturea& creatures, item& it) {
 			}
 		}
 		break;
-	}
-	wait();
-	return true;
-}
-
-bool creature::use(const creaturea& source, skill_s id) {
-	auto v = get(id);
-	if(v <= 0)
-		return false;
-	auto pu = isusedisable(id);
-	if(pu) {
-		if(isactive())
-			sb.add(pu, getstr(id));
-		return false;
-	}
-	auto& ei = bsmeta<skilli>::elements[id];
-	creaturea creatures = source; itema items; indexa indecies;
-	if(!ei.target.prepare(*this, creatures, items, indecies, id, get(id), true))
-		return false;
-	ei.target.use(*this, source, creatures, items, indecies, id, v);
-	// Appear when do some activity
-	if(is(Invisible)) {
-		if(ei.target.range != You)
-			appear();
 	}
 	wait();
 	return true;
@@ -310,11 +286,6 @@ bool creature::apply(creature& player, variant id, int v, int order, bool run) {
 	return true;
 }
 
-bool creature::use(spell_s id, int level, item* magic_source, bool show_errors) {
-	creaturea creatures(*this);
-	return use(creatures, id, level, magic_source, show_errors);
-}
-
 void creature::closedoor() {
 	indexa indecies;
 	indecies.select(getposition(), 1);
@@ -337,7 +308,8 @@ void creature::add(const effecti& e, item_s source) {
 		case ManaPoints:
 			paymana(xrand(e.value / 2, e.value), true);
 			break;
-		case Strenght: case Dexterity: case Constitution: case Intellegence: case Wisdow: case Charisma:
+		case Strenght: case Dexterity: case Constitution:
+		case Intellegence: case Wisdow: case Charisma:
 			if(e.permanent)
 				add(id, e.value, true);
 			else
