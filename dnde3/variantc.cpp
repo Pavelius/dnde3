@@ -81,6 +81,15 @@ void variantc::add(variant v) {
 		add(v, r);
 }
 
+void variantc::additems(slot_s v) {
+	for(auto i = item_s(1); i < ManyItems; i = (item_s)(i + 1)) {
+		auto& ei = bsmeta<itemi>::elements[i];
+		if(!ei.is(v))
+			continue;
+		add(i, ei.rarity);
+	}
+}
+
 void variantc::additems(const aref<slot_s>& source) {
 	for(auto i = item_s(1); i < ManyItems; i = (item_s)(i + 1)) {
 		auto& ei = bsmeta<itemi>::elements[i];

@@ -32,13 +32,7 @@ void site::setowner(const creature* v) {
 }
 
 creature* site::priest() {
-	if(param.type == God) {
-		switch(param.value) {
-		case GodGruumsh: return loc.add(getposition(), Dwarf, Male, Cleric);
-		default: return loc.add(getposition(), Human, (gender_s)xrand(Male, Female), Cleric);
-		}
-	}
-	return 0;
+	return loc.add(getposition(), Human, (gender_s)xrand(Male, Female), Cleric);
 }
 
 creature* site::shopkeeper() {

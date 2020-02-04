@@ -65,9 +65,11 @@ imgi bsmeta<imgi>::elements[] = {{""},
 {"sea", "art"},
 {"plain", "art"},
 {"hills", "art"},
+{"forest", "art"},
 {"mount", "art"},
 {"tmount", "art"},
-{"decals", "art"},
+{"outdoor", "art"},
+{"swamp", "art"},
 {"trail", "art"},
 {"ui", "art"},
 {"pcmar", "art"},
@@ -1859,7 +1861,6 @@ static void render_outdoor() {
 }
 
 void location::worldmap(point camera, bool show_fow) const {
-	auto decals = gres(ResDecals);
 	viewport.x = draw::getwidth();
 	viewport.y = draw::getheight();
 	correct(camera);
@@ -1922,18 +1923,10 @@ void location::worldmap(point camera, bool show_fow) const {
 			auto t = gettile(i);
 			auto r = getrand(i) % 4;
 			switch(t) {
-			case Mountains:
-				draw::image(x, y, gres(ResMountains), getindex(i, Mountains), 0);
-				break;
-			case CloudPeaks:
-				draw::image(x, y, gres(ResCloudPeaks), getindex(i, CloudPeaks), 0);
-				break;
-			case Forest:
-				draw::image(x, y, decals, 0 + (getrand(i) % 3), 0);
-				break;
-			case Swamp:
-				draw::image(x, y, decals, 3 + (getrand(i) % 3), 0);
-				break;
+			case Mountains: image(x, y, gres(ResMountains), getindex(i, Mountains), 0); break;
+			case CloudPeaks: image(x, y, gres(ResCloudPeaks), getindex(i, CloudPeaks), 0); break;
+			case Forest: image(x, y, gres(ResForest), getrand(i) % 3, 0); break;
+			case Swamp: image(x, y, gres(ResSwamp), getrand(i) % 3, 0); break;
 			}
 		}
 	}
@@ -1949,11 +1942,13 @@ void location::worldmap(point camera, bool show_fow) const {
 		if(i == Blocked)
 			continue;
 		point pt;
-		pt.x = x0 + loc.getx(i) * elx + e.avatar.pos.x;
-		pt.y = y0 + loc.gety(i) * ely + e.avatar.pos.y;
+		pt.x = x0 + loc.getx(i) * elx;
+		pt.y = y0 + loc.gety(i) * ely;
 		if(!pt.in(screen))
 			continue;
-		*pb = e.avatar;
+		pb->clear();
+		pb->img = ResOutdoor;
+		pb->frame = e.getid();
 		pb->pos = pt;
 		if(!pb->alpha)
 			pb->alpha = 0xFF;

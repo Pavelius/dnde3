@@ -69,32 +69,6 @@ nameablei bsmeta<nameablei>::elements[] = {{Human, Male, "Хавки"},
 {Dwarf, Male, "Ксоток"},
 };
 
-static const char* shop_end[] = {"из-за океана",
-"высокого качества",
-"по небольшим ценам",
-"с изюменкой",
-"для королей",
-"дешевле некуда",
-};
-static const char* shop_weapon[] = {"Кузница %1",
-"Мечи и доспехи %1",
-"Оружие %1",
-"Мечи %1",
-};
-static const char* shop_potions[] = {"Аптека %1",
-"Зелья и элексиры %1",
-"Алхимия %1",
-};
-static const char* shop_scrolls[] = {"Свитки %1",
-"Тома и заклинания %1",
-"Магия %1",
-"Волшебные папирусы %1",
-};
-static const char* temple[] = {"Храм %1",
-"Святилище %1",
-"Молебня %1",
-};
-
 static unsigned short getrandomname(race_s race, gender_s gender) {
 	const auto max_count = sizeof(bsmeta<nameablei>::elements) / sizeof(bsmeta<nameablei>::elements[0]);
 	unsigned short data[max_count];
@@ -110,30 +84,20 @@ static unsigned short getrandomname(race_s race, gender_s gender) {
 }
 
 void nameable::randomname() {
+	roomi* ri;
 	switch(type) {
 	case Role:
 		break;
 	case Room:
-		switch(value) {
-		case ShopWeaponAndArmor:
-			name[0] = rand() % (sizeof(shop_weapon) / sizeof(shop_weapon[0]));
-			name[1] = rand() % (sizeof(shop_end) / sizeof(shop_end[0]));
-			break;
-		case ShopPotions:
-			name[0] = rand() % (sizeof(shop_potions) / sizeof(shop_potions[0]));
-			name[1] = rand() % (sizeof(shop_end) / sizeof(shop_end[0]));
-			break;
-		case ShopScrolls:
-			name[0] = rand() % (sizeof(shop_scrolls) / sizeof(shop_scrolls[0]));
-			name[1] = rand() % (sizeof(shop_end) / sizeof(shop_end[0]));
-			break;
-		case Temple:
-			name[0] = rand() % (sizeof(temple) / sizeof(temple[0]));
-			break;
-		default:
+		ri = bsmeta<roomi>::elements + value;
+		if(ri->name) {
 			name[0] = bsmeta<adjectivei>::source.random();
 			name[1] = bsmeta<objectivei>::source.random();
-			break;
+		} else {
+			if(ri->name1)
+				name[0] = rand() % ri->name1.getcount();
+			if(ri->name2)
+				name[1] = rand() % ri->name2.getcount();
 		}
 		break;
 	}
@@ -176,18 +140,36 @@ const char* nameable::getname() const {
 }
 
 void nameable::getname(stringbuilder& sb) const {
+	roomi* ri;
 	switch(type) {
 	case Room:
-		switch(value) {
-		case ShopWeaponAndArmor: sb.add(shop_weapon[name[0]], shop_end[name[1]]); break;
-		case ShopPotions: sb.add(shop_potions[name[0]], shop_end[name[1]]); break;
-		case ShopScrolls: sb.add(shop_scrolls[name[0]], shop_end[name[1]]); break;
-		case Temple: sb.add(temple[name[0]], getnameof(), variant::getname()); break;
-		default:
-			sb.add(bsmeta<roomi>::elements[value].title,
+		ri = bsmeta<roomi>::elements + value;
+		if(ri->name) {
+			sb.add(ri->name,
 				bsmeta<adjectivei>::elements[name[0]].get(bsmeta<objectivei>::elements[name[1]].gender),
 				bsmeta<objectivei>::elements[name[1]].name);
-			break;
+		} else {
+			const char* p2 = "";
+			const char* n1 = "";
+			const char* n2 = "";
+			const char* v1 = "";
+			const char* v2 = "";
+			if(ri->name2)
+				p2 = ri->name2[name[1]];
+			auto ps = getsite();
+			if(ps) {
+				auto owner = ps->getowner();
+				if(owner) {
+					n1 = owner->getname();
+					n2 = owner->getnameof();
+				}
+				auto param = ps->getparam();
+				if(param) {
+					v1 = param.getname();
+					v2 = param.getnameof();
+				}
+			}
+			sb.add(ri->name1[name[0]], "", p2, n1, n2, v1, v2);
 		}
 		break;
 	default:
@@ -301,4 +283,11 @@ bool nameable::isactive() const {
 	if(!this)
 		return false;
 	return creature::getactive() == this;
+}
+
+site* nameable::getsite() const {
+	auto i = bsmeta<site>::source.indexof(this);
+	if(i == -1)
+		return 0;
+	return bsmeta<site>::elements + i;
 }

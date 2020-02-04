@@ -63,22 +63,22 @@ static void create_big_rooms(const rect& rc, rooma& rooms, const landscapei& lan
 
 static void create_weapon(indext index) {
 	static slot_s slots[] = {Melee, Ranged, Amunitions};
-	loc.loot(index, slots, loc.level);
+	loc.loot(index, slots, loc.level, 0, Unknown, 0, 0);
 }
 
 static void create_armor(indext index) {
 	static slot_s slots[] = {Head, Torso, Legs, Elbows, OffHand};
-	loc.loot(index, slots, loc.level);
+	loc.loot(index, slots, loc.level, 0, Unknown, 0, 0);
 }
 
 static void create_books_and_scrolls(indext index) {
 	static slot_s slots[] = {Readable};
-	loc.loot(index, slots, loc.level);
+	loc.loot(index, slots, loc.level, 0, Unknown, 0, 0);
 }
 
 static void create_potions(indext index) {
 	static slot_s slots[] = {Drinkable};
-	loc.loot(index, slots, loc.level);
+	loc.loot(index, slots, loc.level, 0, Unknown, 0, 0);
 }
 
 static void create_dungeon_item(indext index) {
@@ -102,7 +102,7 @@ static void create_trap(indext index) {
 }
 
 static void create_treasure(indext index) {
-	loc.loot(index, maprnd(item_treasure), loc.level);
+	loc.loot(index, maprnd(item_treasure), loc.level, 0, Unknown, 0, 0);
 }
 
 static void create_monster(indext index) {

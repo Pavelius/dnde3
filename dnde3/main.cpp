@@ -184,9 +184,8 @@ void util_main();
 int main(int argc, char* argv[]) {
 	if(!test_formula())
 		return false;
-	spritei::initialize();
 	game.intialize();
-	//util_main();
+	util_main();
 	main_menu();
 }
 

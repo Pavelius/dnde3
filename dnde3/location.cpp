@@ -936,21 +936,27 @@ void location::loot(indext index, item_s type, int level, char chance_bigger_pri
 	loc.drop(index, it);
 }
 
-void location::loot(indext index, const aref<slot_s>& slots, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality) {
-	variantc source;
-	source.additems(slots);
-	source.match(Natural, true);
-	loot(index, (item_s)source.random().value, level, chance_bigger_price, identify, chance_curse, bonus_quality);
-}
-
-void location::loot(const rect& rc, const aref<slot_s>& slots, int chance, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality) {
-	if(!slots)
-		return;
+void location::loot(indext index, slot_s slots, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality) {
 	variantc source;
 	source.additems(slots);
 	source.match(Natural, true);
 	if(chance_bigger_price)
 		source.matchp(1, true);
+	loot(index, (item_s)source.random().value, level, chance_bigger_price, identify, chance_curse, bonus_quality);
+}
+
+void location::loot(indext index, const aref<slot_s>& slots, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality) {
+	variantc source;
+	source.additems(slots);
+	source.match(Natural, true);
+	if(chance_bigger_price)
+		source.matchp(1, true);
+	loot(index, (item_s)source.random().value, level, chance_bigger_price, identify, chance_curse, bonus_quality);
+}
+
+void location::loot(const rect& rc, const variantc& source, int chance, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality) {
+	if(!source)
+		return;
 	for(auto y = rc.y1; y <= rc.y2; y++) {
 		if(y < 0 || y >= mmy)
 			continue;
@@ -970,12 +976,16 @@ void location::content(const rect& rc, room_s type, site* p) {
 	auto index = center(rc);
 	if(ei.heart)
 		set(index, ei.heart);
-	static slot_s weapons[] = {Melee};
-	static slot_s armors[] = {Torso};
-	static slot_s potions[] = {Drinkable};
-	static slot_s scrolls[] = {Readable};
-	static slot_s treasures[] = {Coinable};
-	static slot_s edible[] = {Edible};
+	if(p && ei.keeper)
+		p->setowner(loc.add(index, ei.keeper));
+	for(auto& e : ei.shop) {
+		variantc source;
+		source.additems(e.slot);
+		source.match(Natural, true);
+		if(e.price)
+			source.matchp(1, true);
+		loc.loot(rc, source, e.chance, loc.level, e.price, KnownPower, e.cursed, e.quality);
+	}
 	switch(type) {
 	case Temple:
 		if(p) {
@@ -984,34 +994,8 @@ void location::content(const rect& rc, room_s type, site* p) {
 		}
 		break;
 	case Tavern:
-		if(p)
-			p->setowner(loc.add(index, Bartender));
 		for(auto i = xrand(1, 3); i > 0; i--)
 			loc.adventurer(index);
-		break;
-	case ShopWeaponAndArmor:
-		if(p)
-			p->setowner(shopkeeper(index));
-		loc.loot(rc, armors, 30, loc.level, 20, KnownPower, 0);
-		loc.loot(rc, weapons, 70, loc.level, 10, KnownPower, 0);
-		break;
-	case ShopPotions:
-		if(p)
-			p->setowner(shopkeeper(index));
-		loc.loot(rc, potions, 80, loc.level, 20, KnownPower, 0);
-		break;
-	case ShopScrolls:
-		if(p)
-			p->setowner(shopkeeper(index));
-		loc.loot(rc, scrolls, 70, loc.level, 10, KnownPower, 0);
-		break;
-	case ShopFood:
-		if(p)
-			p->setowner(shopkeeper(index));
-		loc.loot(rc, edible, 90, loc.level, 25);
-		break;
-	case TreasureRoom:
-		loc.loot(rc, treasures, 60, loc.level, 0, Unknown);
 		break;
 	case Barracs:
 		for(auto i = xrand(2, 4); i > 0; i--)

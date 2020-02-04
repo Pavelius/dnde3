@@ -162,7 +162,8 @@ enum img_s : unsigned char {
 	ResFog,
 	ResFeature,
 	ResTraps,
-	ResSea, ResPlains, ResFoothills, ResMountains, ResCloudPeaks, ResDecals, ResTrail,
+	ResSea, ResPlains, ResFoothills, ResForest, ResMountains, ResCloudPeaks,
+	ResOutdoor, ResSwamp, ResTrail,
 	ResUI,
 	ResPCmar, ResPCmbd, ResPCmac
 };
@@ -254,6 +255,7 @@ struct landscapei;
 class creature;
 class creaturea;
 class location;
+class site;
 typedef short unsigned indext;
 typedef adat<rect, 64> rooma;
 typedef flagable<1 + Chaotic / 8> alignmenta;
@@ -389,13 +391,6 @@ struct map_objecti {
 	const char*			name;
 	mapobjf				flags;
 	short unsigned		start, count;
-};
-struct spritei {
-	img_s				image;
-	const char*			id;
-	const char*			name;
-	short				frame;
-	static void			initialize();
 };
 struct picture {
 	img_s				img;
@@ -628,6 +623,7 @@ class variantc : public adat<casev<variant>> {
 	void				add(variant v);
 	void				add(variant v, rarity_s r);
 public:
+	void				additems(slot_s v);
 	void				additems(const aref<slot_s>& source);
 	int					getweight() const;
 	bool				is(variant v) const;
@@ -664,9 +660,19 @@ struct dialogi {
 	explicit operator bool() const { return text != 0; }
 };
 struct roomi {
+	typedef aref<const char*> strarray;
+	struct shopi {
+		char			chance;
+		slot_s			slot;
+		char			price;
+		char			cursed;
+		char			quality;
+	};
 	const char*			name;
-	const char*			title;
+	strarray			name1, name2;
 	map_object_s		heart;
+	role_s				keeper;
+	shopi				shop[4];
 };
 class posable {
 	indext				index;
@@ -695,6 +701,7 @@ public:
 	gender_s			getgender() const;
 	const char*			getname() const;
 	void				getname(stringbuilder& sb) const;
+	site*				getsite() const;
 	void				randomname();
 	void				sayv(stringbuilder& st, const char* format, const char* param) const;
 	void				setname(race_s race, gender_s gender);
@@ -1191,9 +1198,10 @@ public:
 	bool				ismatch(indext index, variant v) const;
 	void				lake(const rect& rc);
 	void				interior(const rect& rc, room_s type, indext index, int level, rect* result_rect, site* ps);
-	void				loot(indext index, item_s type, int level, char chance_bigger_price = 0, identify_s identify = Unknown, char chance_curse = 10, char bonus_quality = 0);
-	void				loot(indext index, const aref<slot_s>& slots, int level, char chance_bigger_price = 0, identify_s identify = Unknown, char chance_curse = 10, char bonus_quality = 0);
-	void				loot(const rect& rc, const aref<slot_s>& slots, int chance, int level, char chance_bigger_price = 0, identify_s identify = Unknown, char chance_curse = 10, char bonus_quality = 0);
+	void				loot(indext index, item_s type, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality);
+	void				loot(indext index, slot_s slot, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality);
+	void				loot(indext index, const aref<slot_s>& slot, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality);
+	void				loot(const rect& rc, const variantc& source, int chance, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality);
 	void				makewave(indext index);
 	void				minimap(int x, int y, point camera, bool fow) const;
 	void				minimap(indext index, bool fow) const;
@@ -1231,13 +1239,14 @@ public:
 struct outdoori {
 	indext				index;
 	const char*			name;
+	const char*			avatar_id;
 	const char*			descriptor;
-	picture				avatar;
 	dungeoni			levels[4];
 	constexpr explicit operator bool() const { return index != Blocked; }
 	static outdoori*	choose();
 	void				clear();
 	static outdoori*	find(indext index);
+	int					getid() const;
 	constexpr indext	getposition() const { return index; }
 	constexpr void		setposition(indext v) { index = v; }
 };
