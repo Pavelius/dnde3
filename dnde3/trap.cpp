@@ -2,13 +2,13 @@
 
 template<> trapi bsmeta<trapi>::elements[] = {{"", "trap_a"},
 {"«меинное логово", "trap_a", 10, 1, {2, 4}, GoblinWarrior, "—о всех щелей полезли змеи!"},
-{"яма с кислотой", "trap_ac", 0, 1, {2, 8}, Acid, "%герой провалил%ась в в €му с кислотой."},
-{"—амострел", "trap_ar", -10, 1, {1, 4}, Piercing, "»з стены вылетела стрела."},
+{"яма с кислотой", "trap_ac", 0, 1, {2, 8}, Acid, "%герой провалил%ась в €му с кислотой."},
+{"—амострел", "trap_ar", -10, 1, {1, 4}, Piercing, "»з стены вылетела стрела.", Bolt},
 {"яма с эфиром", "trap_c", -20, 1, {1, 6}, Magic, "—низу по€вилось фиолетовое свечение."},
 {"Ёлектрическа€ ловушка", "trap_ce", -20, 1, {1, 8}, Electricity, "–аздалс€ громкий хлопок разр€да молнии."},
 {"ќгненна€ ловушка", "trap_f", -10, 1, {2, 12}, Electricity, "—низу вырвалось пл€м€, коготорое опалило стены."},
 {"—ветова€ ловушка", "trap_l", -5, 1, {}, Dazzled, "¬незапно по€ивлась вспышка ослепительного света."},
-{"√лубока€ €ма", "trap_pc", 20, 1, {}, {}, ""},
+{"√лубока€ €ма", "trap_pc", 20, 1, {1, 6}, Bludgeon, "%герой провалил%ась в глубокую €му."},
 {"яма с коль€ми", "trap_pc", 0, 1, {2, 12}, Piercing, ""},
 {"ƒротик из стены", "trap_s", 0, 1, {1, 8}, Piercing, "»з стены вылетел дротик."},
 {"Ћезви€ из пола", "trap_st", 0, 1, {3, 18}, Slashing, "»з пола выехали острые лезви€."},
@@ -16,3 +16,45 @@ template<> trapi bsmeta<trapi>::elements[] = {{"", "trap_a"},
 {"¬од€на€ ловушка", "trap_w", 0, 1, {3, 18}, WaterAttack, "ћощный поток воды обрушилс€ сверху."},
 };
 assert_enum(trap, TrapWater);
+
+void creature::usetrap() {
+	auto i = getposition();
+	if(i == Blocked)
+		return;
+	auto t = loc.gettrap(i);
+	if(!t)
+		return;
+	auto& ei = bsmeta<trapi>::elements[t];
+	auto bonus = ei.modifier;
+	if(loc.is(i, Hidden))
+		bonus -= 20;
+	else
+		bonus += 20;
+	if(roll(Alertness, bonus)) {
+		if(loc.is(i, Hidden) && is(Friendly)) {
+			act("%герой обнаружил%а ловушку.");
+			loc.remove(i, Hidden);
+			addexp(10);
+		}
+	} else {
+		loc.remove(i, Hidden);
+		act(ei.text_use);
+		auto c = ei.damage.roll();
+		switch(ei.effect.type) {
+		case Role:
+			while(c-- > 0) {
+				auto p = loc.add(i, (role_s)ei.effect.value);
+				if(is(Hostile))
+					p->add(Hostile, -1, false);
+				else
+					p->add(Hostile, 1, false);
+			}
+			break;
+		default:
+			add(ei.effect, c, true);
+			break;
+		}
+		if(ei.loot && d100() < 20)
+			loc.drop(i, ei.loot);
+	}
+}

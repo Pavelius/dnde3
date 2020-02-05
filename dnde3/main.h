@@ -480,15 +480,6 @@ struct pooli {
 	const char*			name;
 	const char*			avatar_id;
 };
-struct trapi {
-	const char*			name;
-	const char*			avatar_id;
-	char				modifier;
-	char				multiplier;
-	dicei				damage;
-	variant				effect;
-	const char*			text_use;
-};
 struct item_typei {
 	const char*			id;
 	const char*			name[3];
@@ -608,6 +599,16 @@ public:
 	void				setquality(int v);
 	bool				stack(item& v);
 	void				use();
+};
+struct trapi {
+	const char*			name;
+	const char*			avatar_id;
+	char				modifier;
+	char				multiplier;
+	dicei				damage;
+	variant				effect;
+	const char*			text_use;
+	item				loot;
 };
 class itema : public adat<item*> {
 public:

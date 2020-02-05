@@ -879,11 +879,20 @@ void creature::move(indext index) {
 		cantmovehere();
 		return;
 	}
-	if(loc.is(getposition(), Webbed)) {
-		if(rollv(get(Strenght) * 3))
-			loc.remove(getposition(), Webbed);
+	auto current_index = getposition();
+	if(loc.is(current_index, Webbed)) {
+		if(roll(Climbing))
+			loc.remove(current_index, Webbed);
 		else {
 			act("%герой запутал%ась в паутине.");
+			wait();
+			return;
+		}
+	}
+	if(loc.gettrap(current_index) == TrapPit
+		&& !loc.is(current_index, Hidden)) {
+		if(!roll(Climbing)) {
+			act("%герой не смог%ла вылезти из ямы.");
 			wait();
 			return;
 		}
@@ -1027,46 +1036,6 @@ void creature::usestealth() {
 			appear();
 			p->say(maprnd(text));
 			p->addexp(10);
-			break;
-		}
-	}
-}
-
-void creature::usetrap() {
-	auto i = getposition();
-	if(i == Blocked)
-		return;
-	auto t = loc.gettrap(i);
-	if(!t)
-		return;
-	auto& ei = bsmeta<trapi>::elements[t];
-	auto bonus = ei.modifier;
-	if(loc.is(i, Hidden))
-		bonus -= 20;
-	else
-		bonus += 20;
-	if(roll(Alertness, bonus)) {
-		if(loc.is(i, Hidden) && is(Friendly)) {
-			act("%герой обнаружил%а ловушку.");
-			loc.remove(i, Hidden);
-			addexp(10);
-		}
-	} else {
-		loc.remove(i, Hidden);
-		act(ei.text_use);
-		auto c = ei.damage.roll();
-		switch(ei.effect.type) {
-		case Role:
-			while(c-- > 0) {
-				auto p = loc.add(i, (role_s)ei.effect.value);
-				if(is(Hostile))
-					p->add(Hostile, -1, false);
-				else
-					p->add(Hostile, 1, false);
-			}
-			break;
-		default:
-			add(ei.effect, c, true);
 			break;
 		}
 	}
