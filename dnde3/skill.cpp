@@ -289,13 +289,9 @@ bool location::use(indext index, skill_s id, creature& player, int level, int or
 			return false;
 		if(run) {
 			auto power = getplantgrow(index);
-			item it(maprnd(common_plants));
-			it.setquality(0);
-			if(power > 1)
-				it.setquality(xrand(0, 3));
+			auto type = maprnd(common_plants);
+			auto it = player.craft(type, {}, id, power * 10);
 			it.setcount(xrand(1, 3));
-			if(!player.roll(id))
-				it.set(Cursed);
 			if(d100() < 15 * power)
 				set(index, NoTileObject);
 			else

@@ -176,9 +176,9 @@ void creature::dressen(int m) {
 		penalty_deflect += 10;
 		encumbrance = HeavilyEncumbered;
 	}
-	abilities[Speed] -= penalty_speed*m;
-	abilities[Attack] -= penalty_attack*m;
-	abilities[Protection] -= penalty_deflect*m;
+	abilities[Speed] -= penalty_speed * m;
+	abilities[Attack] -= penalty_attack * m;
+	abilities[Protection] -= penalty_deflect * m;
 }
 
 void creature::dressoff() {
@@ -241,14 +241,14 @@ void creature::dress(int m) {
 void creature::dresssk(int m) {
 	for(auto i = FirstSkill; i <= LastSkill; i = (skill_s)(i + 1)) {
 		auto& ei = bsmeta<skilli>::elements[i];
-		skills[i] += m*(get(ei.abilities[0]) + get(ei.abilities[1]));
+		skills[i] += m * (get(ei.abilities[0]) + get(ei.abilities[1]));
 	}
 }
 
 void creature::dresssa(int m) {
 	for(auto i = Attack; i <= ManaRate; i = (ability_s)(i + 1)) {
 		auto& ei = bsmeta<abilityi>::elements[i];
-		abilities[i] += m*calculate(ei.formula);
+		abilities[i] += m * calculate(ei.formula);
 	}
 	if(getrole() == Character)
 		abilities[LifePoints] += abilities[Constitution] * m;
@@ -2176,11 +2176,13 @@ void creature::additem(item_s type, variant effect, bool identified) {
 	add(it, true, false);
 }
 
-item creature::craft(item_s type, variant effect, skill_s skill) {
+item creature::craft(item_s type, variant effect, skill_s skill, int bonus) {
 	item result(type);
-	auto bonus = 0;
-	if(!roll(skill))
-		return NoItem;
+	if(!roll(skill, bonus)) {
+		result.setquality(xrand(0, 3));
+		result.set(Cursed);
+		return result;
+	}
 	auto quality = 0;
 	if(roll(skill, bonus - 15)) {
 		quality++;
@@ -2191,7 +2193,6 @@ item creature::craft(item_s type, variant effect, skill_s skill) {
 		}
 	}
 	result.setquality(quality);
-	if(effect)
-		result.seteffect(effect);
+	result.seteffect(effect);
 	return result;
 }

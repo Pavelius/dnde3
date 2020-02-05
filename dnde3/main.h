@@ -857,7 +857,7 @@ public:
 	void				checkpoison();
 	void				checksick();
 	variant				choosereceipt(const char* interactive) const;
-	item				craft(item_s type, variant effect, skill_s skill);
+	item				craft(item_s type, variant effect, skill_s skill, int bonus = 0);
 	void				create(race_s race, gender_s gender, class_s type);
 	void				create(role_s type);
 	void				clear();
