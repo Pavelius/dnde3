@@ -2175,3 +2175,23 @@ void creature::additem(item_s type, variant effect, bool identified) {
 		it.set(KnownPower);
 	add(it, true, false);
 }
+
+item creature::craft(item_s type, variant effect, skill_s skill) {
+	item result(type);
+	auto bonus = 0;
+	if(!roll(skill))
+		return NoItem;
+	auto quality = 0;
+	if(roll(skill, bonus - 15)) {
+		quality++;
+		if(roll(skill, bonus - 30)) {
+			quality++;
+			if(roll(skill, bonus - 45))
+				quality++;
+		}
+	}
+	result.setquality(quality);
+	if(effect)
+		result.seteffect(effect);
+	return result;
+}

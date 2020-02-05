@@ -748,3 +748,11 @@ item_s item::findcorpse(role_s v) {
 item_s itemi::getid() const {
 	return item_s(this - bsmeta<itemi>::elements);
 }
+
+void item::repair() {
+	if(iscountable())
+		return;
+	if(!damaged)
+		return;
+	damaged--;
+}

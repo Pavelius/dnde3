@@ -588,6 +588,7 @@ public:
 	bool				is(identify_s v) const;
 	bool				is(item_flag_s v) const { return getitem().flags.is(v); }
 	bool				is(item_type_s v) const { return magic == v; }
+	bool				is(material_s v) const { return getitem().material==v; }
 	bool				is(sale_s v) const { return sale == v; }
 	bool				isboost(variant id) const;
 	bool				ischargeable() const;
@@ -596,6 +597,7 @@ public:
 	bool				ispersonal() const { return !iscountable() && personal != 0; }
 	void				loot();
 	bool				ismatch(variant v) const;
+	void				repair();
 	void				set(item_type_s v);
 	void				set(identify_s v);
 	void				set(sale_s v) { sale = v; }
@@ -855,6 +857,7 @@ public:
 	void				checkpoison();
 	void				checksick();
 	variant				choosereceipt(const char* interactive) const;
+	item				craft(item_s type, variant effect, skill_s skill);
 	void				create(race_s race, gender_s gender, class_s type);
 	void				create(role_s type);
 	void				clear();

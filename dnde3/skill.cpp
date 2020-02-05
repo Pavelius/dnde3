@@ -34,7 +34,7 @@ skilli bsmeta<skilli>::elements[] = {{"Торговля", "торговли", {Charisma, Intelle
 {"Грамотность", "письма и чтения", {Intellegence, Intellegence}, {}, {Item, {AlwaysChoose}, You, "Что хотите прочитать?"}},
 {"Шахтерское дело", "шахтерского дела", {Strenght, Constitution}, {}, {Object, {}, Close, "Где добывать руду?"}},
 {"Езда верхом", "езды верхом", {Dexterity, Constitution}},
-{"Кузнечное дело", "кузнечного дела", {Strenght, Intellegence}, {}, {Object, {}, Close, "Что хотите отремонтировать?"}},
+{"Кузнечное дело", "кузнечного дела", {Strenght, Intellegence}, {}, {Item, {}, You, "Что хотите отремонтировать?"}},
 {"Выживание", "выживания", {Wisdow, Constitution}},
 {"Плавание", "плавания", {Strenght, Constitution}},
 //
@@ -151,10 +151,22 @@ bool item::use(skill_s id, creature& player, int order, bool run) {
 			return false;
 		if(run) {
 			player.act("%герой приготовил%а %1.", getname());
-			if(!player.roll(Cooking)) {
-				player.fail(Cooking);
+			if(!player.roll(id)) {
+				player.fail(id);
 				return false;
 			}
+		}
+		break;
+	case Smithing:
+		if(!is(Iron) || !isdamaged())
+			return false;
+		if(run) {
+			if(!player.roll(id)) {
+				player.fail(id);
+				return false;
+			}
+			player.act("%герой починил%а %1.", getname());
+			repair();
 		}
 		break;
 	case Literacy:
