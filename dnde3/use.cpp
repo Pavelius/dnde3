@@ -146,9 +146,7 @@ bool creature::use(const creaturea& creatures, item& it) {
 					return false;
 				}
 				auto power = choosereceipt(isactive() ? "По какому рецепту хотите создать зелье?" : 0);
-				item it;
-				it.create(AlchemyPotion, ability_value/5, 0, 0, 0);
-				it.seteffect(power);
+				item it = craft(AlchemyPotion, power, Alchemy, ability_value);
 				add(it, true, true);
 				wait(60);
 			}
