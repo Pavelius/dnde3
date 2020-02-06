@@ -172,7 +172,7 @@ enum spell_s : unsigned char {
 	FearSpell, HealingSpell,
 	Identify, Invisibility, KnockDoor, LightSpell, MagicMissile, PoisonSpell,
 	Repair, RemovePoisonSpell, RemoveSickSpell,
-	SickSpell, ShieldSpell, ShokingGrasp, Sleep, SlowMonster, Web,
+	SickSpell, ShieldSpell, ShokingGrasp, Sleep, SlowMonster, SummonAlly, Web,
 	FirstSpell = ArmorSpell, LastSpell = Web
 };
 enum map_flag_s : unsigned char {

@@ -34,7 +34,7 @@ Armor, Speed};
 static variant common_helm[] = {{}, Intellegence, Charisma};
 static variant common_bracers[] = {{}, FocusBows, Lockpicking, PickPockets, Dexterity, Protection};
 static variant wand_common_spells[] = {Domination, MagicMissile, ShokingGrasp, HealingSpell, ArmorSpell,
-CharmPerson, FearSpell, Invisibility, Repair, SickSpell, Sleep, Web};
+CharmPerson, FearSpell, Invisibility, Repair, SickSpell, Sleep, Web, SummonAlly};
 static variant common_mage_spells[] = {MagicMissile, ShokingGrasp,
 ArmorSpell, CharmPerson, FearSpell, Invisibility, Repair, Sleep};
 static variant common_scroll[] = {BlessItem, DetectEvil, DetectMagic, Identify, KnockDoor};

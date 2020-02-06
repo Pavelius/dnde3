@@ -24,6 +24,7 @@ spelli bsmeta<spelli>::elements[] = {{0, "Волшебная броня", "волшебной брони", 1
 {0, "Шокирующая хватка", "электричества", 3, {Creature, {Enemies}, Close}, {1, 8}, 2, Electricity, "сорвался элекрический заряд"},
 {0, "Сон", "сна", 10, {Creature, {Enemies, TwoTargets, NotYou}, Reach}},
 {0, "Замедлить монстра", "замедления", 12, {Creature, {Enemies, RandomTargets}, Near}},
+{0, "Призвать союзника", "призыва", 10, {Creature, {}, You}},
 {0, "Паутина", "паутины", 10, {Creature, {Enemies}, Near}},
 };
 assert_enum(spell, LastSpell);
@@ -164,6 +165,23 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 	case SlowMonster:
 		if(run)
 			add(Movement, id, -level, true, 60);
+		break;
+	case SummonAlly:
+		if(run) {
+			for(auto i = 0; i < level; i++) {
+				auto p = bsmeta<creature>::addz();
+				if(!p)
+					continue;
+				auto index = loc.getfree(getposition());
+				p->create(GoblinWarrior);
+				p->setposition(index);
+				if(player.is(Hostile))
+					p->add(Hostile, 1, false);
+				else
+					p->add(Friendly, 1, false);
+				p->add(Summoned, 1, false);
+			}
+		}
 		break;
 	case Web:
 		if(run) {
