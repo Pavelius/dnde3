@@ -40,6 +40,7 @@ enum item_s : unsigned char {
 	Boot1, Boot2, IronBoot1, IronBoot2, IronBoot3,
 	Ration, Apple, BreadHalflings, BreadEvlen, BreadDwarven, Cake, Sausage, Meat,
 	RoseHip, Physalis, BirdCherry, Viburnum, Clover, Mint, Cherry, Tarnelle,
+	Topinambur, Spinach, Parsley, Carrot,
 	Scroll1, Scroll2, Scroll3, AlchemyReceipt,
 	Wand1, Wand2, Wand3, Wand4, Wand5,
 	Book1, Book2, Book3, Book4, Book5,

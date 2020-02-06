@@ -34,14 +34,15 @@ Armor, Speed};
 static variant common_helm[] = {{}, Intellegence, Charisma};
 static variant common_bracers[] = {{}, FocusBows, Lockpicking, PickPockets, Dexterity, Protection};
 static variant wand_common_spells[] = {Domination, MagicMissile, ShokingGrasp, HealingSpell, ArmorSpell,
-CharmPerson, FearSpell, Invisibility, Repair, SickSpell, Sleep, Web, SummonAlly};
+CharmPerson, FearSpell, Invisibility, Repair, SickSpell, Sleep, Web};
 static variant common_mage_spells[] = {MagicMissile, ShokingGrasp,
-ArmorSpell, CharmPerson, FearSpell, Invisibility, Repair, Sleep};
-static variant common_scroll[] = {BlessItem, DetectEvil, DetectMagic, Identify, KnockDoor};
+ArmorSpell, CharmPerson, FearSpell, Invisibility, Repair, Sleep, Web};
+static variant common_priest_spells[] = {BlessSpell, HealingSpell, DetectEvil};
+static variant common_scroll[] = {BlessItem, DetectEvil, DetectMagic, Identify, KnockDoor, SummonAlly};
 static variant common_amulet[] = {Charisma, Strenght, Lockpicking};
 static variant common_shield[] = {{}, Protection, Deflect,
 ResistFire, ResistAcid, ResistElectricity, ResistCharm};
-static variant common_cloack[] = {Protection, Survival, HideInShadow};
+static variant common_cloack[] = {Protection, Survival, HideInShadow, MoveSilently, Dancing};
 static variant alchemy_receipts[] = {LifePoints, ManaPoints,
 Strenght, Dexterity, Constitution, Wisdow, Charisma,
 Armor, Protection,
@@ -129,6 +130,11 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", "item-1", Unique, 0, 0, 0, NoGender,
 {"Ягода", "item183", Unique, 10, CP, -1, Male, Organic, {}, {}, {}, {}, Edible},
 {"Ромашка", "item184", Unique, 10, CP, -1, Male, Organic, {}, {}, {}, {}, Edible},
 //
+{"Топинамбур", "item191", Unique, 10, 2 * CP, -1, Male, Organic, {}, {}, {}, {}, Edible},
+{"Шпинат", "item192", Unique, 10, 3 * CP, -1, Male, Organic, {}, {}, {}, {}, Edible},
+{"Петрушка", "item193", Unique, 10, 2 * CP, -1, Female, Organic, {}, {}, {}, {}, Edible},
+{"Морковь", "item194", Unique, 10, 3 * CP, -1, Female, Organic, {}, {}, {}, {}, Edible},
+//
 {"Свиток", "item188", Common, 1, 10 * GP, -1, Male, Paper, {}, {}, common_scroll, {SingleUse}, Readable},
 {"Свиток", "item185", Common, 1, 12 * GP, 0, Male, Paper, {}, {}, common_scroll, {SingleUse}, Readable},
 {"Свиток", "item186", Uncommon, 1, 15 * GP, 1, Male, Paper, {}, {}, common_scroll, {SingleUse}, Readable},
@@ -142,7 +148,7 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", "item-1", Unique, 0, 0, 0, NoGender,
 //
 {"Книга", "item88", Rare, 500, 100 * GP, -1, Female, Paper, {}, {}, common_mage_spells, {}, Readable},
 {"Книга", "item681", Rare, 600, 150 * GP, 0, Female, Paper, {}, {}, common_mage_spells, {}, Readable},
-{"Книга", "item514", Rare, 600, 200 * GP, 0, Female, Paper, {}, {}, common_mage_spells, {}, Readable},
+{"Книга", "item514", Rare, 600, 200 * GP, 0, Female, Paper, {}, {}, common_priest_spells, {}, Readable},
 {"Мануал", "item680", Rare, 800, 250 * GP, 1, Male, Paper, {}, {}, common_mage_spells, {}, Readable},
 {"Том", "item649", VeryRare, 1000, 300 * GP, 2, Male, Paper, {}, {}, common_mage_spells, {}, Readable},
 //
@@ -529,18 +535,6 @@ void item::setquality(int v) {
 
 void item::loot() {
 	set(Unknown);
-}
-
-static unsigned getenchantcost(variant id, item_type_s magic, int quality) {
-	static int power_cost[] = {0, 0, 1, 10};
-	auto m = 2;
-	switch(id.type) {
-	case Ability: m += bsmeta<abilityi>::elements[id.value].cost; break;
-	case Skill: m += 1; break;
-	}
-	m += power_cost[magic];
-	m += quality;
-	return m * basic_enchantment_cost;
 }
 
 unsigned item::getcost() const {

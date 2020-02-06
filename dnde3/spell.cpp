@@ -222,7 +222,7 @@ bool item::use(spell_s id, creature& player, int level, int order, bool run) {
 		if(is(KnownMagic) || !is(Cursed))
 			return false;
 		if(run) {
-			set(KnownPower);
+			set(KnownMagic);
 			act("%герой засветил%ась [-красным] светом.");
 		}
 		break;
