@@ -185,7 +185,7 @@ int main(int argc, char* argv[]) {
 	if(!test_formula())
 		return false;
 	game.intialize();
-	//util_main();
+	util_main();
 	main_menu();
 }
 
