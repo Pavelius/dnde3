@@ -1124,6 +1124,7 @@ struct statistici : public dungeoni {
 };
 class location : public statistici {
 	typedef bool(location::*procis)(indext i) const;
+	unsigned			saveround;
 	tile_s				tiles[mmx*mmy];
 	map_object_s		objects[mmx*mmy];
 	unsigned char		random[mmx*mmy];
@@ -1239,7 +1240,7 @@ public:
 	bool				use(indext index, skill_s id, creature& player, int level, int order, bool run);
 	bool				use(indext index, variant id, creature& player, int level, int order, bool run);
 	void				worldmap(point camera, bool show_fow = true) const;
-	bool				write(const char* url, bool overland) const;
+	bool				write(const char* url, bool overland);
 	bool				write(indext index, int level);
 };
 struct outdoori {
@@ -1297,7 +1298,7 @@ public:
 	const dungeoni*		getdungeon() const;
 	int					getmoney() const { return 0; }
 	int					getreputation() const { return reputation; }
-	int					getrounds() const { return rounds; }
+	unsigned			getrounds() const { return rounds; }
 	void				intialize();
 	bool				is(variant v) const;
 	void				move(indext index);

@@ -29,8 +29,9 @@ static bool serial(gamei& e, bool write_mode) {
 	return true;
 }
 
-bool location::write(const char* url, bool overland) const {
-	return serial(*const_cast<location*>(this), url, true, overland);
+bool location::write(const char* url, bool overland) {
+	saveround = game.getrounds();
+	return serial(*this, url, true, overland);
 }
 
 bool location::write(indext index, int level) {
