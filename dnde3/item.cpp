@@ -87,6 +87,7 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", "item-1", Unique, 0, 0, 0, NoGender,
 {"Камень", "items53", Common, 15, 0, 0, Male, Stone, {0, 0, {1, 3}, Bludgeon, 0, 0, NoItem, Rock}, {}, {}, {}, Ranged},
 {"Стрела", "item51", Common, 3, 2 * CP, 0, Female, Wood, {0, 0, {}, Piercing, 0, 0, NoItem, Arrow}, {}, {}, {}, Amunitions},
 {"Болт", "item68", Common, 2, 1 * CP, 0, Male, Iron, {0, 0, {}, Piercing, 0, 0, NoItem, Bolt}, {}, {}, {}, Amunitions},
+{"Булыжник", "item580", VeryRare, 3000, 4 * CP, 0, Male, Stone, {}},
 //
 {"Кожанная броня", "item10", Common, 1000, 5 * GP, 0, Female, Leather, {-5}, {10, 0, 15}, common_armor, {}, Torso},
 {"Клепанная броня", "item43", Common, 1500, 15 * GP, 0, Female, Leather, {-7}, {15, 0, 15}, common_armor, {}, Torso},

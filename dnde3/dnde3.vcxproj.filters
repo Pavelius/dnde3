@@ -223,6 +223,9 @@
     <ClCompile Include="diety.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="history.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="answer.h">

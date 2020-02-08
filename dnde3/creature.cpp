@@ -2166,3 +2166,11 @@ item creature::craft(item_s type, variant effect, skill_s skill, int bonus) {
 	result.seteffect(effect);
 	return result;
 }
+
+const summona& creature::getsummon() const {
+	static summona monsters = {GoblinWarrior, GoblinRockthrower, GoblinRockthrowerWarriorF, OrcWarrior};
+	if(value != Character) {
+
+	}
+	return monsters;
+}

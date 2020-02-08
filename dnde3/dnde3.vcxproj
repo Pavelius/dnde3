@@ -141,6 +141,7 @@
     <ClCompile Include="equipment.cpp" />
     <ClCompile Include="event.cpp" />
     <ClCompile Include="food.cpp" />
+    <ClCompile Include="history.cpp" />
     <ClCompile Include="indexa.cpp" />
     <ClCompile Include="intellegence.cpp" />
     <ClCompile Include="main_util.cpp" />

@@ -21,7 +21,7 @@ rolei bsmeta<rolei>::elements[] = {{"Гоблин", "гоблина", "0", Goblin, Male, Chao
 {"Жаба", "жабы", "9", Animal, Female, Neutral, Monster, 1, {Bite, Dexterity}},
 {"Муравей", "муравья", "10", Insect, Male, Chaotic, Monster, 0, {Bite, Hitin}},
 {"Муравей-воин", "муравья-воина", "11", Insect, Male, Chaotic, Monster, 1, {Bite, Hitin, Strenght}},
-{"Матка муравьев", "матки муравья", "12", Insect, Female, Chaotic, Monster, 5, {Bite, Hitin, Strenght, Strenght, Constitution}, {AntWorker, AntWorker, AntWarrior, AntWarrior}},
+{"Матка муравьев", "матки муравья", "12", Insect, Female, Chaotic, Monster, 5, {Bite, Hitin, Strenght, Strenght, Constitution}, {AntWorker, AntWarrior}},
 {"Гнолл", "гнолла", "13", Gnoll, Male, Chaotic, Monster, 2, {AxeBattle, Fur}},
 {"Гоблин", "гоблина", "15", Goblin, Male, Chaotic, Monster, 1, {Rock, StuddedLeatherArmor}},
 {"Гоблиниха", "гоблинихи", "15_f", Goblin, Female, Chaotic, Monster, 1, {Rock, StuddedLeatherArmor, Meat}},

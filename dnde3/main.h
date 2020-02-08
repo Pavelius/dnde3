@@ -33,7 +33,7 @@ enum item_s : unsigned char {
 	Spear, Staff,
 	SwordLong, SwordShort, SwordTwoHanded,
 	CrossbowLight, CrossbowHeavy, BowLong, BowShort, Dart, Sling,
-	Rock, Arrow, Bolt,
+	Rock, Arrow, Bolt, Boulder,
 	LeatherArmor, StuddedLeatherArmor, ScaleMail, ChainMail, SplintMail, PlateMail,
 	Shield, Helmet, BracersLeather, BracersIron,
 	Cloack1, Cloack2, Cloack3, Cloack4, Cloack5,
@@ -267,6 +267,7 @@ typedef flagable<1 + Blooded / 8> mapflf;
 typedef cflags<map_object_flag_s> mapobjf;
 typedef casev<ability_s> abilityv;
 typedef aset<damage_s, 1 + WaterAttack> damagea;
+typedef adat<role_s, 4> summona;
 typedef void(*gentileproc)(indext index);
 typedef void(*stageproc)();
 typedef indext(*getposproc)(direction_s i);
@@ -744,7 +745,7 @@ struct rolei {
 	class_s				type;
 	char				level;
 	varianta			features;
-	role_s				minions[4];
+	summona				minions;
 	int					getcr() const;
 };
 struct foodi {
@@ -918,6 +919,7 @@ public:
 	dicei				getraise(skill_s id) const;
 	role_s				getrole() const { return (role_s)value; }
 	site*				getsite() const;
+	const summona&		getsummon() const;
 	slot_s				getwearerslot(const item* p) const;
 	int					getweight() const;
 	void				heal(int value) { damage(-value, Magic); }
@@ -1275,6 +1277,10 @@ struct eventi {
 	bool				isallow() const;
 	static void			play(int number);
 };
+struct historyi {
+	const char*			name;
+	variantc			bonus;
+};
 class gamei : public geoposable {
 	unsigned			rounds;
 	tile_s				tile;
@@ -1291,6 +1297,7 @@ public:
 	void				addmoney(int v) {}
 	void				addreputation(int v) { reputation += v; }
 	void				applyboost();
+	void				begin();
 	void				decoyfood();
 	bool				enter(int level, map_object_s stairs);
 	item*				find(item_s v) const;
