@@ -1278,8 +1278,10 @@ struct eventi {
 	static void			play(int number);
 };
 struct historyi {
+	unsigned short		index;
 	const char*			name;
-	variantc			bonus;
+	unsigned short		next;
+	varianta			bonus;
 };
 class gamei : public geoposable {
 	unsigned			rounds;
