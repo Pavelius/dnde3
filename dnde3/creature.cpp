@@ -2,9 +2,9 @@
 
 DECLDATA(creature, 256);
 
-static int			skill_level[] = {10, 40, 60, 80};
-static dicei		skill_raise[] = {{2, 12}, {1, 6}, {1, 4}, {1, 1}};
-static const char*	skill_names[] = {"Начальный", "Продвинутый", "Экспертный", "Мастерский"};
+static int			skill_level[] = {30, 60, 90};
+static dicei		skill_raise[] = {{1, 10}, {1, 6}, {1, 4}, {1, 2}};
+static const char*	skill_names[] = {"Новичек", "Специалист", "Эксперт", "Мастер"};
 static creature*	current_player;
 static int			experience_count[] = {0,
 0, 1000, 2500, 4500, 7000, 10000, 13500, 17500, 22000, 27000,
@@ -261,6 +261,10 @@ const char* creature::getlevelname(skill_s v) const {
 	return maptbl(skill_names, n);
 }
 
+bool creature::ismaster(skill_s v) const {
+	return skills[v] >= skill_level[2];
+}
+
 int creature::getlevel(skill_s v) const {
 	auto r = skills[v];
 	auto n = 0;
@@ -445,7 +449,8 @@ void creature::raiseskills(int number) {
 		while(number > 0) {
 			if(index >= count)
 				index = 0;
-			auto s = source[index++]; raise(s);
+			auto s = source[index++];
+			raise(s);
 			auto v = source.getcap(s);
 			if(skills[s] > v)
 				skills[s] = v;

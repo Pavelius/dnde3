@@ -132,7 +132,7 @@ static void begin_game() {
 		loc.fill({0, mmy - 2, mmx - 1, mmy - 1}, Sea);
 		auto p1 = create(Elf, Female, Mage);
 		auto p2 = create(Dwarf, Male, Cleric);
-		auto p3 = create(Orc, Male, Fighter);
+		auto p3 = create(Ratling, Male, Fighter);
 		create(p1, AlchemyReceipt);
 		create(p1, AlchemySet);
 		createp(p1, Staff);

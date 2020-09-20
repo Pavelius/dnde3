@@ -931,6 +931,7 @@ public:
 	bool				is(state_s v) const { return states.is(v); }
 	bool				is(spell_s v) const { return finds(v) != 0; }
 	bool				is(const creature* p) const { return this == p; }
+	bool				ismaster(skill_s v) const;
 	bool				isallow(item_s v) const;
 	bool				isbusy() const { return restore_energy <= -(StandartEnergyCost * 4) && is(Unaware); }
 	bool				isenemy(const creature* target) const;

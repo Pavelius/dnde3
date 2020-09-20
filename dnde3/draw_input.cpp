@@ -1684,7 +1684,29 @@ static bool translate_move(creature* player) {
 	return false;
 }
 
+static void show_hotkeys(const hotkey* keys) {
+	while(ismodal()) {
+		current_background();
+		int x, y;
+		dialogw(x, y, 680, 420, "Горячие клавиши");
+		domodal();
+		switch(hot.key) {
+		case KeySpace:
+		case KeyEscape:
+			breakmodal(1);
+			hot.key = 0;
+			break;
+		}
+	}
+	sb.clear();
+}
+
 static bool translate_commands(creature* player, const hotkey* keys, bool terminate) {
+	if(hot.key == KeyEscape) {
+		show_hotkeys(keys);
+		
+		return true;
+	}
 	for(auto k = keys; *k; k++) {
 		if(hot.key == k->key) {
 			hot.key = 0;
