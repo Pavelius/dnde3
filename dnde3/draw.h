@@ -1,10 +1,10 @@
 #include "color.h"
 #include "point.h"
+#include "stringbuilder.h"
 
 #pragma once
 
 typedef void(*eventproc)();
-typedef const char* (*fntext)(const void* object, char* result, const char* result_maximum, const void* type);
 extern "C" int strcmp(const char* s1, const char* s2); // Compare two strings
 
 enum draw_event_s {

@@ -345,6 +345,12 @@ void stringbuilder::addby(const char* s) {
 	add(s, map, "ом");
 }
 
+void stringbuilder::add(char symbol) {
+	if(p < pe)
+		*p++ = symbol;
+	*p = 0;
+}
+
 void stringbuilder::addto(const char* s) {
 	static grammar map[] = {{"а", "е"},
 	{"о", "у"},

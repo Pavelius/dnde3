@@ -10,9 +10,11 @@ class answeri : stringbuilder {
 		const char*				text;
 	};
 	char						buffer[4096];
-	adat<element, 32>			elements;
+	adat<element, 48>			elements;
 	int							paint(int x, int y, int width, int i, int& maximum_width) const;
 	int							paint(int x, int y, int width, const char* format, int& maximum_width) const;
+	static const char*			getnmshortcut(const void* object, stringbuilder& sb);
+	void						information(const char* text, fntext fparam, int width) const;
 public:
 	typedef void(*tipspr)(stringbuilder& sb, int param);
 	typedef void(*callpr)();
@@ -30,5 +32,6 @@ public:
 	static int					getindex(char v);
 	static char					getkey(int v);
 	int							menuv(bool allow_cancel, const char* format) const;
+	void						shortcuts(const char* text) const { information(text, getnmshortcut, 100); }
 	void						sort();
 };

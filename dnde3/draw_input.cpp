@@ -1684,11 +1684,28 @@ static bool translate_move(creature* player) {
 	return false;
 }
 
-static void show_hotkeys(const hotkey* keys) {
+void answeri::information(const char* title, fntext fparam, int w1 = 80) const {
+	const int window_width = 680;
 	while(ismodal()) {
 		current_background();
-		int x, y;
-		dialogw(x, y, 680, 420, "Горячие клавиши");
+		int x, y, y2;
+		dialogw(x, y, window_width, 420, title, &y2);
+		auto y1 = y;
+		auto dx = window_width / 2 - (x - (draw::getwidth() - 680) / 2) * 2;
+		auto w2 = dx - w1;
+		auto push_fore = fore;
+		for(auto& e : elements) {
+			char temp[260]; stringbuilder sb(temp);
+			auto t1 = fparam(&e, sb);
+			fore = colors::yellow;
+			text({x, y, x + w1, y + texth()}, t1, AlignCenter);
+			fore = colors::text;
+			y += text({x + w1, y, x + dx, y + texth()}, e.text, AlignLeft) + 4;
+			if(y >= y2) {
+				x += dx;
+				y = y1;
+			}
+		}
 		domodal();
 		switch(hot.key) {
 		case KeySpace:
@@ -1701,10 +1718,56 @@ static void show_hotkeys(const hotkey* keys) {
 	sb.clear();
 }
 
+const char* answeri::getnmshortcut(const void* object, stringbuilder& sb) {
+	auto pe = (element*)object;
+	auto key = pe->param;
+	if(key&Ctrl)
+		sb.add("Ctrl+");
+	if(key&Alt)
+		sb.add("Alt+");
+	if(key&Shift)
+		sb.add("Shift+");
+	key = key & 0xFFFF;
+	switch(key) {
+	case KeyDown: sb.add("Down"); break;
+	case KeyDelete: sb.add("Del"); break;
+	case KeyEnd: sb.add("End"); break;
+	case KeyEnter: sb.add("Enter"); break;
+	case KeyHome: sb.add("Home"); break;
+	case KeyLeft: sb.add("Left"); break;
+	case KeyPageDown: sb.add("Page Down"); break;
+	case KeyPageUp: sb.add("Page Up"); break;
+	case KeyRight: sb.add("Right"); break;
+	case KeyUp: sb.add("Up"); break;
+	case F1: sb.add("F1"); break;
+	case F2: sb.add("F2"); break;
+	case F3: sb.add("F3"); break;
+	case F4: sb.add("F4"); break;
+	case F5: sb.add("F5"); break;
+	case F6: sb.add("F6"); break;
+	case F7: sb.add("F7"); break;
+	case F8: sb.add("F8"); break;
+	case F9: sb.add("F9"); break;
+	case F10: sb.add("F10"); break;
+	case F11: sb.add("F11"); break;
+	case F12: sb.add("F12"); break;
+	case KeySpace: sb.add("Space"); break;
+	default: sb.add(char(szupper(key - Alpha))); break;
+	}
+	return sb;
+}
+
+static void show_shortcuts(const hotkey* k1) {
+	answeri a;
+	for(auto p = k1; *p; p++)
+		a.add(p->key, p->name);
+	a.sort();
+	a.shortcuts("Горячие клавиши");
+}
+
 static bool translate_commands(creature* player, const hotkey* keys, bool terminate) {
 	if(hot.key == KeyEscape) {
-		show_hotkeys(keys);
-		
+		show_shortcuts(keys);
 		return true;
 	}
 	for(auto k = keys; *k; k++) {
@@ -1725,13 +1788,13 @@ static bool translate_commands(creature* player, const hotkey* keys, bool termin
 	return false;
 }
 
-static hotkey indoor_keys[] = {{F1, "Выбрать первого героя", change_player, 0},
-{F2, "Выбрать второго героя", change_player, 1},
-{F3, "Выбрать третьего героя", change_player, 2},
-{F4, "Выбрать четвертого героя", change_player, 3},
+static hotkey indoor_keys[] = {{F1, "Выбрать 1-го героя", change_player, 0},
+{F2, "Выбрать 2-го героя", change_player, 1},
+{F3, "Выбрать 3-го героя", change_player, 2},
+{F4, "Выбрать 4-го героя", change_player, 3},
 {Ctrl + Alpha + 'M', "Открыть мануал", gamei::help},
 {Alpha + 'I', "Открыть инвентарь", &creature::inventory},
-{Alpha + 'A', "Выбрать навык", &creature::useskills},
+{Alpha + 'A', "Использовать навык", &creature::useskills},
 {Alpha + 'D', "Положить пердмет", &creature::dropdown},
 {Alpha + 'P', "Поднять пердмет", &creature::pickup},
 {Alpha + 'Q', "Стрелять по врагу", &creature::shoot},

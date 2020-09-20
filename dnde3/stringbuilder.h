@@ -16,6 +16,7 @@ public:
 	constexpr operator char*() const { return pb; }
 	constexpr explicit operator bool() const { return p!=pb; }
 	void				add(const char* format, ...) { addv(format, xva_start(format)); }
+	void				add(char symbol);
 	void				addby(const char* s);
 	void				addcn(const char* name, int count);
 	virtual void		addidentifier(const char* identifier);
@@ -46,3 +47,4 @@ public:
 	void				set(char* v) { p = v; p[0] = 0; }
 	static unsigned char upper(unsigned char sym);
 };
+typedef const char* (*fntext)(const void* object, stringbuilder& sb);
