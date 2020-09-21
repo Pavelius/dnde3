@@ -137,6 +137,7 @@ static void begin_game() {
 		create(p1, AlchemySet);
 		createp(p1, Staff);
 		p1->activate();
+		p1->addexp(10000, true);
 		game.setposition(loc.get(8, 8));
 		if(!game.enter(0, NoTileObject))
 			return;

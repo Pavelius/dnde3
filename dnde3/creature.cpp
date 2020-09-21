@@ -3,7 +3,7 @@
 DECLDATA(creature, 256);
 
 static int			skill_level[] = {30, 60, 90};
-static dicei		skill_raise[] = {{1, 10}, {1, 6}, {1, 4}, {1, 2}};
+static dicei		skill_raise[] = {{3, 18}, {2, 12}, {1, 10}, {1, 8}, {1, 6}, {1, 5}, {1, 4}, {1, 3}, {1, 2}};
 static const char*	skill_names[] = {"Новичек", "Специалист", "Эксперт", "Мастер"};
 static creature*	current_player;
 static int			experience_count[] = {0,
@@ -277,7 +277,7 @@ int creature::getlevel(skill_s v) const {
 }
 
 dicei creature::getraise(skill_s v) const {
-	auto n = getlevel(v);
+	auto n = skills[v]/10;
 	return maptbl(skill_raise, n);
 }
 
