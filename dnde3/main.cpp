@@ -160,11 +160,16 @@ static void exit_game() {
 	exit(0);
 }
 
+static void test_game() {
+	game.begin();
+}
+
 static stageproc choose_stage() {
 	answeri an;
 	an.add((int)begin_game, "Начать игру");
 	an.add((int)continue_game, "Продолжить игру");
 	an.add((int)run_editor, "Редактор карт");
+	an.add((int)test_game, "Тестировать");
 	an.add(0, "Выйти из игры");
 	return (stageproc)an.menuv(true, "Главное меню");
 }

@@ -10,19 +10,25 @@ void answeri::sort() {
 	qsort(elements.data, elements.getcount(), sizeof(elements[0]), compare);
 }
 
-void answeri::addv(int param, int priority, const char* format, const char* format_param) {
+bool answeri::addv(int param, int priority) {
 	if(elements.getcount() >= elements.getmaximum())
-		return;
+		return false;
 	if(get() >= end())
-		return;
+		return false;
 	if(get() > begin())
 		addsz();
 	auto pe = elements.add();
 	pe->param = param;
 	pe->priority = priority;
 	pe->text = get();
-	stringbuilder::addv(format, format_param);
-	*((char*)pe->text) = stringbuilder::upper(pe->text[0]);
+}
+
+void answeri::addv(int param, int priority, const char* format, const char* format_param) {
+	if(addv(param, priority)) {
+		auto p = get();
+		stringbuilder::addv(format, format_param);
+		p[0] = stringbuilder::upper(p[0]);
+	}
 }
 
 void answeri::add(int param, const char* format, ...) {

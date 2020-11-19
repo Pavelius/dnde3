@@ -22,6 +22,7 @@ public:
 	constexpr answeri() : stringbuilder(buffer, buffer + sizeof(buffer) - 1), buffer(), elements() {}
 	void						add(int param, const char* format, ...);
 	void						addp(int param, int priority, const char* format, ...);
+	bool						addv(int param, int priority);
 	void						addv(int param, int priority, const char* format, const char* format_param);
 	int							choose() const;
 	int							choose(bool interactive, bool clear_text, const char* format, ...) const;
@@ -31,6 +32,7 @@ public:
 	int							dialogv(bool allow_cancel, const char* title, const char* format) const;
 	static int					getindex(char v);
 	static char					getkey(int v);
+	stringbuilder&				getsb() { return *this; }
 	int							menuv(bool allow_cancel, const char* format) const;
 	void						shortcuts(const char* text) const { information(text, getnmshortcut, 100); }
 	void						sort();

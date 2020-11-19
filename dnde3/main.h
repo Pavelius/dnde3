@@ -233,9 +233,6 @@ enum target_flag_s : unsigned char {
 enum rarity_s : unsigned char {
 	Common, Uncommon, Rare, VeryRare, Unique,
 };
-enum dialog_s : unsigned char {
-	Say, Ask
-};
 enum intellegence_s : unsigned char {
 	NoInt, AnimalInt, SemiInt, LowInt, AveInt, VeryInt, HighInt, ExpInt, GenInt, SupGenInt, GodInt
 };
@@ -657,14 +654,6 @@ public:
 	void				setcap(skill_s i, int v) { cap[i] = v; }
 	void				setcaps();
 };
-struct dialogi {
-	char				index;
-	dialog_s			type;
-	varianta			actions, opponent_actions;
-	const char*			text;
-	int					next;
-	explicit operator bool() const { return text != 0; }
-};
 struct roomi {
 	typedef aref<const char*> strarray;
 	struct shopi {
@@ -776,6 +765,21 @@ public:
 	void				sethair(int v) { hair = v; }
 	void				sethairf(int v) { face_hair = v; }
 };
+struct quest {
+	struct contexti {
+		virtual void	add(answeri& an, const quest* p) const;
+		virtual void	add(const quest* p) const;
+		virtual bool	match(const quest* p) const { return true; }
+	};
+	int					index;
+	varianta			bonus;
+	const char*			name;
+	int					next;
+	constexpr operator bool() const { return index != 0; }
+	const quest*		find(int index) const;
+	const quest*		choose(const contexti& e) const;
+	void				play(contexti& e) const;
+};
 class creature : public nameable, public paperdoll {
 	short				abilities[ManaRate + 1];
 	unsigned char		skills[LastSkill + 1];
@@ -855,7 +859,7 @@ public:
 	bool				canshoot() const;
 	void				chat();
 	void				chat(creature& opponent);
-	void				chat(creature& opponent, const dialogi* source);
+	void				chat(creature& opponent, const quest* source);
 	bool				charmresist(int bonus = 0) const;
 	void				checkpoison();
 	void				checksick();
@@ -987,6 +991,7 @@ public:
 	void				set(const site* v);
 	void				setguard(short unsigned value) { guard = value; }
 	void				setmoney(int value) { money = value; }
+	void				setfriendlyto(const creature& player);
 	void				shoot();
 	void				testevents();
 	void				testpotion();
@@ -1277,12 +1282,6 @@ struct eventi {
 	void				apply();
 	bool				isallow() const;
 	static void			play(int number);
-};
-struct historyi {
-	unsigned short		index;
-	const char*			name;
-	unsigned short		next;
-	varianta			bonus;
 };
 class gamei : public geoposable {
 	unsigned			rounds;

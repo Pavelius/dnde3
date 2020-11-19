@@ -217,7 +217,7 @@
     <ClCompile Include="diety.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="history.cpp">
+    <ClCompile Include="quest.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
   </ItemGroup>

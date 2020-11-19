@@ -2179,3 +2179,10 @@ const summona& creature::getsummon() const {
 	}
 	return monsters;
 }
+
+void creature::setfriendlyto(const creature& player) {
+	if(player.is(Hostile))
+		add(Hostile, 1, false);
+	else
+		add(Friendly, 1, false);
+}

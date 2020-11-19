@@ -27,7 +27,7 @@ BSDATA(spelli) = {{0, "Волшебная броня", "волшебной брони", 10, {Creature}},
 {0, "Призвать союзника", "призыва", 10, {Creature, {}, You}},
 {0, "Паутина", "паутины", 10, {Creature, {Enemies}, Near}},
 };
-assert_enum(spell, LastSpell);
+assert_enum(spell, LastSpell)
 
 bool creature::use(spell_s id, creature& player, int level, int order, bool run) {
 	if(finds(id))
@@ -36,14 +36,14 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 	switch(id) {
 	case ArmorSpell:
 		if(run) {
-			add(Armor, id, 1, false, 30 * level);
+			add(Armor, id, 4, false, 30 * level);
 			act("%герой озарил%ась белым сиянием.");
 		}
 		break;
 	case BlessSpell:
 		if(run) {
 			add(Attack, id, level * 5, false, 30);
-			add(Damage, id, 2, false, 30);
+			add(Damage, id, 1 + level, false, 30);
 			act("%герой испытал%а небывалый прилив сил.");
 		}
 		break;
@@ -57,10 +57,7 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 		if(run) {
 			if(charmresist())
 				return false;
-			if(player.is(Hostile))
-				add(Hostile, 1, false);
-			else
-				add(Hostile, -1, false);
+			setfriendlyto(player);
 			setguard(Blocked);
 			say("%1, друг мой, я тебе помогу!", player.getname());
 		}
@@ -175,10 +172,7 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 				auto index = loc.getfree(getposition());
 				p->create(GoblinWarrior);
 				p->setposition(index);
-				if(player.is(Hostile))
-					p->add(Hostile, 1, false);
-				else
-					p->add(Friendly, 1, false);
+				p->setfriendlyto(player);
 				p->add(Summoned, 1, false);
 			}
 		}
