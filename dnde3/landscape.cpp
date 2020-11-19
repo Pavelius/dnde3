@@ -345,7 +345,7 @@ template<> landscapei bsmeta<landscapei>::elements[] = {{"Равнина", 0, Plain, {{
 {"Подземелье", 1, Wall, {}, create_big_rooms, create_dungeon_content, center_start},
 {"Город", 1, Plain, {{Tree, 2}, {Water, -16}}, create_city, create_city_buildings, road_start},
 };
-assert_enum(landscape, AreaCity);
+assert_enum(landscape, AreaCity)
 
 void location::create(const dungeoni& source, int level, bool explored, bool visualize) {
 	clear();

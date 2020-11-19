@@ -9,7 +9,8 @@
 #define maprnd(t) t[rand()%(sizeof(t)/sizeof(t[0]))]
 #define lenof(t) (sizeof(t)/sizeof(t[0]))
 #define zendof(t) (t + sizeof(t)/sizeof(t[0]) - 1)
-#define DECLFULL(e) template<> array bsmeta<e>::source(bsmeta<e>::elements)
+#define BSDATA(e) template<> e bsmeta<e>::elements[]
+#define DECLFULL(e) template<> array bsmeta<e>::source(bsmeta<e>::elements);
 #define assert_enum(e, last) static_assert(sizeof(bsmeta<e##i>::elements) / sizeof(bsmeta<e##i>::elements[0]) == last + 1, "Invalid count of " #e " elements"); DECLFULL(e##i)
 #define DECLENUM(e) template<> struct bsmeta<e##_s> : bsmeta<e##i> {}
 #define DECLDATA(e, n) template<> e bsmeta<e>::elements[n];\

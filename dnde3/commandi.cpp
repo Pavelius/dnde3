@@ -11,4 +11,4 @@ template<> commandi bsmeta<commandi>::elements[] = {{1, 0, &gamei::addreputation
 {-20 * GP, &gamei::getmoney, &gamei::addmoney},
 {-50 * GP, &gamei::getmoney, &gamei::addmoney},
 };
-assert_enum(command, LastCommand);
+assert_enum(command, LastCommand)

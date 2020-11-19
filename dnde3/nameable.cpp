@@ -1,6 +1,12 @@
 #include "main.h"
 
-template<> adjectivei bsmeta<adjectivei>::elements[] = {{"шальное", "шальной", "шальная"},
+struct nameablei {
+	race_s			race;
+	gender_s		gender;
+	const char*		name;
+};
+
+BSDATA(adjectivei) = {{"шальное", "шальной", "шальная"},
 {"волшебное", "вольшебный", "волшебная"},
 {"смешное", "смешной", "смешная"},
 {"черное", "черный", "черная"},
@@ -8,9 +14,9 @@ template<> adjectivei bsmeta<adjectivei>::elements[] = {{"шальное", "шальной", "
 {"стальное", "стальной", "стальная"},
 {"золотое", "золотой", "золотая"},
 };
-DECLFULL(adjectivei);
+DECLFULL(adjectivei)
 
-template<> objectivei bsmeta<objectivei>::elements[] = {{"гном", Male},
+BSDATA(objectivei) = {{"гном", Male},
 {"орк", Male},
 {"единорог", Male},
 {"волк", Male},
@@ -26,12 +32,7 @@ template<> objectivei bsmeta<objectivei>::elements[] = {{"гном", Male},
 };
 DECLFULL(objectivei);
 
-struct nameablei {
-	race_s			race;
-	gender_s		gender;
-	const char*		name;
-};
-nameablei bsmeta<nameablei>::elements[] = {{Human, Male, "Хавки"},
+BSDATA(nameablei) = {{Human, Male, "Хавки"},
 {Human, Male, "Рудигер"},
 {Human, Male, "Грегор"},
 {Human, Male, "Вальтон"},

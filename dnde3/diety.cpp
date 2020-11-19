@@ -1,6 +1,6 @@
 #include "main.h"
 
-template<> dietyi bsmeta<dietyi>::elements[] = {{"Бейн", "Бейна"},
+BSDATA(dietyi) = {{"Бейн", "Бейна"},
 {"Баал", "Баала"},
 {"Грумш", "Грумша"},
 {"Хелм", "Хелма"},
@@ -8,4 +8,4 @@ template<> dietyi bsmeta<dietyi>::elements[] = {{"Бейн", "Бейна"},
 {"Темпус", "Темпуса"},
 {"Тир", "Тира"},
 };
-assert_enum(diety, GodTyr);
+assert_enum(diety, GodTyr)

@@ -1,6 +1,6 @@
 #include "main.h"
 
-abilityi bsmeta<abilityi>::elements[] = {{"Strenght", "Сила", "СЛ", "силы", "слабости", "сильнее", "слабее", {}, 0, 1, "%+1i", 2},
+BSDATA(abilityi) = {{"Strenght", "Сила", "СЛ", "силы", "слабости", "сильнее", "слабее", {}, 0, 1, "%+1i", 2},
 {"Dexterity", "Ловкость", "ЛВ", "ловкости", "неуклюжести", "ловче", "неуклюже", {}, 0, 1, "%+1i", 2},
 {"Constitution", "Телосложение", "ТЛ", "телосложения", "болезни", "здоровее", "болезнее", {}, 0, 1, "%+1i", 1},
 {"Intellegence", "Интеллект", "ИН", "интеллекта", "глупости", "умнее", "глупее", {}, 0, 1, "%+1i", 2},
@@ -32,7 +32,7 @@ abilityi bsmeta<abilityi>::elements[] = {{"Strenght", "Сила", "СЛ", "силы", "сла
 {"ManaPoints", "Мана", "", "восстановления", "опустошения", "лучше", "хуже", {Wisdow}, 0, 5, "%+1i", 0},
 {"ManaRate", "Восстановление маны", "", "воодушевления", "унылости", "лучше", "хуже", {Concetration}, 0, 50, "%+1i", 1},
 };
-assert_enum(ability, ManaRate);
+assert_enum(ability, ManaRate)
 
 ability_s abilityi::getid() const {
 	return ability_s(this - bsmeta<abilityi>::elements);

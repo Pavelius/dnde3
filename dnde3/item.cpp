@@ -65,7 +65,7 @@ Bugbear, BugbearF};
 static variant bones[] = {Skeleton};
 static variant bugshell[] = {AntWorker, AntWarrior, AntQueen, Bee, Bee2, Bee3};
 
-itemi bsmeta<itemi>::elements[] = {{"Рука", "item-1", Unique, 0, 0, 0, NoGender, Organic, {0, 3, {1, 3}, Bludgeon, 4, 2}, {}, {}, {}, Melee},
+BSDATA(itemi) = {{"Рука", "item-1", Unique, 0, 0, 0, NoGender, Organic, {0, 3, {1, 3}, Bludgeon, 4, 2}, {}, {}, {}, Melee},
 {"Боевой топор", "item5", Common, 850, 5 * GP, 0, Male, Iron, {-3, 3, {1, 8}, Slashing, 0, 2}, {}, weapon_enchanments, {Versatile}, Melee, FocusAxes},
 {"Дубина", "item1", Common, 1000, 5 * CP, 0, Female, Wood, {-4, 3, {1, 6}, Bludgeon, 0, 2}, {}, weapon_enchanments, {}, Melee},
 {"Кинжал", "item0", Common, 50, 2 * GP, 0, Male, Iron, {0, 3, {1, 4}, Piercing, 2, 3}, {}, weapon_enchanments, {Light}, Melee},
@@ -102,10 +102,10 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", "item-1", Unique, 0, 0, 0, NoGender,
 {"Железные наручи", "item14", Uncommon, 110, 0 * GP, 0, NoGender, Iron, {-3}, {5, 1, 20, 2}, common_bracers, {}, Elbows},
 //
 {"Плащ", "item38", Common, 30, 10 * SP, -2, Male, Leather, {}, {3, 0, 2}, common_cloack, {}, TorsoBack},
-{"Плащ", "item39", Common, 30, 15 * GP, -1, Male, Leather, {}, {3, 0, 2}, {}, {}, TorsoBack},
-{"Плащ", "item75", Uncommon, 35, 20 * GP, 0, Female, Leather, {}, {3, 0, 2}, {}, {}, TorsoBack},
-{"Плащ", "item314", Uncommon, 35, 5 * GP, 1, Female, Leather, {}, {5, 0, 2}, {}, {}, TorsoBack},
-{"Плащ", "item331", Rare, 40, 5 * GP, 2, Female, Leather, {}, {5, 0, 2}, {}, {}, TorsoBack},
+{"Плащ", "item39", Common, 30, 15 * GP, -1, Male, Leather, {}, {3, 0, 2}, common_cloack, {}, TorsoBack},
+{"Плащ", "item75", Uncommon, 35, 20 * GP, 0, Female, Leather, {}, {3, 0, 2}, common_cloack, {}, TorsoBack},
+{"Плащ", "item314", Uncommon, 35, 5 * GP, 1, Female, Leather, {}, {5, 0, 2}, common_cloack, {}, TorsoBack},
+{"Плащ", "item331", Rare, 40, 5 * GP, 2, Female, Leather, {}, {5, 0, 2}, common_cloack, {}, TorsoBack},
 //
 {"Туфли", "item30", Common, 100, 5 * GP, -1, NoGender, Leather, {}, {3, 0, 10}, common_boots, {}, Legs},
 {"Сапоги", "item27", Common, 200, 10 * GP, 0, NoGender, Leather, {}, {3, 0, 10}, common_boots, {}, Legs},
@@ -204,7 +204,7 @@ itemi bsmeta<itemi>::elements[] = {{"Рука", "item-1", Unique, 0, 0, 0, NoGender,
 //
 {"Много предметов"},
 };
-assert_enum(item, ManyItems);
+assert_enum(item, ManyItems)
 static_assert(sizeof(item) == sizeof(int), "Struct 'item' must be sizeof(int)");
 
 bool itemi::is(slot_s v) const {

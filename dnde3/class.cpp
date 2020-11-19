@@ -16,4 +16,41 @@ classi bsmeta<classi>::elements[] = {{"Крестьянин", 4, 0, 0, {-1, 1, 0, -1, 1, 0
 {"Монстер", 8, 4, 0, {}, {40, 5}, {}, {},
 {}},
 };
-assert_enum(class, Monster);
+assert_enum(class, Monster)
+
+BSDATA(equipmenti) = {{Dwarf, Fighter, {AxeBattle, ScaleMail, Shield, BreadDwarven}},
+{Elf, Ranger, {SwordLong, SwordShort, LeatherArmor, BowLong}},
+{Elf, Fighter, {SwordLong, StuddedLeatherArmor, BowLong}},
+{Elf, Mage, {SwordLong, Wand2, Potion1, RingRed, RingBlue}},
+{Halfling, Fighter, {SwordShort, LeatherArmor, BreadHalflings}},
+{Halfling, Theif, {SwordShort, LeatherArmor, RingRed}},
+{Human, Cleric, {Mace}},
+{Human, Fighter, {SwordLong, LeatherArmor, Shield}},
+{Human, Paladin, {SwordLong, ScaleMail}},
+{Human, Ranger, {SwordLong, SwordShort, LeatherArmor}},
+{Human, Theif, {SwordShort, LeatherArmor}},
+{Human, Mage, {Staff, Wand2, Scroll1, Potion1, RingBlue}},
+};
+DECLFULL(equipmenti)
+
+BSDATA(leveli) = {{Fighter, 3, {{FocusSwords}}},
+{Fighter, 6, {{FocusSwords}}},
+{Fighter, 10, {{Strenght, 1}}},
+{Fighter, 12, {{Strenght, 1}}},
+{Fighter, 14, {{Strenght, 1}}},
+{Fighter, 16, {{Strenght, 1}}},
+{Fighter, 20, {{Strenght, 1}, {Constitution, 1}}},
+// Вор вначале повышает навыки, потом прогресс размазывается
+{Theif, 2, {{Acrobatics, 10}}},
+{Theif, 3, {{Lockpicking, 10}}},
+{Theif, 4, {{PickPockets, 10}}},
+//
+{Mage, 2, {{MagicMissile, 1}}},
+{Mage, 3, {{ArmorSpell, 1}}},
+{Mage, 4, {{MagicMissile, 1}}},
+//
+{Cleric, 2, {{HealingSpell, 1}}},
+{Cleric, 4, {{HealingSpell, 1}}},
+{Cleric, 6, {{HealingSpell, 1}}},
+};
+DECLFULL(leveli)

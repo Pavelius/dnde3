@@ -1,6 +1,6 @@
 #include "main.h"
 
-template<> materiali bsmeta<materiali>::elements[] = {{"Стекло", {"стекляное", "стекляный", "стекляная"}, { {Bludgeon, -40}}},
+BSDATA(materiali) = {{"Стекло", {"стекляное", "стекляный", "стекляная"}, { {Bludgeon, -40}}},
 {"Железо", {"железное", "железный", "железная"}, {{Acid, -40}, {WaterAttack, -20}, {Piercing, 10}}},
 {"Кожа", {"кожанное", "кожанный", "кожанная"}, {{Acid, -10}}},
 {"Органика", {"органическое", "органический", "органическая"}, {{Acid, -20}, {WaterAttack, 20}}},
@@ -8,4 +8,4 @@ template<> materiali bsmeta<materiali>::elements[] = {{"Стекло", {"стекляное", "
 {"Камень", {"каменное", "каменный", "каменная"}, {{Fire, 30}, {Piercing, 40}, {Slashing, 20}}},
 {"Дерево", {"деревянное", "деревянный", "деревянная"}, {{Slashing, -20}, {Piercing, -10}}},
 };
-assert_enum(material, Wood);
+assert_enum(material, Wood)

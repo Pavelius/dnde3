@@ -31,7 +31,7 @@ static const char* temple[] = {"Храм %6",
 "Молебня %6",
 };
 
-template<> roomi bsmeta<roomi>::elements[] = {{""},
+BSDATA(roomi) = {{""},
 {"Сокровищница", {}, {}, NoTileObject, {}, {{60, Coinable}}},
 {"Спуск ниже", {}, {}, StairsDown},
 {"Подъем наверх", {}, {}, StairsUp},

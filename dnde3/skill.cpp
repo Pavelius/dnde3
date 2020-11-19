@@ -6,7 +6,7 @@ static const char* talk_location[] = {"библиотеку", "ратушу", "магазин", "таверн
 static const char* talk_games[] = {"кубики", "карты", "наперстки", "шарады"};
 static item_s common_plants[] = {Tarnelle, Cherry, RoseHip, Physalis};
 
-skilli bsmeta<skilli>::elements[] = {{"Торговля", "торговли", {Charisma, Intellegence}, {}, {Creature, {NotYou}, Close, "С кем хотите поторговаться?"}},
+BSDATA(skilli) = {{"Торговля", "торговли", {Charisma, Intellegence}, {}, {Creature, {NotYou}, Close, "С кем хотите поторговаться?"}},
 {"Блеф", "обмана", {Charisma, Dexterity}, {}, {Creature, {NotYou}, Close, "Кого будете обманывать?"}},
 {"Дипломатия", "дипломатии", {Charisma, Wisdow}, {}, {Creature, {NotYou}, Close, "С кем будете вести переговоры?"}},
 //
@@ -44,7 +44,7 @@ skilli bsmeta<skilli>::elements[] = {{"Торговля", "торговли", {Charisma, Intelle
 {"Владение двуручным оружием", "двуручного оружия", {Strenght, Strenght}, {4, 10, 35}},
 {"Сражение двумя оружиями", "ужасного оружия", {Strenght, Dexterity}, {5, 30, 15}},
 };
-assert_enum(skill, LastSkill);
+assert_enum(skill, LastSkill)
 
 skill_s	skilli::getid() const {
 	return skill_s(this - bsmeta<skilli>::elements);

@@ -1,6 +1,6 @@
 #include "main.h"
 
-template<> trapi bsmeta<trapi>::elements[] = {{"", "trap/trap_a"},
+BSDATA(trapi) = {{"", "trap/trap_a"},
 {"Змеинное логово", "trap/trap_a", 10, 1, {2, 4}, GoblinWarrior, "Со всех щелей полезли змеи!"},
 {"Яма с кислотой", "trap/trap_ac", 0, 1, {2, 8}, Acid, "%герой провалил%ась в яму с кислотой."},
 {"Самострел", "trap/trap_ar", -10, 1, {1, 4}, Piercing, "Из стены вылетела стрела.", Bolt},
@@ -15,7 +15,7 @@ template<> trapi bsmeta<trapi>::elements[] = {{"", "trap/trap_a"},
 {"Аура ржавчины", "trap/trap_t", 0, 1, {}, {}, ""},
 {"Водяная ловушка", "trap/trap_w", 0, 1, {3, 18}, WaterAttack, "Мощный поток воды обрушился сверху."},
 };
-assert_enum(trap, TrapWater);
+assert_enum(trap, TrapWater)
 
 void creature::usetrap() {
 	auto i = getposition();
@@ -29,7 +29,7 @@ void creature::usetrap() {
 	if(loc.is(i, Hidden))
 		bonus -= 20;
 	else
-		bonus += 20;
+		bonus += 40;
 	if(roll(Alertness, bonus)) {
 		if(loc.is(i, Hidden) && is(Friendly)) {
 			act("%герой обнаружил%а ловушку.");

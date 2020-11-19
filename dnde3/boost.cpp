@@ -1,3 +1,3 @@
 #include "main.h"
 
-DECLDATA(boosti, 512);
+DECLDATA(boosti, 512)

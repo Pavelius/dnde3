@@ -1,6 +1,6 @@
 #include "main.h"
 
-rolei bsmeta<rolei>::elements[] = {{"Гоблин", "гоблина", "0", Goblin, Male, Chaotic, Monster, 0, {SwordShort}},
+BSDATA(rolei) = {{"Гоблин", "гоблина", "0", Goblin, Male, Chaotic, Monster, 0, {SwordShort}},
 {"Гоблин", "гоблина", "4", Goblin, Male, Chaotic, Monster, 0, {Rock, LeatherArmor}},
 {"Орк", "орка", "1", Orc, Male, Chaotic, Monster, 1, {SwordLong, StuddedLeatherArmor}},
 {"Летучая мышь", "летучей мыши", "2", Animal, Female, Chaotic, Monster, 0, {Bite, Dexterity}},
@@ -38,7 +38,7 @@ rolei bsmeta<rolei>::elements[] = {{"Гоблин", "гоблина", "0", Goblin, Male, Chao
 {"Медвежучиха", "медвежучихи", "24_f", Goblin, Male, Chaotic, Monster, 3, {Fur}},
 {"Персонаж", "персонажа", 0, Human, Male, Neutral, Commoner},
 };
-assert_enum(role, Character);
+assert_enum(role, Character)
 
 void creature::create(role_s type) {
 	clear();

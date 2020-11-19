@@ -103,9 +103,6 @@
     <ClCompile Include="class.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="equipment.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
     <ClCompile Include="dice.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
@@ -173,9 +170,6 @@
       <Filter>Логика</Filter>
     </ClCompile>
     <ClCompile Include="rarity.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
-    <ClCompile Include="class_progress.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
     <ClCompile Include="intellegence.cpp">

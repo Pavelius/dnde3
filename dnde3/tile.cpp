@@ -3,7 +3,7 @@
 static const dungeoni plains[] = {{AreaPlain, 1, 1}, {}};
 static const dungeoni forest[] = {{AreaForest, 1}, {}};
 
-tilei bsmeta<tilei>::elements[] = {{"Plain", "Равнина", Female, plains},
+BSDATA(tilei) = {{"Plain", "Равнина", Female, plains},
 {"Water", "Вода", Female},
 {"Floor", "Пол", Male},
 {"Wall", "Стена", Female},
@@ -18,4 +18,4 @@ tilei bsmeta<tilei>::elements[] = {{"Plain", "Равнина", Female, plains},
 {"Lake", "Озеро", NoGender},
 {"City", "Город", Male},
 };
-assert_enum(tile, City);
+assert_enum(tile, City)

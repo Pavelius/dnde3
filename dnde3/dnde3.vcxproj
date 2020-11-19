@@ -117,7 +117,6 @@
     <ClCompile Include="answer.cpp" />
     <ClCompile Include="archive.cpp" />
     <ClCompile Include="chat.cpp" />
-    <ClCompile Include="class_progress.cpp" />
     <ClCompile Include="commandi.cpp" />
     <ClCompile Include="converter.cpp" />
     <ClCompile Include="damage.cpp" />
@@ -138,7 +137,6 @@
     <ClCompile Include="draw_text.cpp" />
     <ClCompile Include="draw_textf.cpp" />
     <ClCompile Include="dungeon.cpp" />
-    <ClCompile Include="equipment.cpp" />
     <ClCompile Include="event.cpp" />
     <ClCompile Include="food.cpp" />
     <ClCompile Include="history.cpp" />

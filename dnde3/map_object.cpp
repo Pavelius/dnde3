@@ -1,6 +1,6 @@
 #include "main.h"
 
-map_objecti bsmeta<map_objecti>::elements[] = {{""},
+BSDATA(map_objecti) = {{""},
 {"Door", "Дверь"},
 {"Tree", "Дерево", {BlockMovement}, 4, 3},
 {"Altar", "Алтарь", {BlockMovement}, 9},
@@ -10,4 +10,4 @@ map_objecti bsmeta<map_objecti>::elements[] = {{""},
 {"StairsUp", "Лестница вверх", {BlockMovement}, 57},
 {"StairsDown", "Лестница вниз", {BlockMovement}, 56},
 };
-assert_enum(map_object, StairsDown);
+assert_enum(map_object, StairsDown)

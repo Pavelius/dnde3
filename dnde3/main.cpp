@@ -9,7 +9,6 @@ static creature* create(race_s race, gender_s gender, class_s cls) {
 static void create(creature* p1, item_s type) {
 	item it;
 	it.create(type, 3, 20, 6, 30);
-	//it.set(KnownPower);
 	p1->equip(it);
 }
 

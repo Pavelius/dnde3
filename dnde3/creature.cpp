@@ -1,6 +1,6 @@
 #include "main.h"
 
-DECLDATA(creature, 256);
+DECLDATA(creature, 256)
 
 static int			skill_level[] = {30, 60, 90};
 static dicei		skill_raise[] = {{3, 18}, {2, 12}, {1, 10}, {1, 8}, {1, 6}, {1, 5}, {1, 4}, {1, 3}, {1, 2}};

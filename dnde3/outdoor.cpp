@@ -1,6 +1,6 @@
 #include "main.h"
 
-template<> outdoori bsmeta<outdoori>::elements[] = {{1349, "Тига", "town",
+BSDATA(outdoori) = {{1349, "Тига", "town",
 "На холме расположилась небольшая деревушка шахтеров.",
 {{AreaCity, 1, 0, {StairsDownRoom, Barracs, Lair}},
 {AreaDungeon, 8, -2, {StairsDownRoom, StairsUpRoom}},
@@ -15,7 +15,7 @@ template<> outdoori bsmeta<outdoori>::elements[] = {{1349, "Тига", "town",
 {{AreaDungeon, 10, -2, {StairsDownRoom, StairsUpRoom}},
 {AreaDungeon, 1, -2, {StairsUpRoom}}}},
 };
-assert_enum(outdoor, LastOutdoor);
+assert_enum(outdoor, LastOutdoor)
 
 int	outdoori::getid() const {
 	return this - bsmeta<outdoori>::elements;

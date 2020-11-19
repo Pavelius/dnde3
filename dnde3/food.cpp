@@ -1,6 +1,6 @@
 #include "main.h"
 
-template<> foodi bsmeta<foodi>::elements[] = {{Ration, {}, 8},
+BSDATA(foodi) = {{Ration, {}, 8},
 {BreadDwarven, Dwarf, 8},
 {BreadDwarven, {}, 4, 0, 0, {}, 10},
 {BreadEvlen, {}, 4, 0, 0, {}, 0, -20},
@@ -11,7 +11,7 @@ template<> foodi bsmeta<foodi>::elements[] = {{Ration, {}, 8},
 {Meat, {}, 6, 0, 0, {}, 0, 10},
 {Cake, {}, 4},
 };
-DECLFULL(foodi);
+DECLFULL(foodi)
 
 bool foodi::match(const creature* player, const item it) const {
 	if(it.getkind() != type)
