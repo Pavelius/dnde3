@@ -867,6 +867,10 @@ void creature::look(indext index) {
 		direction = d1;
 }
 
+void creature::lookobjects() {
+	loc.choose(getposition(), true, true);
+}
+
 void creature::lookaround() {
 	if(isactive()) {
 		loc.addobject(getposition(), sb);
@@ -2086,7 +2090,7 @@ bool creature::execute(action_s v, bool run) {
 					"%+1 не мой профильный товар. Даю скидку.",
 				};
 				auto pi = items.random();
-				char temp[260]; stringbuilder sb(temp);
+				char temp[260]; stringbuilder  sb(temp);
 				pi->getname(sb, true);
 				say(maprnd(talk), temp);
 				auto sale = pi->getsale();

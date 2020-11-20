@@ -51,6 +51,7 @@ skill_s	skilli::getid() const {
 }
 
 bool creature::use(skill_s id, creature& player, int order, bool run) {
+	site* pst;
 	auto& ei = bsmeta<skilli>::elements[id];
 	switch(id) {
 	case HideInShadow:
@@ -64,6 +65,24 @@ bool creature::use(skill_s id, creature& player, int order, bool run) {
 				return false;
 			}
 			add(Invisible, 1, true);
+		}
+		break;
+	case Diplomacy:
+		pst = getsite();
+		if(pst) {
+			if(pst->getowner() != this)
+				return false;
+			if(!execute(MakeDiscount, false))
+				return false;
+			if(run) {
+				if(!player.roll(id)) {
+					static const char* talk[] = {"ќй, не смеши мен€.", "Ёй, хватит торговатьс€.", "ƒавай, давай, проходи."};
+					say(maprnd(talk));
+				} else
+					execute(MakeDiscount, true);
+			}
+		} else {
+
 		}
 		break;
 	case Gambling:

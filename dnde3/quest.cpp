@@ -36,6 +36,8 @@ const quest* quest::choose(contexti& ei) const {
 	answeri an;
 	auto index = -1;
 	for(auto p = this; *p; p++) {
+		if(index == -1 && p->next)
+			continue;
 		if(index != -1 && (p->index != index || !p->next))
 			break;
 		if(!ei.apply(p, false))

@@ -967,6 +967,7 @@ public:
 	bool				leaving(direction_s v);
 	void				look(indext index);
 	void				lookaround();
+	void				lookobjects();
 	void				makemove();
 	bool				match(variant id) const;
 	void				meleeattack(creature& enemy, int bonus = 0);
@@ -1178,7 +1179,7 @@ public:
 	bool				cansee(indext i1, indext i2) const;
 	static indext		center(int x, int y, int w, int h);
 	static indext		center(const rect& rc);
-	indext				choose(bool allow_cancel);
+	indext				choose(indext start, bool fow, bool allow_cancel) const;
 	void				clear();
 	static void			clearblock();
 	void				content(const rect& rc, room_s type, site* p);

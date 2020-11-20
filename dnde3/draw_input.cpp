@@ -1403,14 +1403,16 @@ int indexa::choose(const char* interactive) {
 	return getresult();
 }
 
-indext location::choose(bool allow_cancel) {
-	current_index = gets2i(camera);
+indext location::choose(indext start, bool fow, bool allow_cancel) const {
+	auto push_value = current_index;
+	current_index = start;
 	setbackground(render_indoor);
 	while(ismodal()) {
 		current_background();
 		if(true) {
 			char temp[512]; string sb(temp);
-			addinfo(current_index, sb);
+			if(!fow || loc.is(current_index, Explored))
+				addinfo(current_index, sb);
 			if(sb)
 				windowf(sb, 0);
 		}
@@ -1429,6 +1431,7 @@ indext location::choose(bool allow_cancel) {
 			break;
 		}
 	}
+	current_index = push_value;
 	return getresult();
 }
 
@@ -1805,6 +1808,7 @@ static hotkey indoor_keys[] = {{F1, "Выбрать 1-го героя", change_player, 0},
 {Alpha + 'U', "Использовать объект", &creature::closedoor},
 {Alpha + 'T', "Использовать инструмент", &creature::usetools},
 {Alpha + 'C', "Поговорить к кем-то", &creature::chat},
+{Alpha + 'L', "Осмотреться по сторонам", &creature::lookobjects},
 {KeySpace, "Подождать 10 минут", &creature::waitturn},
 {Ctrl + Alpha + 'D', "Выпить что-то", &creature::drink},
 {Ctrl + Alpha + 'E', "Съесть что-то", &creature::eat},
