@@ -51,18 +51,11 @@ static const chati* find_chat(const chati* pb, creature& player, creature& oppon
 	return 0;
 }
 
-static void apply(creature& player, creature& opponent, const varianta& source) {
-	for(auto v : source) {
-		if(v.type != Action)
-			continue;
-		player.execute((action_s)v.value, true);
-	}
-}
-
 void creature::chat(creature& opponent, const quest* source) {
 	struct contexti : quest::contexti {
 		creature*	opponent;
 		creature*	player;
+		char		base_bonus;
 		void add(const quest* p) const override {
 			opponent->say(p->name);
 		}
@@ -73,44 +66,52 @@ void creature::chat(creature& opponent, const quest* source) {
 			sb.add(" -");
 			player->actev(sb, p->name, 0);
 		}
-		bool match(const quest* p) const override {
-			auto target = player;
+		bool apply(const quest* p, bool run) override {
+			contexti push = *this;
 			for(auto v : p->bonus) {
 				if(!v)
 					break;
-				if(v.type == Modifier) {
+				switch(v.type) {
+				case Modifier:
 					switch(v.value) {
-					case Opponent: target = opponent; break;
+					case Opponent: player = push.opponent; opponent = push.player; break;
+					case Easy: base_bonus = 30; break;
+					case Hard: base_bonus = 80; break;
 					}
-				} else {
-					if(!target->ismatch(v))
+					continue;
+				case Rarity:
+					if(!run) {
+						if(d100() > bsmeta<rarityi>::elements[v.value].chance)
+							return false;
+					}
+					break;
+				case Skill:
+					if(!player->ismatch(*opponent, (skill_s)v.value, base_bonus))
 						return false;
-					target = player;
+					break;
+				case Ability:
+					if(player->get((ability_s)v.value) < opponent->get((ability_s)v.value))
+						return false;
+					break;
+				case Action:
+					if(!player->execute((action_s)v.value, run))
+						return false;
+					break;
+				default:
+					if(!player->ismatch(v))
+						return false;
+					break;
 				}
+				*this = push;
 			}
 			return true;
 		}
-		void apply(const quest* p) override {
-			auto target = player;
-			for(auto v : p->bonus) {
-				if(!v)
-					break;
-				if(v.type == Modifier) {
-					switch(v.value) {
-					case Opponent: target = opponent; break;
-					}
-				} else {
-					if(v.type==Action)
-						target->execute((action_s)v.value, true);
-					target = player;
-				}
-			}
-		}
 	};
-	contexti context;
-	context.player = this;
-	context.opponent = &opponent;
-	source->play(context);
+	contexti ei;
+	ei.player = this;
+	ei.opponent = &opponent;
+	ei.base_bonus = 50;
+	source->play(ei);
 }
 
 void creature::chat(creature& opponent) {

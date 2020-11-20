@@ -38,13 +38,13 @@ const quest* quest::choose(contexti& ei) const {
 	for(auto p = this; *p; p++) {
 		if(index != -1 && (p->index != index || !p->next))
 			break;
-		if(!ei.match(p))
+		if(!ei.apply(p, false))
 			continue;
 		index = p->index;
 		if(p->next)
 			ei.add(an, p);
 		else {
-			ei.apply(p);
+			ei.apply(p, true);
 			ei.add(p);
 			while(!p[1].next)
 				p++;
@@ -58,7 +58,7 @@ void quest::play(contexti& ei) const {
 	while(p) {
 		auto p1 = p->choose(ei);
 		if(p1)
-			ei.apply(p1);
+			ei.apply(p1, true);
 		if(!p1 || p1->next==-1)
 			break;
 		p = find(p1->next);

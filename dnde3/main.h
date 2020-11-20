@@ -773,8 +773,7 @@ struct quest {
 	struct contexti {
 		virtual void	add(answeri& an, const quest* p) const;
 		virtual void	add(const quest* p) const;
-		virtual void	apply(const quest* p) {}
-		virtual bool	match(const quest* p) const { return true; }
+		virtual bool	apply(const quest* p, bool run) { return true; }
 	};
 	int					index;
 	varianta			bonus;
@@ -946,10 +945,7 @@ public:
 	bool				isenemy(const creature* target) const;
 	bool				isguard() const { return guard != Blocked; }
 	bool				ismatch(variant v) const;
-	bool				ismatch(action_s v) const;
-	bool				ismatch(const creature& opponent, variant id) const;
 	bool				ismatch(const creature& opponent, skill_s id, int value) const;
-	bool				ismatch(const creature& opponent, const varianta& source) const;
 	const char*			isusedisable(skill_s id) const;
 	void				kill();
 	bool				knownreceipt(variant id) const;
@@ -1275,18 +1271,6 @@ struct tilei {
 	const char*			name;
 	gender_s			gender;
 	const dungeoni*		wilderness;
-};
-struct eventi {
-	unsigned short		index;
-	unsigned short		type;
-	variant				actions[8];
-	const char*			text;
-	const char*			answer1;
-	const char*			answer2;
-	explicit operator bool() const { return text != 0; }
-	void				apply();
-	bool				isallow() const;
-	static void			play(int number);
 };
 class gamei : public geoposable {
 	unsigned			rounds;
