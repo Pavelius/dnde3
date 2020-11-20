@@ -22,7 +22,7 @@ const char*	variant::getnameof() const {
 	case Ability: return bsmeta<abilityi>::elements[value].nameof;
 	case God: return bsmeta<dietyi>::elements[value].nameof;
 	case Role: return bsmeta<rolei>::elements[value].nameof;
-	case Skill: return bsmeta<skilli>::elements[value].name_tome;
+	case Skill: return bsmeta<skilli>::elements[value].nameof;
 	case Spell: return bsmeta<spelli>::elements[value].nameof;
 	case State: return bsmeta<statei>::elements[value].nameof;
 	default: return "Нет варианта";
@@ -32,7 +32,7 @@ const char*	variant::getnameof() const {
 const char*	variant::getnameofc() const {
 	switch(type) {
 	case Ability: return bsmeta<abilityi>::elements[value].cursedof;
-	case Skill: return bsmeta<skilli>::elements[value].name_tome;
+	case Skill: return bsmeta<skilli>::elements[value].nameof;
 	case State: return bsmeta<statei>::elements[value].nameof;
 	default: return "Нет варианта";
 	}

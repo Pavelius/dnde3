@@ -32,7 +32,7 @@ static const quest* skip(const quest* p) {
 	}
 }
 
-const quest* quest::choose(const contexti& ei) const {
+const quest* quest::choose(contexti& ei) const {
 	answeri an;
 	auto index = -1;
 	for(auto p = this; *p; p++) {
@@ -44,6 +44,7 @@ const quest* quest::choose(const contexti& ei) const {
 		if(p->next)
 			ei.add(an, p);
 		else {
+			ei.apply(p);
 			ei.add(p);
 			while(!p[1].next)
 				p++;
@@ -56,6 +57,8 @@ void quest::play(contexti& ei) const {
 	auto p = this;
 	while(p) {
 		auto p1 = p->choose(ei);
+		if(p1)
+			ei.apply(p1);
 		if(!p1 || p1->next==-1)
 			break;
 		p = find(p1->next);

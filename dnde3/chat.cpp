@@ -9,8 +9,8 @@ struct chati {
 static quest party_member[] = {{1, {Common}, "Чего тебе?"},
 {1, {Common}, "Что надо, друг?"},
 {1, {}, "Что там?"},
-{1, {GuardPosition}, "Охраняй это место.", 2},
-{1, {StopGuardPosition}, "Пошли со мной.", 2},
+{1, {Opponent, GuardPosition}, "Охраняй это место.", 2},
+{1, {Opponent, StopGuardPosition}, "Пошли со мной.", 2},
 {1, {}, "Все нормально. Так просто решил%а поболтать.", -1},
 {}};
 static quest neutral_character[] = {{1, {Common}, "Чего тебе?"},
@@ -74,18 +74,37 @@ void creature::chat(creature& opponent, const quest* source) {
 			player->actev(sb, p->name, 0);
 		}
 		bool match(const quest* p) const override {
+			auto target = player;
 			for(auto v : p->bonus) {
 				if(!v)
 					break;
-				if(v.type == Action) {
-					if(!opponent->ismatch(v))
-						return false;
+				if(v.type == Modifier) {
+					switch(v.value) {
+					case Opponent: target = opponent; break;
+					}
 				} else {
-					if(!player->ismatch(v))
+					if(!target->ismatch(v))
 						return false;
+					target = player;
 				}
 			}
 			return true;
+		}
+		void apply(const quest* p) override {
+			auto target = player;
+			for(auto v : p->bonus) {
+				if(!v)
+					break;
+				if(v.type == Modifier) {
+					switch(v.value) {
+					case Opponent: target = opponent; break;
+					}
+				} else {
+					if(v.type==Action)
+						target->execute((action_s)v.value, true);
+					target = player;
+				}
+			}
 		}
 	};
 	contexti context;

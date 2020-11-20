@@ -202,7 +202,7 @@ enum item_flag_s : unsigned char {
 enum variant_s : unsigned char {
 	NoVariant,
 	Ability, Action, Alignment, Class, Command, Creature, Formula, Gender, God, Harm,
-	Item, ItemIdentify, ItemType,
+	Item, ItemIdentify, ItemType, Modifier,
 	Number, Object, ObjectFlags, Outdoor, Race, Range, Rarity, Role, Room,
 	Skill, Slot, Spell, State, Target, Tile,
 	Variant,
@@ -238,6 +238,9 @@ enum intellegence_s : unsigned char {
 };
 enum map_object_flag_s : unsigned char {
 	BlockMovement, BlockLight,
+};
+enum modifier_s : unsigned char {
+	Opponent, Easy, Hard,
 };
 enum action_s : unsigned char {
 	GuardPosition, StopGuardPosition,
@@ -285,6 +288,7 @@ struct variant {
 	constexpr variant(identify_s v) : type(ItemIdentify), value(v) {}
 	constexpr variant(item_s v) : type(Item), value(v) {}
 	constexpr variant(item_type_s v) : type(ItemType), value(v) {}
+	constexpr variant(modifier_s v) : type(Modifier), value(v) {}
 	constexpr variant(map_object_s v) : type(Object), value(v) {}
 	constexpr variant(map_flag_s v) : type(ObjectFlags), value(v) {}
 	constexpr variant(range_s v) : type(Range), value(v) {}
@@ -769,6 +773,7 @@ struct quest {
 	struct contexti {
 		virtual void	add(answeri& an, const quest* p) const;
 		virtual void	add(const quest* p) const;
+		virtual void	apply(const quest* p) {}
 		virtual bool	match(const quest* p) const { return true; }
 	};
 	int					index;
@@ -777,7 +782,7 @@ struct quest {
 	int					next;
 	constexpr operator bool() const { return index != 0; }
 	const quest*		find(int index) const;
-	const quest*		choose(const contexti& e) const;
+	const quest*		choose(contexti& e) const;
 	void				play(contexti& e) const;
 };
 class creature : public nameable, public paperdoll {
@@ -1084,7 +1089,7 @@ struct skilli {
 		char			speed;
 	};
 	const char*			name;
-	const char*			name_tome;
+	const char*			nameof;
 	ability_s			abilities[2];
 	weaponi				weapon;
 	targeti				target;
