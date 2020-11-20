@@ -12,6 +12,41 @@ void itema::selectb(creature& e) {
 	e.select(*this, Backpack, LastBackpack, true);
 }
 
+void itema::selectg(variant v) {
+	auto ps = begin();
+	auto pe = end();
+	for(auto p : *this) {
+		if(!p)
+			continue;
+		switch(v.type) {
+		case Sale:
+			if(v.value < p->getsale())
+				continue;
+			break;
+		}
+		if(ps < pe)
+			*ps++ = p;
+	}
+	count = ps - data;
+}
+
+void itema::select(site& ei) {
+	auto ps = begin();
+	auto pe = endof();
+	for(auto& e : bsmeta<itemground>()) {
+		if(!e)
+			continue;
+		point pt;
+		pt.x = loc.getx(e.index);
+		pt.y = loc.gety(e.index);
+		if(!pt.in(ei))
+			continue;
+		if(ps < pe)
+			*ps++ = &e;
+	}
+	count = ps - data;
+}
+
 void itema::select(indext index, bool extend) {
 	if(index == Blocked)
 		return;

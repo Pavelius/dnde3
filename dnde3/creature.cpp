@@ -277,7 +277,7 @@ int creature::getlevel(skill_s v) const {
 }
 
 dicei creature::getraise(skill_s v) const {
-	auto n = skills[v]/10;
+	auto n = skills[v] / 10;
 	return maptbl(skill_raise, n);
 }
 
@@ -618,7 +618,7 @@ creature* creature::getactive(int n) {
 	creaturea creatures;
 	creatures.select(Friendly);
 	creatures.matchbs(true);
-	creatures.match(Sleep, true);
+	creatures.matchact(Sleep, true);
 	if(!creatures || n >= creatures.getcount())
 		return 0;
 	return creatures[n];
@@ -1200,16 +1200,21 @@ bool creature::aispells(creaturea& creatures) {
 	return false;
 }
 
-bool creature::aiskills(creaturea& creatures) {
+bool creature::aiskills(creaturea& creatures, bool long_action, bool run) {
 	skilla source;
 	source.select(*this);
 	source.removent();
+	source.match(LongAction, !long_action);
 	source.shuffle();
-	for(auto s : source) {
-		if(use(creatures, s))
-			return true;
-		if(!(*this))
-			return true;
+	if(!run)
+		return source.getcount() != 0;
+	else {
+		for(auto s : source) {
+			if(use(creatures, s))
+				return true;
+			if(!(*this))
+				return true;
+		}
 	}
 	return false;
 }
@@ -1254,7 +1259,7 @@ void creature::aiturn(creaturea& creatures, creaturea& enemies, creature* enemy)
 						return;
 				}
 			}
-			if(aiskills(creatures))
+			if(aiskills(creatures, false, true))
 				return;
 		}
 		// If creature guard some square move to guard position
@@ -2032,9 +2037,6 @@ bool creature::leaving(direction_s v) {
 	return true;
 }
 
-void creature::testevents() {
-}
-
 void creature::testpotion() {
 	//loc.growplants();
 	//game.decoyfood();
@@ -2047,6 +2049,7 @@ int	creature::getallowedweight() const {
 }
 
 bool creature::execute(action_s v, bool run) {
+	site* pst;
 	switch(v) {
 	case GuardPosition:
 		if(guard != Blocked)
@@ -2059,6 +2062,37 @@ bool creature::execute(action_s v, bool run) {
 			return false;
 		if(run)
 			guard = Blocked;
+		break;
+	case UseLongActionSkill:
+		if(true) {
+			creaturea creatures;
+			creatures.select(getposition(), getlos());
+			return aiskills(creatures, true, run);
+		}
+		break;
+	case MakeDiscount:
+		pst = getsite();
+		if(!pst || pst->getowner() != this)
+			return false;
+		if(true) {
+			itema items;
+			items.select(*pst);
+			items.selectg(Sale100);
+			if(!items)
+				return false;
+			if(run) {
+				static const char* talk[] = {"Ладно, толко сегодня распродажа. %+1 отпущу немного дешевле.",
+					"Надо делать скидочку. Сегодня я добрый. %+1 отпущу дешевле.",
+					"%+1 не мой профильный товар. Даю скидку.",
+				};
+				auto pi = items.random();
+				char temp[260]; stringbuilder sb(temp);
+				pi->getname(sb, true);
+				say(maprnd(talk), temp);
+				auto sale = pi->getsale();
+				pi->set(sale_s(sale - 1));
+			}
+		}
 		break;
 	}
 	return true;

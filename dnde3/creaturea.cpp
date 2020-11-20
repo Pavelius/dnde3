@@ -62,13 +62,8 @@ void creaturea::matcha(creature& player, variant id, int v, bool remove) {
 		return;
 	auto ps = data;
 	for(auto p : *this) {
-		if(remove) {
-			if(p->apply(player, id, v, 0, false))
-				continue;
-		} else {
-			if(!p->apply(player, id, v, 0, false))
-				continue;
-		}
+		if(p->apply(player, id, v, 0, false)==remove)
+			continue;
 		*ps++ = p;
 	}
 	count = ps - data;
@@ -153,16 +148,21 @@ void creaturea::sort(indext start) {
 	qsort(data, count, sizeof(data[0]), compare_distace);
 }
 
+void creaturea::matchact(spell_s id, bool remove) {
+	auto ps = data;
+	for(auto p : *this) {
+		if(p->is(id)==remove)
+			continue;
+		*ps++ = p;
+	}
+	count = ps - data;
+}
+
 void creaturea::matchbs(bool remove) {
 	auto ps = data;
 	for(auto p : *this) {
-		if(remove) {
-			if(p->isbusy())
-				continue;
-		} else {
-			if(!p->isbusy())
-				continue;
-		}
+		if(p->isbusy() == remove)
+			continue;
 		*ps++ = p;
 	}
 	count = ps - data;

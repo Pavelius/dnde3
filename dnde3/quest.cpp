@@ -50,6 +50,8 @@ const quest* quest::choose(contexti& ei) const {
 				p++;
 		}
 	}
+	if(!an)
+		return 0;
 	return (quest*)an.choosev(true, true, false, sb);
 }
 

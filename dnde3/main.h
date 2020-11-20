@@ -204,7 +204,7 @@ enum variant_s : unsigned char {
 	Ability, Action, Alignment, Class, Command, Creature, Formula, Gender, God, Harm,
 	Item, ItemIdentify, ItemType, Modifier,
 	Number, Object, ObjectFlags, Outdoor, Race, Range, Rarity, Role, Room,
-	Skill, Slot, Spell, State, Target, Tile,
+	Sale, Skill, Slot, Spell, State, Target, Tile,
 	Variant,
 };
 enum outdoor_s : unsigned char{
@@ -244,7 +244,7 @@ enum modifier_s : unsigned char {
 	Opponent, Easy, Hard,
 };
 enum action_s : unsigned char {
-	GuardPosition, StopGuardPosition,
+	GuardPosition, StopGuardPosition, UseLongActionSkill, MakeDiscount,
 };
 enum duration_s : unsigned char {
 	Instant, Round, Minute, CoupleMinutes, HalfHour, Hour,
@@ -300,6 +300,7 @@ struct variant {
 	constexpr variant(rarity_s v) : type(Rarity), value(v) {}
 	constexpr variant(role_s v) : type(Role), value(v) {}
 	constexpr variant(room_s v) : type(Room), value(v) {}
+	constexpr variant(sale_s v) : type(Sale), value(v) {}
 	constexpr variant(skill_s v) : type(Skill), value(v) {}
 	constexpr variant(slot_s v) : type(Slot), value(v) {}
 	constexpr variant(spell_s v) : type(Spell), value(v) {}
@@ -527,20 +528,20 @@ struct itemi {
 class item {
 	union {
 		struct {
-			item_s		type;
+			item_s			type;
 			//
-			unsigned char identifyc : 1;
-			unsigned char identifys : 1;
-			item_type_s	magic : 2;
-			unsigned char quality : 2;
-			sale_s		sale : 2;
+			unsigned char	identifyc : 1;
+			unsigned char	identifys : 1;
+			item_type_s		magic : 2;
+			unsigned char	quality : 2;
+			sale_s			sale : 2;
 			//
-			unsigned char personal : 1;
-			unsigned char identifye : 1;
-			unsigned char damaged : 2;
-			unsigned char charge : 4;
+			unsigned char	personal : 1;
+			unsigned char	identifye : 1;
+			unsigned char	damaged : 2;
+			unsigned char	charge : 4;
 			//
-			unsigned char effect;
+			unsigned char	effect;
 		};
 		short unsigned	us[2];
 		int				i;
@@ -584,6 +585,7 @@ public:
 	int					getquality() const { return quality; }
 	static const aref<variant> getreceipts();
 	void				getstatistic(stringbuilder& sb) const;
+	sale_s				getsale() const { return sale; }
 	creature*			getwearer() const;
 	slot_s				getwearerslot() const;
 	int					getweightsingle() const { return getitem().weight; }
@@ -633,8 +635,10 @@ public:
 	void				matchboost(variant v);
 	void				select(creature& e);
 	void				select(indext index, bool extend = false);
+	void				select(site& e);
 	void				selecta(creature& e);
 	void				selectb(creature& e);
+	void				selectg(variant v);
 };
 class variantc : public adat<casev<variant>> {
 	void				add(variant v);
@@ -656,6 +660,7 @@ public:
 	void				removent();
 	void				select(const creature& e);
 	void				sort();
+	void				match(target_flag_s i, bool remove);
 };
 class skillu : public skilla {
 	creature*			player;
@@ -710,11 +715,11 @@ public:
 	gender_s			getgender() const;
 	const char*			getname() const;
 	void				getname(stringbuilder& sb) const;
+	race_s				getrace() const;
 	site*				getsite() const;
 	void				randomname();
 	void				sayv(stringbuilder& st, const char* format, const char* param) const;
 	void				setname(race_s race, gender_s gender);
-	race_s				getrace() const;
 	bool				isactive() const;
 	bool				ischaracter() const { return value == Character; }
 };
@@ -819,7 +824,7 @@ class creature : public nameable, public paperdoll {
 	bool				aiuse(const creaturea& creatures, const char* interactive, slot_s slot, variant effect);
 	void				aimove();
 	void				aioverland() {}
-	bool				aiskills(creaturea& creatures);
+	bool				aiskills(creaturea& creatures, bool long_action, bool run);
 	bool				aispells(creaturea& creatures);
 	void				aiturn(creaturea& creatures, creaturea& enemies, creature* enemy);
 	void				applyabilities();
@@ -1003,7 +1008,6 @@ public:
 	void				setmoney(int value) { money = value; }
 	void				setfriendlyto(const creature& player);
 	void				shoot();
-	void				testevents();
 	void				testpotion();
 	void				testweapons();
 	void				unlink();
@@ -1029,6 +1033,7 @@ public:
 	void				match(variant v, bool remove = false);
 	void				match(creature& player, variant v, bool remove, bool target_insivible = false);
 	void				matcha(creature& player, variant id, int v, bool remove = false);
+	void				matchact(spell_s id, bool remove);
 	void				matchr(indext index, int range);
 	void				matchbs(bool remove);
 	void				select();

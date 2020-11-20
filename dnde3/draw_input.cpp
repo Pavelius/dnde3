@@ -2059,7 +2059,6 @@ static hotkey overland_keys[] = {{F1, "Выбрать первого героя", change_player, 0}
 {Ctrl + Alpha + 'R', "Прочитать что-то", &creature::readsomething},
 {Ctrl + Alpha + 'W', "Тестировать оружие", &creature::testweapons},
 {Ctrl + Alpha + 'Q', "Сохранить и выйти", &creature::quitandsave},
-{Ctrl + Alpha + 'P', "Тестировать событие", &creature::testevents},
 {}};
 
 void creature::playuioverland() {

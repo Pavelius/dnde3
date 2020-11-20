@@ -23,7 +23,7 @@ BSDATA(skilli) = {{"Торговля", "торговли", {Charisma, Intellegence}, {}, {Creatu
 {"Открыть замок", "взлома", {Dexterity, Intellegence}, {}, {Object, {}, Close, "Какой замок вскрыть?"}},
 {"Двигаться тихо", "тихого движения", {Dexterity, Dexterity}},
 {"Очистить карманы", "воровства", {Dexterity, Charisma}, {}, {Creature, {NotYou}, Close, "Кого обворовать?"}},
-{"Алхимия", "алхимии", {Intellegence, Intellegence}, {}, {Item, {AlwaysChoose}, You, "Какое зелье хотите попробывать?"}},
+{"Алхимия", "алхимии", {Intellegence, Intellegence}, {}, {Item, {LongAction, AlwaysChoose}, You, "Какое зелье хотите попробывать?"}},
 {"Готовка еды", "куховарения", {Charisma, Intellegence}, {}, {Item, {AlwaysChoose}, You, "Что хотите приготовить?"}},
 {"Танцы", "танцев", {Dexterity, Charisma}},
 {"Инженерное дело", "инженерии", {Intellegence, Intellegence}},
