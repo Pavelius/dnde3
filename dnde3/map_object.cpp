@@ -10,4 +10,4 @@ BSDATA(map_objecti) = {{""},
 {"StairsUp", "Лестница вверх", {BlockMovement}, 57},
 {"StairsDown", "Лестница вниз", {BlockMovement}, 56},
 };
-assert_enum(map_object, StairsDown)
+assert_enum(map_objecti, StairsDown)

@@ -13,4 +13,4 @@ BSDATA(statei) = {{"Инфразрение", "ночного зрения", {Friendly}},
 {"Отвлечен", "отвлечения", {Hostile}},
 {"Ранен", "рассечения", {Hostile}, 0, "Кровотечение у %героя прекратилось."},
 };
-assert_enum(state, LastState)
+assert_enum(statei, LastState)

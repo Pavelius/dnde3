@@ -16,7 +16,7 @@ classi bsmeta<classi>::elements[] = {{"Крестьянин", 4, 0, 0, {-1, 1, 0, -1, 1, 0
 {"Монстер", 8, 4, 0, {}, {40, 5}, {}, {},
 {}},
 };
-assert_enum(class, Monster)
+assert_enum(classi, Monster)
 
 BSDATA(equipmenti) = {{Dwarf, Fighter, {AxeBattle, ScaleMail, Shield, BreadDwarven}},
 {Elf, Ranger, {SwordLong, SwordShort, LeatherArmor, BowLong}},

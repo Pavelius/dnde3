@@ -31,10 +31,10 @@ BSDATA(skilli) = {{"Торговля", "торговли", {Charisma, Intellegence}, {}, {Creatu
 {"История", "истории", {Intellegence, Intellegence}, {}, {Object, {}, Reach, "Какой объект изучить?"}},
 {"Заживание ран", "здоровья", {Wisdow, Constitution}},
 {"Травознавство", "травознания", {Wisdow, Intellegence}, {}, {Object, {}, Close, "Где собрать урожай?"}},
-{"Грамотность", "письма и чтения", {Intellegence, Intellegence}, {}, {Item, {AlwaysChoose}, You, "Что хотите прочитать?"}},
-{"Шахтерское дело", "шахтерского дела", {Strenght, Constitution}, {}, {Object, {}, Close, "Где добывать руду?"}},
+{"Грамотность", "письма и чтения", {Intellegence, Intellegence}, {}, {Item, {LongAction, AlwaysChoose}, You, "Что хотите прочитать?"}},
+{"Шахтерское дело", "шахтерского дела", {Strenght, Constitution}, {}, {Object, {LongAction}, Close, "Где добывать руду?"}},
 {"Езда верхом", "езды верхом", {Dexterity, Constitution}},
-{"Кузнечное дело", "кузнечного дела", {Strenght, Intellegence}, {}, {Item, {}, You, "Что хотите отремонтировать?"}},
+{"Кузнечное дело", "кузнечного дела", {Strenght, Intellegence}, {}, {Item, {LongAction}, You, "Что хотите отремонтировать?"}},
 {"Выживание", "выживания", {Wisdow, Constitution}},
 {"Плавание", "плавания", {Strenght, Constitution}},
 //
@@ -44,7 +44,7 @@ BSDATA(skilli) = {{"Торговля", "торговли", {Charisma, Intellegence}, {}, {Creatu
 {"Владение двуручным оружием", "двуручного оружия", {Strenght, Strenght}, {4, 10, 35}},
 {"Сражение двумя оружиями", "ужасного оружия", {Strenght, Dexterity}, {5, 30, 15}},
 };
-assert_enum(skill, LastSkill)
+assert_enum(skilli, LastSkill)
 
 skill_s	skilli::getid() const {
 	return skill_s(this - bsmeta<skilli>::elements);
@@ -60,7 +60,7 @@ bool creature::use(skill_s id, creature& player, int order, bool run) {
 			if(!player.roll(id)) {
 				if(isactive())
 					sb.add("Попытка не удалась.");
-				wait(xrand(1, 4));
+				wait(CoupleMinutes);
 				return false;
 			}
 			add(Invisible, 1, true);
@@ -229,7 +229,7 @@ bool item::use(skill_s id, creature& player, int order, bool run) {
 						if(!player.askyn("Чтение займет продолжительное время. Действительно хотите продолжить?"))
 							return false;
 						player.act("%герой достал%а %-1 и занял%ась чтением.", getname());
-						player.wait(60);
+						player.wait(Hour);
 						if(result)
 							player.add(v, 1, true);
 						else {

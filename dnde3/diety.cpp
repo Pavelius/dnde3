@@ -8,4 +8,4 @@ BSDATA(dietyi) = {{"Бейн", "Бейна"},
 {"Темпус", "Темпуса"},
 {"Тир", "Тира"},
 };
-assert_enum(diety, GodTyr)
+assert_enum(dietyi, GodTyr)

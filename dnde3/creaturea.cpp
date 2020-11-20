@@ -28,10 +28,10 @@ void creaturea::match(creature& player, variant v, bool remove, bool target_insi
 			}
 		} else {
 			if(remove) {
-				if(p->ismatch(v))
+				if(p->match(v))
 					continue;
 			} else {
-				if(!p->ismatch(v))
+				if(!p->match(v))
 					continue;
 			}
 		}
@@ -46,10 +46,10 @@ void creaturea::match(variant v, bool remove) {
 	auto ps = data;
 	for(auto p : *this) {
 		if(remove) {
-			if(p->ismatch(v))
+			if(p->match(v))
 				continue;
 		} else {
-			if(!p->ismatch(v))
+			if(!p->match(v))
 				continue;
 		}
 		*ps++ = p;

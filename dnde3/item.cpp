@@ -204,7 +204,7 @@ BSDATA(itemi) = {{"Рука", "item-1", Unique, 0, 0, 0, NoGender, Organic, {0, 3, {
 //
 {"Много предметов"},
 };
-assert_enum(item, ManyItems)
+assert_enum(itemi, ManyItems)
 static_assert(sizeof(item) == sizeof(int), "Struct 'item' must be sizeof(int)");
 
 bool itemi::is(slot_s v) const {

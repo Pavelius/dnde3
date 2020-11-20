@@ -227,6 +227,7 @@ enum sale_s : unsigned char {
 };
 enum target_flag_s : unsigned char {
 	NotYou, Friends, Enemies, AlwaysChoose,
+	LongAction,
 	RandomTargets, TwoTargets, ThreeTargets,
 	AllTargets,
 };
@@ -244,6 +245,9 @@ enum modifier_s : unsigned char {
 };
 enum action_s : unsigned char {
 	GuardPosition, StopGuardPosition,
+};
+enum duration_s : unsigned char {
+	Instant, Round, Minute, CoupleMinutes, HalfHour, Hour,
 };
 enum command_s : unsigned char {
 	AddReputation, LoseReputation, BadReputation, GoodReputation,
@@ -329,6 +333,12 @@ struct string : stringbuilder {
 	template<unsigned N> constexpr string(char(&result)[N]) : stringbuilder(result, result + N - 1), name(0), gender(Female) {}
 	void				addformula(const variant* p);
 	void				addidentifier(const char* identifier) override;
+};
+struct durationi {
+	const char*			id;
+	const char*			name;
+	unsigned			range[2];
+	int					roll() const;
 };
 struct sloti {
 	const char*			id;
@@ -692,7 +702,7 @@ class nameable : public variant, public posable {
 	short unsigned		name[2];
 public:
 	void				act(const char* format, ...) const;
-	void				actev(stringbuilder& st, const char* format, const char* param) const;
+	void				actev(stringbuilder& st, const char* format, const char* param, bool add_sep) const;
 	void				actv(stringbuilder& sb, const char* format, const char* param) const;
 	void				actv(stringbuilder& sb, nameable& e, const char* format, const char* param) const;
 	bool				askv(stringbuilder& st, const nameable& e, const char* format, const char* param) const;
@@ -944,7 +954,6 @@ public:
 	bool				isbusy() const { return restore_energy <= -(StandartEnergyCost * 4) && is(Unaware); }
 	bool				isenemy(const creature* target) const;
 	bool				isguard() const { return guard != Blocked; }
-	bool				ismatch(variant v) const;
 	bool				ismatch(const creature& opponent, skill_s id, int value) const;
 	const char*			isusedisable(skill_s id) const;
 	void				kill();
@@ -1008,6 +1017,7 @@ public:
 	void				usewands();
 	void				wait() { consume(StandartEnergyCost); }
 	void				wait(int n) { consume(StandartEnergyCost * n); }
+	void				wait(duration_s v);
 	void				waitturn() { wait(10*3); }
 	void				zoomon();
 };

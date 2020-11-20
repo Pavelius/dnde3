@@ -279,11 +279,12 @@ bool nameable::cansee() const {
 	return true;
 }
 
-void nameable::actev(stringbuilder& st, const char* format, const char* param) const {
+void nameable::actev(stringbuilder& st, const char* format, const char* param, bool add_sep) const {
 	string sb = st;
 	sb.name = getname();
 	sb.gender = getgender();
-	sb.addsep(' ');
+	if(add_sep)
+		sb.addsep(' ');
 	sb.addv(format, param);
 	st = sb;
 }
@@ -293,7 +294,7 @@ void nameable::actv(stringbuilder& st, const char* format, const char* param) co
 		return;
 	if(!cansee())
 		return;
-	actev(st, format, param);
+	actev(st, format, param, true);
 }
 
 void nameable::actv(stringbuilder& st, nameable& e, const char* format, const char* param) const {

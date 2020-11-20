@@ -6,4 +6,4 @@ BSDATA(rarityi) = {{"Обычный", 12, 70},
 {"Очень редкий", 1, 5},
 {"Уникальный", 1},
 };
-assert_enum(rarity, Unique)
+assert_enum(rarityi, Unique)

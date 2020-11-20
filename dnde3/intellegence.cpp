@@ -18,7 +18,7 @@ BSDATA(intellegencei) = {{"неразумное существо", {0}},
 {"супер гениальный индивидум", {19, 21}},
 {"божественно интеллектуальный индивидум", {22, 100}},
 };
-assert_enum(intellegence, GodInt)
+assert_enum(intellegencei, GodInt)
 
 intellegence_s creature::getint() const {
 	auto v = get(Intellegence);

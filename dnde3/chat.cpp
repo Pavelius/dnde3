@@ -45,7 +45,7 @@ static quest chat_shopkeeper[] = {{1, {Common}, "Как твой бизнес, друг?"},
 
 static const chati* find_chat(const chati* pb, creature& player, creature& opponent) {
 	for(auto p = pb; *p; p++) {
-		if(opponent.ismatch(p->v1))
+		if(opponent.match(p->v1))
 			return p;
 	}
 	return 0;
@@ -62,9 +62,7 @@ void creature::chat(creature& opponent, const quest* source) {
 		void add(answeri& an, const quest* p) const override {
 			if(!an.addv((int)p, 0))
 				return;
-			auto& sb = an.getsb();
-			sb.add(" -");
-			player->actev(sb, p->name, 0);
+			player->sayv(an.getsb(), p->name, 0);
 		}
 		bool apply(const quest* p, bool run) override {
 			contexti push = *this;
@@ -81,25 +79,35 @@ void creature::chat(creature& opponent, const quest* source) {
 					continue;
 				case Rarity:
 					if(!run) {
-						if(d100() > bsmeta<rarityi>::elements[v.value].chance)
+						if(d100() > bsmeta<rarityi>::elements[v.value].chance) {
+							*this = push;
 							return false;
+						}
 					}
 					break;
 				case Skill:
-					if(!player->ismatch(*opponent, (skill_s)v.value, base_bonus))
+					if(!player->ismatch(*opponent, (skill_s)v.value, base_bonus)) {
+						*this = push;
 						return false;
+					}
 					break;
 				case Ability:
-					if(player->get((ability_s)v.value) < opponent->get((ability_s)v.value))
+					if(player->get((ability_s)v.value) < opponent->get((ability_s)v.value)) {
+						*this = push;
 						return false;
+					}
 					break;
 				case Action:
-					if(!player->execute((action_s)v.value, run))
+					if(!player->execute((action_s)v.value, run)) {
+						*this = push;
 						return false;
+					}
 					break;
 				default:
-					if(!player->ismatch(v))
+					if(!player->match(v)) {
+						*this = push;
 						return false;
+					}
 					break;
 				}
 				*this = push;

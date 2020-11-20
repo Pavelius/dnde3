@@ -1743,28 +1743,6 @@ boosti*	creature::finds(variant source) const {
 	return 0;
 }
 
-bool creature::match(variant id) const {
-	switch(id.type) {
-	case Race:
-		if(getrace() != id.value)
-			return false;
-		break;
-	case Skill:
-		if(!skills[id.value])
-			return false;
-		break;
-	case State:
-		if(!is(state_s(id.value)))
-			return false;
-		break;
-	case Spell:
-		if(!spells[id.value])
-			return false;
-		break;
-	}
-	return true;
-}
-
 void creature::add(spell_s id, unsigned minutes) {
 	recall({}, id, 0, game.getrounds() + minutes);
 }
@@ -1845,23 +1823,18 @@ void creature::minimap() {
 	loc.minimap(getposition(), true);
 }
 
-bool creature::ismatch(variant v) const {
+bool creature::match(variant v) const {
 	switch(v.type) {
 	case Alignment: return true;
 	case Class: return kind == v.value;
 	case Gender: return getgender() == v.value;
 	case Race: return getrace() == v.value;
 	case Role: return getrole() == v.value;
-	case State:
-		if(is((state_s)v.value))
-			return true;
-		break;
-	case Spell:
-		if(is((spell_s)v.value))
-			return true;
-		break;
+	case Skill: return skills[v.value] != 0;
+	case State: return is(state_s(v.value));
+	case Spell: return spells[v.value] != 0;
 	}
-	return false;
+	return true;
 }
 
 bool creature::ismatch(const creature& opponent, skill_s id, int value) const {
@@ -2143,4 +2116,8 @@ void creature::setfriendlyto(const creature& player) {
 		add(Hostile, 1, false);
 	else
 		add(Friendly, 1, false);
+}
+
+void creature::wait(duration_s v) {
+	consume(bsmeta<durationi>::elements[v].roll());
 }

@@ -8,4 +8,4 @@ BSDATA(materiali) = {{"Стекло", {"стекляное", "стекляный", "стекляная"}, { {Blud
 {"Камень", {"каменное", "каменный", "каменная"}, {{Fire, 30}, {Piercing, 40}, {Slashing, 20}}},
 {"Дерево", {"деревянное", "деревянный", "деревянная"}, {{Slashing, -20}, {Piercing, -10}}},
 };
-assert_enum(material, Wood)
+assert_enum(materiali, Wood)

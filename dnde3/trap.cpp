@@ -15,7 +15,7 @@ BSDATA(trapi) = {{"", "trap/trap_a"},
 {"Аура ржавчины", "trap/trap_t", 0, 1, {}, {}, ""},
 {"Водяная ловушка", "trap/trap_w", 0, 1, {3, 18}, WaterAttack, "Мощный поток воды обрушился сверху."},
 };
-assert_enum(trap, TrapWater)
+assert_enum(trapi, TrapWater)
 
 void creature::usetrap() {
 	auto i = getposition();

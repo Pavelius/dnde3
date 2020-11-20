@@ -76,7 +76,7 @@ imgi bsmeta<imgi>::elements[] = {{""},
 {"pcmbd", "art"},
 {"pcmac", "art"},
 };
-assert_enum(img, ResPCmac);
+assert_enum(imgi, ResPCmac);
 
 static hotkeym move_keys[] = {{KeyLeft, Left},
 {KeyHome, LeftUp},

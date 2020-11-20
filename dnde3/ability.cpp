@@ -32,7 +32,7 @@ BSDATA(abilityi) = {{"Strenght", "Сила", "СЛ", "силы", "слабости", "сильнее", "с
 {"ManaPoints", "Мана", "", "восстановления", "опустошения", "лучше", "хуже", {Wisdow}, 0, 5, "%+1i", 0},
 {"ManaRate", "Восстановление маны", "", "воодушевления", "унылости", "лучше", "хуже", {Concetration}, 0, 50, "%+1i", 1},
 };
-assert_enum(ability, ManaRate)
+assert_enum(abilityi, ManaRate)
 
 ability_s abilityi::getid() const {
 	return ability_s(this - bsmeta<abilityi>::elements);

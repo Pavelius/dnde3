@@ -10,4 +10,4 @@ BSDATA(damagei) = {{"Ударное", {}, 1, 15, "%герой перенес удар без последствий."
 {"Магия", {}, 0, 0, "Магия не причинила урона."},
 {"Вода", ResistWater, 6, 100, "%герой смог%ла дышать водой."},
 };
-assert_enum(damage, WaterAttack)
+assert_enum(damagei, WaterAttack)

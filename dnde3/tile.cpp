@@ -18,4 +18,4 @@ BSDATA(tilei) = {{"Plain", "Равнина", Female, plains},
 {"Lake", "Озеро", NoGender},
 {"City", "Город", Male},
 };
-assert_enum(tile, City)
+assert_enum(tilei, City)

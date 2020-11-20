@@ -21,4 +21,4 @@ BSDATA(sloti) = {{"", "Рюкзак", "В рюкзаке"},
 {"Amunitions", "Аммуниция", "В колчане"},
 {"Tool", "Инструмент", "За спиной"},
 };
-assert_enum(slot, LastWear)
+assert_enum(sloti, LastWear)

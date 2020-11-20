@@ -27,7 +27,7 @@ BSDATA(spelli) = {{0, "Волшебная броня", "волшебной брони", 10, {Creature}},
 {0, "Призвать союзника", "призыва", 10, {Creature, {}, You}},
 {0, "Паутина", "паутины", 10, {Creature, {Enemies}, Near}},
 };
-assert_enum(spell, LastSpell)
+assert_enum(spelli, LastSpell)
 
 bool creature::use(spell_s id, creature& player, int level, int order, bool run) {
 	if(finds(id))
@@ -52,7 +52,7 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 			player.chat(*this);
 		break;
 	case CharmPerson:
-		if(ismatch(Animal) || get(ResistCharm) >= 100)
+		if(match(Animal) || get(ResistCharm) >= 100)
 			return false;
 		if(run) {
 			if(charmresist())
@@ -63,7 +63,7 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 		}
 		break;
 	case Domination:
-		if(ismatch(Animal) || get(ResistCharm) >= 100 || isactive())
+		if(match(Animal) || get(ResistCharm) >= 100 || isactive())
 			return false;
 		if(run) {
 			if(charmresist())
@@ -71,7 +71,7 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 			if(is(Friendly))
 				damage(xrand(2, 7), Magic, 100);
 			else {
-				actev(sb, "%герой был%а подчинен%а враждебной силой.", 0);
+				actev(sb, "%герой был%а подчинен%а враждебной силой.", 0, true);
 				activate();
 			}
 		}

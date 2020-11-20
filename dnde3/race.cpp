@@ -16,4 +16,4 @@ BSDATA(racei) = {{"Человек", {10, 10, 10, 10, 10, 10}, "human", {Bargaining, Gam
 {"Насекомое", {4, 5, 4, 1, 1, 1}, 0, {Athletics, Survival, Swimming}, {{ResistCharm, 100}}, {}},
 {"Мертвец", {10, 6, 10, 4, 1, 1}, 0, {Athletics, MoveSilently, HearNoises}, {{ResistCharm, 100}, {ResistPoison, 100}}, {}},
 };
-assert_enum(race, Undead)
+assert_enum(racei, Undead)

@@ -15,7 +15,7 @@ BSDATA(outdoori) = {{1349, "вшур", "town",
 {{AreaDungeon, 10, -2, {StairsDownRoom, StairsUpRoom}},
 {AreaDungeon, 1, -2, {StairsUpRoom}}}},
 };
-assert_enum(outdoor, LastOutdoor)
+assert_enum(outdoori, LastOutdoor)
 
 int	outdoori::getid() const {
 	return this - bsmeta<outdoori>::elements;

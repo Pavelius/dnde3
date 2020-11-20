@@ -38,7 +38,7 @@ BSDATA(rolei) = {{"Гоблин", "гоблина", "0", Goblin, Male, Chaotic, Monster, 0, {
 {"Медвежучиха", "медвежучихи", "24_f", Goblin, Male, Chaotic, Monster, 3, {Fur}},
 {"Персонаж", "персонажа", 0, Human, Male, Neutral, Commoner},
 };
-assert_enum(role, Character)
+assert_enum(rolei, Character)
 
 void creature::create(role_s type) {
 	clear();
