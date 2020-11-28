@@ -1801,18 +1801,20 @@ void creature::playui() {
 	}
 }
 
-void creature::pause() {
-	current_index = Blocked;
-	while(ismodal()) {
-		current_background();
-		render_message("Пробел");
-		domodal();
-		switch(hot.key) {
-		case KeySpace:
-		case KeyEscape:
-			breakmodal(1);
-			hot.key = 0;
-			break;
+void creature::pause(bool interactive) {
+	if(interactive) {
+		current_index = Blocked;
+		while(ismodal()) {
+			current_background();
+			render_message("Пробел");
+			domodal();
+			switch(hot.key) {
+			case KeySpace:
+			case KeyEscape:
+				breakmodal(1);
+				hot.key = 0;
+				break;
+			}
 		}
 	}
 	sb.clear();

@@ -237,7 +237,8 @@ enum modifier_s : unsigned char {
 	Opponent, Easy, Hard,
 };
 enum action_s : unsigned char {
-	GuardPosition, StopGuardPosition, UseLongActionSkill, MakeDiscount,
+	GuardPosition, StopGuardPosition, UseLongActionSkill, MakeDiscount, MakeHappy, MakeAnger,
+	MinorWound, MinorDisaster,
 };
 enum duration_s : unsigned char {
 	Instant, Round, Minute, CoupleMinutes, HalfHour, Hour,
@@ -248,7 +249,9 @@ enum command_s : unsigned char {
 	LastCommand = LoseMoney50,
 };
 enum condition_s : unsigned char {
-	Guardian, Owner, MissHits, MissMana, MissHalfHits, MissHalfMana, MissAlmostAllHits, MissAlmostAllMana,
+	Anger, Berserking, Busy, Guardian, Happy,
+	MissHits, MissMana, MissHalfHits, MissHalfMana, MissAlmostAllHits, MissAlmostAllMana,
+	Owner,
 };
 enum variant_s : unsigned char {
 	NoVariant,
@@ -812,7 +815,7 @@ class creature : public nameable, public paperdoll {
 	item				wears[LastWear + 1];
 	int					restore_energy, restore_hits, restore_mana;
 	flagable<4>			recipes;
-	char				hp, mp, poison;
+	char				hp, mp, poison, mood;
 	statea				states;
 	short unsigned		location_id, site_id;
 	class_s				kind;
@@ -848,8 +851,8 @@ class creature : public nameable, public paperdoll {
 	void				equip(item it, slot_s id);
 	void				finish();
 	void				movecost(indext index);
-	void				raiseability();
-	void				raiselevel();
+	void				raiseability(bool intearactive);
+	void				raiselevel(bool intearctive);
 	void				randomequip();
 	void				recall(variant id, variant source, int modifier, unsigned rounds);
 	bool				remove(item& it, bool run, bool talk);
@@ -886,6 +889,7 @@ public:
 	void				chat(creature& opponent);
 	void				chat(creature& opponent, const quest* source);
 	bool				charmresist(int bonus = 0) const;
+	void				checkmood();
 	void				checkpoison();
 	void				checksick();
 	variant				choosereceipt(const char* interactive) const;
@@ -963,7 +967,6 @@ public:
 	bool				is(const creature* p) const { return this == p; }
 	bool				ismaster(skill_s v) const;
 	bool				isallow(item_s v) const;
-	bool				isbusy() const { return restore_energy <= -(StandartEnergyCost * 4) && is(Unaware); }
 	bool				isenemy(const creature* target) const;
 	bool				ismatch(const creature& opponent, skill_s id, int value) const;
 	const char*			isusedisable(skill_s id) const;
@@ -982,7 +985,7 @@ public:
 	void				moveto(indext index);
 	void				moveaway(indext index);
 	bool				needrestore(ability_s id) const;
-	static void			pause();
+	static void			pause(bool interactive = true);
 	void				paymana(int value, bool interactive);
 	void				playuioverland();
 	void				playui();
@@ -991,8 +994,8 @@ public:
 	void				quitandsave();
 	void				raise(skill_s value);
 	void				raiseathletics();
-	void				raiseskills(int number);
-	void				raiseskills() { raiseskills(get(Intellegence) / 2); }
+	void				raiseskills(int number, bool interactive);
+	void				raiseskills(bool interactive) { raiseskills(get(Intellegence) / 2, interactive); }
 	void				rangeattack(creature& enemy, int bonus = 0);
 	static void			restore(const creature* sp, const creature* spe, const boosti* sb, const boosti* sbe);
 	void				readsomething();
@@ -1042,7 +1045,6 @@ public:
 	void				matcha(creature& player, variant id, int v, bool remove = false);
 	void				matchact(spell_s id, bool remove);
 	void				matchr(indext index, int range);
-	void				matchbs(bool remove);
 	void				select();
 	void				select(indext start, int distance);
 	void				select(state_s v);

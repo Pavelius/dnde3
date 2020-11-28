@@ -50,7 +50,7 @@ void creature::create(role_s type) {
 	for(auto v : ei.features)
 		add(v, 4, false);
 	while(abilities[Level] < ei.level)
-		raiselevel();
+		raiselevel(false);
 	finish();
 }
 

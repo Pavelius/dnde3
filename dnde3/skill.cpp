@@ -25,7 +25,7 @@ BSDATA(skilli) = {{"Торговля", "торговли", {Charisma, Intellegence}, {}, {Creatu
 {"Очистить карманы", "воровства", {Dexterity, Charisma}, {}, {Creature, {NotYou}, Close, "Кого обворовать?"}},
 {"Алхимия", "алхимии", {Intellegence, Intellegence}, {}, {Item, {LongAction, AlwaysChoose}, You, "Какое зелье хотите попробывать?"}},
 {"Готовка еды", "куховарения", {Charisma, Intellegence}, {}, {Item, {AlwaysChoose}, You, "Что хотите приготовить?"}},
-{"Танцы", "танцев", {Dexterity, Charisma}},
+{"Танцы", "танцев", {Dexterity, Charisma}, {}, {Creature, {NotYou, AllTargets}, Near}},
 {"Инженерное дело", "инженерии", {Intellegence, Intellegence}},
 {"Азартные игры", "азартных игр", {Charisma, Dexterity}, {}, {Creature, {Friends, NotYou}, Close, "С кем поиграть?"}},
 {"История", "истории", {Intellegence, Intellegence}, {}, {Object, {}, Reach, "Какой объект изучить?"}},
@@ -83,6 +83,23 @@ bool creature::use(skill_s id, creature& player, int order, bool run) {
 			}
 		} else {
 
+		}
+		break;
+	case Dancing:
+		if(is(Hostile) || mood<0 || !is(LowInt))
+			return false;
+		if(run) {
+			if(player.roll(id)) {
+				static const char* talk[] = {"Красиво.", "Неплохо!", "Молодец, давай еще танцуй!", "Браво!"};
+				say(maprnd(talk));
+				mood++;
+			} else {
+				if(d100() < 60) {
+					static const char* talk[] = {"Фууу.", "Уберите, ЭТО!", "Как я могу это развидеть?", "Какая гадость."};
+					say(maprnd(talk));
+				}
+				mood--;
+			}
 		}
 		break;
 	case Gambling:

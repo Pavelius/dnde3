@@ -123,7 +123,7 @@ void gamei::playoverland() {
 		restore_energy += speed;
 	}
 	auto p = creature::getactive();
-	if(!p || p->isbusy() || p->is(Sleep) || command)
+	if(!p || p->is(Busy) || p->is(Sleep) || command)
 		return;
 	p->playuioverland();
 }
@@ -138,42 +138,30 @@ void gamei::playactive() {
 				update_los();
 			move_creatures();
 			auto p = creature::getactive();
-			if(!p || p->isbusy() || p->is(Sleep) || command)
+			if(!p || p->is(Busy) || p->is(Sleep) || command)
 				need_continue = false;
 		}
 		passminute();
 	}
 }
 
-static void applysick() {
+static void apply(creature::papply p) {
 	for(auto& e : bsmeta<creature>()) {
 		if(e)
-			e.checksick();
-	}
-}
-
-static void applyrestore() {
-	for(auto& e : bsmeta<creature>()) {
-		if(e)
-			e.restoration();
-	}
-}
-
-static void applypoison() {
-	for(auto& e : bsmeta<creature>()) {
-		if(e)
-			e.checkpoison();
+			(e.*p)();
 	}
 }
 
 void gamei::passminute() {
 	rounds++; // One round is one minute
 	applyboost();
-	applyrestore();
+	apply(&creature::restoration);
 	if((rounds % 5) == 0)
-		applypoison();
+		apply(&creature::checkpoison);
+	if((rounds % 10) == 0)
+		apply(&creature::checkmood);
 	if((rounds % 60) == 0)
-		applysick();
+		apply(&creature::checksick);
 	if((rounds % (24 * 60)) == 0)
 		loc.growplants();
 	if((rounds % (4 * 60)) == 0)
@@ -244,8 +232,8 @@ bool gamei::checkalive() {
 	source.select(Friendly);
 	if(!source)
 		return false;
-	source.matchbs(true); // Уберем тех кто занят
-	source.match(Sleep, true); // Уберем тех кто спит
+	source.match(Busy, true); // Уберем тех кто занят
+	source.matchact(Sleep, true); // Уберем тех кто спит
 	if(source) {
 		auto p = creature::getactive();
 		if(!p || source.indexof(p) == -1)

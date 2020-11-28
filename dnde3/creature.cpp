@@ -426,12 +426,12 @@ void creature::raiseathletics() {
 	}
 }
 
-void creature::raiseskills(int number) {
+void creature::raiseskills(int number, bool interactive) {
 	skillu source(this);
 	source.select(*this);
 	source.shuffle();
 	source.setcaps();
-	if(isactive()) {
+	if(interactive) {
 		source.sort();
 		while(number > 0) {
 			char temp[260]; stringbuilder sb(temp);
@@ -471,7 +471,7 @@ void creature::randomequip() {
 	money += xrand(3, 18)*GP;
 }
 
-void creature::raiseability() {
+void creature::raiseability(bool interactive) {
 	auto& ei = getclass();
 	switch(abilities[Level]) {
 	case 0:
@@ -492,7 +492,7 @@ void creature::raiseability() {
 		for(auto& pi : bsmeta<leveli>()) {
 			if(pi.type == kind && pi.level == abilities[Level]) {
 				for(auto& e : pi.features)
-					add(e.id, e.value, true);
+					add(e.id, e.value, interactive);
 			}
 		}
 		break;
@@ -524,7 +524,7 @@ void creature::applyabilities() {
 	// Class spells
 	for(auto e : ci.spells)
 		add(e, 1, false);
-	raiseability();
+	raiseability(false);
 	dresson();
 }
 
@@ -545,7 +545,7 @@ void creature::create(race_s race, gender_s gender, class_s type) {
 	if(abilities[Intellegence] >= 9)
 		raise(Literacy);
 	dresson();
-	raiselevel();
+	raiselevel(false);
 	randomequip();
 	finish();
 }
@@ -617,7 +617,7 @@ void creature::activate() {
 creature* creature::getactive(int n) {
 	creaturea creatures;
 	creatures.select(Friendly);
-	creatures.matchbs(true);
+	creatures.match(Busy, true);
 	creatures.matchact(Sleep, true);
 	if(!creatures || n >= creatures.getcount())
 		return 0;
@@ -1322,6 +1322,13 @@ void creature::checkpoison() {
 	}
 }
 
+void creature::checkmood() {
+	if(mood < 0)
+		mood++;
+	else if(mood > 0)
+		mood--;
+}
+
 void creature::restoration() {
 	const auto pc = StandartEnergyCost;
 	while(restore_hits > pc) {
@@ -1544,21 +1551,21 @@ unsigned creature::getlevelup() const {
 	return experience_count[abilities[Level] + 1];
 }
 
-void creature::raiselevel() {
+void creature::raiselevel(bool interactive) {
 	dressoff();
 	abilities[Level] += 1;
 	auto start_log = sb.get();
-	raiseability();
+	raiseability(interactive);
 	raiseathletics();
 	if(sb.get() > start_log)
-		pause();
-	raiseskills();
+		pause(interactive);
+	raiseskills(interactive);
 	dresson();
 }
 
 void creature::addexp(int v, bool interactive) {
-	v = v * (90 + get(Intellegence)) / 100;
 	if(v > 0) {
+		v = v * (90 + get(Intellegence)) / 100;
 		experience += v;
 		if(interactive)
 			act("%герой получил%а [+%1i] опыта.", v);
@@ -1567,11 +1574,16 @@ void creature::addexp(int v, bool interactive) {
 				activate();
 				act("ћои поздравлени€, %герой получил%а новый уровень опыта.");
 				act("“еперь вы %-1 [%2i] уровн€.", getstr(kind), abilities[Level] + 1);
-				pause();
+				pause(interactive);
 			}
-			raiselevel();
+			raiselevel(interactive);
 		}
 	} else {
+		v = -v;
+		if(experience > (unsigned)v)
+			experience -= v;
+		else
+			experience = 0;
 		if(interactive)
 			act("%герой потер€л%а [-%1i] опыта.", v);
 	}
@@ -1845,6 +1857,7 @@ bool creature::match(variant v) const {
 	switch(v.type) {
 	case Alignment: return true;
 	case Class: return kind == v.value;
+	case Condition: return is((condition_s)v.value);
 	case Gender: return getgender() == v.value;
 	case Race: return getrace() == v.value;
 	case Role: return getrole() == v.value;
@@ -1941,7 +1954,7 @@ bool creature::saybusy() {
 		act(maprnd(text));
 		return true;
 	}
-	if(!isbusy())
+	if(!is(Busy))
 		return false;
 	static const char* text[] = {"я зан€т",
 		"ћне надо закончить дело.",
@@ -2107,6 +2120,30 @@ bool creature::execute(action_s v, bool run) {
 			}
 		}
 		break;
+	case MakeAnger:
+		if(mood < -100)
+			return false;
+		if(run)
+			mood -= xrand(1, 4);
+		break;
+	case MakeHappy:
+		if(mood > 100)
+			return false;
+		if(run)
+			mood += xrand(2, 4);
+		break;
+	case MinorWound:
+		if(hp <= 0)
+			return false;
+		if(run)
+			damage(1, Bludgeon);
+		break;
+	case MinorDisaster:
+		if(mp <= 0)
+			return false;
+		if(run)
+			mp -= 1;
+		break;
 	}
 	return true;
 }
@@ -2171,14 +2208,18 @@ void creature::wait(duration_s v) {
 
 bool creature::is(condition_s v) const {
 	switch(v) {
+	case Anger: return mood < 30;
+	case Berserking: return mood < 60;
+	case Busy: return restore_energy <= -(StandartEnergyCost * 4) && is(Unaware);
 	case Guardian: return guard != Blocked;
-	case Owner: return getsite() && getsite()->getowner() == this;
+	case Happy: return mood > 40;
 	case MissHits: return gethits() < get(LifePoints);
 	case MissHalfHits: return gethits() < get(LifePoints) / 2;
 	case MissAlmostAllHits: return gethits() < get(LifePoints) / 5;
 	case MissMana: return getmana() < get(ManaPoints);
 	case MissHalfMana: return getmana() < get(ManaPoints) / 2;
 	case MissAlmostAllMana: return getmana() < get(ManaPoints) / 5;
+	case Owner: return getsite() && getsite()->getowner() == this;
 	default: return false;
 	}
 }

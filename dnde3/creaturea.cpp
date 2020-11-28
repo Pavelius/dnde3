@@ -45,13 +45,8 @@ void creaturea::match(variant v, bool remove) {
 		return;
 	auto ps = data;
 	for(auto p : *this) {
-		if(remove) {
-			if(p->match(v))
-				continue;
-		} else {
-			if(!p->match(v))
-				continue;
-		}
+		if(p->match(v)==remove)
+			continue;
 		*ps++ = p;
 	}
 	count = ps - data;
@@ -152,16 +147,6 @@ void creaturea::matchact(spell_s id, bool remove) {
 	auto ps = data;
 	for(auto p : *this) {
 		if(p->is(id)==remove)
-			continue;
-		*ps++ = p;
-	}
-	count = ps - data;
-}
-
-void creaturea::matchbs(bool remove) {
-	auto ps = data;
-	for(auto p : *this) {
-		if(p->isbusy() == remove)
 			continue;
 		*ps++ = p;
 	}
