@@ -130,13 +130,17 @@ static void random_landscape() {
 	loc.choose(i1, false, true, true);
 }
 
+static void create_overland() {
+	loc.clear();
+	loc.fill({0, 0, mmx - 1, 1}, Sea);
+	loc.fill({0, 0, 1, mmy - 1}, Sea);
+	loc.fill({mmx - 2, 0, mmx - 1, mmy - 1}, Sea);
+	loc.fill({0, mmy - 2, mmx - 1, mmy - 1}, Sea);
+}
+
 static void begin_game() {
 	if(!game.read()) {
-		loc.clear();
-		loc.fill({0, 0, mmx - 1, 1}, Sea);
-		loc.fill({0, 0, 1, mmy - 1}, Sea);
-		loc.fill({mmx - 2, 0, mmx - 1, mmy - 1}, Sea);
-		loc.fill({0, mmy - 2, mmx - 1, mmy - 1}, Sea);		
+		create_overland();
 		auto p1 = create(Elf, Female, Mage);
 		auto p2 = create(Dwarf, Male, Cleric);
 		auto p3 = create(Ratling, Male, Fighter);
@@ -154,13 +158,8 @@ static void begin_game() {
 }
 
 static void run_editor() {
-	if(!loc.read("game/overland.loc", true)) {
-		loc.clear();
-		loc.fill({0, 0, mmx - 1, 1}, Sea);
-		loc.fill({0, 0, 1, mmy - 1}, Sea);
-		loc.fill({mmx - 2, 0, mmx - 1, mmy - 1}, Sea);
-		loc.fill({0, mmy - 2, mmx - 1, mmy - 1}, Sea);
-	}
+	if(!loc.read("game/overland.loc", true))
+		create_overland();
 	loc.editor();
 	loc.write("game/overland.loc", true);
 }

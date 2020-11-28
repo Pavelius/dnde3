@@ -1867,28 +1867,18 @@ void location::show(rooma& rooms) {
 static void small_avatar(int x, int y, const creature& player, unsigned flags) {
 	const int sx = 128;
 	const int sy = 128;
-	surface scaler(sx, sy, 32);
-	surface scaler2(sx / 2, sy / 2, 32);
+	surface scaler2(sx, sy, 32);
 	color c1 = color::create(0, 0, 0);
 	c1.a = 0xFF;
+	auto x1 = x - (sx / 2) / 2;
+	auto y1 = y - (sy - sy / 4) / 2;
+	draw::blit(scaler2, 0, 0, sx, sy, 0, *draw::canvas, x1, y1, sx / 2, sy / 2);
 	if(true) {
 		draw::state push;
-		draw::canvas = &scaler;
-		fore = c1;
-		draw::rectf({0, 0, sx, sy});
+		draw::canvas = &scaler2;
 		avatar(sx / 2, sy - sy / 4, player, flags, 0xFF);
-		for(auto y = scaler.height - 1; y >= 0; y--) {
-			auto pb = (color*)scaler.ptr(0, y);
-			auto pe = (color*)scaler.ptr(sx, y);
-			while(pb < pe) {
-				if(*((int*)pb) == *((int*)(&c1)))
-					pb->a = 0;
-				pb++;
-			}
-		}
 	}
-	draw::blit(scaler2, 0, 0, scaler2.width, scaler2.height, 0, scaler, 0, 0, scaler.width, scaler.height);
-	draw::blit(*draw::canvas, x - (sx / 2) / 2, y - (sy - sy / 4) / 2, sx / 2, sy / 2, ImageTransparent, scaler2, 0, 0);
+	draw::blit(*draw::canvas, x1, y1, sx / 2, sy / 2, 0, scaler2, 0, 0, sx, sy);
 }
 
 static void render_outdoor() {
@@ -1911,8 +1901,7 @@ static void render_outdoor() {
 			flags = 0;
 			break;
 		}
-		//small_avatar(x, y, *player, flags);
-		avatar(x, y, *player, flags, 0xFF);
+		small_avatar(x, y, *player, flags);
 		render_info(*player);
 	}
 }
@@ -2020,8 +2009,6 @@ void location::worldmap(point camera, bool show_fow) const {
 			case Forest: image(x, y, gres(ResForest), getrand(i) % 3, 0); break;
 			case Swamp: image(x, y, gres(ResSwamp), getrand(i) % 3, 0); break;
 			}
-			if(current_index == i)
-				image(x, y, gres(ResUI), 0, 0);
 		}
 	}
 	rect screen;
@@ -2102,6 +2089,19 @@ static void place_settlement() {
 	p->index = current_index;
 }
 
+static void editor_save() {
+	loc.write("game/overland.loc", true);
+}
+
+static void editor_read() {
+	sb.add("Вы действительно хотите восстановить ранее сохраненную карту?");
+	if(!creature::askyn())
+		return;
+	loc.read("game/overland.loc", true);
+	current_index = loc.get(50, 50);
+	correct(camera, current_index);
+}
+
 static hotkey editor_keys[] = {{Alpha + '1', "Выбрать равнину", choose_tile, Plain},
 {Alpha + '2', "Выбрать Океан", choose_tile, Sea},
 {Alpha + '3', "Выбрать Болото", choose_tile, Swamp},
@@ -2111,7 +2111,8 @@ static hotkey editor_keys[] = {{Alpha + '1', "Выбрать равнину", choose_tile, Pla
 {Alpha + '7', "Выбрать Лес", choose_tile, Forest},
 {Alpha + 'R', "Дорога", &location::trail},
 {KeySpace, "Нарисовать выбранный тайл", put_tile},
-{KeyEscape, "Покинуть редактор", buttoncancel},
+{Ctrl + Alpha + 'S', "Сохранить карту", editor_save},
+{Ctrl + Alpha + 'R', "Восстановит карту", editor_read},
 {}};
 
 void location::editor() {
