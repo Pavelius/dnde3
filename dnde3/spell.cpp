@@ -37,7 +37,7 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 	switch(id) {
 	case ArmorSpell:
 		if(run) {
-			add(Armor, id, 4, false, 30 * level);
+			add(Armor, id, 4, false, 60 * level);
 			act("%герой озарил%ась белым сиянием.");
 		}
 		break;
@@ -133,10 +133,11 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 		}
 		break;
 	case RemovePoisonSpell:
-		if(!is(Poisoned))
+		if(!is(Poisoned) && !is(Drunken))
 			return false;
 		if(run) {
 			add(Poisoned, -1, true);
+			add(Drunken, -1, true);
 			poison = 0;
 		}
 		break;

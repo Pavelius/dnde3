@@ -2,8 +2,9 @@
 
 location				loc;
 static short unsigned	movements[mmx*mmy];
-static short unsigned	stack[256 * 256];
+static indext			stack[256 * 256];
 static direction_s		all_aroud[] = {Left, Right, Up, Down, LeftDown, LeftUp, RightDown, RightUp};
+static direction_s		all_rows[] = {Left, Right, Up, Down};
 
 static const direction_s orientations_7b7[49] = {
 	LeftUp, LeftUp, Up, Up, Up, RightUp, RightUp,
@@ -1181,5 +1182,29 @@ bool location::use(indext index, variant id, creature& player, int level, int or
 	case Spell: return use(index, (spell_s)id.value, player, level, order, run);
 	case Skill: return use(index, (skill_s)id.value, player, level, order, run);
 	default: return false;
+	}
+}
+
+void location::generate(indext start, tile_s tile, int chance, int count) {
+	short unsigned push = 0;
+	short unsigned pop = 0;
+	set(start, tile);
+	stack[push++] = start;
+	while(push != pop) {
+		auto n = stack[pop++];
+		for(auto d : all_rows) {
+			auto i = to(n, d);
+			if(i == Blocked)
+				continue;
+			auto t = gettile(i);
+			if(t == Water || t == tile)
+				continue;
+			if(start == n || (d100() < chance)) {
+				set(i, tile);
+				if(--count <= 0)
+					return;
+				stack[push++] = i;
+			}
+		}
 	}
 }

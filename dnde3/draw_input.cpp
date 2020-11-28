@@ -1403,38 +1403,6 @@ int indexa::choose(const char* interactive) {
 	return getresult();
 }
 
-indext location::choose(indext start, bool fow, bool allow_cancel) const {
-	auto push_value = current_index;
-	current_index = start;
-	setbackground(render_indoor);
-	while(ismodal()) {
-		current_background();
-		if(true) {
-			char temp[512]; string sb(temp);
-			if(!fow || loc.is(current_index, Explored))
-				addinfo(current_index, sb);
-			if(sb)
-				windowf(sb, 0);
-		}
-		domodal();
-		switch(hot.key) {
-		case KeyEscape:
-			if(allow_cancel)
-				breakmodal(Blocked);
-			break;
-		case KeyEnter:
-		case KeySpace:
-			breakmodal(current_index);
-			break;
-		default:
-			controls();
-			break;
-		}
-	}
-	current_index = push_value;
-	return getresult();
-}
-
 spell_s spella::choose(const char* interactive, const char* title, bool* cancel_result, const creature* player) const {
 	if(!getcount()) {
 		if(interactive)
@@ -1949,6 +1917,41 @@ static void render_outdoor() {
 	}
 }
 
+indext location::choose(indext start, bool fow, bool allow_cancel, bool outdoor) const {
+	auto push_value = current_index;
+	current_index = start;
+	if(outdoor)
+		setbackground(render_outdoor);
+	else
+		setbackground(render_indoor);
+	while(ismodal()) {
+		current_background();
+		if(true) {
+			char temp[512]; string sb(temp);
+			if(!fow || loc.is(current_index, Explored))
+				addinfo(current_index, sb);
+			if(sb)
+				windowf(sb, 0);
+		}
+		domodal();
+		switch(hot.key) {
+		case KeyEscape:
+			if(allow_cancel)
+				breakmodal(Blocked);
+			break;
+		case KeyEnter:
+		case KeySpace:
+			breakmodal(current_index);
+			break;
+		default:
+			controls();
+			break;
+		}
+	}
+	current_index = push_value;
+	return getresult();
+}
+
 void location::worldmap(point camera, bool show_fow) const {
 	viewport.x = draw::getwidth();
 	viewport.y = draw::getheight();
@@ -2003,7 +2006,7 @@ void location::worldmap(point camera, bool show_fow) const {
 			continue;
 		if(my >= mmy)
 			break;
-		for(auto mx = rc.x1; mx <= rc.x2; mx++) {
+		for(auto mx = rc.x2; mx >= rc.x1; mx--) {
 			if(mx < 0 || mx >= mmx)
 				continue;
 			auto x = x0 + mx * elx - camera.x;
@@ -2017,6 +2020,8 @@ void location::worldmap(point camera, bool show_fow) const {
 			case Forest: image(x, y, gres(ResForest), getrand(i) % 3, 0); break;
 			case Swamp: image(x, y, gres(ResSwamp), getrand(i) % 3, 0); break;
 			}
+			if(current_index == i)
+				image(x, y, gres(ResUI), 0, 0);
 		}
 	}
 	rect screen;

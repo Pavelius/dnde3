@@ -1185,7 +1185,7 @@ public:
 	bool				cansee(indext i1, indext i2) const;
 	static indext		center(int x, int y, int w, int h);
 	static indext		center(const rect& rc);
-	indext				choose(indext start, bool fow, bool allow_cancel) const;
+	indext				choose(indext start, bool fow, bool allow_cancel, bool outdoor) const;
 	void				clear();
 	static void			clearblock();
 	void				content(const rect& rc, room_s type, site* p);
@@ -1204,6 +1204,7 @@ public:
 	indext				find(map_object_s v) const;
 	indext				find(tile_s v, const rect& rc) const;
 	void				forest(const rect& rc);
+	void				generate(indext index, tile_s tile, int chance, int count);
 	constexpr static indext	get(short x, short y) { return y * mmx + x; }
 	int					getlight() const { return light_level; }
 	static direction_s	getdirection(indext from, indext to);

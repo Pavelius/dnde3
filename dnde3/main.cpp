@@ -122,13 +122,21 @@ static void continue_game() {
 	game.play();
 }
 
+static void random_landscape() {
+	auto i1 = loc.get(10, 10);
+	loc.generate(i1, Forest, 70, 10 * 12);
+	loc.generate(i1, Mountains, 50, 10 * 8);
+	loc.generate(i1, CloudPeaks, 70, 10);
+	loc.choose(i1, false, true, true);
+}
+
 static void begin_game() {
 	if(!game.read()) {
 		loc.clear();
 		loc.fill({0, 0, mmx - 1, 1}, Sea);
 		loc.fill({0, 0, 1, mmy - 1}, Sea);
 		loc.fill({mmx - 2, 0, mmx - 1, mmy - 1}, Sea);
-		loc.fill({0, mmy - 2, mmx - 1, mmy - 1}, Sea);
+		loc.fill({0, mmy - 2, mmx - 1, mmy - 1}, Sea);		
 		auto p1 = create(Elf, Female, Mage);
 		auto p2 = create(Dwarf, Male, Cleric);
 		auto p3 = create(Ratling, Male, Fighter);

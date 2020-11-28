@@ -868,7 +868,7 @@ void creature::look(indext index) {
 }
 
 void creature::lookobjects() {
-	loc.choose(getposition(), true, true);
+	loc.choose(getposition(), true, true, false);
 }
 
 void creature::lookaround() {

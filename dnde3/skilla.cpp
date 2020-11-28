@@ -41,7 +41,7 @@ skillu::skillu(creature* player) : player(player) {
 void skillu::setcaps() {
 	for(auto e : *this) {
 		auto n = player->getbasic(e);
-		n += 15;
+		n += 12;
 		if(n > 90)
 			n = 90;
 		setcap(e, n);
