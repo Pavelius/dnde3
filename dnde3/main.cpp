@@ -133,6 +133,7 @@ static void begin_game() {
 		auto p2 = create(Dwarf, Male, Cleric);
 		auto p3 = create(Ratling, Male, Fighter);
 		create(p1, AlchemyReceipt);
+		create(p2, Potion1, DrunkenSpell);
 		create(p1, AlchemySet);
 		createp(p1, Staff);
 		p1->activate();

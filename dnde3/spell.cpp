@@ -5,6 +5,7 @@ BSDATA(spelli) = {{0, "Волшебная броня", "волшебной брони", 10, {Creature}},
 {0, "Зачаровать предмет", "зачарования предмета", 30, {Item, {AlwaysChoose}, You, "Какой предмет сделать волшебным?"}},
 {0, "Поговорить с персоной", "разговора", 0, {Creature, {NotYou}, Close, "С кем вы хотите поговорить?"}},
 {0, "Очаровать персону", "шарма", 20, {Creature, {NotYou, Enemies, RandomTargets}, Near, "Кто станет вашим другом?"}},
+{0, "Опьянение", "бренди", 5, {Creature, {NotYou, Enemies, RandomTargets}, Near, "Кто станет пьяным вдрызг?"}},
 {0, "Обнаружить зло", "обнаружения зла", 10, {Item, {RandomTargets}}},
 {0, "Обнаружить волшебство", "обнаружения магии", 10, {Item, {RandomTargets}}},
 {0, "Подчинение", "подчинения", 30, {Creature, {NotYou, Enemies, RandomTargets}, Everywhere, "Кого хотите поработить?"}},
@@ -115,6 +116,19 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 			} else {
 				poison += xrand(0, 2);
 				add(Poisoned, 1, true);
+			}
+		}
+		break;
+	case DrunkenSpell:
+		if(run) {
+			if(roll(ResistPoison))
+				return false;
+			if(is(Drunken)) {
+				poison += xrand(2, 5);
+				act("%герой получил%а дополнительную дозу алкоголя!");
+			} else {
+				poison += xrand(3, 6);
+				add(Drunken, 1, true);
 			}
 		}
 		break;

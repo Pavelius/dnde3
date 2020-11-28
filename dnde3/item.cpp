@@ -9,7 +9,7 @@ static const char* power_text[][3] = {{"обычное", "обычный", "обычная"},
 };
 static const char* damage_text[] = {0, "Треснуло", "Повреждено", "Сломано"};
 
-static variant common_potions[] = {LifePoints, ManaPoints};
+static variant common_potions[] = {LifePoints, ManaPoints, DrunkenSpell};
 static variant uncommon_potions[] = {Strenght, Dexterity, Wisdow, Charisma,
 LifeRate, ManaRate, Level, Speed, PoisonSpell};
 static variant rare_potions[] = {Attack, Damage,

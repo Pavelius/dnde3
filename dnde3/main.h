@@ -169,7 +169,8 @@ enum img_s : unsigned char {
 	ResPCmar, ResPCmbd, ResPCmac
 };
 enum spell_s : unsigned char {
-	ArmorSpell, BlessSpell, BlessItem, ChatPerson, CharmPerson, DetectEvil, DetectMagic, Domination,
+	ArmorSpell, BlessSpell, BlessItem, ChatPerson, CharmPerson,
+	DrunkenSpell, DetectEvil, DetectMagic, Domination,
 	FearSpell, HealingSpell,
 	Identify, Invisibility, KnockDoor, LightSpell, MagicMissile, PoisonSpell,
 	Repair, RemovePoisonSpell, RemoveSickSpell,
@@ -198,14 +199,6 @@ enum range_s : unsigned char {
 };
 enum item_flag_s : unsigned char {
 	SingleUse, TwoHanded, Versatile, Light, Natural,
-};
-enum variant_s : unsigned char {
-	NoVariant,
-	Ability, Action, Alignment, Class, Command, Creature, Formula, Gender, God, Harm,
-	Item, ItemIdentify, ItemType, Modifier,
-	Number, Object, ObjectFlags, Outdoor, Race, Range, Rarity, Role, Room,
-	Sale, Skill, Slot, Spell, State, Target, Tile,
-	Variant,
 };
 enum outdoor_s : unsigned char{
 	VillageTaho, CityMeher, LostMine,
@@ -254,6 +247,17 @@ enum command_s : unsigned char {
 	AddMoney10, AddMoney20, AddMoney50, LoseMoney10, LoseMoney20, LoseMoney50,
 	LastCommand = LoseMoney50,
 };
+enum condition_s : unsigned char {
+	Guardian, Owner, MissHits, MissMana, MissHalfHits, MissHalfMana, MissAlmostAllHits, MissAlmostAllMana,
+};
+enum variant_s : unsigned char {
+	NoVariant,
+	Ability, Action, Alignment, Class, Command, Condition, Creature,
+	Formula, Gender, God, Harm, Item, ItemIdentify, ItemType, Modifier,
+	Number, Object, ObjectFlags, Outdoor, Race, Range, Rarity, Role, Room,
+	Sale, Skill, Slot, Spell, State, Target, Tile,
+	Variant,
+};
 struct dungeoni;
 struct targeti;
 struct landscapei;
@@ -285,6 +289,7 @@ struct variant {
 	constexpr variant(alignment_s v) : type(Alignment), value(v) {}
 	constexpr variant(class_s v) : type(Class), value(v) {}
 	constexpr variant(command_s v) : type(Command), value(v) {}
+	constexpr variant(condition_s v) : type(Condition), value(v) {}
 	constexpr variant(damage_s v) : type(Harm), value(v) {}
 	constexpr variant(diety_s v) : type(God), value(v) {}
 	constexpr variant(formula_s v) : type(Formula), value(v) {}
@@ -854,6 +859,7 @@ class creature : public nameable, public paperdoll {
 	void				usestealth();
 	void				usetrap();
 public:
+	typedef void (creature::*papply)();
 	explicit operator bool() const { return hp > 0; }
 	//
 	void				activate();
@@ -948,6 +954,7 @@ public:
 	void				heal(int value) { damage(-value, Magic); }
 	void				inventory();
 	bool				is(class_s v) const { return kind == v; }
+	bool				is(condition_s v) const;
 	bool				is(intellegence_s v) const;
 	bool				is(gender_s v) const { return getgender() == v; }
 	bool				is(race_s v) const { return getrace() == v; }
@@ -958,7 +965,6 @@ public:
 	bool				isallow(item_s v) const;
 	bool				isbusy() const { return restore_energy <= -(StandartEnergyCost * 4) && is(Unaware); }
 	bool				isenemy(const creature* target) const;
-	bool				isguard() const { return guard != Blocked; }
 	bool				ismatch(const creature& opponent, skill_s id, int value) const;
 	const char*			isusedisable(skill_s id) const;
 	void				kill();
@@ -1238,6 +1244,7 @@ public:
 	void				minimap(int x, int y, point camera, bool fow) const;
 	void				minimap(indext index, bool fow) const;
 	creature*			monster(indext index);
+	indext				movernd(indext from, indext to);
 	static rect			normalize(const rect& rc);
 	bool				read(const char* url, bool overland);
 	bool				read(indext index, int level);

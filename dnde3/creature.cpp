@@ -3,7 +3,7 @@
 DECLDATA(creature, 256)
 
 static int			skill_level[] = {30, 60, 90};
-static dicei		skill_raise[] = {{3, 18}, {2, 12}, {1, 10}, {1, 8}, {1, 6}, {1, 5}, {1, 4}, {1, 3}, {1, 2}};
+static dicei		skill_raise[] = {{2, 12}, {1, 10}, {1, 8}, {1, 6}, {1, 5}, {1, 4}, {1, 3}, {1, 2}};
 static const char*	skill_names[] = {"Новичек", "Специалист", "Эксперт", "Мастер"};
 static creature*	current_player;
 static int			experience_count[] = {0,
@@ -879,6 +879,11 @@ void creature::lookaround() {
 }
 
 void creature::move(indext index) {
+	if(is(Drunken) && d100() < 30) {
+		index = loc.movernd(getposition(), index);
+		static const char* talk[] = {"Да чтоб тебя!", "Ик!", "Нетуда..", "Извиняюсь...", "Я щас...", "Зачем я столько пил%а?"};
+		say(maprnd(talk));
+	}
 	if(index == Blocked) {
 		cantmovehere();
 		return;
@@ -950,7 +955,7 @@ void creature::move(indext index) {
 			// Монстры и другие персонажи не меняются
 			wait();
 			return;
-		} else if(p->isguard()) {
+		} else if(p->is(Guardian)) {
 			static const char* talk[] = {
 				"Я охраняю это место.",
 				"Здесь не пройти.",
@@ -960,20 +965,17 @@ void creature::move(indext index) {
 			p->say(maprnd(talk));
 			wait();
 			return;
+		} else if(p->is(Owner)) {
+			static const char* talk[] = {
+				"Не толкай меня в моем заведении.",
+				"Держи руки на виду.",
+				"Я за тобой слежу",
+			};
+			appear();
+			p->say(maprnd(talk));
+			wait();
+			return;
 		} else {
-			// Игрок меняется позицией с неигроком
-			auto site = p->getsite();
-			if(site && site->getowner() == p) {
-				// С владельцами области не поменяешся местами
-				static const char* talk[] = {
-					"Не толкай меня в моем заведении.",
-					"Держи руки на виду.",
-					"Я за тобой слежу",
-				};
-				appear();
-				p->say(maprnd(talk));
-				return;
-			}
 			p->setposition(getposition());
 			p->wait();
 			if(d100() < 50) {
@@ -1309,6 +1311,13 @@ void creature::checkpoison() {
 		} else {
 			act("%герой страдает от яда.");
 			damage(1, Magic, 100, false);
+		}
+	} else if(is(Drunken)) {
+		if(roll(ResistPoison, 15)) {
+			if(poison <= 0)
+				add(Drunken, -1, true);
+			else
+				poison--;
 		}
 	}
 }
@@ -2158,4 +2167,18 @@ void creature::setfriendlyto(const creature& player) {
 
 void creature::wait(duration_s v) {
 	consume(bsmeta<durationi>::elements[v].roll());
+}
+
+bool creature::is(condition_s v) const {
+	switch(v) {
+	case Guardian: return guard != Blocked;
+	case Owner: return getsite() && getsite()->getowner() == this;
+	case MissHits: return gethits() < get(LifePoints);
+	case MissHalfHits: return gethits() < get(LifePoints) / 2;
+	case MissAlmostAllHits: return gethits() < get(LifePoints) / 5;
+	case MissMana: return getmana() < get(ManaPoints);
+	case MissHalfMana: return getmana() < get(ManaPoints) / 2;
+	case MissAlmostAllMana: return getmana() < get(ManaPoints) / 5;
+	default: return false;
+	}
 }

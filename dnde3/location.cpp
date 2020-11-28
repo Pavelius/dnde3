@@ -566,6 +566,23 @@ bool location::istile(indext i) const {
 	return gettile(i) == tile_value;
 }
 
+indext location::movernd(indext start, indext exclude) {
+	indext directions[16];
+	auto p = directions;
+	for(auto d : all_aroud) {
+		auto i1 = to(start, d);
+		if(i1 == exclude)
+			continue;
+		if(i1 == Blocked)
+			return false;
+		*p++ = i1;
+	}
+	auto count = p - directions;
+	if(!count)
+		return start;
+	return directions[rand() % count];
+}
+
 bool location::istile2(indext i) const {
 	if(gettile(i) != tile_value)
 		return false;

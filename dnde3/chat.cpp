@@ -43,7 +43,11 @@ static quest chat_shopkeeper[] = {{1, {Common}, "Как твой бизнес, друг?"},
 {2, {Diplomacy, Opponent, MakeDiscount}, "Так ты сделашь свой вклад в борьбу с хаосом, который сеeтся в округе.", -1},
 {2, {}, "И то верно. Причин нет. Видимо мне пора идти.", -1},
 {3, {}, "Предлагаю такой хороший день не превращать в побиение моей охраной еще одного воришки и прохиндея. Договорились?"},
-//{4, {MakeDiscount}, "Борбу с хаосом в округе? Хаос это Я!"},
+{}};
+static quest chat_guard[] = {{1, {Uncommon}, "Я за тобой слежу."},
+{1, {Uncommon}, "Я есть закон."},
+{1, {Uncommon}, "Что? Куда он побежал?"},
+{1, {}, "Нужны проблемы?"},
 {}};
 
 static const chati* find_chat(const chati* pb, creature& player, creature& opponent) {
@@ -133,6 +137,7 @@ void creature::chat(creature& opponent) {
 	{HumanChild, chat_child},
 	{HumanMale, chat_commoner},
 	{HumanFemale, chat_commoner},
+	{HumanGuard, chat_guard},
 	{}};
 	if(saybusy())
 		return;
