@@ -624,38 +624,40 @@ creature* creature::getactive(int n) {
 	return creatures[n];
 }
 
-const variant* creature::calculate(const variant* p, int& result) const {
-	switch(p->type) {
-	case Ability: result = get((ability_s)p->value); p++; break;
-	case Skill: result = get((skill_s)p->value); p++; break;
-	case Number: result = p->value; p++; break;
-	default: return 0;
-	}
-	while(p->type == Formula) {
-		switch(p->value) {
-		case Negative: result = -result; break;
-		case Divide2: result = result / 2; break;
-		case Divide3: result = result / 3; break;
-		case Divide4: result = result / 4; break;
-		case Divide10: result = result / 10; break;
-		case Multiply2: result = result * 2; break;
-		case Multiply3: result = result * 3; break;
-		case Multiply4: result = result * 4; break;
-		default: return 0;
+int creature::calculate(const varianta& source) const {
+	int result = 0, r = 0;
+	for(auto v : source) {
+		switch(v.type) {
+		case Ability:
+			result += r;
+			r = get((ability_s)v.value);
+			break;
+		case Skill:
+			result += r;
+			r = get((skill_s)v.value);
+			break;
+		case Number:
+			result += r;
+			r = (char)v.value;
+			break;
+		case Formula:
+			switch(v.value) {
+			case Negative: r = -r; break;
+			case Divide2: r = r / 2; break;
+			case Divide3: r = r / 3; break;
+			case Divide4: r = r / 4; break;
+			case Divide10: r = r / 10; break;
+			case Multiply2: r = r * 2; break;
+			case Multiply3: r = r * 3; break;
+			case Multiply4: r = r * 4; break;
+			default: return 0;
+			}
+			break;
+		default:
+			return 0;
 		}
-		p++;
 	}
-	return p;
-}
-
-int	creature::calculate(const variant* formula) const {
-	int result = 0;
-	while(formula) {
-		int a = 0;
-		formula = calculate(formula, a);
-		result += a;
-	}
-	return result;
+	return result + r;
 }
 
 slot_s creature::getwearerslot(const item* p) const {

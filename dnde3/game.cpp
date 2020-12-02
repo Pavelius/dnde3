@@ -194,11 +194,15 @@ bool gamei::enter(int level, map_object_s stairs) {
 	if(level > 0) {
 		auto start_position = loc.find(stairs);
 		if(start_position == Blocked) {
-			auto& ei = bsmeta<landscapei>::elements[loc.type];
-			auto dir = Right;
-			if(creature::getactive())
-				dir = creature::getactive()->getdirection();
-			start_position = ei.getstart(dir);
+			if(stairs == NoTileObject) {
+
+			} else {
+				auto& ei = bsmeta<landscapei>::elements[loc.type];
+				auto dir = Right;
+				if(creature::getactive())
+					dir = creature::getactive()->getdirection();
+				start_position = ei.getstart(dir);
+			}
 		}
 		if(start_position == Blocked)
 			start_position = loc.get(mmx / 2, mmy / 2);
@@ -220,7 +224,7 @@ void gamei::checkcommand() {
 		enter(getlevel() + 1, StairsUp);
 		break;
 	case StairsUp:
-		if(getlevel()>0)
+		if(getlevel() > 0)
 			enter(getlevel() - 1, StairsDown);
 		break;
 	}
@@ -325,10 +329,10 @@ void gamei::move(indext index) {
 		difficult = difficult * 60 / 100;
 	restore_energy -= difficult;
 	// Расчитаем еду
-
 	// Движение
 	setposition(index);
 	updatepos();
+	randomencounter();
 }
 
 void gamei::setposition(indext v) {
@@ -385,4 +389,14 @@ void gamei::decoyfood() {
 			continue;
 		e.decoy();
 	}
+}
+
+void gamei::randomencounter() {
+	if(!isoutdoor())
+		return;
+	if(d100() >= 15)
+		return;
+	auto p = encounter::getrandom(tile);
+	if(p)
+		p->play();
 }

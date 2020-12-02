@@ -138,6 +138,7 @@
     <ClCompile Include="draw_textf.cpp" />
     <ClCompile Include="dungeon.cpp" />
     <ClCompile Include="duration.cpp" />
+    <ClCompile Include="encounter.cpp" />
     <ClCompile Include="event.cpp" />
     <ClCompile Include="food.cpp" />
     <ClCompile Include="quest.cpp" />

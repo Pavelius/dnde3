@@ -324,7 +324,7 @@ struct variant {
 	const char*			getnameof() const;
 	const char*			getnameofc() const;
 };
-typedef variant			varianta[12];
+typedef std::initializer_list<variant> varianta;
 typedef adat<casev<variant>, 8> chancev;
 struct deck : adat<unsigned short> {
 	void				drop(short unsigned v);
@@ -406,7 +406,7 @@ struct abilityi {
 struct equipmenti {
 	race_s				race;
 	class_s				type;
-	varianta			features;;
+	varianta			features;
 };
 struct map_objecti {
 	const char*			id;
@@ -838,7 +838,6 @@ class creature : public nameable, public paperdoll {
 	void				applyabilities();
 	void				applyaward() const;
 	void				attack(creature& enemy, const attacki& ai, int bonus, int multiplier);
-	const variant*		calculate(const variant* formula, int& result) const;
 	void				cantmovehere() const;
 	bool				cantakeoff(slot_s id, bool interactive);
 	bool				canuse(const item& e, bool talk) const;
@@ -880,7 +879,7 @@ public:
 	static bool			askyn();
 	void				backpack();
 	void				bloodstain() const;
-	int					calculate(const variant* formule) const;
+	int					calculate(const varianta& source) const;
 	bool				canhear(short unsigned index) const;
 	bool				canleave(direction_s v) const;
 	bool				cansee(indext i) const;
@@ -1074,6 +1073,22 @@ struct dungeoni {
 	explicit constexpr operator bool() const { return level != 0; }
 	const dungeoni*		find(int level) const;
 	constexpr bool		isdungeon() const { return type == AreaDungeon; }
+};
+struct packi {
+	variant				monster;
+	dicei				count;
+	char				chance;
+};
+typedef std::initializer_list<packi> packa;
+struct encounter {
+	rarity_s			rarity;
+	state_s				state;
+	varianta			conditions;
+	const char*			text;
+	packa				monsters;
+	void				play();
+	bool				match(variant v);
+	static encounter*	getrandom(tile_s landscape);
 };
 class indexa : public adat<indext> {
 public:
@@ -1325,10 +1340,12 @@ public:
 	unsigned			getrounds() const { return rounds; }
 	void				intialize();
 	bool				is(variant v) const;
+	bool				isoutdoor() const { return outdoor_id == Blocked; }
 	void				move(indext index);
 	static void			help();
 	void				passminute();
 	void				play();
+	void				randomencounter();
 	bool				read();
 	static void			setnobackground();
 	void				setposition(indext v);

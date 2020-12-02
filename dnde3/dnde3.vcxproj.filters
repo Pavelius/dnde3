@@ -223,6 +223,9 @@
     <ClCompile Include="duration.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="encounter.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="answer.h">

@@ -145,10 +145,11 @@ static void begin_game() {
 		auto p2 = create(Dwarf, Male, Cleric);
 		auto p3 = create(Ratling, Male, Fighter);
 		create(p1, AlchemyReceipt);
+		p1->raise(Dancing);
 		create(p2, Potion1, DrunkenSpell);
 		create(p1, AlchemySet);
 		createp(p1, Staff);
-		p1->addexp(10000, p1->is(Friendly));
+		p1->addexp(10000, false);
 		game.setposition(loc.get(8, 8));
 		if(!game.enter(0, NoTileObject))
 			return;

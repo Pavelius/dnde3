@@ -86,20 +86,19 @@ bool creature::use(skill_s id, creature& player, int order, bool run) {
 		}
 		break;
 	case Dancing:
-		if(is(Hostile) || mood<0 || !is(LowInt))
+		if(is(Hostile) || is(Friendly) || mood < 0 || !is(LowInt))
 			return false;
 		if(run) {
 			if(player.roll(id)) {
 				static const char* talk[] = {"Красиво.", "Неплохо!", "Молодец, давай еще танцуй!", "Браво!"};
 				say(maprnd(talk));
-				mood++;
-			} else {
-				if(d100() < 60) {
-					static const char* talk[] = {"Фууу.", "Уберите, ЭТО!", "Как я могу это развидеть?", "Какая гадость."};
-					say(maprnd(talk));
-				}
-				mood--;
+				mood += xrand(2, 4);
+			} else if(d100() < 50) {
+				static const char* talk[] = {"Фууу.", "Уберите, ЭТО!", "Как я могу это развидеть?", "Какая гадость."};
+				say(maprnd(talk));
+				mood -= xrand(1, 3);
 			}
+			wait(Minute);
 		}
 		break;
 	case Gambling:
@@ -271,9 +270,9 @@ bool item::use(skill_s id, creature& player, int order, bool run) {
 						else {
 							static effecti read_books[] = {
 								{{}, 0, "Почти все что было написано вы не поняли. Может стоит попробывать перечитать еще раз?"},
-							{{}, 0, "Вы прочитали несколько десятков страниц. Сколько из этого усвоили? Ровно ноль."},
-							{ManaPoints, -3, "Книга оказалось неинтересной, а чтение оказалось слишком утомительным. Вы даже немного разозлились."},
-							{ManaPoints, -4, "В книге было описано множество скучных вещей и вы заскучали."},
+								{{}, 0, "Вы прочитали несколько десятков страниц. Сколько из этого усвоили? Ровно ноль."},
+								{ManaPoints, -3, "Книга оказалось неинтересной, а чтение оказалось слишком утомительным. Вы даже немного разозлились."},
+								{ManaPoints, -4, "В книге было описано множество скучных вещей и вы заскучали."},
 							};
 							player.add(maprnd(read_books), getkind());
 						}
