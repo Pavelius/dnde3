@@ -261,6 +261,12 @@ enum variant_s : unsigned char {
 	Sale, Skill, Slot, Spell, State, Target, Tile,
 	Variant,
 };
+enum fraction_s : unsigned char {
+	NoFraction,
+	AdventurerGuild, MiddleKindom, NorthKindom, MountainKindom, ForestKindom,
+	SeaKings, DemonLords,
+	SavageHorde, MightyDragon, RavenousUndead, SecretOrder, TheivesGuild,
+};
 struct dungeoni;
 struct targeti;
 struct landscapei;
@@ -325,7 +331,6 @@ struct variant {
 	const char*			getnameofc() const;
 };
 typedef std::initializer_list<variant> varianta;
-typedef adat<casev<variant>, 8> chancev;
 struct deck : adat<unsigned short> {
 	void				drop(short unsigned v);
 	short unsigned		take();
@@ -1313,6 +1318,8 @@ struct tilei {
 	gender_s			gender;
 	const dungeoni*		wilderness;
 };
+class fractiona : public aset<fraction_s, TheivesGuild+1> {
+};
 class gamei : public geoposable {
 	unsigned			rounds;
 	tile_s				tile;
@@ -1320,6 +1327,7 @@ class gamei : public geoposable {
 	char				reputation;
 	int					restore_energy;
 	deck				events;
+	fractiona			progress;
 	//
 	bool				checkalive();
 	void				checkcommand();

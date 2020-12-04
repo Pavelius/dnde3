@@ -1,11 +1,5 @@
 #include "main.h"
 
-struct chati {
-	variant				v1;
-	const quest*		dialog;
-	constexpr explicit operator bool() const { return dialog != 0; }
-};
-
 static quest party_member[] = {{1, {Common}, "Чего тебе?"},
 {1, {Common}, "Что надо, друг?"},
 {1, {}, "Что там?"},
@@ -14,49 +8,25 @@ static quest party_member[] = {{1, {Common}, "Чего тебе?"},
 {1, {Opponent, UseLongActionSkill}, "Мы планируем немного отдохнуть. Не трать зря время и прямо сейчас займись чем-то долгим, на что ранше не хватало времени.", 3},
 {1, {}, "Все нормально. Так просто решил%а поболтать.", -1},
 {}};
-static quest neutral_character[] = {{1, {Common}, "Чего тебе?"},
-{1, {Common}, "Я рад теб приветствовать. Чем могу быть полезен?"},
-{1, {}, "Да?"},
-{1, {}, "Присоединяйся к нам. Нам нужны отчаяные люди как ты.", 2},
-{1, {}, "Что ты тут делаешь?", 2},
-{1, {}, "Пожалуй я пойду.", -1},
+static quest all_chat[] = {{1, {Opponent, Owner, Rare}, "Заходи. Смотри. Выбирай."},
+{1, {Opponent, ShopWeaponAndArmor, Uncommon}, "Мечи самое сбалансированное оружие. Есть огромный выбор. Двуручный меч медленный, но наносит больше всего урона. Кинжал можно использовать во второй руке и он достаточно быстрый."},
+{1, {Opponent, ShopFood, Uncommon}, "Хлеб гномов та еще пища - напоминает вкус земли. Но для настоящего гнома это тот еще деликатес! Любой гном его обажает, ведь на них он сказывается благосклонно."},
+{1, {Opponent, ShopFood, Uncommon}, "Моя рекомендация - есть больше яблок. Чем больше ты их будешь есть, тем [сильнее] станешь."},
+{1, {Opponent, ShopFood, Uncommon}, "Колбаса наиболее питательный продукт. Она укрепляет здоровье и повышает самочуствие. Еш больше колбасы и у тебя будет высокое [телосложение]."},
+{1, {Opponent, ShopFood, Uncommon}, "Если где найдешь хлеб хоббитов, помни - этот продукт сделан из экологически чистого материала и очень хорошо усваивается организмом. Говорят, что те кто его едят много [хорошо выглядят] и имеют необычайный заряд бодрости."},
+{1, {Opponent, HumanChild, Common}, "Мама мне не разреает общаться с незнакомцами."},
+{1, {Opponent, HumanChild, Common}, "Как тебя зовут?"},
+{1, {Opponent, HumanChild, Common}, "Ты такой большой!"},
+{1, {Opponent, HumanChild}, "Не хочу разговаривать. Ты страшный."},
+{1, {Opponent, HumanGuard, Uncommon}, "Я за тобой слежу."},
+{1, {Opponent, HumanGuard, Uncommon}, "Я есть закон."},
+{1, {Opponent, HumanGuard, Uncommon}, "Что? Куда он побежал?"},
+{1, {Opponent, HumanGuard}, "Нужны проблемы?"},
+{1, {Opponent, HumanFemale, Common}, "Знаете какие удои у коров были меяц назад?"},
+{1, {Opponent, HumanMale, Common}, "Сена в этом году мало, как бы заготовить побольше."},
+{1, {Uncommon}, "Чего-то хотите?"},
+{1, {}, "Хороший день, да?"},
 {}};
-static quest chat_commoner[] = {{1, {Common}, "Хороший день, правда?"},
-{1, {Common}, "Знаете какие удои у коров были меяц назад?"},
-{1, {Common}, "Сена в этом году мало, как бы заготовить побольше."},
-{1, {}, "Вы знаете, наш управитель что-то скрывает?"},
-{}};
-static quest chat_child[] = {{1, {Common}, "Мама мне не разреает общаться с незнакомцами."},
-{1, {Common}, "Как тебя зовут?"},
-{1, {Common}, "Ты такой большой."},
-{1, {}, "Не хочу разговаривать. Ты страшный."},
-{}};
-static quest chat_shopkeeper[] = {{1, {Common}, "Как твой бизнес, друг?"},
-{1, {Common}, "Заходи. Смотри. Выбирай."},
-{1, {}, "Дай мне что-нибудь бесплатно.", 2},
-{1, {}, "Я пожалуй, пойду присмотрю себе что-то.", -1},
-{1, {Uncommon}, "Хороший день, да?"},
-{1, {}, "Чую запах денег."},
-{1, {}, "Все хорошо. Было бы еще лучше если бы твои глупые шутки не орошали сегодняшний эфир.", -1},
-{2, {}, "И почему я это должен сделать?"},
-{2, {Strenght, Opponent}, "Потому что я смогу сделать тебе больно. Подходит?", 3},
-{2, {Diplomacy, Opponent, MakeDiscount}, "Так ты сделашь свой вклад в борьбу с хаосом, который сеeтся в округе.", -1},
-{2, {}, "И то верно. Причин нет. Видимо мне пора идти.", -1},
-{3, {}, "Предлагаю такой хороший день не превращать в побиение моей охраной еще одного воришки и прохиндея. Договорились?"},
-{}};
-static quest chat_guard[] = {{1, {Uncommon}, "Я за тобой слежу."},
-{1, {Uncommon}, "Я есть закон."},
-{1, {Uncommon}, "Что? Куда он побежал?"},
-{1, {}, "Нужны проблемы?"},
-{}};
-
-static const chati* find_chat(const chati* pb, creature& player, creature& opponent) {
-	for(auto p = pb; *p; p++) {
-		if(opponent.match(p->v1))
-			return p;
-	}
-	return 0;
-}
 
 void creature::chat(creature& opponent, const quest* source) {
 	struct contexti : quest::contexti {
@@ -133,22 +103,12 @@ void creature::chat(creature& opponent, const quest* source) {
 }
 
 void creature::chat(creature& opponent) {
-	static chati available_chats[] = {{Shopkeeper, chat_shopkeeper},
-	{HumanChild, chat_child},
-	{HumanMale, chat_commoner},
-	{HumanFemale, chat_commoner},
-	{HumanGuard, chat_guard},
-	{}};
 	if(saybusy())
 		return;
-	auto pd = find_chat(available_chats, *this, opponent);
-	const quest* dg = 0;
-	if(pd)
-		dg = pd->dialog;
-	else if(opponent.is(Friendly) && is(Friendly))
+	const quest* dg = all_chat;
+	if(opponent.is(Friendly) && is(Friendly))
 		dg = party_member;
-	if(dg)
-		chat(opponent, dg);
+	chat(opponent, dg);
 }
 
 void creature::chat() {

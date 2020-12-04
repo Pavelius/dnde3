@@ -194,15 +194,11 @@ bool gamei::enter(int level, map_object_s stairs) {
 	if(level > 0) {
 		auto start_position = loc.find(stairs);
 		if(start_position == Blocked) {
-			if(stairs == NoTileObject) {
-
-			} else {
-				auto& ei = bsmeta<landscapei>::elements[loc.type];
-				auto dir = Right;
-				if(creature::getactive())
-					dir = creature::getactive()->getdirection();
-				start_position = ei.getstart(dir);
-			}
+			auto& ei = bsmeta<landscapei>::elements[loc.type];
+			auto dir = Right;
+			if(creature::getactive())
+				dir = creature::getactive()->getdirection();
+			start_position = ei.getstart(dir);
 		}
 		if(start_position == Blocked)
 			start_position = loc.get(mmx / 2, mmy / 2);

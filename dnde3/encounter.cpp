@@ -11,8 +11,8 @@ void encounter::play() {
 	static gender_s genders[] = {Male, Male, Female};
 	if(text) {
 		sb.add(text);
-		auto player = creature::getactive();
 		auto roll_result = false;
+		auto player = creature::getactive();
 		if(player)
 			roll_result = player->roll(Survival);
 		if(roll_result) {

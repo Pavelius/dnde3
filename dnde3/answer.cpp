@@ -21,6 +21,7 @@ bool answeri::addv(int param, int priority) {
 	pe->param = param;
 	pe->priority = priority;
 	pe->text = get();
+	return true;
 }
 
 void answeri::addv(int param, int priority, const char* format, const char* format_param) {

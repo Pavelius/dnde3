@@ -145,6 +145,7 @@ template<class T, int N> struct aset {
 		for(auto e : v)
 			set(e.id, e.value);
 	}
+	constexpr char			get(T id) { return data[id]; }
 	constexpr void			set(T id, int v) { data[id] = v; }
 };
 // Abstract flag data bazed on enumerator

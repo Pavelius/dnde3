@@ -48,7 +48,7 @@ const quest* quest::choose(contexti& ei) const {
 		else {
 			ei.apply(p, true);
 			ei.add(p);
-			while(!p[1].next)
+			while(!p[1].next && p[1])
 				p++;
 		}
 	}

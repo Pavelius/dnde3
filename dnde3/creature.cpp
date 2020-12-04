@@ -1866,6 +1866,7 @@ bool creature::match(variant v) const {
 	case Skill: return skills[v.value] != 0;
 	case State: return is(state_s(v.value));
 	case Spell: return spells[v.value] != 0;
+	case Room: return is(Owner) && getsite()->getkind() == v.value;
 	}
 	return true;
 }
