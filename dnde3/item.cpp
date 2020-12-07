@@ -216,7 +216,7 @@ bool itemi::is(slot_s v) const {
 	}
 }
 
-bool itemi::is(const aref<slot_s>& source) const {
+bool itemi::is(const std::initializer_list<slot_s>& source) const {
 	for(auto v : source) {
 		if(is(v))
 			return true;
@@ -244,36 +244,48 @@ variant itemi::randeffect() const {
 	return {};
 }
 
+inline bool roll2c(int cv) {
+	if(cv <= 0)
+		return false;
+	else if(cv > 70)
+		cv = 70;
+	return d100() < cv;
+}
+
 void item::create(item_s item_type, int chance_artifact, int chance_magic, int chance_cursed, int chance_quality) {
 	clear();
 	type = item_type;
 	auto& ei = getitem();
 	magic = Mundane;
-	if(chance_magic > 0 && (d100() < chance_magic)) {
+	if(roll2c(chance_magic)) {
 		if(d100() < chance_cursed)
 			magic = Cursed;
-		else if(d100() < chance_artifact)
+		else if(roll2c(chance_artifact))
 			magic = Artifact;
 		else
 			magic = Blessed;
 	}
 	quality = 0;
-	if(chance_quality > 0 && (d100() < chance_quality)) {
-		static char quality_chances[] = {1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3};
-		quality = maprnd(quality_chances);
+	if(roll2c(chance_quality)) {
+		quality++;
+		if(roll2c(chance_quality / 2)) {
+			quality++;
+			if(roll2c(chance_quality / 4))
+				quality++;
+		}
 	}
 	if(!iscountable() && ei.effects.data) {
 		if(ei.effects[0])
 			effect = rand() % ei.effects.getcount();
 		else if(ei.effects[1]) {
-			if(d100() < chance_magic)
+			if(roll2c(chance_magic))
 				effect = 1 + (rand() % (ei.effects.getcount() - 1));
 			else
 				effect = 0;
 		}
 	}
 	if(ischargeable())
-		charge = xrand(2, 12) + quality;
+		charge = xrand(2, 4) + quality * 2;
 	if(iscountable()) {
 		if(is(Edible))
 			setcount(xrand(1, 3));

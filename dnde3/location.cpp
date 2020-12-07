@@ -929,13 +929,13 @@ void location::loot(indext index, item_s type, int level, char chance_bigger_pri
 	if(index == Blocked || type == NoItem)
 		return;
 	item it;
-	auto chance_artifact = imax(0, level / 4);
-	auto chance_quality = imax(0, imin(80, 40 + level) + bonus_quality);
-	auto chance_magic = imax(0, 10 + level);
+	auto chance_artifact = level / 2;
+	auto chance_quality = 30 + level * 4 + bonus_quality;
+	auto chance_magic = 10 + level * 2;
 	it.create(type, chance_artifact, chance_magic, chance_curse, chance_quality);
 	it.set(identify);
 	if(it.is(Coinable))
-		it.setcount(xrand(1 * level, 10 * level));
+		it.setcount(xrand(1 * level, 6 * level));
 	if(chance_bigger_price) {
 		if(d100() < chance_bigger_price)
 			it.set(Sale150);
@@ -963,7 +963,7 @@ void location::loot(indext index, slot_s slots, int level, char chance_bigger_pr
 	loot(index, (item_s)source.random().value, level, chance_bigger_price, identify, chance_curse, bonus_quality);
 }
 
-void location::loot(indext index, const aref<slot_s>& slots, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality) {
+void location::loot(indext index, const std::initializer_list<slot_s>& slots, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality) {
 	variantc source;
 	source.additems(slots);
 	source.match(Natural, true);

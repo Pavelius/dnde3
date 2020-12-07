@@ -2093,6 +2093,7 @@ static void place_settlement() {
 
 static void editor_save() {
 	loc.write("game/overland.loc", true);
+	loc.serialx("export/map.txt", true);
 }
 
 static void editor_read() {

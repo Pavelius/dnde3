@@ -141,6 +141,7 @@
     <ClCompile Include="encounter.cpp" />
     <ClCompile Include="event.cpp" />
     <ClCompile Include="food.cpp" />
+    <ClCompile Include="location_ie.cpp" />
     <ClCompile Include="quest.cpp" />
     <ClCompile Include="indexa.cpp" />
     <ClCompile Include="intellegence.cpp" />

@@ -535,7 +535,7 @@ struct itemi {
 	//
 	item_s				getid() const;
 	bool				is(slot_s v) const;
-	bool				is(const aref<slot_s>& source) const;
+	bool				is(const std::initializer_list<slot_s>& source) const;
 	variant				randeffect() const;
 };
 class item {
@@ -658,7 +658,7 @@ class variantc : public adat<casev<variant>> {
 	void				add(variant v, rarity_s r);
 public:
 	void				additems(slot_s v);
-	void				additems(const aref<slot_s>& source);
+	void				additems(const std::initializer_list<slot_s>& source);
 	int					getweight() const;
 	bool				is(variant v) const;
 	void				match(slot_s v, bool remove);
@@ -1261,7 +1261,7 @@ public:
 	void				interior(const rect& rc, room_s type, indext index, int level, rect* result_rect, site* ps);
 	void				loot(indext index, item_s type, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality);
 	void				loot(indext index, slot_s slot, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality);
-	void				loot(indext index, const aref<slot_s>& slot, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality);
+	void				loot(indext index, const std::initializer_list<slot_s>& slot, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality);
 	void				loot(const rect& rc, const variantc& source, int chance, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality);
 	void				makewave(indext index);
 	void				minimap(int x, int y, point camera, bool fow) const;
@@ -1273,6 +1273,7 @@ public:
 	bool				read(indext index, int level);
 	void				remove(indext i, map_flag_s v) { flags[i].remove(v); }
 	void				remove(indext i);
+	void				serialx(const char* url, bool write_mode);
 	void				set(indext i, map_flag_s v) { flags[i].set(v); }
 	void				set(indext i, tile_s v);
 	void				set(indext i, trap_s v);
@@ -1315,6 +1316,7 @@ struct outdoori {
 struct tilei {
 	const char*			id;
 	const char*			name;
+	char				symbol;
 	gender_s			gender;
 	const dungeoni*		wilderness;
 };

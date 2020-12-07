@@ -90,7 +90,7 @@ void variantc::additems(slot_s v) {
 	}
 }
 
-void variantc::additems(const aref<slot_s>& source) {
+void variantc::additems(const std::initializer_list<slot_s>& source) {
 	for(auto i = item_s(1); i < ManyItems; i = (item_s)(i + 1)) {
 		auto& ei = bsmeta<itemi>::elements[i];
 		if(!ei.is(source))
