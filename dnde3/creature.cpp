@@ -1019,8 +1019,12 @@ void creature::move(indext index) {
 	// Выведем сообщение об окруающей среде
 	if(site != pnewsite && pnewsite) {
 		auto p = pnewsite->getdescription();
-		if(p && isactive())
+		if(p && isactive()) {
+			sb.add("Перед вами ");
+			pnewsite->getname(sb);
+			sb.add(". ");
 			sb.add(p);
+		}
 	}
 	movecost(index);
 	if(getposition() != index) {
