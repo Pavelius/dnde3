@@ -612,11 +612,6 @@ static void render_info(const creature& e) {
 			continue;
 		x += texth(x, y, ei.name, ei.flags.is(Hostile) ? 2 : 0);
 	}
-	auto ps = e.getsite();
-	if(ps) {
-		sb.clear(); ps->getname(sb);
-		text(x + width - textw(sb), y2, sb);
-	}
 }
 
 static void render_message(const char* press_key = 0) {

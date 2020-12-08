@@ -696,6 +696,7 @@ struct roomi {
 		char			quality;
 	};
 	const char*			name;
+	const char*			text;
 	strarray			name1, name2;
 	map_object_s		heart;
 	role_s				keeper;
@@ -745,6 +746,7 @@ public:
 	explicit operator bool() { return x2 > x1 && y2 > y1; }
 	void				clear();
 	static site*		find(indext index);
+	const char*			getdescription() const;
 	room_s				getkind() const { return (room_s)value; }
 	creature*			getowner() const;
 	variant				getparam() const { return param; }

@@ -12,6 +12,12 @@ creature* site::getowner() const {
 	return (owner_id == Blocked) ? 0 : bsmeta<creature>::elements + owner_id;
 }
 
+const char* site::getdescription() const {
+	if(type == Room)
+		return bsmeta<roomi>::elements[value].text;
+	return 0;
+}
+
 site* site::find(indext index) {
 	if(index == Blocked)
 		return 0;

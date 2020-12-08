@@ -1016,6 +1016,12 @@ void creature::move(indext index) {
 			return;
 		}
 	}
+	// Выведем сообщение об окруающей среде
+	if(site != pnewsite && pnewsite) {
+		auto p = pnewsite->getdescription();
+		if(p && isactive())
+			sb.add(p);
+	}
 	movecost(index);
 	if(getposition() != index) {
 		set(pnewsite);
