@@ -1038,7 +1038,7 @@ public:
 	void				matchact(spell_s id, bool remove);
 	void				matchr(indext index, int range);
 	void				select();
-	void				select(indext start, int distance);
+	void				select(indext start, int distance, bool visible = true);
 	void				select(state_s v);
 	void				sort(indext start);
 };

@@ -101,7 +101,7 @@ void creaturea::select(state_s v) {
 	count = ps - data;
 }
 
-void creaturea::select(indext start, int distance) {
+void creaturea::select(indext start, int distance, bool visible) {
 	auto ps = data;
 	auto pe = endof();
 	for(auto& e : bsmeta<creature>()) {
@@ -110,7 +110,7 @@ void creaturea::select(indext start, int distance) {
 		auto i = e.getposition();
 		if(loc.getrange(i, start) > distance)
 			continue;
-		if(!loc.cansee(i, start))
+		if(visible && !loc.cansee(i, start))
 			continue;
 		if(ps < pe)
 			*ps++ = &e;

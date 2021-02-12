@@ -472,9 +472,9 @@ void creature::raiseability(bool interactive) {
 			abilities[ManaPoints] += ei.mp;
 		} else {
 			if(ei.hp)
-				abilities[LifePoints] += xrand(ei.hp / 2, ei.hp);
+				abilities[LifePoints] += xrand(1, ei.hp);
 			if(ei.mp)
-				abilities[ManaPoints] += xrand(ei.mp / 2, ei.mp);
+				abilities[ManaPoints] += xrand(1, ei.mp);
 		}
 		abilities[Attack] += ei.weapon.multiplier;
 		// Add level features
@@ -1600,7 +1600,7 @@ void creature::addexp(int v, bool interactive) {
 
 void creature::enslave() {
 	creaturea source;
-	source.select(getposition(), 6);
+	source.select(getposition(), 48, false);
 	source.match(*this, Hostile, false);
 	auto p = source.choose("В кого хотите вселиться?");
 	p->activate();
