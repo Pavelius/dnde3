@@ -70,23 +70,21 @@ void creature::add(variant id, int v, bool interactive) {
 	case State: add((state_s)id.value, v, interactive); break;
 	case Skill: add((skill_s)id.value, v, interactive); break;
 	case Item:
-	{
 		item it; it.create(item_s(id.value), 0, 5, 0, 20);
 		equip(it);
 		if(bsmeta<itemi>::elements[id.value].weapon.ammunition) {
-			// Free ammunitons for items
 			item it(bsmeta<itemi>::elements[id.value].weapon.ammunition, v);
 			equip(it);
 		}
-	}
-	break;
+		break;
 	case Harm:
 		switch(id.value) {
 		case Piercing:
 		case Slashing:
 		case Bludgeon:
 			if(roll(Acrobatics)) {
-				act("%герой отскачил%а в сторону.");
+				if(interactive)
+					act("%герой отскачил%а в сторону.");
 				return;
 			}
 			break;
@@ -284,7 +282,7 @@ void creature::equip(item it, slot_s id) {
 
 bool creature::add(item v, bool run, bool talk) {
 	if(v.is(Coinable)) {
-		money += v.getcost()*v.getcount();
+		money += v.getcost() * v.getcount();
 		return true;
 	}
 	// Second place item to backpack
@@ -457,17 +455,15 @@ void creature::randomequip() {
 		}
 	}
 	equip(item(Ration, 2));
-	money += xrand(3, 18)*GP;
+	money += xrand(3, 18) * GP;
 }
 
 void creature::raiseability(bool interactive) {
 	auto& ei = getclass();
-	switch(abilities[Level]) {
-	case 0:
+	if(abilities[Level] == 0)
 		abilities[Attack] += ei.weapon.base;
-		break;
-	default:
-		if(abilities[Level]==1 && ischaracter()) {
+	else {
+		if(abilities[Level] == 1 && ischaracter()) {
 			abilities[LifePoints] += ei.hp;
 			abilities[ManaPoints] += ei.mp;
 		} else {
@@ -479,20 +475,9 @@ void creature::raiseability(bool interactive) {
 		abilities[Attack] += ei.weapon.multiplier;
 		// Add level features
 		for(auto& pi : bsmeta<leveli>()) {
-			if(pi.type == kind && pi.level == abilities[Level]) {
-				for(auto& e : pi.features) {
-					switch(e.type) {
-					case Skill:
-						add(e, 10, interactive);
-						break;
-					default:
-						add(e, 1, interactive);
-						break;
-					}
-				}
-			}
+			if(pi.type == kind && pi.level == abilities[Level])
+				apply(pi.features, interactive);
 		}
-		break;
 	}
 }
 
@@ -510,14 +495,9 @@ void creature::applyabilities() {
 		if(abilities[i] < 0)
 			abilities[i] = 0;
 	}
-	// Generate skills
-	for(auto e : ri.abilityvs)
-		abilities[e.id] += e.value;
-	for(auto e : ri.skills)
-		raise(e);
+	apply(ri.bonuses, false);
 	for(auto e : ci.skills)
 		raise(e);
-	states.set(ri.states);
 	// Class spells
 	for(auto e : ci.spells)
 		add(e, 1, false);
@@ -1312,22 +1292,22 @@ void creature::checksick() {
 
 void creature::checkpoison() {
 	if(is(Poisoned)) {
-		if(roll(ResistPoison)) {
-			if(poison <= 0)
-				add(Poisoned, -1, true);
-			else
+		if(resist(Poison, 0, false)) {
+			if(poison>0)
 				poison--;
 		} else {
 			act("%герой страдает от яда.");
 			damage(1, Magic, 100, false);
 		}
+		if(poison <= 0)
+			add(Poisoned, -1, true);
 	} else if(is(Drunken)) {
-		if(roll(ResistPoison, 15)) {
-			if(poison <= 0)
-				add(Drunken, -1, true);
-			else
+		if(resist(Poison, 15, false)) {
+			if(poison > 0)
 				poison--;
 		}
+		if(poison <= 0)
+			add(Drunken, -1, true);
 	}
 }
 
@@ -1498,17 +1478,10 @@ void creature::kill() {
 void creature::damage(int value, damage_s type, int pierce, bool interactive) {
 	auto& di = bsmeta<damagei>::elements[type];
 	// Innate resist skills
-	if(di.resist && value > 0) {
-		auto resist_skill = get(di.resist);
-		if(resist_skill < 0)
-			value += -resist_skill * value / 100; // Negative resist increase damage
-		else {
-			if(rollv(resist_skill - value)) {
-				act(di.resist_text, value);
-				return;
-			}
-		}
-	}
+	if(isresist(type) && value > 0)
+		value /= 2;
+	if(isvulnerable(type) && value > 0)
+		value *= 2;
 	if(value < 0) {
 		value = -value;
 		auto mhp = get(LifePoints);
@@ -1914,11 +1887,7 @@ void creature::readsomething() {
 }
 
 bool creature::charmresist(int bonus) const {
-	if(roll(ResistCharm, bonus)) {
-		act("%герой и глазом не моргнул%а.");
-		return true;
-	}
-	return false;
+	return resist(Charm, bonus, true);
 }
 
 int creature::getlos() const {
@@ -2228,4 +2197,36 @@ bool creature::is(condition_s v) const {
 	case Owner: return getsite() && getsite()->getowner() == this;
 	default: return false;
 	}
+}
+
+void creature::apply(varianta source, bool interactive) {
+	auto modifier = NoModifier;
+	for(auto v : source) {
+		switch(v.type) {
+		case Skill: raise((skill_s)v.value); break;
+		case Harm:
+			switch(modifier) {
+			case Resist: resistance.set(v.value); break;
+			case Immune: immunity.set(v.value); break;
+			default: add(v, 1, interactive); break;
+			}
+			break;
+		case Modifier: modifier = (modifier_s)v.value; break;
+		default: add(v, 1, interactive); break;
+		}
+	}
+}
+
+bool creature::resist(damage_s v, int bonus, bool interactive) const {
+	if(isimmune(v))
+		return true;
+	auto& ei = bsmeta<damagei>::elements[v];
+	bonus += get(Constitution) * 2;
+	if(isresist(v))
+		bonus += 30;
+	if(!rollv(bonus))
+		return false;
+	if(interactive)
+		act(ei.resist_text);
+	return true;
 }

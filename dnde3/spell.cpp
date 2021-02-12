@@ -53,7 +53,7 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 			player.chat(*this);
 		break;
 	case CharmPerson:
-		if(match(Animal) || get(ResistCharm) >= 100)
+		if(match(Animal) || isimmune(Charm))
 			return false;
 		if(run) {
 			if(charmresist())
@@ -64,7 +64,7 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 		}
 		break;
 	case Domination:
-		if(match(Animal) || get(ResistCharm) >= 100 || isactive())
+		if(match(Animal) || isimmune(Charm) || isactive())
 			return false;
 		if(run) {
 			if(charmresist())
@@ -78,7 +78,7 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 		}
 		break;
 	case FearSpell:
-		if(get(ResistCharm) >= 100)
+		if(isimmune(Charm))
 			return false;
 		if(run) {
 			if(charmresist())
@@ -106,10 +106,8 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 		break;
 	case PoisonSpell:
 		if(run) {
-			if(roll(ResistPoison)) {
-				act("%герой перенес%ла эффект яда без последствий.");
+			if(resist(Poison, 0, true))
 				return false;
-			}
 			if(is(Poisoned)) {
 				poison += xrand(1, 3);
 				act("%герой получил%а дополнительную дозу яда!");
@@ -121,7 +119,7 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 		break;
 	case DrunkenSpell:
 		if(run) {
-			if(roll(ResistPoison))
+			if(resist(Poison, 0, false))
 				return false;
 			if(is(Drunken)) {
 				poison += xrand(2, 5);
@@ -151,7 +149,7 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 		if(is(Sick))
 			return false;
 		if(run) {
-			if(roll(ResistPoison, 10 - level * 5)) {
+			if(resist(Poison, 10 - level * 5, false)) {
 				act("%герой противостоял%а болезни.");
 				return false;
 			}
@@ -165,7 +163,7 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 		}
 		break;
 	case Sleep:
-		if(get(ResistCharm) >= 100 || is(Sleep))
+		if(isimmune(Charm) || is(Sleep))
 			return false;
 		if(run) {
 			if(charmresist(15 * order))

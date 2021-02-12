@@ -29,7 +29,7 @@ bool creature::use(const creaturea& creatures, item& it) {
 		act("%герой съел%а %-1.", it.getname());
 		if(d100() < it.getdamage() * 10) {
 			act("Еда оказалась испорченой.");
-			if(!roll(ResistPoison)) {
+			if(!resist(Poison, 0, false)) {
 				if(d100() < 15)
 					add(Sick, 1, true);
 				else

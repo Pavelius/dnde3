@@ -19,16 +19,13 @@ static variant weapon_enchanments[] = {{}, Attack, Damage, Speed, Strenght, Cons
 static variant swords_enchanments[] = {{}, Attack, Damage,
 Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
 Protection, LifePoints, ManaPoints, Speed};
-static variant common_rings[] = {ResistAcid, ResistCharm, ResistCold, ResistElectricity,
-ResistFire, ResistParalize, ResistPoison, ResistWater,
+static variant common_rings[] = {
 Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
 Armor, Protection,
 LifePoints, ManaPoints, Speed};
 static variant common_boots[] = {{},
-ResistElectricity, ResistParalize, ResistWater,
 Constitution, Speed};
 static variant common_armor[] = {{},
-ResistElectricity, ResistParalize, ResistWater,
 Charisma, Wisdow,
 Armor, Speed};
 static variant common_helm[] = {{}, Intellegence, Charisma};
@@ -40,13 +37,11 @@ ArmorSpell, CharmPerson, FearSpell, Invisibility, Repair, Sleep, Web};
 static variant common_priest_spells[] = {BlessSpell, HealingSpell, DetectEvil};
 static variant common_scroll[] = {BlessItem, DetectEvil, DetectMagic, Identify, KnockDoor, SummonAlly};
 static variant common_amulet[] = {Charisma, Strenght, Lockpicking};
-static variant common_shield[] = {{}, Protection, Deflect,
-ResistFire, ResistAcid, ResistElectricity, ResistCharm};
+static variant common_shield[] = {{}, Protection, Deflect};
 static variant common_cloack[] = {Protection, Survival, HideInShadow, MoveSilently, Dancing};
 static variant alchemy_receipts[] = {LifePoints, ManaPoints,
 Strenght, Dexterity, Constitution, Wisdow, Charisma,
 Armor, Protection,
-ResistAcid, ResistCharm, ResistCold, ResistElectricity, ResistFire, ResistParalize, ResistPoison, ResistWater,
 RemoveSickSpell, RemovePoisonSpell};
 static variant lute_songs[] = {{}, Attack, Damage, BlessSpell, LifePoints, ManaPoints};
 static variant flute_songs[] = {{}, Wisdow, Intellegence, Charisma};

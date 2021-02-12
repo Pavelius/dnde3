@@ -98,9 +98,6 @@ enum ability_s : unsigned char {
 	Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
 	Attack, Damage,
 	Pierce, Protection, Armor, Deflect, Speed, Movement, Visibility,
-	ResistAcid, ResistCharm, ResistCold, ResistElectricity,
-	ResistFire, ResistParalize, ResistPoison, ResistWater,
-	FirstResist = ResistAcid, LastResist = ResistWater,
 	Level, LifePoints, LifeRate, ManaPoints, ManaRate,
 };
 enum skill_s : unsigned char {
@@ -185,7 +182,7 @@ enum item_type_s : unsigned char {
 };
 enum damage_s : unsigned char {
 	Bludgeon, Slashing, Piercing,
-	Acid, Cold, Electricity, Fire, Magic, WaterAttack
+	Acid, Charm, Cold, Electricity, Fire, Magic, Poison, WaterAttack
 };
 enum material_s : unsigned char {
 	Glass, Iron, Leather, Organic, Paper, Stone, Wood,
@@ -231,7 +228,8 @@ enum map_object_flag_s : unsigned char {
 	BlockMovement, BlockLight,
 };
 enum modifier_s : unsigned char {
-	Opponent, Easy, Hard,
+	NoModifier,
+	Opponent, Easy, Hard, Resist, Immune,
 };
 enum action_s : unsigned char {
 	GuardPosition, StopGuardPosition, UseLongActionSkill, MakeDiscount, MakeHappy, MakeAnger,
@@ -278,6 +276,7 @@ typedef flagable<1 + LastState / 8> statea;
 typedef flagable<1 + LastRace / 8> racea;
 typedef flagable<1 + ManyItems / 8>	itemf;
 typedef flagable<1 + Blooded / 8> mapflf;
+typedef flagable<1 + WaterAttack / 8> damagef;
 typedef cflags<map_object_flag_s> mapobjf;
 typedef casev<ability_s> abilityv;
 typedef aset<damage_s, 1 + WaterAttack> damagea;
@@ -456,10 +455,8 @@ struct racei {
 	const char*			name;
 	char				abilities[6];
 	const char*			avatar_id;
-	skille				skills;
-	adat<abilityv, 8>	abilityvs;
-	statea				states;
-	bool				is(skill_s v) const { for(auto e : skills) if(e == v) return true; return false; }
+	varianta			bonuses;
+	bool				is(variant v) const { for(auto e : bonuses) if(e == v) return true; return false; }
 };
 struct dicei {
 	char				min;
@@ -495,9 +492,9 @@ struct materiali {
 };
 struct damagei {
 	const char*			name;
-	ability_s			resist;
 	char				damage_wears;
 	char				damage_chance;
+	ability_s			ability;
 	const char*			resist_text;
 };
 struct pooli {
@@ -805,11 +802,12 @@ struct quest {
 	const quest*		choose(contexti& e) const;
 	void				play(contexti& e) const;
 };
-class creature : public nameable, public paperdoll {
+class creature : public nameable {
 	short				abilities[ManaRate + 1];
 	unsigned char		skills[LastSkill + 1];
 	unsigned char		spells[LastSpell + 1];
 	item				wears[LastWear + 1];
+	damagef				resistance, immunity, vulnerability;
 	int					restore_energy, restore_hits, restore_mana;
 	flagable<4>			recipes;
 	char				hp, mp, poison, mood;
@@ -821,7 +819,6 @@ class creature : public nameable, public paperdoll {
 	unsigned			experience;
 	unsigned			money;
 	encumbrance_s		encumbrance;
-	//
 	void				add(skill_s id, int v, bool interactive);
 	void				add(spell_s id, unsigned minutes);
 	void				add(ability_s id, variant source, int v, bool interactive, unsigned minutes);
@@ -832,6 +829,7 @@ class creature : public nameable, public paperdoll {
 	bool				aiskills(creaturea& creatures, bool long_action, bool run);
 	bool				aispells(creaturea& creatures);
 	void				aiturn(creaturea& creatures, creaturea& enemies, creature* enemy);
+	void				apply(varianta source, bool interactive);
 	void				applyabilities();
 	void				applyaward() const;
 	void				attack(creature& enemy, const attacki& ai, int bonus, int multiplier);
@@ -958,11 +956,14 @@ public:
 	bool				is(state_s v) const { return states.is(v); }
 	bool				is(spell_s v) const { return finds(v) != 0; }
 	bool				is(const creature* p) const { return this == p; }
-	bool				ismaster(skill_s v) const;
 	bool				isallow(item_s v) const;
 	bool				isenemy(const creature* target) const;
+	bool				isimmune(damage_s v) const { return immunity.is(v); }
 	bool				ismatch(const creature& opponent, skill_s id, int value) const;
+	bool				ismaster(skill_s v) const;
+	bool				isresist(damage_s v) const { return resistance.is(v); }
 	const char*			isusedisable(skill_s id) const;
+	bool				isvulnerable(damage_s v) const { return vulnerability.is(v); }
 	void				kill();
 	bool				knownreceipt(variant id) const;
 	void				learnreceipt(variant id);
@@ -991,6 +992,7 @@ public:
 	void				raiseskills(bool interactive) { raiseskills(get(Intellegence) / 2, interactive); }
 	void				rangeattack(creature& enemy, int bonus = 0);
 	void				readsomething();
+	bool				resist(damage_s v, int bonus, bool interactive) const;
 	void				restoration();
 	bool				roll(ability_s v) const { return rollv(get(v)); }
 	bool				roll(ability_s v, int bonus) const { return rollv(get(v) + bonus); }

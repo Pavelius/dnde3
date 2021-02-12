@@ -106,6 +106,7 @@ static void item_choose() {
 
 static bool test_formula() {
 	creature c1;
+	auto s1 = sizeof(c1);
 	c1.create(GnollWarrior);
 	c1.set(Dexterity, 7);
 	c1.set(Athletics, 12);
