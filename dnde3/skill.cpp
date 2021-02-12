@@ -210,7 +210,7 @@ bool item::use(skill_s id, creature& player, int order, bool run) {
 		if(run) {
 			auto v = geteffect();
 			auto level = getbonus();
-			auto b = (getitem().quality + level) * 3;
+			auto b = (geti().quality + level) * 3;
 			if(is(Unknown))
 				b += 10;
 			else if(is(SingleUse))

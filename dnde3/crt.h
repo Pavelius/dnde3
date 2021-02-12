@@ -123,7 +123,7 @@ class flagable {
 public:
 	constexpr flagable() : data{0} {}
 	constexpr explicit operator bool() const { for(auto e : data) if(e) return true; return false; }
-	template<class T> constexpr flagable(const std::initializer_list<T>& v) : data{0} { for(auto e : v) set(e); }
+	template<class T> constexpr flagable(const std::initializer_list<T> v) : data{0} { for(auto e : v) set(e); }
 	void					clear() { memset(this, 0, sizeof(*this)); }
 	constexpr bool			is(short unsigned v) const { return (data[v / 8] & (1 << (v % 8))) != 0; }
 	constexpr unsigned		getcount() const { unsigned r = 0; for(unsigned i = 0; i < c * 8; i++) if(is(i)) r++; return r; }
@@ -141,7 +141,7 @@ template<class T> struct casev {
 template<class T, int N> struct aset {
 	char					data[N];
 	constexpr aset() : data{} {}
-	constexpr aset(const std::initializer_list<casev<T>>& v) : data{} {
+	constexpr aset(const std::initializer_list<casev<T>> v) : data{} {
 		for(auto e : v)
 			set(e.id, e.value);
 	}
@@ -153,7 +153,7 @@ template<typename T, typename DT = unsigned>
 struct cflags {
 	DT						data;
 	constexpr cflags() : data(0) {}
-	constexpr cflags(const std::initializer_list<T>& list) : data() { for(auto e : list) add(e); }
+	constexpr cflags(const std::initializer_list<T> list) : data() { for(auto e : list) add(e); }
 	constexpr void			add(const T id) { data |= 1 << id; }
 	constexpr void			clear() { data = 0; }
 	constexpr bool			is(const T id) const { return (data & (1 << id)) != 0; }

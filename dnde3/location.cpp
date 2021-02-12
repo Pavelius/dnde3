@@ -956,16 +956,16 @@ void location::loot(indext index, item_s type, int level, char chance_bigger_pri
 
 void location::loot(indext index, slot_s slots, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality) {
 	variantc source;
-	source.additems(slots);
+	source.additems(slots, level);
 	source.match(Natural, true);
 	if(chance_bigger_price)
 		source.matchp(1, true);
 	loot(index, (item_s)source.random().value, level, chance_bigger_price, identify, chance_curse, bonus_quality);
 }
 
-void location::loot(indext index, const std::initializer_list<slot_s>& slots, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality) {
+void location::loot(indext index, slota slots, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality) {
 	variantc source;
-	source.additems(slots);
+	source.additems(slots, level);
 	source.match(Natural, true);
 	if(chance_bigger_price)
 		source.matchp(1, true);
@@ -998,7 +998,7 @@ void location::content(const rect& rc, room_s type, site* p) {
 		p->setowner(loc.add(index, ei.keeper));
 	for(auto& e : ei.shop) {
 		variantc source;
-		source.additems(e.slot);
+		source.additems(e.slot, level);
 		source.match(Natural, true);
 		if(e.price)
 			source.matchp(1, true);

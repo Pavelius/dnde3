@@ -1,8 +1,8 @@
 #include "main.h"
 
 BSDATA(encounter) = {
-	{Uncommon, Hostile, {}, "Впереди показалась большая группа гоблинов.", {{GoblinWarrior, 5, 12}}},
-	{Common, Hostile, {}, "Неболшая группа орков показалась на горизонте.", {{OrcWarrior, 3, 5}}},
+	{Hostile, {}, "Впереди показалась большая группа гоблинов.", {{GoblinWarrior, 5, 12}}},
+	{Hostile, {}, "Неболшая группа орков показалась на горизонте.", {{OrcWarrior, 3, 5}}},
 };
 DECLFULL(encounter);
 
@@ -61,7 +61,7 @@ bool encounter::match(variant v) {
 
 encounter* encounter::getrandom(tile_s landscape) {
 	for(auto& e : bsmeta<encounter>()) {
-		auto chance = bsmeta<rarityi>::elements[e.rarity].chance;
+		auto chance = 30;
 		if(d100() >= chance)
 			continue;
 		if(!e.match(landscape))

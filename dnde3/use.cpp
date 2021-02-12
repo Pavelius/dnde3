@@ -20,11 +20,11 @@ bool item::isboost(variant id) const {
 bool creature::use(const creaturea& creatures, item& it) {
 	if(!it)
 		return false;
-	auto& ei = it.getitem();
+	auto& ei = it.geti();
 	variant effect = it.geteffect();
 	variant skill = ei.skill;
 	const char* current_string;
-	switch(it.getitem().slot) {
+	switch(it.geti().slot) {
 	case Edible:
 		act("%דונמי סתוכ%א %-1.", it.getname());
 		if(d100() < it.getdamage() * 10) {

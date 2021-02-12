@@ -197,7 +197,7 @@ enum encumbrance_s : unsigned char {
 enum range_s : unsigned char {
 	You, Close, Reach, Near, Far, Everywhere
 };
-enum item_flag_s : unsigned char {
+enum itemflag_s : unsigned char {
 	SingleUse, TwoHanded, Versatile, Light, Natural,
 };
 enum outdoor_s : unsigned char{
@@ -223,9 +223,6 @@ enum target_flag_s : unsigned char {
 	LongAction,
 	RandomTargets, TwoTargets, ThreeTargets,
 	AllTargets,
-};
-enum rarity_s : unsigned char {
-	Common, Uncommon, Rare, VeryRare, Unique,
 };
 enum intellegence_s : unsigned char {
 	NoInt, AnimalInt, SemiInt, LowInt, AveInt, VeryInt, HighInt, ExpInt, GenInt, SupGenInt, GodInt
@@ -257,7 +254,7 @@ enum variant_s : unsigned char {
 	NoVariant,
 	Ability, Action, Alignment, Class, Command, Condition, Creature,
 	Formula, Gender, God, Harm, Item, ItemIdentify, ItemType, Modifier,
-	Number, Object, ObjectFlags, Outdoor, Race, Range, Rarity, Role, Room,
+	Number, Object, ObjectFlags, Outdoor, Race, Range, Role, Room,
 	Sale, Skill, Slot, Spell, State, Target, Tile,
 	Variant,
 };
@@ -289,6 +286,7 @@ typedef void(*gentileproc)(indext index);
 typedef void(*stageproc)();
 typedef indext(*getposproc)(direction_s i);
 typedef void(*genareaproc)(const rect& rc, rooma& rooms, const landscapei& landscape, bool visualize);
+typedef const std::initializer_list<slot_s> slota;
 struct variant {
 	variant_s			type;
 	unsigned char		value;
@@ -311,7 +309,6 @@ struct variant {
 	constexpr variant(map_flag_s v) : type(ObjectFlags), value(v) {}
 	constexpr variant(range_s v) : type(Range), value(v) {}
 	constexpr variant(race_s v) : type(Race), value(v) {}
-	constexpr variant(rarity_s v) : type(Rarity), value(v) {}
 	constexpr variant(role_s v) : type(Role), value(v) {}
 	constexpr variant(room_s v) : type(Room), value(v) {}
 	constexpr variant(sale_s v) : type(Sale), value(v) {}
@@ -345,7 +342,6 @@ struct string : stringbuilder {
 		gender(Male), opponent_gender(Male) {
 	}
 	template<unsigned N> constexpr string(char(&result)[N]) : stringbuilder(result, result + N - 1), name(0), gender(Female) {}
-	void				addformula(const variant* p);
 	void				addidentifier(const char* identifier) override;
 };
 struct durationi {
@@ -520,7 +516,7 @@ struct descriptioni {
 struct itemi {
 	const char*			name;
 	const char*			avatar_id;
-	rarity_s			rarity;
+	unsigned char		level;
 	int					weight;
 	int					cost;
 	int					quality;
@@ -529,13 +525,13 @@ struct itemi {
 	attacki				weapon;
 	armori				armor;
 	aref<variant>		effects;
-	cflags<item_flag_s>	flags;
+	cflags<itemflag_s>	flags;
 	slot_s				slot;
 	variant				skill;
 	//
 	item_s				getid() const;
 	bool				is(slot_s v) const;
-	bool				is(const std::initializer_list<slot_s>& source) const;
+	bool				is(slota source) const;
 	variant				randeffect() const;
 };
 class item {
@@ -577,7 +573,7 @@ public:
 	void				decoy(damage_s type, bool interactive, bool include_artifact = false);
 	void				destroy(damage_s type, bool interactive);
 	static item_s		findcorpse(role_s v);
-	item_s				getammo() const { return getitem().weapon.ammunition; }
+	item_s				getammo() const { return geti().weapon.ammunition; }
 	armori				getarmor() const;
 	attacki				getattack() const;
 	int					getbonus() const;
@@ -587,12 +583,12 @@ public:
 	int					getdamage() const;
 	const char*			getdamagetext() const;
 	variant				geteffect() const;
-	const itemi&		getitem() const { return bsmeta<itemi>::elements[type]; }
-	gender_s			getgender() const { return getitem().gender; }
+	const itemi&		geti() const { return bsmeta<itemi>::elements[type]; }
+	gender_s			getgender() const { return geti().gender; }
 	item_s				getkind() const { return type; }
 	item_type_s			getmagic() const { return magic; }
-	material_s			getmaterial() const { return getitem().material; }
-	const char*			getname() const { return getitem().name; }
+	material_s			getmaterial() const { return geti().material; }
+	const char*			getname() const { return geti().name; }
 	void				getname(stringbuilder& sb, bool show_cab) const;
 	indext				getposition() const;
 	int					getquality() const { return quality; }
@@ -601,13 +597,13 @@ public:
 	sale_s				getsale() const { return sale; }
 	creature*			getwearer() const;
 	slot_s				getwearerslot() const;
-	int					getweightsingle() const { return getitem().weight; }
+	int					getweightsingle() const { return geti().weight; }
 	int					getweight() const { return getweightsingle()*getcount(); }
-	bool				is(slot_s v) const { return getitem().is(v); }
+	bool				is(slot_s v) const { return geti().is(v); }
 	bool				is(identify_s v) const;
-	bool				is(item_flag_s v) const { return getitem().flags.is(v); }
+	bool				is(itemflag_s v) const { return geti().flags.is(v); }
 	bool				is(item_type_s v) const { return magic == v; }
-	bool				is(material_s v) const { return getitem().material==v; }
+	bool				is(material_s v) const { return geti().material==v; }
 	bool				is(sale_s v) const { return sale == v; }
 	bool				isboost(variant id) const;
 	bool				ischargeable() const;
@@ -653,23 +649,17 @@ public:
 	void				selectb(creature& e);
 	void				selectg(variant v);
 };
-class variantc : public adat<casev<variant>> {
-	void				add(variant v);
-	void				add(variant v, rarity_s r);
+class variantc : public adat<variant> {
 public:
-	void				additems(slot_s v);
-	void				additems(const std::initializer_list<slot_s>& source);
-	int					getweight() const;
-	bool				is(variant v) const;
+	void				additems(slot_s v, int level);
+	void				additems(slota source, int level);
 	void				match(slot_s v, bool remove);
-	void				match(item_flag_s v, bool remove);
+	void				match(itemflag_s v, bool remove);
 	void				matchp(int count, bool greater);
 	variant				random() const;
-	variant				randomw() const;
 };
 class skilla :public adat<skill_s, 64> {
 public:
-	bool				choose(bool interactive, const char* title, const char* format, skill_s& result) const;
 	void				removent();
 	void				select(const creature& e);
 	void				sort();
@@ -887,7 +877,7 @@ public:
 	void				backpack();
 	void				bloodstain() const;
 	int					calculate(const varianta& source) const;
-	bool				canhear(short unsigned index) const;
+	//bool				canhear(short unsigned index) const;
 	bool				canleave(direction_s v) const;
 	bool				cansee(indext i) const;
 	bool				canshoot() const;
@@ -1003,7 +993,7 @@ public:
 	void				raiseskills(int number, bool interactive);
 	void				raiseskills(bool interactive) { raiseskills(get(Intellegence) / 2, interactive); }
 	void				rangeattack(creature& enemy, int bonus = 0);
-	static void			restore(const creature* sp, const creature* spe, const boosti* sb, const boosti* sbe);
+	//static void		restore(const creature* sp, const creature* spe, const boosti* sb, const boosti* sbe);
 	void				readsomething();
 	void				restoration();
 	bool				roll(ability_s v) const { return rollv(get(v)); }
@@ -1088,7 +1078,6 @@ struct packi {
 };
 typedef std::initializer_list<packi> packa;
 struct encounter {
-	rarity_s			rarity;
 	state_s				state;
 	varianta			conditions;
 	const char*			text;
@@ -1263,7 +1252,7 @@ public:
 	void				interior(const rect& rc, room_s type, indext index, int level, rect* result_rect, site* ps);
 	void				loot(indext index, item_s type, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality);
 	void				loot(indext index, slot_s slot, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality);
-	void				loot(indext index, const std::initializer_list<slot_s>& slot, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality);
+	void				loot(indext index, slota slot, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality);
 	void				loot(const rect& rc, const variantc& source, int chance, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality);
 	void				makewave(indext index);
 	void				minimap(int x, int y, point camera, bool fow) const;

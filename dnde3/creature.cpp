@@ -212,7 +212,7 @@ void creature::dress(int m) {
 	for(auto i = Head; i <= Ranged; i = (slot_s)(i + 1)) {
 		if(!wears[i])
 			continue;
-		if(i == OffHand && wears[i].getitem().slot != OffHand)
+		if(i == OffHand && wears[i].geti().slot != OffHand)
 			continue;
 		auto ei = wears[i].getattack();
 		abilities[Attack] += m * ei.attack;
@@ -557,7 +557,7 @@ void creature::getfullname(stringbuilder& sb) const {
 
 attacki creature::getattack(slot_s id, const item& weapon) const {
 	attacki result = {0};
-	auto skill = weapon.getitem().skill;
+	auto skill = weapon.geti().skill;
 	if(id == Melee || weapon)
 		result = weapon.getattack();
 	if(!result.dice.max)
@@ -586,7 +586,7 @@ attacki creature::getattack(slot_s id, const item& weapon) const {
 		if(wears[OffHand].is(Light)) {
 			result.attack -= 20;
 			result.speed -= 8;
-			result.speed += wears[OffHand].getitem().weapon.speed;
+			result.speed += wears[OffHand].geti().weapon.speed;
 			auto& ei = bsmeta<skilli>::elements[TwoWeaponFighting];
 			auto value = get(TwoWeaponFighting);
 			if(ei.weapon.attack)

@@ -169,9 +169,6 @@
     <ClCompile Include="variantc.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="rarity.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
     <ClCompile Include="intellegence.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
@@ -287,5 +284,10 @@
     <Filter Include="Утилиты">
       <UniqueIdentifier>{bc0edefb-d434-421b-9cba-f3f9a96f7cdb}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint">
+      <Filter>Поддержка</Filter>
+    </None>
   </ItemGroup>
 </Project>
