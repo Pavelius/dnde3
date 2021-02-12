@@ -207,7 +207,7 @@ enum outdoor_s : unsigned char{
 enum formula_s : unsigned char {
 	Negative,
 	Divide2, Divide3, Divide4, Divide10,
-	Multiply2, Multiply3, Multiply4
+	Multiply2, Multiply3, Multiply4,
 };
 enum slot_mode_s : unsigned char {
 	NoSlotName, SlotName, SlotWhere
@@ -282,11 +282,12 @@ typedef cflags<map_object_flag_s> mapobjf;
 typedef casev<ability_s> abilityv;
 typedef aset<damage_s, 1 + WaterAttack> damagea;
 typedef adat<role_s, 4> summona;
+typedef std::initializer_list<skill_s> skille;
 typedef void(*gentileproc)(indext index);
 typedef void(*stageproc)();
 typedef indext(*getposproc)(direction_s i);
 typedef void(*genareaproc)(const rect& rc, rooma& rooms, const landscapei& landscape, bool visualize);
-typedef const std::initializer_list<slot_s> slota;
+typedef std::initializer_list<slot_s> slota;
 struct variant {
 	variant_s			type;
 	unsigned char		value;
@@ -372,7 +373,7 @@ struct boosti {
 struct leveli {
 	class_s				type;
 	char				level;
-	casev<variant>		features[16];
+	varianta			features;
 };
 struct classi {
 	struct weaponi {
@@ -384,7 +385,7 @@ struct classi {
 	unsigned char		naked_avatar;
 	char				ability[6];
 	weaponi				weapon;
-	adat<skill_s, 8>	skills;
+	skille				skills;
 	adat<spell_s, 6>	spells;
 	itemf				restricted;
 };
@@ -455,10 +456,10 @@ struct racei {
 	const char*			name;
 	char				abilities[6];
 	const char*			avatar_id;
-	skill_s				skills[3];
+	skille				skills;
 	adat<abilityv, 8>	abilityvs;
 	statea				states;
-	bool				is(skill_s v) const { return skills[0] == v || skills[1] == v || skills[2] == v; }
+	bool				is(skill_s v) const { for(auto e : skills) if(e == v) return true; return false; }
 };
 struct dicei {
 	char				min;
@@ -807,7 +808,6 @@ struct quest {
 class creature : public nameable, public paperdoll {
 	short				abilities[ManaRate + 1];
 	unsigned char		skills[LastSkill + 1];
-	unsigned char		skills_potency[LastSkill + 1];
 	unsigned char		spells[LastSpell + 1];
 	item				wears[LastWear + 1];
 	int					restore_energy, restore_hits, restore_mana;
@@ -840,7 +840,6 @@ class creature : public nameable, public paperdoll {
 	bool				canuse(const item& e, bool talk) const;
 	void				dress(int m);
 	void				dressen(int m);
-	void				dresssk(int m);
 	void				dresssa(int m);
 	void				dropdown(item& item);
 	void				dropitems();
@@ -877,7 +876,6 @@ public:
 	void				backpack();
 	void				bloodstain() const;
 	int					calculate(const varianta& source) const;
-	//bool				canhear(short unsigned index) const;
 	bool				canleave(direction_s v) const;
 	bool				cansee(indext i) const;
 	bool				canshoot() const;
@@ -917,7 +915,7 @@ public:
 	item*				finditem(item_s v);
 	int					get(ability_s v) const { return abilities[v]; }
 	int					get(spell_s v) const { return spells[v]; }
-	int					get(skill_s v) const;
+	int					get(skill_s v) const { return skills[v]; }
 	const item&			get(slot_s v) const { return wears[v]; }
 	static creature*	getactive();
 	static creature*	getactive(int index);
@@ -925,7 +923,6 @@ public:
 	attacki				getattack(slot_s slot, const item& weapon) const;
 	attacki				getattack(slot_s slot) const { return getattack(slot, wears[slot]); }
 	int					getaward() const { return 10 + 15 * get(Level); }
-	int					getbasic(skill_s v) const { return skills[v]; }
 	int					getboost(variant id) const;
 	const classi&		getclass() const { return bsmeta<classi>::elements[kind]; }
 	direction_s			getdirection() const { return direction; }
@@ -993,7 +990,6 @@ public:
 	void				raiseskills(int number, bool interactive);
 	void				raiseskills(bool interactive) { raiseskills(get(Intellegence) / 2, interactive); }
 	void				rangeattack(creature& enemy, int bonus = 0);
-	//static void		restore(const creature* sp, const creature* spe, const boosti* sb, const boosti* sbe);
 	void				readsomething();
 	void				restoration();
 	bool				roll(ability_s v) const { return rollv(get(v)); }
@@ -1121,12 +1117,12 @@ struct skilli {
 	};
 	const char*			name;
 	const char*			nameof;
-	ability_s			abilities[2];
+	ability_s			ability;
 	weaponi				weapon;
 	targeti				target;
 	//
 	skill_s				getid() const;
-	constexpr bool		is(ability_s v) const { return abilities[0] == v || abilities[1] == v; }
+	constexpr bool		is(ability_s v) const { return ability == v; }
 	constexpr bool		isweapon() const { return weapon.attack != 0; }
 };
 struct spelli {

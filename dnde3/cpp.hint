@@ -2,3 +2,5 @@
 // (например, имена функций и макросов).
 // Дополнительные сведения: https://go.microsoft.com/fwlink/?linkid=865984
 #define assert_enum(e, last) static_assert(sizeof(bsmeta<e>::elements) / sizeof(bsmeta<e>::elements[0]) == last + 1, "Invalid count of " #e " elements"); DECLFULL(e)
+#define BSDATA(e) template<> e bsmeta<e>::elements[]
+#define DECLFULL(e) template<> array bsmeta<e>::source(bsmeta<e>::elements);

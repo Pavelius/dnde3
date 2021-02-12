@@ -107,14 +107,11 @@ static void item_choose() {
 static bool test_formula() {
 	creature c1;
 	c1.create(GnollWarrior);
-	c1.set(Strenght, 18);
-	c1.set(Dexterity, 8);
-	c1.set(Athletics, 4);
+	c1.set(Dexterity, 7);
+	c1.set(Athletics, 12);
 	auto r = c1.calculate(bsmeta<abilityi>::elements[Speed].formula);
-	return r == 102;
+	return r == 99;
 }
-
-//void util_main();
 
 static void continue_game() {
 	if(!game.read())

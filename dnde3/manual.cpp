@@ -34,6 +34,14 @@ static void race_ability(stringbuilder& sb, manual& mn, answeri& an) {
 	sb.add(".");
 }
 
+static bool have(const skille& source, skill_s v) {
+	for(auto e : source) {
+		if(e == v)
+			return true;
+	}
+	return false;
+}
+
 static void race_skills(stringbuilder& sb, manual& mn, answeri& an) {
 	if(mn.value.type != Skill)
 		return;
@@ -51,7 +59,7 @@ static void race_skills(stringbuilder& sb, manual& mn, answeri& an) {
 		count++;
 	}
 	for(auto& ei : bsmeta<classi>()) {
-		if(!ei.skills.is(skill))
+		if(!have(ei.skills, skill))
 			continue;
 		if(!count)
 			sb.addn("[%1]: ", header);
@@ -86,7 +94,7 @@ static void ability_example(stringbuilder& sb, manual& mn, answeri& an) {
 static void ability_skills(stringbuilder& sb, manual& mn, answeri& an) {
 	skilla source;
 	for(auto& e : bsmeta<skilli>()) {
-		if(e.abilities[0] == mn.value.value || e.abilities[1] == mn.value.value)
+		if(e.is(ability_s(mn.value.value)))
 			source.add(e.getid());
 	}
 	if(!source.count)

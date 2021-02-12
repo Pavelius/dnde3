@@ -156,7 +156,7 @@ char* key2str(char* result, int key) {
 	case F12: zcat(result, "F12"); break;
 	case KeySpace: zcat(result, "Space"); break;
 	default:
-		zcat(result, char(szupper(key - Alpha)));
+		zcat(result, char(szupper(key)));
 		break;
 	}
 	return result;

@@ -47,13 +47,13 @@ static int tokey(int vk) {
 	case VK_F10: return F10;
 	case VK_F11: return F11;
 	case VK_F12: return F12;
-	case VK_MULTIPLY: return Alpha + (unsigned)'*';
-	case VK_DIVIDE: return Alpha + (unsigned)'/';
-	case VK_ADD: return Alpha + (unsigned)'+';
-	case VK_SUBTRACT: return Alpha + (unsigned)'-';
-	case VK_OEM_COMMA: return Alpha + (unsigned)',';
-	case VK_OEM_PERIOD: return Alpha + (unsigned)'.';
-	default: return Alpha + vk;
+	case VK_MULTIPLY: return (unsigned)'*';
+	case VK_DIVIDE: return (unsigned)'/';
+	case VK_ADD: return (unsigned)'+';
+	case VK_SUBTRACT: return (unsigned)'-';
+	case VK_OEM_COMMA: return (unsigned)',';
+	case VK_OEM_PERIOD: return (unsigned)'.';
+	default: return vk;
 	}
 }
 
@@ -67,9 +67,9 @@ static int handle(MSG& msg) {
 		break;
 	case WM_KEYDOWN:
 		return tokey(msg.wParam);
-	//case WM_CHAR:
-	//	hot.param = msg.wParam;
-	//	return InputSymbol;
+		//case WM_CHAR:
+		//	hot.param = msg.wParam;
+		//	return InputSymbol;
 	case WM_MY_SIZE:
 	case WM_SIZE:
 		return InputUpdate;
@@ -153,16 +153,16 @@ void draw::create(int x, int y, int width, int height, unsigned flags, int bpp) 
 		height = (GetSystemMetrics(SM_CYFULLSCREEN) / 3) * 2;
 	// custom
 	unsigned dwStyle = WS_CAPTION | WS_VISIBLE | WS_SYSMENU; // Windows Style;
-	if(flags&WFResize)
+	if(flags & WFResize)
 		dwStyle |= WS_THICKFRAME;
 	else
 		dwStyle |= WS_BORDER;
-	if(flags&WFMinmax) {
+	if(flags & WFMinmax) {
 		dwStyle |= WS_MINIMIZEBOX;
-		if(flags&WFResize)
+		if(flags & WFResize)
 			dwStyle |= WS_MAXIMIZEBOX;
 	}
-	if(flags&WFMaximized)
+	if(flags & WFMaximized)
 		dwStyle |= WS_MAXIMIZE;
 	RECT MinimumRect;
 	AdjustWindowRectEx(&MinimumRect, dwStyle, 0, 0);
@@ -219,20 +219,20 @@ int draw::rawinput() {
 		if(m == InputNoUpdate)
 			continue;
 		if(m) {
-			if(m != MouseMove && m >= (unsigned)MouseLeft) {
-				if(GetKeyState(VK_SHIFT) < 0)
-					m |= Shift;
-				if(GetKeyState(VK_MENU) < 0)
-					m |= Alt;
-				if(GetKeyState(VK_CONTROL) < 0)
-					m |= Ctrl;
-			}
 			if(m == InputUpdate) {
 				if(canvas) {
 					RECT rc; GetClientRect(hwnd, &rc);
 					canvas->resize(rc.right - rc.left, rc.bottom - rc.top, 32, true);
 					setclip();
 				}
+			}
+			if(m != MouseMove && m != InputTimer) {
+				if(GetKeyState(VK_SHIFT) < 0)
+					m |= Shift;
+				if(GetKeyState(VK_MENU) < 0)
+					m |= Alt;
+				if(GetKeyState(VK_CONTROL) < 0)
+					m |= Ctrl;
 			}
 			return m;
 		}

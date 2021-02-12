@@ -9,24 +9,23 @@ extern "C" int strcmp(const char* s1, const char* s2); // Compare two strings
 
 enum draw_event_s {
 	// input events
-	FirstInput = 0xED00,
+	FirstInput = 0x80,
 	InputTimer = FirstInput, InputUpdate, InputNoUpdate,
 	// Keyboard and mouse input (can be overrided by flags)
-	MouseLeft = 0xEE00, MouseLeftDBL, MouseRight,
+	MouseLeft, MouseLeftDBL, MouseRight,
 	MouseMove, MouseWheelUp, MouseWheelDown,
 	KeyLeft, KeyRight, KeyUp, KeyDown, KeyPageUp, KeyPageDown, KeyHome, KeyEnd,
 	KeyBackspace, KeyEnter, KeyDelete, KeyEscape, KeySpace, KeyTab,
 	F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
 	// named keys range
-	Alpha,
 	FirstKey = MouseLeft,
 	FirstMouse = MouseLeft, LastMouse = MouseWheelDown,
 	// support
-	CommandMask = 0x0000FFFF,
+	CommandMask = 0x000000FF,
 	// misc events can be combination with previous
-	Ctrl = 0x00010000,
-	Alt = 0x00020000,
-	Shift = 0x00040000,
+	Ctrl = 0x00000100,
+	Alt = 0x00000200,
+	Shift = 0x00000400,
 	// columns flags
 	SmallHilite = 0x00010000,
 	HideZero = 0x00020000,

@@ -400,7 +400,7 @@ static void getkeyname(stringbuilder& sb, int key) {
 	case KeyLeft: sb.add("Лево"); break;
 	case KeyRight: sb.add("Право"); break;
 	default:
-		temp[0] = key - Alpha;
+		temp[0] = key;
 		temp[1] = 0;
 		sb.add(temp);
 		break;
@@ -1059,11 +1059,11 @@ void location::indoor(point camera, bool show_fow, const picture* effects) {
 }
 
 int	answeri::paint(int x, int y, int width, int i, int& maximum_width) const {
-	auto k = Alpha + '1' + i;
+	char k = '1' + i;
 	if(i >= 9)
-		k = Alpha + 'A' + (i - 9);
+		k = 'A' + (i - 9);
 	auto z = 22;
-	char temp[2] = {(char)(k - Alpha), 0};
+	char temp[2] = {k, 0};
 	buttonr(x, y, z - 6, k);
 	auto& e = elements[i];
 	auto h = texth();
@@ -1138,9 +1138,9 @@ int	answeri::menuv(bool allow_cancel, const char* format) const {
 		for(auto& e : elements) {
 			rect rc = {x, y, x + width, y + texth()};
 			window(rc, false, 0);
-			auto k = Alpha + '1' + index;
-			auto z = 22;
-			char temp[2] = {(char)(k - Alpha), 0};
+			char k = '1' + index;
+			char z = 22;
+			char temp[2] = {k, 0};
 			buttonr(x, y, z - 6, k);
 			rc.x1 += 22;
 			//rectb(rc, colors::red);
@@ -1263,7 +1263,7 @@ skill_s skillu::choose(bool interactive, const char* title, bool* cancel_result)
 			auto x0 = x;
 			auto sv = player->get(e);
 			auto cv = getcap(e, *player);
-			if(button(x0, y, 0, Alpha + answeri::getkey(index), 0)) {
+			if(button(x0, y, 0, answeri::getkey(index), 0)) {
 				auto need_execute = true;
 				if(!cancel_result && sv >= cv)
 					need_execute = false;
@@ -1321,7 +1321,7 @@ item* itema::choose(const char* interactive, const char* format, slot_mode_s mod
 			auto index = 0;
 			for(auto e : *this) {
 				auto x0 = x;
-				if(button(x0, y, 0, Alpha + answeri::getkey(index), 0))
+				if(button(x0, y, 0, answeri::getkey(index), 0))
 					execute(breakparam, (int)e);
 				x0 += 22;
 				//if((index + 1) % 2)
@@ -1418,7 +1418,7 @@ spell_s spella::choose(const char* interactive, const char* title, bool* cancel_
 		auto index = 0;
 		for(auto e : *this) {
 			auto x0 = x;
-			if(button(x0, y, 0, Alpha + answeri::getkey(index), 0))
+			if(button(x0, y, 0, answeri::getkey(index), 0))
 				execute(breakparam, (int)e);
 			x0 += 22;
 			if((index + 1) % 2)
@@ -1718,7 +1718,7 @@ const char* answeri::getnmshortcut(const void* object, stringbuilder& sb) {
 	case F11: sb.add("F11"); break;
 	case F12: sb.add("F12"); break;
 	case KeySpace: sb.add("Space"); break;
-	default: sb.add(char(szupper(key - Alpha))); break;
+	default: sb.add(szupper(key)); break;
 	}
 	return sb;
 }
@@ -1758,28 +1758,28 @@ static hotkey indoor_keys[] = {{F1, "Выбрать 1-го героя", change_player, 0},
 {F2, "Выбрать 2-го героя", change_player, 1},
 {F3, "Выбрать 3-го героя", change_player, 2},
 {F4, "Выбрать 4-го героя", change_player, 3},
-{Ctrl + Alpha + 'M', "Открыть мануал", gamei::help},
-{Alpha + 'I', "Открыть инвентарь", &creature::inventory},
-{Alpha + 'A', "Использовать навык", &creature::useskills},
-{Alpha + 'D', "Положить пердмет", &creature::dropdown},
-{Alpha + 'P', "Поднять пердмет", &creature::pickup},
-{Alpha + 'Q', "Стрелять по врагу", &creature::shoot},
-{Alpha + 'V', "Рюкзак", &creature::backpack},
-{Alpha + 'M', "Карта местности", &creature::minimap},
-{Alpha + 'S', "Создать заклинание", &creature::usespells},
-{Alpha + 'Z', "Использовать волшебный жезл", &creature::usewands},
-{Alpha + 'U', "Использовать объект", &creature::closedoor},
-{Alpha + 'T', "Использовать инструмент", &creature::usetools},
-{Alpha + 'C', "Поговорить к кем-то", &creature::chat},
-{Alpha + 'L', "Осмотреться по сторонам", &creature::lookobjects},
+{Ctrl + 'M', "Открыть мануал", gamei::help},
+{'I', "Открыть инвентарь", &creature::inventory},
+{'A', "Использовать навык", &creature::useskills},
+{'D', "Положить пердмет", &creature::dropdown},
+{'P', "Поднять пердмет", &creature::pickup},
+{'Q', "Стрелять по врагу", &creature::shoot},
+{'V', "Рюкзак", &creature::backpack},
+{'M', "Карта местности", &creature::minimap},
+{'S', "Создать заклинание", &creature::usespells},
+{'Z', "Использовать волшебный жезл", &creature::usewands},
+{'U', "Использовать объект", &creature::closedoor},
+{'T', "Использовать инструмент", &creature::usetools},
+{'C', "Поговорить к кем-то", &creature::chat},
+{'L', "Осмотреться по сторонам", &creature::lookobjects},
 {KeySpace, "Подождать 10 минут", &creature::waitturn},
-{Ctrl + Alpha + 'D', "Выпить что-то", &creature::drink},
-{Ctrl + Alpha + 'E', "Съесть что-то", &creature::eat},
-{Ctrl + Alpha + 'R', "Прочитать что-то", &creature::readsomething},
-{Ctrl + Alpha + 'B', "Поработить для отладки", &creature::enslave},
-{Ctrl + Alpha + 'W', "Тестировать оружие", &creature::testweapons},
-{Ctrl + Alpha + 'Q', "Сохранить и выйти", &creature::quitandsave},
-{Ctrl + Alpha + 'T', "Тестировать зелья", &creature::testpotion},
+{Ctrl + 'D', "Выпить что-то", &creature::drink},
+{Ctrl + 'E', "Съесть что-то", &creature::eat},
+{Ctrl + 'R', "Прочитать что-то", &creature::readsomething},
+{Ctrl + 'B', "Поработить для отладки", &creature::enslave},
+{Ctrl + 'W', "Тестировать оружие", &creature::testweapons},
+{Ctrl + 'Q', "Сохранить и выйти", &creature::quitandsave},
+{Ctrl + 'T', "Тестировать зелья", &creature::testpotion},
 {}};
 
 void creature::playui() {
@@ -1823,12 +1823,12 @@ bool creature::askyn() {
 		domodal();
 		switch(hot.key) {
 		case KeyEscape:
-		case Alpha + 'N':
+		case 'N':
 			breakmodal(0);
 			hot.key = 0;
 			break;
 		case KeyEnter:
-		case Alpha + 'Y':
+		case 'Y':
 			breakmodal(1);
 			hot.key = 0;
 			break;
@@ -2043,15 +2043,15 @@ static hotkey overland_keys[] = {{F1, "Выбрать первого героя", change_player, 0}
 {F2, "Выбрать второго героя", change_player, 1},
 {F3, "Выбрать третьего героя", change_player, 2},
 {F4, "Выбрать четвертого героя", change_player, 3},
-{Ctrl + Alpha + 'M', "Открыть мануал", gamei::help},
-{Alpha + 'I', "Открыть инвентарь", &creature::inventory},
-{Alpha + 'V', "Рюкзак", &creature::backpack},
-{Alpha + 'Z', "Зайти в локацию", &creature::zoomon},
-{Ctrl + Alpha + 'D', "Выпить что-то", &creature::drink},
-{Ctrl + Alpha + 'E', "Съесть что-то", &creature::eat},
-{Ctrl + Alpha + 'R', "Прочитать что-то", &creature::readsomething},
-{Ctrl + Alpha + 'W', "Тестировать оружие", &creature::testweapons},
-{Ctrl + Alpha + 'Q', "Сохранить и выйти", &creature::quitandsave},
+{Ctrl + 'M', "Открыть мануал", gamei::help},
+{'I', "Открыть инвентарь", &creature::inventory},
+{'V', "Рюкзак", &creature::backpack},
+{'Z', "Зайти в локацию", &creature::zoomon},
+{Ctrl + 'D', "Выпить что-то", &creature::drink},
+{Ctrl + 'E', "Съесть что-то", &creature::eat},
+{Ctrl + 'R', "Прочитать что-то", &creature::readsomething},
+{Ctrl + 'W', "Тестировать оружие", &creature::testweapons},
+{Ctrl + 'Q', "Сохранить и выйти", &creature::quitandsave},
 {}};
 
 void creature::playuioverland() {
@@ -2100,17 +2100,17 @@ static void editor_read() {
 	correct(camera, current_index);
 }
 
-static hotkey editor_keys[] = {{Alpha + '1', "Выбрать равнину", choose_tile, Plain},
-{Alpha + '2', "Выбрать Океан", choose_tile, Sea},
-{Alpha + '3', "Выбрать Болото", choose_tile, Swamp},
-{Alpha + '4', "Выбрать Холмы", choose_tile, Foothills},
-{Alpha + '5', "Выбрать Горы", choose_tile, Mountains},
-{Alpha + '6', "Выбрать снежные Пики", choose_tile, CloudPeaks},
-{Alpha + '7', "Выбрать Лес", choose_tile, Forest},
-{Alpha + 'R', "Дорога", &location::trail},
+static hotkey editor_keys[] = {{'1', "Выбрать равнину", choose_tile, Plain},
+{'2', "Выбрать Океан", choose_tile, Sea},
+{'3', "Выбрать Болото", choose_tile, Swamp},
+{'4', "Выбрать Холмы", choose_tile, Foothills},
+{'5', "Выбрать Горы", choose_tile, Mountains},
+{'6', "Выбрать снежные Пики", choose_tile, CloudPeaks},
+{'7', "Выбрать Лес", choose_tile, Forest},
+{'R', "Дорога", &location::trail},
 {KeySpace, "Нарисовать выбранный тайл", put_tile},
-{Ctrl + Alpha + 'S', "Сохранить карту", editor_save},
-{Ctrl + Alpha + 'R', "Восстановит карту", editor_read},
+{Ctrl + 'S', "Сохранить карту", editor_save},
+{Ctrl + 'R', "Восстановит карту", editor_read},
 {}};
 
 void location::editor() {

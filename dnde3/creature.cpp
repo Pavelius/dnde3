@@ -3,7 +3,7 @@
 DECLDATA(creature, 256)
 
 static int			skill_level[] = {30, 60, 90};
-static dicei		skill_raise[] = {{2, 12}, {1, 10}, {1, 8}, {1, 6}, {1, 5}, {1, 4}, {1, 3}, {1, 2}};
+static dicei		skill_raise[] = {{3, 18}, {3, 12}, {2, 10}, {2, 8}, {2, 8}, {2, 6}, {1, 5}, {1, 4}, {1, 3}};
 static const char*	skill_names[] = {"Новичек", "Специалист", "Эксперт", "Мастер"};
 static creature*	current_player;
 static int			experience_count[] = {0,
@@ -238,22 +238,11 @@ void creature::dress(int m) {
 	}
 }
 
-void creature::dresssk(int m) {
-	for(auto i = FirstSkill; i <= LastSkill; i = (skill_s)(i + 1)) {
-		auto& ei = bsmeta<skilli>::elements[i];
-		skills[i] += m * (get(ei.abilities[0]) + get(ei.abilities[1]));
-	}
-}
-
 void creature::dresssa(int m) {
 	for(auto i = Attack; i <= ManaRate; i = (ability_s)(i + 1)) {
 		auto& ei = bsmeta<abilityi>::elements[i];
 		abilities[i] += m * calculate(ei.formula);
 	}
-	if(getrole() == Character)
-		abilities[LifePoints] += abilities[Constitution] * m;
-	else
-		abilities[LifePoints] += abilities[Constitution] * m / 2;
 }
 
 const char* creature::getlevelname(skill_s v) const {
@@ -477,22 +466,30 @@ void creature::raiseability(bool interactive) {
 	case 0:
 		abilities[Attack] += ei.weapon.base;
 		break;
-	case 1:
-		abilities[LifePoints] += ei.hp;
-		abilities[ManaPoints] += ei.mp;
-		abilities[Attack] += ei.weapon.multiplier;
-		break;
 	default:
-		if(ei.hp)
-			abilities[LifePoints] += xrand(ei.hp / 2, ei.hp);
-		if(ei.mp)
-			abilities[ManaPoints] += xrand(ei.mp / 2, ei.mp);
+		if(abilities[Level]==1 && ischaracter()) {
+			abilities[LifePoints] += ei.hp;
+			abilities[ManaPoints] += ei.mp;
+		} else {
+			if(ei.hp)
+				abilities[LifePoints] += xrand(ei.hp / 2, ei.hp);
+			if(ei.mp)
+				abilities[ManaPoints] += xrand(ei.mp / 2, ei.mp);
+		}
 		abilities[Attack] += ei.weapon.multiplier;
 		// Add level features
 		for(auto& pi : bsmeta<leveli>()) {
 			if(pi.type == kind && pi.level == abilities[Level]) {
-				for(auto& e : pi.features)
-					add(e.id, e.value, interactive);
+				for(auto& e : pi.features) {
+					switch(e.type) {
+					case Skill:
+						add(e, 10, interactive);
+						break;
+					default:
+						add(e, 1, interactive);
+						break;
+					}
+				}
 			}
 		}
 		break;
@@ -1646,11 +1643,6 @@ void creature::set(skill_s id, int v) {
 	skills[id] = v;
 }
 
-int creature::get(skill_s id) const {
-	const auto& ei = bsmeta<skilli>::elements[id];
-	return skills[id] + get(ei.abilities[0]) + get(ei.abilities[1]);
-}
-
 bool creature::isallow(item_s v) const {
 	auto& ci = bsmeta<classi>::elements[kind];
 	auto& ei = bsmeta<itemi>::elements[v];
@@ -1890,16 +1882,17 @@ bool creature::ismatch(const creature& opponent, skill_s id, int value) const {
 void creature::fail(skill_s id) {
 	const int chance_fail = 30;
 	auto& ei = bsmeta<skilli>::elements[id];
-	if(ei.is(Strenght) && d100() < chance_fail) {
+	auto isbad = d100() < chance_fail;
+	if(ei.is(Strenght) && isbad) {
 		act("%герой растянул%а мышцу.");
 		damage(1, Bludgeon, 100, false);
-	} else if((ei.is(Intellegence) || ei.is(Wisdow)) && d100() < chance_fail) {
+	} else if((ei.is(Intellegence) || ei.is(Wisdow)) && isbad) {
 		act("%герой почуствовал%а моральное переутомление.");
 		paymana(1, false);
-	} else if(ei.is(Dexterity) && d100() < chance_fail) {
+	} else if(ei.is(Dexterity) && isbad) {
 		act("%герой испытал%а мышечный спазм.");
 		damage(1, Bludgeon, 100, false);
-	} else if(d100() < chance_fail) {
+	} else if(isbad) {
 		if(isactive())
 			act("Вы убили кучу времени, но все было тщетно.");
 		wait(xrand(2, 4));
