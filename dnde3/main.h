@@ -262,6 +262,10 @@ enum fraction_s : unsigned char {
 	SeaKings, DemonLords,
 	SavageHorde, MightyDragon, RavenousUndead, SecretOrder, TheivesGuild,
 };
+enum dice_s : unsigned char {
+	NoDice,
+	D1d3, D1d4, D1d6, D1d8, D1d10, D1d12, D2d6,
+};
 struct dungeoni;
 struct targeti;
 struct landscapei;
@@ -467,21 +471,11 @@ struct costi {
 	char				mundane;
 	char				artifact;
 };
-struct armori {
-	char				protection;
-	char				armor;
-	char				deflect;
-	char				protection_bonus;
-	char				armor_bonus;
-};
 struct attacki {
-	char				attack, attack_bonus; // Percent bonus to hit
-	dicei				dice;
 	damage_s			type;
-	char				speed;
-	char				damage_bonus;
+	char				attack, speed;
+	dicei				dice;
 	item_s				ammunition;
-	item_s				ammunition_compatible;
 	int					getenergy() const { return StandartEnergyCost - speed * 50; }
 };
 struct materiali {
@@ -511,6 +505,19 @@ struct descriptioni {
 	const char*			get(variant v1, variant v2) const;
 };
 struct itemi {
+	struct weaponi {
+		damage_s		type;
+		dice_s			dice;
+		char			damage, speed;
+		item_s			amunition, ammunition_compatible;
+	};
+	struct armori {
+		char			armor;
+		char			protection_bonus;
+		char			deflect;
+		char			protection;
+		char			attack;
+	};
 	const char*			name;
 	const char*			avatar_id;
 	unsigned char		level;
@@ -519,45 +526,43 @@ struct itemi {
 	int					quality;
 	gender_s			gender;
 	material_s			material;
-	attacki				weapon;
+	weaponi				weapon;
 	armori				armor;
 	aref<variant>		effects;
 	cflags<itemflag_s>	flags;
 	slot_s				slot;
 	variant				skill;
 	//
+	constexpr item_s	getammo() const { return weapon.amunition; }
 	item_s				getid() const;
 	bool				is(slot_s v) const;
 	bool				is(slota source) const;
+	constexpr bool		isarmor() const { return armor.protection_bonus != 0; }
 	variant				randeffect() const;
 };
 class item {
+	item_s				type;
+	unsigned char		identifyc : 1;
+	unsigned char		identifys : 1;
+	item_type_s			magic : 2;
+	unsigned char		quality : 2;
+	sale_s				sale : 2;
 	union {
 		struct {
-			item_s			type;
-			//
-			unsigned char	identifyc : 1;
-			unsigned char	identifys : 1;
-			item_type_s		magic : 2;
-			unsigned char	quality : 2;
-			sale_s			sale : 2;
-			//
+			unsigned char	effect;
 			unsigned char	personal : 1;
 			unsigned char	identifye : 1;
 			unsigned char	damaged : 2;
 			unsigned char	charge : 4;
-			//
-			unsigned char	effect;
 		};
-		short unsigned	us[2];
-		int				i;
+		unsigned short	count;
 	};
 	bool				use(skill_s id, creature& player, int order, bool run);
 	bool				use(spell_s id, creature& player, int level, int order, bool run);
 public:
 	item() = default;
 	item(item_s type, int level);
-	constexpr item(item_s type) : i(type) {}
+	constexpr item(item_s type) : type(type), identifyc(0), identifys(0), magic(Mundane), quality(0), sale(Sale100), count(0) {}
 	explicit operator bool() const { return type != NoItem; }
 	void				act(const char* format, ...) const;
 	void				actv(stringbuilder& st, const char* format, const char* format_param) const;
@@ -570,8 +575,8 @@ public:
 	void				decoy(damage_s type, bool interactive, bool include_artifact = false);
 	void				destroy(damage_s type, bool interactive);
 	static item_s		findcorpse(role_s v);
-	item_s				getammo() const { return geti().weapon.ammunition; }
-	armori				getarmor() const;
+	item_s				getammo() const { return geti().weapon.amunition; }
+	itemi::armori		getarmor() const;
 	attacki				getattack() const;
 	int					getbonus() const;
 	int					getcharges() const { return charge; }
@@ -606,6 +611,7 @@ public:
 	bool				ischargeable() const;
 	bool				iscountable() const;
 	bool				isdamaged() const { return getdamage() > 0; }
+	bool				islike(const item& v) const;
 	bool				ispersonal() const { return !iscountable() && personal != 0; }
 	void				loot();
 	bool				ismatch(variant v) const;

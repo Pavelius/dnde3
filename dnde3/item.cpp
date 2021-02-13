@@ -10,39 +10,23 @@ static const char* power_text[][3] = {{"обычное", "обычный", "обычная"},
 static const char* damage_text[] = {0, "Треснуло", "Повреждено", "Сломано"};
 
 static variant common_potions[] = {LifePoints, ManaPoints, DrunkenSpell};
-static variant uncommon_potions[] = {Strenght, Dexterity, Wisdow, Charisma,
-LifeRate, ManaRate, Level, Speed, PoisonSpell};
-static variant rare_potions[] = {Attack, Damage,
-Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
-Armor, Protection, Level};
+static variant uncommon_potions[] = {Strenght, Dexterity, Wisdow, Charisma, LifeRate, ManaRate, Level, Speed, PoisonSpell};
+static variant rare_potions[] = {Attack, Damage, Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma, Armor, Protection, Level};
 static variant weapon_enchanments[] = {{}, Attack, Damage, Speed, Strenght, Constitution};
-static variant swords_enchanments[] = {{}, Attack, Damage,
-Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
-Protection, LifePoints, ManaPoints, Speed};
-static variant common_rings[] = {
-	Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
-	Armor, Protection,
-	LifePoints, ManaPoints, Speed};
-static variant common_boots[] = {{},
-Constitution, Speed};
-static variant common_armor[] = {{},
-Charisma, Wisdow,
-Armor, Speed};
+static variant swords_enchanments[] = {{}, Attack, Damage, Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma, Protection, LifePoints, ManaPoints, Speed};
+static variant common_rings[] = {Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma, Armor, Protection, LifePoints, ManaPoints, Speed};
+static variant common_boots[] = {{}, Constitution, Speed};
+static variant common_armor[] = {{}, Charisma, Wisdow, Armor, Speed};
 static variant common_helm[] = {{}, Intellegence, Charisma};
 static variant common_bracers[] = {{}, FocusBows, Lockpicking, PickPockets, Dexterity, Protection};
-static variant wand_common_spells[] = {Domination, MagicMissile, ShokingGrasp, HealingSpell, ArmorSpell,
-CharmPerson, FearSpell, Invisibility, Repair, SickSpell, Sleep, Web};
-static variant common_mage_spells[] = {MagicMissile, ShokingGrasp,
-ArmorSpell, CharmPerson, FearSpell, Invisibility, Repair, Sleep, Web};
+static variant wand_common_spells[] = {Domination, MagicMissile, ShokingGrasp, HealingSpell, ArmorSpell, CharmPerson, FearSpell, Invisibility, Repair, SickSpell, Sleep, Web};
+static variant common_mage_spells[] = {MagicMissile, ShokingGrasp, ArmorSpell, CharmPerson, FearSpell, Invisibility, Repair, Sleep, Web};
 static variant common_priest_spells[] = {BlessSpell, HealingSpell, DetectEvil};
 static variant common_scroll[] = {BlessItem, DetectEvil, DetectMagic, Identify, KnockDoor, SummonAlly};
 static variant common_amulet[] = {Charisma, Strenght, Lockpicking};
 static variant common_shield[] = {{}, Protection, Deflect};
 static variant common_cloack[] = {Protection, Survival, HideInShadow, MoveSilently, Dancing};
-static variant alchemy_receipts[] = {LifePoints, ManaPoints,
-Strenght, Dexterity, Constitution, Wisdow, Charisma,
-Armor, Protection,
-RemoveSickSpell, RemovePoisonSpell};
+static variant alchemy_receipts[] = {LifePoints, ManaPoints, Strenght, Dexterity, Constitution, Wisdow, Charisma, Armor, Protection, RemoveSickSpell, RemovePoisonSpell};
 static variant lute_songs[] = {{}, Attack, Damage, BlessSpell, LifePoints, ManaPoints};
 static variant flute_songs[] = {{}, Wisdow, Intellegence, Charisma};
 static variant booben_songs[] = {{}, Strenght, Dexterity, Constitution, Armor};
@@ -60,47 +44,48 @@ Bugbear, BugbearF};
 static variant bones[] = {Skeleton};
 static variant bugshell[] = {AntWorker, AntWarrior, AntQueen, Bee, Bee2, Bee3};
 
-BSDATA(itemi) = {{"Рука", "item-1", 0, 0, 0, 0, NoGender, Organic, {0, 3, {1, 3}, Bludgeon, 4, 2}, {}, {}, {}, Melee},
-	{"Боевой топор", "item5", 3, 850, 5 * GP, 0, Male, Iron, {-3, 3, {1, 8}, Slashing, 0, 2}, {}, weapon_enchanments, {Versatile}, Melee, FocusAxes},
-	{"Дубина", "item1", 1, 1000, 5 * CP, 0, Female, Wood, {-4, 3, {1, 6}, Bludgeon, 0, 2}, {}, weapon_enchanments, {}, Melee},
-	{"Кинжал", "item0", 2, 50, 2 * GP, 0, Male, Iron, {0, 3, {1, 4}, Piercing, 2, 3}, {}, weapon_enchanments, {Light}, Melee},
-	{"Молот", "item42", 3, 800, 2 * GP, 0, Male, Wood, {-1, 3, {2, 5}, Bludgeon, 0, 1}, {}, weapon_enchanments, {}, Melee},
-	{"Булава", "item7", 3, 700, 8 * GP, 0, Female, Iron, {-2, 3, {2, 7}, Bludgeon, 0, 1}, {}, weapon_enchanments, {}, Melee},
-	{"Копье", "item60", 4, 700, 8 * GP, 0, NoGender, Iron, {-1, 3, {1, 8}, Piercing, 0, 2}, {}, weapon_enchanments, {}, Melee},
-	{"Посох", "item6", 1, 700, 8 * GP, 0, Male, Iron, {0, 3, {1, 6}, Bludgeon, 1, 2}, {}, weapon_enchanments, {TwoHanded}, Melee},
-	{"Длинный меч", "item4", 6, 700, 8 * GP, 0, Male, Iron, {0, 3, {1, 8}, Slashing, 0, 2}, {}, swords_enchanments, {Versatile}, Melee, FocusSwords},
-	{"Короткий меч", "item2", 5, 700, 8 * GP, 0, Male, Iron, {0, 3, {1, 6}, Slashing, 0, 2}, {}, swords_enchanments, {Light}, Melee, FocusSwords},
-	{"Двуручный меч", "item190", 7, 700, 8 * GP, 0, Male, Iron, {-6, 3, {2, 12}, Slashing, -2, 2}, {}, swords_enchanments, {TwoHanded}, Melee, FocusTwohanded},
-	{"Арбалет", "item33", 4, 700, 40 * GP, 0, Male, Wood, {0, 3, {1, 8}, Piercing, -2, 0, Bolt}, {}, weapon_enchanments, {}, Ranged},
-	{"Тяжелый арбалет", "item67", 8, 1200, 80 * GP, 0, Male, Wood, {-4, 3, {1, 12}, Piercing, -6, 0, Bolt}, {}, weapon_enchanments, {}, Ranged},
-	{"Длинный лук", "item76", 6, 500, 60 * GP, 0, Male, Wood, {-2, 3, {1, 8}, Piercing, 1, 0, Arrow}, {}, weapon_enchanments, {}, Ranged, FocusBows},
-	{"Короткий лук", "item50", 4, 300, 20 * GP, 0, Male, Wood, {-1, 3, {1, 6}, Piercing, 1, 0, Arrow}, {}, weapon_enchanments, {}, Ranged, FocusBows},
-	{"Дарт", "item34", 1, 30, 1 * SP, 0, Male, Wood, {-4, 3, {1, 3}, Piercing, 3}, {}, weapon_enchanments, {}, Ranged},
-	{"Праща", "item52", 2, 50, 1 * SP, 0, Female, Leather, {-5, 3, {2, 4}, Bludgeon, 0, 0, Rock}, {}, weapon_enchanments, {}, Ranged},
-	{"Камень", "items53", 1, 15, 0, 0, Male, Stone, {0, 0, {1, 3}, Bludgeon, 0, 0, NoItem, Rock}, {}, {}, {}, Ranged},
-	{"Стрела", "item51", 2, 3, 2 * CP, 0, Female, Wood, {0, 0, {}, Piercing, 0, 0, NoItem, Arrow}, {}, {}, {}, Amunitions},
-	{"Болт", "item68", 1, 2, 1 * CP, 0, Male, Iron, {0, 0, {}, Piercing, 0, 0, NoItem, Bolt}, {}, {}, {}, Amunitions},
+BSDATA(itemi) = {
+	{"Кулак", "item-1", 0, 0, 0, 2, Male, Organic, {Bludgeon, D1d3, 0, 4}, {}, {}, {}, Melee},
+	{"Боевой топор", "item5", 3, 850, 5 * GP, -1, Male, Iron, {Slashing, D1d8, 0, -1}, {}, weapon_enchanments, {Versatile}, Melee, FocusAxes},
+	{"Дубина", "item1", 1, 1000, 5 * CP, -2, Female, Wood, {Bludgeon, D1d6}, {}, weapon_enchanments, {}, Melee},
+	{"Кинжал", "item0", 2, 50, 2 * GP, 0, Male, Iron, {Piercing, D1d4, 0, 1}, {}, weapon_enchanments, {Light}, Melee},
+	{"Молот", "item42", 3, 800, 2 * GP, -1, Male, Wood, {Bludgeon, D1d4, 1, -1}, {}, weapon_enchanments, {}, Melee},
+	{"Булава", "item7", 3, 700, 8 * GP, -1, Female, Iron, {Bludgeon, D1d6, 1, -2}, {}, weapon_enchanments, {}, Melee},
+	{"Копье", "item60", 4, 700, 8 * GP, 0, NoGender, Iron, {Piercing, D1d8, 0, -2}, {}, weapon_enchanments, {}, Melee},
+	{"Посох", "item6", 1, 700, 8 * GP, 0, Male, Iron, {Bludgeon, D1d6}, {}, weapon_enchanments, {TwoHanded}, Melee},
+	{"Длинный меч", "item4", 6, 700, 8 * GP, -1, Male, Iron, {Slashing, D1d8, 0, -1}, {}, swords_enchanments, {Versatile}, Melee, FocusSwords},
+	{"Короткий меч", "item2", 5, 700, 8 * GP, 0, Male, Iron, {Slashing, D1d6}, {}, swords_enchanments, {Light}, Melee, FocusSwords},
+	{"Двуручный меч", "item190", 7, 700, 8 * GP, -3, Male, Iron, {Slashing, D2d6, 0, -4}, {}, swords_enchanments, {TwoHanded}, Melee, FocusTwohanded},
+	{"Арбалет", "item33", 4, 700, 40 * GP, 0, Male, Wood, {Piercing, D1d8, 0, -2, Bolt}, {}, weapon_enchanments, {}, Ranged},
+	{"Тяжелый арбалет", "item67", 8, 1200, 80 * GP, -2, Male, Wood, {Piercing, D1d12, 0, -5, Bolt}, {}, weapon_enchanments, {}, Ranged},
+	{"Длинный лук", "item76", 6, 500, 60 * GP, -2, Male, Wood, {Piercing, D1d8, 0, -1, Arrow}, {}, weapon_enchanments, {}, Ranged, FocusBows},
+	{"Короткий лук", "item50", 4, 300, 20 * GP, -1, Male, Wood, {Piercing, D1d6, 0, 0, Arrow}, {}, weapon_enchanments, {}, Ranged, FocusBows},
+	{"Дарт", "item34", 1, 30, 1 * SP, 1, Male, Wood, {Piercing, D1d3, 0, 4}, {}, weapon_enchanments, {}, Ranged},
+	{"Праща", "item52", 2, 50, 1 * SP, 0, Female, Leather, {Bludgeon, D1d4, 0, -2, Rock}, {}, weapon_enchanments, {}, Ranged},
+	{"Камень", "items53", 1, 15, 0, -1, Male, Stone, {Bludgeon, D1d3, 0, -2, NoItem, Rock}, {}, {}, {}, Ranged},
+	{"Стрела", "item51", 2, 3, 2 * CP, 0, Female, Wood, {Piercing, NoDice, 0, 0, NoItem, Arrow}, {}, {}, {}, Amunitions},
+	{"Болт", "item68", 1, 2, 1 * CP, 0, Male, Iron, {Piercing, NoDice, 0, 0, NoItem, Bolt}, {}, {}, {}, Amunitions},
 	{"Булыжник", "item580", 5, 3000, 4 * CP, 0, Male, Stone, {}},
-	{"Кожанная броня", "item10", 2, 1000, 5 * GP, 0, Female, Leather, {-5}, {10, 0, 15}, common_armor, {}, Torso},
-	{"Клепанная броня", "item43", 3, 1500, 15 * GP, 0, Female, Leather, {-7}, {15, 0, 15}, common_armor, {}, Torso},
-	{"Чешуйчатый доспех", "item11", 4, 2500, 30 * GP, 0, Male, Iron, {-15}, {25, 1, 30}, common_armor, {}, Torso},
-	{"Кольчуга", "item12", 5, 2600, 50 * GP, 0, Female, Iron, {-10}, {25, 1, 25}, common_armor, {}, Torso},
-	{"Бахрец", "item456", 6, 3000, 200 * GP, 0, Male, Iron, {-15}, {30, 2, 35}, common_armor, {}, Torso},
-	{"Латы", "item13", 10, 3500, 400 * GP, 0, Female, Iron, {-20}, {40, 3, 35}, common_armor, {}, Torso},
-	{"Щит", "item17", 3, 800, 0 * GP, 0, Male, Iron, {-5, 1}, {10, 0, 25, 5}, common_shield, {}, OffHand},
-	{"Шлем", "item28", 2, 100, 0 * GP, 0, Male, Iron, {-1}, {5, 0, 20, 3}, common_helm, {}, Head},
-	{"Наручи", "item15", 2, 70, 0 * GP, 0, NoGender, Iron, {-1}, {5, 0, 15, 2}, common_bracers, {}, Elbows},
-	{"Железные наручи", "item14", 6, 110, 0 * GP, 0, NoGender, Iron, {-3}, {5, 1, 20, 2}, common_bracers, {}, Elbows},
-	{"Плащ", "item38", 1, 30, 10 * SP, -2, Male, Leather, {}, {3, 0, 2}, common_cloack, {}, TorsoBack},
-	{"Плащ", "item39", 2, 30, 15 * GP, -1, Male, Leather, {}, {3, 0, 2}, common_cloack, {}, TorsoBack},
-	{"Плащ", "item75", 3, 35, 20 * GP, 0, Female, Leather, {}, {3, 0, 2}, common_cloack, {}, TorsoBack},
-	{"Плащ", "item314", 4, 35, 5 * GP, 1, Female, Leather, {}, {5, 0, 2}, common_cloack, {}, TorsoBack},
-	{"Плащ", "item331", 8, 40, 5 * GP, 2, Female, Leather, {}, {5, 0, 2}, common_cloack, {}, TorsoBack},
-	{"Туфли", "item30", 1, 100, 5 * GP, -1, NoGender, Leather, {}, {3, 0, 10}, common_boots, {}, Legs},
-	{"Сапоги", "item27", 2, 200, 10 * GP, 0, NoGender, Leather, {}, {3, 0, 10}, common_boots, {}, Legs},
-	{"Сапоги", "item58", 3, 400, 12 * GP, -1, NoGender, Iron, {}, {5, 0, 15}, common_boots, {}, Legs},
-	{"Сапоги", "item128", 4, 500, 15 * GP, 0, NoGender, Iron, {}, {3, 1, 10}, common_boots, {}, Legs},
-	{"Сапоги", "item149", 5, 600, 17 * GP, 1, NoGender, Iron, {}, {3, 1, 10}, common_boots, {}, Legs},
+	{"Кожанная броня", "item10", 2, 1000, 5 * GP, 2, Female, Leather, {}, {0, 2, 15}, common_armor, {}, Torso},
+	{"Клепанная броня", "item43", 3, 1500, 15 * GP, 3, Female, Leather, {}, {0, 3, 15}, common_armor, {}, Torso},
+	{"Чешуйчатый доспех", "item11", 4, 2500, 30 * GP, 5, Male, Iron, {}, {1, 4, 25}, common_armor, {}, Torso},
+	{"Кольчуга", "item12", 5, 2600, 50 * GP, 6, Female, Iron, {}, {0, 5, 20}, common_armor, {}, Torso},
+	{"Бахрец", "item456", 6, 3000, 200 * GP, 8, Male, Iron, {}, {1, 5, 15}, common_armor, {}, Torso},
+	{"Латы", "item13", 10, 3500, 400 * GP, 10, Female, Iron, {}, {1, 6, 30}, common_armor, {}, Torso},
+	{"Щит", "item17", 3, 800, 0 * GP, 2, Male, Iron, {}, {0, 5, 25}, common_shield, {}, OffHand},
+	{"Шлем", "item28", 2, 100, 0 * GP, 1, Male, Iron, {}, {0, 3, 20}, common_helm, {}, Head},
+	{"Наручи", "item15", 2, 70, 0 * GP, 1, NoGender, Iron, {}, {0, 3, 15}, common_bracers, {}, Elbows},
+	{"Железные наручи", "item14", 6, 110, 0 * GP, 2, NoGender, Iron, {}, {1, 5, 20}, common_bracers, {}, Elbows},
+	{"Плащ", "item38", 1, 30, 10 * SP, 0, Male, Leather, {}, {0, 1}, common_cloack, {}, TorsoBack},
+	{"Плащ", "item39", 2, 30, 15 * GP, 0, Male, Leather, {}, {0, 2}, common_cloack, {}, TorsoBack},
+	{"Плащ", "item75", 3, 35, 20 * GP, 1, Female, Leather, {}, {0, 3}, common_cloack, {}, TorsoBack},
+	{"Плащ", "item314", 4, 35, 5 * GP, 1, Female, Leather, {}, {0, 3}, common_cloack, {}, TorsoBack},
+	{"Плащ", "item331", 8, 40, 5 * GP, 2, Female, Leather, {}, {1, 3, 5}, common_cloack, {}, TorsoBack},
+	{"Туфли", "item30", 1, 100, 5 * GP, 0, NoGender, Leather, {}, {0, 1}, common_boots, {}, Legs},
+	{"Сапоги", "item27", 2, 200, 10 * GP, 1, NoGender, Leather, {}, {0, 2, 5}, common_boots, {}, Legs},
+	{"Сапоги", "item58", 3, 400, 12 * GP, 1, NoGender, Iron, {}, {0, 3, 10}, common_boots, {}, Legs},
+	{"Сапоги", "item128", 4, 500, 15 * GP, 2, NoGender, Iron, {}, {0, 3, 10}, common_boots, {}, Legs},
+	{"Сапоги", "item149", 5, 600, 17 * GP, 3, NoGender, Iron, {}, {1, 4, 10}, common_boots, {}, Legs},
 	{"Еда", "item21", 3, 100, 5 * SP, 5, Female, Organic, {}, {}, {}, {}, Edible},
 	{"Яблоко", "item55", 1, 10, 5 * CP, 0, NoGender, Organic, {}, {}, {}, {}, Edible},
 	{"Хлеб хоббитов", "item240", 2, 50, 1 * SP, 1, Male, Organic, {}, {}, {}, {}, Edible},
@@ -171,11 +156,11 @@ BSDATA(itemi) = {{"Рука", "item-1", 0, 0, 0, 0, NoGender, Organic, {0, 3, {1, 3}
 	{"Монета", "items37", 1, 0, 1 * CP, -1, Female, Iron, {}, {}, {}, {}, Coinable},
 	{"Серебрянная монета", "items37", 1, 0, 1 * SP, 0, Female, Iron, {}, {}, {}, {}, Coinable},
 	{"Золотая монета", "items37", 1, 0, 1 * GP, 1, Female, Iron, {}, {}, {}, {}, Coinable},
-	{"Когти", 0, 0, 0, 0 * GP, 0, NoGender, Organic, {-6, 3, {1, 6}, Slashing, 3, 1}, {}, {}, {Natural}, Melee},
-	{"Кулаки", 0, 0, 0, 0 * GP, 0, NoGender, Organic, {0, 4, {1, 6}, Bludgeon, 0, 2}, {}, {}, {Natural}, Melee},
-	{"Укус", 0, 0, 0, 0 * GP, 0, NoGender, Organic, {0, 2, {2, 5}, Slashing, 0, 1}, {}, {}, {Natural}, Melee},
-	{"Хитин", 0, 0, 0, 0 * GP, 0, NoGender, Leather, {-10}, {30, 2, 40}, {}, {Natural}, Torso},
-	{"Мех", 0, 0, 0, 0 * GP, 0, NoGender, Leather, {-3}, {20, 0, 20}, {}, {Natural}, Torso},
+	{"Когти", 0, 0, 0, 0 * GP, 2, NoGender, Organic, {Slashing, D1d6, 0, 6}, {}, {}, {Natural}, Melee},
+	{"Кулаки", 0, 0, 0, 0 * GP, 0, NoGender, Organic, {Bludgeon, D1d6, 0, 4}, {}, {}, {Natural}, Melee},
+	{"Укус", 0, 0, 0, 0 * GP, 0, Male, Organic, {Piercing, D1d4, 1, 3}, {}, {}, {Natural}, Melee},
+	{"Хитин", 0, 0, 0, 0 * GP, 5, Male, Leather, {}, {1, 4, 40}, {}, {Natural}, Torso},
+	{"Мех", 0, 0, 0, 0 * GP, 3, Male, Leather, {}, {0, 3, 20}, {}, {Natural}, Torso},
 	{"Много предметов"},
 };
 assert_enum(itemi, ManyItems)
@@ -200,11 +185,9 @@ bool itemi::is(slota source) const {
 
 item::item(item_s type, int level) {
 	auto chance_artifact = level / 3;
-	auto chance_magic = level;
+	auto chance_magic = level * 2;
 	auto chance_cursed = 5;
-	auto chance_quality = 15 + level;
-	if(chance_quality > 70)
-		chance_quality = 70;
+	auto chance_quality = 20 + level * 3;
 	create(type, chance_artifact, chance_magic, chance_cursed, chance_quality);
 }
 
@@ -232,7 +215,7 @@ void item::create(item_s item_type, int chance_artifact, int chance_magic, int c
 	auto& ei = geti();
 	magic = Mundane;
 	if(roll2c(chance_magic)) {
-		if(d100() < chance_cursed)
+		if(roll2c(chance_cursed))
 			magic = Cursed;
 		else if(roll2c(chance_artifact))
 			magic = Artifact;
@@ -248,7 +231,7 @@ void item::create(item_s item_type, int chance_artifact, int chance_magic, int c
 				quality++;
 		}
 	}
-	if(!iscountable() && ei.effects.data) {
+	if(ei.effects.data) {
 		if(ei.effects[0])
 			effect = rand() % ei.effects.getcount();
 		else if(ei.effects[1]) {
@@ -289,12 +272,16 @@ void item::getstatistic(stringbuilder& sb) const {
 	auto& ei = geti();
 	if(ei.slot >= Head && ei.slot <= Ranged) {
 		auto ai = getattack();
-		if(ai.attack)
-			sb.adds("%1:%2i%%", bsmeta<abilityi>::elements[Attack].name_short, ai.attack);
-		if(ai.dice.max)
-			sb.adds("%1:%2i-%3i", bsmeta<abilityi>::elements[Damage].name_short, ai.dice.min, ai.dice.max);
-		auto am = getarmor();
-		if(am.protection || am.armor) {
+		if(ai.dice.max) {
+			if(ai.attack)
+				sb.adds("%1:%2i%%", bsmeta<abilityi>::elements[Attack].name_short, ai.attack);
+			if(ai.dice.max)
+				sb.adds("%1:%2i-%3i", bsmeta<abilityi>::elements[Damage].name_short, ai.dice.min, ai.dice.max);
+		}
+		if(ei.isarmor()) {
+			auto am = getarmor();
+			if(am.attack)
+				sb.adds("%1:%2i%%", bsmeta<abilityi>::elements[Attack].name_short, am.attack);
 			sb.adds("%1:%2i%%", bsmeta<abilityi>::elements[Armor].name_short, am.protection);
 			if(am.armor)
 				sb.adds("и %1i", am.armor);
@@ -367,7 +354,7 @@ void item::seteffect(variant v) {
 int	item::getcount() const {
 	if(!iscountable())
 		return 1;
-	return us[1] + 1;
+	return count + 1;
 }
 
 void item::setcount(int count) {
@@ -378,15 +365,15 @@ void item::setcount(int count) {
 	else {
 		if(count > 256 * 256)
 			count = 256 * 256;
-		us[1] = count - 1;
+		this->count = count - 1;
 	}
 	getwearer()->prepare();
 }
 
 void item::use() {
 	if(iscountable()) {
-		if(us[1])
-			us[1]--;
+		if(count)
+			count--;
 		else
 			destroy(Magic, false);
 	} else if(ischargeable()) {
@@ -420,7 +407,7 @@ bool item::ismatch(variant v) const {
 }
 
 int	item::getbonus() const {
-	auto m = quality;
+	int m = quality;
 	if(identifyc) {
 		switch(magic) {
 		case Artifact: m += 2; break;
@@ -428,48 +415,47 @@ int	item::getbonus() const {
 		case Cursed: return -1 - quality;
 		}
 	}
-	if(identifye) {
-		auto& ei = geti();
-		if(ei.effects.count && (effect || ei.effects.data[0]))
-			m++;
-	}
+	auto& ei = geti();
+	if(ei.effects.count && ei.effects.data[effect])
+		m++;
 	return m;
 }
 
 variant item::geteffect() const {
-	if(iscountable())
-		return variant();
 	auto& ei = geti();
-	if(ei.effects.count > 0)
+	if(ei.effects.count)
 		return ei.effects[effect];
-	return variant();
+	else
+		return variant();
 }
 
-armori item::getarmor() const {
-	auto result = geti().armor;
+itemi::armori item::getarmor() const {
+	auto& ei = geti();
+	auto result = ei.armor;
 	auto d = getdamage();
 	auto b = getbonus();
-	result.protection += b * result.protection_bonus - d;
-	result.armor += b * result.armor_bonus - (d / 2);
+	result.protection += ei.quality * 4 + (b - d) * result.protection_bonus;
+	result.armor -= (d / 2);
 	if(result.armor < 0)
 		result.armor = 0;
+	result.attack = -(ei.quality * 2 - b);
+	if(result.attack > 0)
+		result.attack = 0;
 	return result;
 }
 
 attacki item::getattack() const {
-	auto& ei = geti();
-	auto result = ei.weapon;
+	auto& ei = geti().weapon;
 	auto d = getdamage();
 	auto b = getbonus();
-	result.attack += b * ei.weapon.attack_bonus - d;
-	if(ei.weapon.damage_bonus) {
-		result.dice.min += b / ei.weapon.damage_bonus;
-		result.dice.max += b / ei.weapon.damage_bonus - (d / 2);
-		if(result.dice.min < 0)
-			result.dice.min = 0;
-		if(result.dice.max < 0)
-			result.dice.max = 0;
-	}
+	attacki result;
+	result.type = ei.type;
+	result.attack = (geti().quality + b) * 4 - d * 2;
+	result.dice = bsmeta<dicei>::elements[ei.dice];
+	result.dice.min += ei.damage;
+	result.dice.max += ei.damage;
+	result.speed = ei.speed;
+	result.ammunition = ei.amunition;
 	return result;
 }
 
@@ -493,7 +479,6 @@ void item::set(identify_s v) {
 	case KnownStats: identifys = 1; break;
 	default: identifyc = identifys = identifye = 0; break;
 	}
-	getwearer()->prepare();
 }
 
 void item::setquality(int v) {
@@ -567,20 +552,30 @@ void item::actv(stringbuilder& st, const char* format, const char* format_param)
 	st = sb;
 }
 
+bool item::islike(const item& v) const {
+	return iscountable()
+		&& type == v.type
+		&& identifyc == v.identifyc
+		&& identifys == v.identifys
+		&& magic == v.magic
+		&& quality == v.quality
+		&& sale == v.sale;
+}
+
 bool item::stack(item& v) {
-	if(!iscountable() || us[0] != v.us[0])
+	if(!islike(v))
 		return false;
-	int c1 = us[1];
-	int c2 = v.us[1];
+	int c1 = count;
+	int c2 = v.count;
 	auto result = false;
 	c1 += c2 + 1;
 	if(c1 <= 0xFFFF) {
-		us[1] = c1;
+		count = c1;
 		v.clear();
 		result = true;
 	} else {
-		us[1] = 0xFFFF;
-		v.us[1] = c1 - 0xFFFF - 1;
+		count = 0xFFFF;
+		v.count = c1 - 0xFFFF - 1;
 	}
 	auto p1 = getwearer();
 	auto p2 = v.getwearer();

@@ -74,10 +74,10 @@ void creature::add(variant id, int v, bool interactive) {
 	case State: add((state_s)id.value, v, interactive); break;
 	case Skill: add((skill_s)id.value, v, interactive); break;
 	case Item:
-		item it; it.create(item_s(id.value), 0, 5, 0, 20);
+		item it(item_s(id.value), v);
 		equip(it);
-		if(bsmeta<itemi>::elements[id.value].weapon.ammunition) {
-			item it(bsmeta<itemi>::elements[id.value].weapon.ammunition, v);
+		if(bsmeta<itemi>::elements[id.value].getammo()) {
+			item it(bsmeta<itemi>::elements[id.value].getammo(), v);
 			equip(it);
 		}
 		break;
@@ -168,28 +168,25 @@ void creature::applyab() {
 }
 
 void creature::applywr() {
-	static slot_s enchant_slots[] = {Head, Neck, TorsoBack, Torso, OffHand, RightFinger, LeftFinger, Elbows, Legs};
 	// Modify armor abilities
-	for(auto i : enchant_slots) {
+	static slot_s armor_slots[] = {Head, TorsoBack, Torso, OffHand, Elbows, Legs};
+	for(auto i : armor_slots) {
 		if(!wears[i])
 			continue;
-		auto ei = wears[i].getarmor();
-		abilities[Protection] += ei.protection;
-		abilities[Deflect] += ei.deflect;
-		abilities[Armor] += ei.armor;
+		if(wears[i].geti().isarmor()) {
+			auto ei = wears[i].getarmor();
+			abilities[Protection] += ei.protection;
+			abilities[Deflect] += ei.deflect;
+			abilities[Armor] += ei.armor;
+			abilities[Attack] += ei.attack;
+		}
 	}
-	// Modify weapon abilities
-	for(auto i : enchant_slots) {
+	// Apply enchant effect
+	static slot_s enchant_slots[] = {Head, Neck, OffHand, TorsoBack, Torso, RightFinger, LeftFinger, Elbows, Legs};
+	for(auto i : armor_slots) {
 		if(!wears[i])
 			continue;
 		if(i == OffHand && wears[i].geti().slot != OffHand)
-			continue;
-		auto ei = wears[i].getattack();
-		abilities[Attack] += ei.attack;
-	}
-	// Apply enchant effect
-	for(auto i : enchant_slots) {
-		if(!wears[i])
 			continue;
 		auto id = wears[i].geteffect();
 		if(!id)
@@ -200,7 +197,6 @@ void creature::applywr() {
 			abilities[id.value] += bsmeta<abilityi>::elements[id.value].getbonus(q);
 			break;
 		case Skill:
-			// Apply only to known skills
 			if(skills[id.value])
 				skills[id.value] += q * 10;
 			break;
