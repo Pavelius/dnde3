@@ -1246,7 +1246,7 @@ static int text(int x, int y, int width, dicei v, const char* format = "+ %1i-%2
 	return width + 8;
 }
 
-skill_s skillu::choose(bool interactive, const char* title, bool* cancel_result) const {
+skill_s skillu::choose(statable* player, bool interactive, const char* title, bool* cancel_result) const {
 	int x, y, y1;
 	const int width = 400;
 	if(cancel_result)
@@ -1262,7 +1262,7 @@ skill_s skillu::choose(bool interactive, const char* title, bool* cancel_result)
 		for(auto e : *this) {
 			auto x0 = x;
 			auto sv = player->get(e);
-			auto cv = getcap(e, *player);
+			auto cv = getcap(e);
 			if(button(x0, y, 0, answeri::getkey(index), 0)) {
 				auto need_execute = true;
 				if(!cancel_result && sv >= cv)
@@ -1276,7 +1276,7 @@ skill_s skillu::choose(bool interactive, const char* title, bool* cancel_result)
 			text(x0, y, getstr(e)); x0 += 220;
 			x0 += text(x0, y, 36, player->get(e), "%1i%%");
 			if(cancel_result || sv >= cv)
-				x0 += text(x0, y, 100, player->getlevelname(e));
+				x0 += text(x0, y, 100, creature::getrangname(sv));
 			else {
 				x0 += text(x0, y, 36, player->getraise(e));
 				x0 += text(x0, y, 64, cv, " макс. %1i%%");

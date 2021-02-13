@@ -2,7 +2,7 @@
 
 static creature* create(race_s race, gender_s gender, class_s cls) {
 	auto p = loc.add(Blocked, race, gender, cls);
-	p->add(Friendly, 1, false);
+	p->add(variant(Friendly), 1, false);
 	return p;
 }
 
@@ -147,7 +147,7 @@ static void begin_game() {
 		create(p2, Potion1, DrunkenSpell);
 		create(p1, AlchemySet);
 		createp(p1, Staff);
-		p1->addexp(10000, false);
+		p1->addexp(10000, true);
 		game.setposition(loc.get(8, 8));
 		if(!game.enter(0, NoTileObject))
 			return;

@@ -42,7 +42,7 @@ void encounter::play() {
 			}
 			if(!m)
 				continue;
-			m->add(state, 1, false);
+			//m->add(state, 1, false);
 		}
 	}
 }

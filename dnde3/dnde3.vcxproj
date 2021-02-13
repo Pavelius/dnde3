@@ -150,6 +150,7 @@
     <ClCompile Include="png_util.cpp" />
     <ClCompile Include="room.cpp" />
     <ClCompile Include="sprite_util.cpp" />
+    <ClCompile Include="statable.cpp" />
     <ClCompile Include="surface_util.cpp" />
     <ClCompile Include="variantc.cpp" />
     <ClCompile Include="material.cpp" />

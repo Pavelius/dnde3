@@ -34,7 +34,7 @@ static void race_ability(stringbuilder& sb, manual& mn, answeri& an) {
 	sb.add(".");
 }
 
-static bool have(const skille& source, skill_s v) {
+static bool have(const varianta& source, variant v) {
 	for(auto e : source) {
 		if(e == v)
 			return true;
@@ -59,7 +59,7 @@ static void race_skills(stringbuilder& sb, manual& mn, answeri& an) {
 		count++;
 	}
 	for(auto& ei : bsmeta<classi>()) {
-		if(!have(ei.skills, skill))
+		if(!have(ei.bonuses, skill))
 			continue;
 		if(!count)
 			sb.addn("[%1]: ", header);

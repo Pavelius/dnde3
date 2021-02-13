@@ -2,13 +2,23 @@
 
 DECLDATA(creature, 256)
 
-static int			skill_level[] = {30, 60, 90};
-static dicei		skill_raise[] = {{3, 18}, {3, 12}, {2, 10}, {2, 8}, {2, 8}, {2, 6}, {1, 5}, {1, 4}, {1, 3}};
-static const char*	skill_names[] = {"Новичек", "Специалист", "Эксперт", "Мастер"};
 static creature*	current_player;
-static int			experience_count[] = {0,
-0, 1000, 2500, 4500, 7000, 10000, 13500, 17500, 22000, 27000,
+static int			skill_level[] = {30, 60, 90};
+static const char*	skill_names[] = {"Новичек", "Специалист", "Эксперт", "Мастер"};
+static int			experience_count[] = {
+	0, 100, 1000, 2500, 4500, 7000, 10000, 13500, 17500, 22000,
+	27000, 35000, 50000,
 };
+
+static int getrang(int r) {
+	auto n = 0;
+	for(auto a : skill_level) {
+		if(r < a)
+			break;
+		n++;
+	}
+	return n;
+}
 
 void creature::clear() {
 	memset(this, 0, sizeof(*this));
@@ -34,9 +44,7 @@ void creature::feel(ability_s id, bool raise) {
 void creature::add(ability_s id, int v, bool interactive) {
 	if(!v)
 		return;
-	dressoff();
 	abilities[id] += v;
-	dresson();
 	if(interactive)
 		feel(id, v > 0);
 }
@@ -45,19 +53,15 @@ void creature::add(state_s id, int v, bool interactive) {
 	if(!v)
 		return;
 	if(v > 0) {
-		if(states.is(id))
+		if(basic.states.is(id))
 			return;
-		dressoff();
-		states.set(id);
-		dresson();
+		basic.states.set(id);
 		if(interactive)
 			act(bsmeta<statei>::elements[id].text_set);
 	} else {
-		if(!states.is(id))
+		if(!basic.states.is(id))
 			return;
-		dressoff();
-		states.remove(id);
-		dresson();
+		basic.states.remove(id);
 		if(interactive)
 			act(bsmeta<statei>::elements[id].text_remove);
 	}
@@ -156,7 +160,55 @@ void creature::unlink() {
 	setposition(Blocked);
 }
 
-void creature::dressen(int m) {
+void creature::applyab() {
+	for(auto i = Attack; i <= ManaRate; i = (ability_s)(i + 1)) {
+		auto& ei = bsmeta<abilityi>::elements[i];
+		abilities[i] += calculate(ei.formula);
+	}
+}
+
+void creature::applywr() {
+	static slot_s enchant_slots[] = {Head, Neck, TorsoBack, Torso, OffHand, RightFinger, LeftFinger, Elbows, Legs};
+	// Modify armor abilities
+	for(auto i : enchant_slots) {
+		if(!wears[i])
+			continue;
+		auto ei = wears[i].getarmor();
+		abilities[Protection] += ei.protection;
+		abilities[Deflect] += ei.deflect;
+		abilities[Armor] += ei.armor;
+	}
+	// Modify weapon abilities
+	for(auto i : enchant_slots) {
+		if(!wears[i])
+			continue;
+		if(i == OffHand && wears[i].geti().slot != OffHand)
+			continue;
+		auto ei = wears[i].getattack();
+		abilities[Attack] += ei.attack;
+	}
+	// Apply enchant effect
+	for(auto i : enchant_slots) {
+		if(!wears[i])
+			continue;
+		auto id = wears[i].geteffect();
+		if(!id)
+			continue;
+		auto q = wears[i].getbonus();
+		switch(id.type) {
+		case Ability:
+			abilities[id.value] += bsmeta<abilityi>::elements[id.value].getbonus(q);
+			break;
+		case Skill:
+			// Apply only to known skills
+			if(skills[id.value])
+				skills[id.value] += q * 10;
+			break;
+		}
+	}
+}
+
+void creature::applyen() {
 	auto aw = getallowedweight();
 	auto mw = getweight();
 	auto penalty_attack = 0;
@@ -174,77 +226,31 @@ void creature::dressen(int m) {
 		penalty_deflect += 10;
 		encumbrance = HeavilyEncumbered;
 	}
-	abilities[Speed] -= penalty_speed * m;
-	abilities[Attack] -= penalty_attack * m;
-	abilities[Protection] -= penalty_deflect * m;
+	abilities[Speed] -= penalty_speed;
+	abilities[Attack] -= penalty_attack;
+	abilities[Protection] -= penalty_deflect;
 }
 
-void creature::dressoff() {
+void creature::applybs() {
+	variant pid = this;
+	for(auto& e : bsmeta<boosti>()) {
+		if(e.owner_id == pid.value)
+			add(e.id, e.modifier, false);
+	}
+}
+
+void creature::prepare() {
 	if(!this)
 		return;
-	dressen(-1);
-	dresssa(-1);
-	dress(-1);
+	copy(&basic);
+	applywr();
+	applyab();
+	applybs();
+	applyen();
 }
 
-void creature::dresson() {
-	if(!this)
-		return;
-	dress(1);
-	dresssa(1);
-	dressen(1);
-}
-
-void creature::dress(int m) {
-	static slot_s enchant_slots[] = {Head, Neck, TorsoBack, Torso, OffHand, RightFinger, LeftFinger, Elbows, Legs};
-	// Modify armor abilities
-	for(auto i = Head; i <= Ranged; i = (slot_s)(i + 1)) {
-		if(!wears[i])
-			continue;
-		auto ei = wears[i].getarmor();
-		abilities[Protection] += m * ei.protection;
-		abilities[Deflect] += m * ei.deflect;
-		abilities[Armor] += m * ei.armor;
-	}
-	// Modify weapon abilities
-	for(auto i = Head; i <= Ranged; i = (slot_s)(i + 1)) {
-		if(!wears[i])
-			continue;
-		if(i == OffHand && wears[i].geti().slot != OffHand)
-			continue;
-		auto ei = wears[i].getattack();
-		abilities[Attack] += m * ei.attack;
-	}
-	// Apply enchant effect
-	for(auto i = Head; i <= Ranged; i = (slot_s)(i + 1)) {
-		if(!wears[i])
-			continue;
-		auto id = wears[i].geteffect();
-		if(!id)
-			continue;
-		auto q = wears[i].getbonus();
-		switch(id.type) {
-		case Ability:
-			abilities[id.value] += m * bsmeta<abilityi>::elements[id.value].getbonus(q);
-			break;
-		case Skill:
-			// Apply only to known skills
-			if(skills[id.value])
-				skills[id.value] += m * q * 10;
-			break;
-		}
-	}
-}
-
-void creature::dresssa(int m) {
-	for(auto i = Attack; i <= ManaRate; i = (ability_s)(i + 1)) {
-		auto& ei = bsmeta<abilityi>::elements[i];
-		abilities[i] += m * calculate(ei.formula);
-	}
-}
-
-const char* creature::getlevelname(skill_s v) const {
-	auto n = getlevel(v);
+const char* creature::getrangname(int v) {
+	auto n = getrang(v);
 	return maptbl(skill_names, n);
 }
 
@@ -252,32 +258,10 @@ bool creature::ismaster(skill_s v) const {
 	return skills[v] >= skill_level[2];
 }
 
-int creature::getlevel(skill_s v) const {
-	auto r = skills[v];
-	auto n = 0;
-	for(auto a : skill_level) {
-		if(r < a)
-			break;
-		n++;
-	}
-	return n;
-}
-
-dicei creature::getraise(skill_s v) const {
-	auto n = skills[v] / 10;
-	return maptbl(skill_raise, n);
-}
-
-void creature::raise(skill_s value) {
-	skills[value] += getraise(value).roll();
-}
-
 void creature::equip(item it, slot_s id) {
 	if(id >= Head && id <= LastWear)
 		it.set(KnownStats);
-	dressoff();
 	wears[id] = it;
-	dresson();
 }
 
 bool creature::add(item v, bool run, bool talk) {
@@ -373,26 +357,25 @@ bool creature::cantakeoff(slot_s id, bool talk) {
 bool creature::equip(item& v1, item& v2, bool run) {
 	if(!canuse(v2, true))
 		return false;
-	dressoff();
 	auto v = v1;
 	v1 = v2;
 	v2 = v;
-	dresson();
 	v1.set(KnownStats);
+	prepare();
 	return true;
 }
 
 void creature::raiseathletics() {
+	auto n = get(Athletics);
+	if(!basic.skills[Athletics])
+		return;
 	static ability_s source[] = {Strenght, Dexterity};
 	adat<ability_s, 4> raised;
-	auto n = get(Athletics);
-	if(!skills[Athletics])
-		return;
 	for(auto s : source) {
 		auto v = get(s);
 		auto chance = n - (v - 10) * 10;
 		if(rollv(chance)) {
-			abilities[s]++;
+			basic.abilities[s]++;
 			raised.add(s);
 		}
 	}
@@ -414,33 +397,41 @@ void creature::raiseathletics() {
 }
 
 void creature::raiseskills(int number, bool interactive) {
-	skillu source(this);
+	if(number <= 0)
+		return;
+	skillu source;
 	source.select(*this);
-	source.shuffle();
-	source.setcaps();
+	for(auto e : source) {
+		auto n = basic.get(e);
+		n += get(bsmeta<skilli>::elements[e].ability);
+		if(n > 100)
+			n = 100;
+		source.setcap(e, n);
+	}
 	if(interactive) {
 		source.sort();
 		while(number > 0) {
 			char temp[260]; stringbuilder sb(temp);
 			sb.add("Какой навык повысить (осталось еще %1i)?", number);
-			auto s = source.choose(true, temp, 0);
-			raise(s);
+			auto s = source.choose(&basic, true, temp, 0);
+			basic.raise(s);
 			auto v = source.getcap(s);
-			if(skills[s] > v)
-				skills[s] = v;
+			if(basic.skills[s] > v)
+				basic.skills[s] = v;
 			number--;
 		}
 	} else {
+		source.shuffle();
 		unsigned index = 0;
 		unsigned count = source.getcount();
 		while(number > 0) {
 			if(index >= count)
 				index = 0;
 			auto s = source[index++];
-			raise(s);
+			basic.raise(s);
 			auto v = source.getcap(s);
-			if(skills[s] > v)
-				skills[s] = v;
+			if(basic.skills[s] > v)
+				basic.skills[s] = v;
 			number--;
 		}
 	}
@@ -458,70 +449,23 @@ void creature::randomequip() {
 	money += xrand(3, 18) * GP;
 }
 
-void creature::raiseability(bool interactive) {
-	auto& ei = getclass();
-	if(abilities[Level] == 0)
-		abilities[Attack] += ei.weapon.base;
-	else {
-		if(abilities[Level] == 1 && ischaracter()) {
-			abilities[LifePoints] += ei.hp;
-			abilities[ManaPoints] += ei.mp;
-		} else {
-			if(ei.hp)
-				abilities[LifePoints] += xrand(1, ei.hp);
-			if(ei.mp)
-				abilities[ManaPoints] += xrand(1, ei.mp);
-		}
-		abilities[Attack] += ei.weapon.multiplier;
-		// Add level features
-		for(auto& pi : bsmeta<leveli>()) {
-			if(pi.type == kind && pi.level == abilities[Level])
-				apply(pi.features, interactive);
-		}
-	}
-}
-
-void creature::applyabilities() {
-	const auto& ri = bsmeta<racei>::elements[getrace()];
-	const auto& ci = getclass();
-	// Create base abilities
-	abilities[Level] = 0;
-	// Generate abilities
-	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1))
-		abilities[i] = ri.abilities[i] + (rand() % 5) - 2;
-	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1))
-		abilities[i] += ci.ability[i];
-	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1)) {
-		if(abilities[i] < 0)
-			abilities[i] = 0;
-	}
-	apply(ri.bonuses, false);
-	for(auto e : ci.skills)
-		raise(e);
-	// Class spells
-	for(auto e : ci.spells)
-		add(e, 1, false);
-	raiseability(false);
-	dresson();
-}
-
 void creature::finish() {
+	prepare();
 	hp = get(LifePoints);
 	mp = get(ManaPoints);
 }
 
 void creature::create(race_s race, gender_s gender, class_s type) {
 	clear();
-	this->variant::type = Role;
-	this->variant::value = Character;
+	this->type = Role;
+	this->value = Character;
 	this->kind = type;
 	setname(race, gender);
-	applyabilities();
-	dressoff();
-	raise(Climbing);
-	if(abilities[Intellegence] >= 9)
-		raise(Literacy);
-	dresson();
+	basic.create(type, race);
+	basic.raise(Climbing);
+	basic.raise(Climbing);
+	if(basic.abilities[Intellegence] >= 9)
+		basic.raise(Literacy);
 	raiselevel(false);
 	randomequip();
 	finish();
@@ -785,9 +729,8 @@ bool creature::remove(item& e, bool run, bool talk) {
 		return false;
 	}
 	if(run) {
-		dressoff();
 		e.clear();
-		dresson();
+		prepare();
 	}
 	return true;
 }
@@ -811,11 +754,10 @@ void creature::select(skilla& a) const {
 
 void creature::useskills() {
 	bool cancel = false;
-	skillu source(this);
+	skillu source;
 	source.select(*this);
 	source.sort();
-	source.setcaps();
-	auto s = source.choose(true, "Какой навык использовать?", &cancel);
+	auto s = source.choose(this, true, "Какой навык использовать?", &cancel);
 	if(cancel)
 		return;
 	creaturea creatures(*this);
@@ -1293,7 +1235,7 @@ void creature::checksick() {
 void creature::checkpoison() {
 	if(is(Poisoned)) {
 		if(resist(Poison, 0, false)) {
-			if(poison>0)
+			if(poison > 0)
 				poison--;
 		} else {
 			act("%герой страдает от яда.");
@@ -1469,7 +1411,6 @@ void creature::kill() {
 	}
 	hp = mp = 0;
 	applyaward();
-	dressoff();
 	dropitems();
 	dispell(false);
 	unlink();
@@ -1530,19 +1471,21 @@ void creature::damage(int value, damage_s type, int pierce, bool interactive) {
 }
 
 unsigned creature::getlevelup() const {
-	return experience_count[abilities[Level] + 1];
+	auto n = abilities[Level];
+	if(n + 2 >= sizeof(experience_count) / sizeof(experience_count[0]))
+		return 0;
+	return experience_count[n + 1];
 }
 
 void creature::raiselevel(bool interactive) {
-	dressoff();
-	abilities[Level] += 1;
+	basic.add(Level, 1);
 	auto start_log = sb.get();
-	raiseability(interactive);
+	basic.raise((role_s)value, kind);
 	raiseathletics();
 	if(sb.get() > start_log)
 		pause(interactive);
 	raiseskills(interactive);
-	dresson();
+	prepare();
 }
 
 void creature::addexp(int v, bool interactive) {
@@ -1552,6 +1495,8 @@ void creature::addexp(int v, bool interactive) {
 		if(interactive)
 			act("%герой получил%а [+%1i] опыта.", v);
 		while(experience >= getlevelup()) {
+			if(!getlevelup())
+				break;
 			if(is(Friendly)) {
 				activate();
 				act("Мои поздравления, %герой получил%а новый уровень опыта.");
@@ -1606,15 +1551,13 @@ void creature::moveaway(indext index) {
 	move(index);
 }
 
-void creature::set(ability_s id, int v) {
-	dressoff();
-	abilities[id] = v;
-	dresson();
-}
-
-void creature::set(skill_s id, int v) {
-	skills[id] = v;
-}
+//void creature::set(ability_s id, int v) {
+//	abilities[id] = v;
+//}
+//
+//void creature::set(skill_s id, int v) {
+//	skills[id] = v;
+//}
 
 bool creature::isallow(item_s v) const {
 	auto& ci = bsmeta<classi>::elements[kind];
@@ -2196,24 +2139,6 @@ bool creature::is(condition_s v) const {
 	case MissAlmostAllMana: return getmana() < get(ManaPoints) / 5;
 	case Owner: return getsite() && getsite()->getowner() == this;
 	default: return false;
-	}
-}
-
-void creature::apply(varianta source, bool interactive) {
-	auto modifier = NoModifier;
-	for(auto v : source) {
-		switch(v.type) {
-		case Skill: raise((skill_s)v.value); break;
-		case Harm:
-			switch(modifier) {
-			case Resist: resistance.set(v.value); break;
-			case Immune: immunity.set(v.value); break;
-			default: add(v, 1, interactive); break;
-			}
-			break;
-		case Modifier: modifier = (modifier_s)v.value; break;
-		default: add(v, 1, interactive); break;
-		}
 	}
 }
 

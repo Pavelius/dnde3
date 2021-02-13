@@ -105,7 +105,7 @@ static void create_monster(indext index) {
 	auto p = loc.monster(index);
 	if(!p)
 		return;
-	p->add(Hostile, 1, false);
+	p->add(variant(Hostile), 1, false);
 	p->setguard(index);
 }
 

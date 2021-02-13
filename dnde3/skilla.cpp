@@ -34,20 +34,6 @@ void skilla::sort() {
 	qsort(data, count, sizeof(data[0]), compare_skills);
 }
 
-skillu::skillu(creature* player) : player(player) {
+skillu::skillu() {
 	memset(cap, 0, sizeof(cap));
-}
-
-void skillu::setcaps() {
-	for(auto e : *this) {
-		auto n = player->get(e);
-		n += player->get(bsmeta<skilli>::elements[e].ability);
-		if(n > 100)
-			n = 100;
-		setcap(e, n);
-	}
-}
-
-int skillu::getcap(skill_s i, creature& player) const {
-	return cap[i];
 }
