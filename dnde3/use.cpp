@@ -36,7 +36,7 @@ bool creature::use(const creaturea& creatures, item& it) {
 					add(PoisonSpell, 1, true);
 			}
 		} else {
-			for(auto& e : bsmeta<foodi>()) {
+			for(auto& e : bsdata<foodi>()) {
 				if(!e.match(this, it))
 					continue;
 				use(e, it, true);
@@ -51,7 +51,7 @@ bool creature::use(const creaturea& creatures, item& it) {
 		if(d100() >= it.getdamage() * 10) {
 			switch(effect.type) {
 			case Ability:
-				potion((ability_s)effect.value, it.getkind(), true, it.getmagic(), it.getquality(), 120);
+				potion((ability_s)effect.value, it.getkind(), true, it.getmagic(), it.geti().quality, 120);
 				break;
 			case Spell:
 				use((spell_s)effect.value, *this, it.getbonus(), 0, true);
@@ -113,7 +113,7 @@ bool creature::use(const creaturea& creatures, item& it) {
 						auto index = 0;
 						for(auto p : creatures) {
 							if(effect.type == Ability)
-								p->potion((ability_s)effect.value, it.getkind(), true, Mundane, it.getquality(), 10);
+								p->potion((ability_s)effect.value, it.getkind(), true, Mundane, it.geti().quality, 10);
 							else
 								p->apply(*this, effect, 1, index, true);
 							index++;
@@ -158,7 +158,7 @@ bool creature::use(const creaturea& creatures, item& it) {
 }
 
 void creature::use(const foodi& fi, const item it, bool interactive) {
-	auto& ei = bsmeta<itemi>::elements[it.getkind()];
+	auto& ei = bsdata<itemi>::elements[it.getkind()];
 	if(fi.hp)
 		damage(-xrand(fi.hp / 2, fi.hp), Magic, 0, interactive);
 	if(fi.mp)
@@ -325,7 +325,7 @@ void creature::add(const effecti& e, item_s source) {
 }
 
 const char* creature::isusedisable(skill_s id) const {
-	auto& ei = bsmeta<skilli>::elements[id];
+	auto& ei = bsdata<skilli>::elements[id];
 	switch(id) {
 	case PickPockets:
 		if(hp < get(LifePoints))

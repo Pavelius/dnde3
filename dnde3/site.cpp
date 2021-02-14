@@ -1,6 +1,6 @@
 #include "main.h"
 
-DECLDATA(site, 128)
+BSDATAC(site, 128)
 
 void site::clear() {
 	memset(this, 0, sizeof(*this));
@@ -9,12 +9,12 @@ void site::clear() {
 }
 
 creature* site::getowner() const {
-	return (owner_id == Blocked) ? 0 : bsmeta<creature>::elements + owner_id;
+	return (owner_id == Blocked) ? 0 : bsdata<creature>::elements + owner_id;
 }
 
 const char* site::getdescription() const {
 	if(type == Room)
-		return bsmeta<roomi>::elements[value].text;
+		return bsdata<roomi>::elements[value].text;
 	return 0;
 }
 
@@ -24,7 +24,7 @@ site* site::find(indext index) {
 	point pt;
 	pt.x = location::getx(index);
 	pt.y = location::gety(index);
-	for(auto& e : bsmeta<site>()) {
+	for(auto& e : bsdata<site>()) {
 		if(!e)
 			continue;
 		if(pt.in(e))
@@ -47,7 +47,7 @@ creature* site::shopkeeper() {
 
 void site::unlink(const creature& player) {
 	auto id = player.getid();
-	for(auto& e : bsmeta<site>()) {
+	for(auto& e : bsdata<site>()) {
 		if(!e)
 			continue;
 		if(e.owner_id == id)

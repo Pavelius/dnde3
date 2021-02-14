@@ -1,6 +1,6 @@
 #include "main.h"
 
-template<> commandi bsmeta<commandi>::elements[] = {{1, 0, &gamei::addreputation},
+template<> commandi bsdata<commandi>::elements[] = {{1, 0, &gamei::addreputation},
 {-1, 0, &gamei::addreputation},
 {-4, &gamei::getreputation},
 {4, &gamei::getreputation},

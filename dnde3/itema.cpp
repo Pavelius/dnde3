@@ -33,7 +33,7 @@ void itema::selectg(variant v) {
 void itema::select(site& ei) {
 	auto ps = begin();
 	auto pe = endof();
-	for(auto& e : bsmeta<itemground>()) {
+	for(auto& e : bsdata<itemground>()) {
 		if(!e)
 			continue;
 		point pt;
@@ -54,7 +54,7 @@ void itema::select(indext index, bool extend) {
 	if(extend)
 		ps += count;
 	auto pe = endof();
-	for(auto& e : bsmeta<itemground>()) {
+	for(auto& e : bsdata<itemground>()) {
 		if(!e)
 			continue;
 		if(e.index != index)

@@ -105,5 +105,5 @@ void creature::chat(creature& opponent) {
 
 void creature::chat() {
 	creaturea creatures(*this);
-	bsmeta<spelli>::elements[ChatPerson].target.use(*this, creatures, ChatPerson, 0, true);
+	bsdata<spelli>::elements[ChatPerson].target.use(*this, creatures, ChatPerson, 0, true);
 }

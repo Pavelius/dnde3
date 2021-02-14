@@ -45,12 +45,12 @@ BSDATA(skilli) = {{"Торговля", "торговли", Charisma, {}, {Creature, {NotYou}, Cl
 assert_enum(skilli, LastSkill)
 
 skill_s	skilli::getid() const {
-	return skill_s(this - bsmeta<skilli>::elements);
+	return skill_s(this - bsdata<skilli>::elements);
 }
 
 bool creature::use(skill_s id, creature& player, int order, bool run) {
 	site* pst;
-	auto& ei = bsmeta<skilli>::elements[id];
+	auto& ei = bsdata<skilli>::elements[id];
 	switch(id) {
 	case HideInShadow:
 		if(is(Invisible))
@@ -246,7 +246,7 @@ bool item::use(skill_s id, creature& player, int order, bool run) {
 					break;
 				case Ability:
 					if(is(SingleUse)) {
-						if(bsmeta<itemi>::elements[type].skill == Alchemy)
+						if(bsdata<itemi>::elements[type].skill == Alchemy)
 							player.learnreceipt(v);
 						destroy(Magic, true);
 					}
@@ -363,7 +363,7 @@ bool creature::use(const creaturea& source, skill_s id) {
 			sb.add(pu, getstr(id));
 		return false;
 	}
-	auto& ei = bsmeta<skilli>::elements[id];
+	auto& ei = bsdata<skilli>::elements[id];
 	creaturea creatures = source; itema items; indexa indecies;
 	if(!ei.target.prepare(*this, creatures, items, indecies, id, get(id), true))
 		return false;

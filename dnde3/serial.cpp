@@ -11,11 +11,11 @@ static bool serial(location& e, const char* url, bool write_mode, bool overland)
 		return false;
 	archive a(file, write_mode);
 	a.set(e);
-	a.set(bsmeta<creature>::source);
+	a.set(bsdata<creature>::source);
 	if(!overland) {
-		a.set(bsmeta<site>::source);
-		a.set(bsmeta<boosti>::source);
-		a.set(bsmeta<itemground>::source);
+		a.set(bsdata<site>::source);
+		a.set(bsdata<boosti>::source);
+		a.set(bsdata<itemground>::source);
 	}
 	return true;
 }

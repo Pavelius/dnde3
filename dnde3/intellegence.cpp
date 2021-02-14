@@ -3,7 +3,7 @@
 struct intellegencei {
 	const char*		name;
 	dicei			range;
-	intellegence_s	getid() const { return intellegence_s(this - bsmeta<intellegencei>::elements); }
+	intellegence_s	getid() const { return intellegence_s(this - bsdata<intellegencei>::elements); }
 };
 
 BSDATA(intellegencei) = {{"неразумное существо", {0}},
@@ -22,7 +22,7 @@ assert_enum(intellegencei, GodInt)
 
 intellegence_s creature::getint() const {
 	auto v = get(Intellegence);
-	for(auto& e : bsmeta<intellegencei>()) {
+	for(auto& e : bsdata<intellegencei>()) {
 		if(v <= e.range.min)
 			return e.getid();
 	}
@@ -31,6 +31,6 @@ intellegence_s creature::getint() const {
 
 bool creature::is(intellegence_s v) const {
 	auto i = get(Intellegence);
-	auto& e = bsmeta<intellegencei>::elements[v];
+	auto& e = bsdata<intellegencei>::elements[v];
 	return i >= e.range.min;
 }

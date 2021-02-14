@@ -33,7 +33,7 @@ assert_enum(spelli, LastSpell)
 bool creature::use(spell_s id, creature& player, int level, int order, bool run) {
 	if(finds(id))
 		return false; // Not allow two spells be effected
-	auto& ei = bsmeta<spelli>::elements[id];
+	auto& ei = bsdata<spelli>::elements[id];
 	switch(id) {
 	case ArmorSpell:
 		if(run) {
@@ -179,7 +179,7 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 	case SummonAlly:
 		if(run) {
 			for(auto i = 0; i < level; i++) {
-				auto p = bsmeta<creature>::addz();
+				auto p = bsdata<creature>::addz();
 				if(!p)
 					continue;
 				auto index = loc.getfree(getposition());
@@ -278,7 +278,7 @@ bool location::use(indext index, spell_s id, creature& player, int level, int or
 bool creature::use(const creaturea& source, spell_s id, int level, item* magic_source, bool show_errors) {
 	if(!(*this))
 		return true;
-	auto& ei = bsmeta<spelli>::elements[id];
+	auto& ei = bsdata<spelli>::elements[id];
 	if(magic_source) {
 		if(magic_source->ischargeable() && !magic_source->getcharges()) {
 			if(isactive())

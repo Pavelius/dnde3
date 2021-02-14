@@ -8,7 +8,7 @@ variant variantc::random() const {
 
 void variantc::additems(slot_s v, int level) {
 	for(auto i = item_s(1); i < ManyItems; i = (item_s)(i + 1)) {
-		auto& ei = bsmeta<itemi>::elements[i];
+		auto& ei = bsdata<itemi>::elements[i];
 		if(!ei.is(v))
 			continue;
 		add(i);
@@ -17,7 +17,7 @@ void variantc::additems(slot_s v, int level) {
 
 void variantc::additems(slota source, int level) {
 	for(auto i = item_s(1); i < ManyItems; i = (item_s)(i + 1)) {
-		auto& ei = bsmeta<itemi>::elements[i];
+		auto& ei = bsdata<itemi>::elements[i];
 		if(!ei.level || ei.level > level)
 			continue;
 		if(!ei.is(source))
@@ -32,7 +32,7 @@ void variantc::match(slot_s v, bool remove) {
 		bool result;
 		switch(e.type) {
 		case Item:
-			result = bsmeta<itemi>::elements[e.value].is(v);
+			result = bsdata<itemi>::elements[e.value].is(v);
 			break;
 		default:
 			continue;
@@ -50,10 +50,10 @@ void variantc::matchp(int value, bool greater) {
 		if(e.type != Item)
 			continue;
 		if(greater) {
-			if(bsmeta<itemi>::elements[e.value].cost < value)
+			if(bsdata<itemi>::elements[e.value].cost < value)
 				continue;
 		} else {
-			if(bsmeta<itemi>::elements[e.value].cost > value)
+			if(bsdata<itemi>::elements[e.value].cost > value)
 				continue;
 		}
 		*ps++ = e;
@@ -67,10 +67,10 @@ void variantc::match(itemflag_s v, bool remove) {
 		if(e.type != Item)
 			continue;
 		if(remove) {
-			if(bsmeta<itemi>::elements[e.value].flags.is(v))
+			if(bsdata<itemi>::elements[e.value].flags.is(v))
 				continue;
 		} else {
-			if(!bsmeta<itemi>::elements[e.value].flags.is(v))
+			if(!bsdata<itemi>::elements[e.value].flags.is(v))
 				continue;
 		}
 		*ps++ = e;

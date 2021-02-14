@@ -78,7 +78,7 @@ void creaturea::matchr(indext index, int range) {
 void creaturea::select() {
 	auto ps = data;
 	auto pe = endof();
-	for(auto& e : bsmeta<creature>()) {
+	for(auto& e : bsdata<creature>()) {
 		if(!e)
 			continue;
 		if(ps < pe)
@@ -90,7 +90,7 @@ void creaturea::select() {
 void creaturea::select(state_s v) {
 	auto ps = data;
 	auto pe = endof();
-	for(auto& e : bsmeta<creature>()) {
+	for(auto& e : bsdata<creature>()) {
 		if(!e)
 			continue;
 		if(!e.is(v))
@@ -104,7 +104,7 @@ void creaturea::select(state_s v) {
 void creaturea::select(indext start, int distance, bool visible) {
 	auto ps = data;
 	auto pe = endof();
-	for(auto& e : bsmeta<creature>()) {
+	for(auto& e : bsdata<creature>()) {
 		if(!e)
 			continue;
 		auto i = e.getposition();

@@ -40,7 +40,7 @@ int statable::get(variant i) const {
 }
 
 int statable::getcap(skill_s v) const {
-	return abilities[bsmeta<skilli>::elements[v].ability];
+	return abilities[bsdata<skilli>::elements[v].ability];
 }
 
 dicei statable::getraise(skill_s v) const {
@@ -83,7 +83,7 @@ void statable::apply(varianta source) {
 }
 
 void statable::raise(role_s role, class_s type) {
-	auto& ei = bsmeta<classi>::elements[type];
+	auto& ei = bsdata<classi>::elements[type];
 	abilities[Attack] += ei.weapon.multiplier;
 	if(abilities[Level] == 1 && role == Character) {
 		abilities[LifePoints] += ei.hp;
@@ -94,15 +94,15 @@ void statable::raise(role_s role, class_s type) {
 		if(ei.mp)
 			abilities[ManaPoints] += xrand(1, ei.mp);
 	}
-	for(auto& pi : bsmeta<leveli>()) {
+	for(auto& pi : bsdata<leveli>()) {
 		if(pi.type == role && pi.level == abilities[Level])
 			apply(pi.features);
 	}
 }
 
 void statable::create(class_s type, race_s race) {
-	const auto& ri = bsmeta<racei>::elements[race];
-	const auto& ci = bsmeta<classi>::elements[type];
+	const auto& ri = bsdata<racei>::elements[race];
+	const auto& ci = bsdata<classi>::elements[type];
 	// Create base abilities
 	abilities[Level] = 0;
 	abilities[Attack] += ci.weapon.base;

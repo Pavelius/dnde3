@@ -24,7 +24,7 @@ void creature::usetrap() {
 	auto t = loc.gettrap(i);
 	if(!t)
 		return;
-	auto& ei = bsmeta<trapi>::elements[t];
+	auto& ei = bsdata<trapi>::elements[t];
 	auto bonus = ei.modifier;
 	if(loc.is(i, Hidden))
 		bonus -= 20;

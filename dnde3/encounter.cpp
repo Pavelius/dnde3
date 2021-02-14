@@ -60,7 +60,7 @@ bool encounter::match(variant v) {
 }
 
 encounter* encounter::getrandom(tile_s landscape) {
-	for(auto& e : bsmeta<encounter>()) {
+	for(auto& e : bsdata<encounter>()) {
 		auto chance = 30;
 		if(d100() >= chance)
 			continue;

@@ -152,11 +152,11 @@ BSDATA(nameablei) = {{Human, Male, "Хавки"},
 };
 
 static unsigned short getrandomname(race_s race, gender_s gender) {
-	const auto max_count = sizeof(bsmeta<nameablei>::elements) / sizeof(bsmeta<nameablei>::elements[0]);
+	const auto max_count = sizeof(bsdata<nameablei>::elements) / sizeof(bsdata<nameablei>::elements[0]);
 	unsigned short data[max_count];
 	auto p = data;
 	for(unsigned i = 0; i < max_count; i++) {
-		if(bsmeta<nameablei>::elements[i].race == race && bsmeta<nameablei>::elements[i].gender == gender)
+		if(bsdata<nameablei>::elements[i].race == race && bsdata<nameablei>::elements[i].gender == gender)
 			*p++ = i;
 	}
 	unsigned count = p - data;
@@ -171,10 +171,10 @@ void nameable::randomname() {
 	case Role:
 		break;
 	case Room:
-		ri = bsmeta<roomi>::elements + value;
+		ri = bsdata<roomi>::elements + value;
 		if(ri->name) {
-			name[0] = bsmeta<adjectivei>::source.random();
-			name[1] = bsmeta<objectivei>::source.random();
+			name[0] = bsdata<adjectivei>::source.random();
+			name[1] = bsdata<objectivei>::source.random();
 		} else {
 			if(ri->name1)
 				name[0] = rand() % ri->name1.getcount();
@@ -193,18 +193,18 @@ gender_s nameable::getgender() const {
 	if(ischaracter()) {
 		if(name[0] == Blocked)
 			return Male;
-		return bsmeta<nameablei>::elements[name[0]].gender;
+		return bsdata<nameablei>::elements[name[0]].gender;
 	}
-	return bsmeta<rolei>::elements[value].gender;
+	return bsdata<rolei>::elements[value].gender;
 }
 
 race_s nameable::getrace() const {
 	if(ischaracter()) {
 		if(name[0] == Blocked)
 			return Human;
-		return bsmeta<nameablei>::elements[name[0]].race;
+		return bsdata<nameablei>::elements[name[0]].race;
 	}
-	return bsmeta<rolei>::elements[value].race;
+	return bsdata<rolei>::elements[value].race;
 }
 
 const char* nameable::getname() const {
@@ -213,10 +213,10 @@ const char* nameable::getname() const {
 		if(ischaracter()) {
 			if(name[0] == Blocked)
 				return "Павел";
-			return bsmeta<nameablei>::elements[name[0]].name;
+			return bsdata<nameablei>::elements[name[0]].name;
 		}
-		return bsmeta<rolei>::elements[value].name;
-	case Room: return bsmeta<roomi>::elements[value].name;
+		return bsdata<rolei>::elements[value].name;
+	case Room: return bsdata<roomi>::elements[value].name;
 	default: return "Что-то";
 	}
 }
@@ -225,11 +225,11 @@ void nameable::getname(stringbuilder& sb) const {
 	roomi* ri;
 	switch(type) {
 	case Room:
-		ri = bsmeta<roomi>::elements + value;
+		ri = bsdata<roomi>::elements + value;
 		if(ri->name) {
 			sb.add(ri->name,
-				bsmeta<adjectivei>::elements[name[0]].get(bsmeta<objectivei>::elements[name[1]].gender),
-				bsmeta<objectivei>::elements[name[1]].name);
+				bsdata<adjectivei>::elements[name[0]].get(bsdata<objectivei>::elements[name[1]].gender),
+				bsdata<objectivei>::elements[name[1]].name);
 		} else {
 			const char* p2 = "";
 			const char* n1 = "";
@@ -369,8 +369,8 @@ bool nameable::isactive() const {
 }
 
 site* nameable::getsite() const {
-	auto i = bsmeta<site>::source.indexof(this);
+	auto i = bsdata<site>::source.indexof(this);
 	if(i == -1)
 		return 0;
-	return bsmeta<site>::elements + i;
+	return bsdata<site>::elements + i;
 }

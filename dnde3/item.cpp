@@ -1,22 +1,16 @@
 #include "main.h"
 
-const int basic_enchantment_cost = 100;
-
-static const char* power_text[][3] = {{"обычное", "обычный", "обычная"},
-	{"улучшенное", "улучшенный", "улучшенная"},
-	{"сильное", "сильный", "сильная"},
-	{"могущественное", "могущественный", "могущественная"},
-};
 static const char* damage_text[] = {0, "Треснуло", "Повреждено", "Сломано"};
-
 static variant common_potions[] = {LifePoints, ManaPoints, DrunkenSpell};
-static variant uncommon_potions[] = {Strenght, Dexterity, Wisdow, Charisma, LifeRate, ManaRate, Level, Speed, PoisonSpell};
-static variant rare_potions[] = {Attack, Damage, Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma, Armor, Protection, Level};
+static variant uncommon_potions[] = {Strenght, Dexterity, Wisdow, Charisma, LifeRate, ManaRate, Level, Speed, Movement, PoisonSpell};
+static variant rare_potions[] = {Attack, Damage, Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma, Armor, Protection, Speed, Movement, Level};
 static variant weapon_enchanments[] = {{}, Attack, Damage, Speed, Strenght, Constitution};
-static variant swords_enchanments[] = {{}, Attack, Damage, Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma, Protection, LifePoints, ManaPoints, Speed};
-static variant common_rings[] = {Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma, Armor, Protection, LifePoints, ManaPoints, Speed};
+static variant swords_enchanments[] = {{}, Attack, Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma, Protection, LifePoints, ManaPoints, Speed};
+static variant common_rings[] = {Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
+Acid, Charm, Cold, Electricity, Fire, Poison, WaterAttack,
+Armor, Protection, LifePoints, ManaPoints, Speed};
 static variant common_boots[] = {{}, Constitution, Speed};
-static variant common_armor[] = {{}, Charisma, Wisdow, Armor, Speed};
+static variant common_armor[] = {{}, Charisma, Armor, Cold, Fire, Poison, Speed};
 static variant common_helm[] = {{}, Intellegence, Charisma};
 static variant common_bracers[] = {{}, FocusBows, Lockpicking, PickPockets, Dexterity, Protection};
 static variant wand_common_spells[] = {Domination, MagicMissile, ShokingGrasp, HealingSpell, ArmorSpell, CharmPerson, FearSpell, Invisibility, Repair, SickSpell, Sleep, Web};
@@ -66,26 +60,26 @@ BSDATA(itemi) = {
 	{"Стрела", "item51", 2, 3, 2 * CP, 0, Female, Wood, {Piercing, NoDice, 0, 0, NoItem, Arrow}, {}, {}, {}, Amunitions},
 	{"Болт", "item68", 1, 2, 1 * CP, 0, Male, Iron, {Piercing, NoDice, 0, 0, NoItem, Bolt}, {}, {}, {}, Amunitions},
 	{"Булыжник", "item580", 5, 3000, 4 * CP, 0, Male, Stone, {}},
-	{"Кожанная броня", "item10", 2, 1000, 5 * GP, 2, Female, Leather, {}, {0, 2, 15}, common_armor, {}, Torso},
-	{"Клепанная броня", "item43", 3, 1500, 15 * GP, 3, Female, Leather, {}, {0, 3, 15}, common_armor, {}, Torso},
-	{"Чешуйчатый доспех", "item11", 4, 2500, 30 * GP, 5, Male, Iron, {}, {1, 4, 25}, common_armor, {}, Torso},
-	{"Кольчуга", "item12", 5, 2600, 50 * GP, 6, Female, Iron, {}, {0, 5, 20}, common_armor, {}, Torso},
-	{"Бахрец", "item456", 6, 3000, 200 * GP, 8, Male, Iron, {}, {1, 5, 15}, common_armor, {}, Torso},
-	{"Латы", "item13", 10, 3500, 400 * GP, 10, Female, Iron, {}, {1, 6, 30}, common_armor, {}, Torso},
-	{"Щит", "item17", 3, 800, 0 * GP, 2, Male, Iron, {}, {0, 5, 25}, common_shield, {}, OffHand},
-	{"Шлем", "item28", 2, 100, 0 * GP, 1, Male, Iron, {}, {0, 3, 20}, common_helm, {}, Head},
-	{"Наручи", "item15", 2, 70, 0 * GP, 1, NoGender, Iron, {}, {0, 3, 15}, common_bracers, {}, Elbows},
-	{"Железные наручи", "item14", 6, 110, 0 * GP, 2, NoGender, Iron, {}, {1, 5, 20}, common_bracers, {}, Elbows},
+	{"Кожанная броня", "item10", 2, 1000, 5 * GP, 2, Female, Leather, {}, {0, 15}, common_armor, {}, Torso},
+	{"Клепанная броня", "item43", 3, 1500, 15 * GP, 3, Female, Leather, {}, {0, 15}, common_armor, {}, Torso},
+	{"Чешуйчатый доспех", "item11", 4, 2500, 30 * GP, 5, Male, Iron, {}, {1, 25}, common_armor, {}, Torso},
+	{"Кольчуга", "item12", 5, 2600, 50 * GP, 6, Female, Iron, {}, {1, 20}, common_armor, {}, Torso},
+	{"Бахрец", "item456", 6, 3000, 200 * GP, 8, Male, Iron, {}, {2, 15}, common_armor, {}, Torso},
+	{"Латы", "item13", 10, 3500, 400 * GP, 10, Female, Iron, {}, {3, 30}, common_armor, {}, Torso},
+	{"Щит", "item17", 3, 800, 0 * GP, 2, Male, Iron, {}, {0, 25}, common_shield, {}, OffHand},
+	{"Шлем", "item28", 2, 100, 0 * GP, 1, Male, Iron, {}, {0, 20}, common_helm, {}, Head},
+	{"Наручи", "item15", 2, 70, 0 * GP, 1, NoGender, Iron, {}, {0, 15}, common_bracers, {}, Elbows},
+	{"Железные наручи", "item14", 6, 110, 0 * GP, 2, NoGender, Iron, {}, {1, 20}, common_bracers, {}, Elbows},
 	{"Плащ", "item38", 1, 30, 10 * SP, 0, Male, Leather, {}, {0, 1}, common_cloack, {}, TorsoBack},
-	{"Плащ", "item39", 2, 30, 15 * GP, 0, Male, Leather, {}, {0, 2}, common_cloack, {}, TorsoBack},
-	{"Плащ", "item75", 3, 35, 20 * GP, 1, Female, Leather, {}, {0, 3}, common_cloack, {}, TorsoBack},
-	{"Плащ", "item314", 4, 35, 5 * GP, 1, Female, Leather, {}, {0, 3}, common_cloack, {}, TorsoBack},
-	{"Плащ", "item331", 8, 40, 5 * GP, 2, Female, Leather, {}, {1, 3, 5}, common_cloack, {}, TorsoBack},
+	{"Плащ", "item39", 2, 30, 15 * GP, 0, Male, Leather, {}, {0, 1}, common_cloack, {}, TorsoBack},
+	{"Плащ", "item75", 3, 35, 20 * GP, 1, Female, Leather, {}, {0, 2}, common_cloack, {}, TorsoBack},
+	{"Плащ", "item314", 4, 35, 5 * GP, 1, Female, Leather, {}, {0, 2}, common_cloack, {}, TorsoBack},
+	{"Плащ", "item331", 8, 40, 5 * GP, 2, Female, Leather, {}, {1, 3}, common_cloack, {}, TorsoBack},
 	{"Туфли", "item30", 1, 100, 5 * GP, 0, NoGender, Leather, {}, {0, 1}, common_boots, {}, Legs},
-	{"Сапоги", "item27", 2, 200, 10 * GP, 1, NoGender, Leather, {}, {0, 2, 5}, common_boots, {}, Legs},
-	{"Сапоги", "item58", 3, 400, 12 * GP, 1, NoGender, Iron, {}, {0, 3, 10}, common_boots, {}, Legs},
-	{"Сапоги", "item128", 4, 500, 15 * GP, 2, NoGender, Iron, {}, {0, 3, 10}, common_boots, {}, Legs},
-	{"Сапоги", "item149", 5, 600, 17 * GP, 3, NoGender, Iron, {}, {1, 4, 10}, common_boots, {}, Legs},
+	{"Сапоги", "item27", 2, 200, 10 * GP, 1, NoGender, Leather, {}, {0, 5}, common_boots, {}, Legs},
+	{"Сапоги", "item58", 3, 400, 12 * GP, 1, NoGender, Iron, {}, {0, 10}, common_boots, {}, Legs},
+	{"Сапоги", "item128", 4, 500, 15 * GP, 2, NoGender, Iron, {}, {0, 10}, common_boots, {}, Legs},
+	{"Сапоги", "item149", 5, 600, 17 * GP, 2, NoGender, Iron, {}, {1, 10}, common_boots, {}, Legs},
 	{"Еда", "item21", 3, 100, 5 * SP, 5, Female, Organic, {}, {}, {}, {}, Edible},
 	{"Яблоко", "item55", 1, 10, 5 * CP, 0, NoGender, Organic, {}, {}, {}, {}, Edible},
 	{"Хлеб хоббитов", "item240", 2, 50, 1 * SP, 1, Male, Organic, {}, {}, {}, {}, Edible},
@@ -187,8 +181,7 @@ item::item(item_s type, int level) {
 	auto chance_artifact = level / 3;
 	auto chance_magic = level * 2;
 	auto chance_cursed = 5;
-	auto chance_quality = 20 + level * 3;
-	create(type, chance_artifact, chance_magic, chance_cursed, chance_quality);
+	create(type, chance_artifact, chance_magic, chance_cursed);
 }
 
 variant itemi::randeffect() const {
@@ -209,7 +202,7 @@ inline bool roll2c(int cv) {
 	return d100() < cv;
 }
 
-void item::create(item_s item_type, int chance_artifact, int chance_magic, int chance_cursed, int chance_quality) {
+void item::create(item_s item_type, int chance_artifact, int chance_magic, int chance_cursed) {
 	clear();
 	type = item_type;
 	auto& ei = geti();
@@ -222,15 +215,6 @@ void item::create(item_s item_type, int chance_artifact, int chance_magic, int c
 		else
 			magic = Blessed;
 	}
-	quality = 0;
-	if(roll2c(chance_quality)) {
-		quality++;
-		if(roll2c(chance_quality / 2)) {
-			quality++;
-			if(roll2c(chance_quality / 4))
-				quality++;
-		}
-	}
 	if(ei.effects.data) {
 		if(ei.effects[0])
 			effect = rand() % ei.effects.getcount();
@@ -242,7 +226,7 @@ void item::create(item_s item_type, int chance_artifact, int chance_magic, int c
 		}
 	}
 	if(ischargeable())
-		charge = xrand(2, 4) + quality * 2;
+		charge = xrand(2, 4) + ei.quality * 2;
 	if(iscountable()) {
 		if(is(Edible))
 			setcount(xrand(1, 3));
@@ -252,10 +236,10 @@ void item::create(item_s item_type, int chance_artifact, int chance_magic, int c
 }
 
 creature* item::getwearer() const {
-	auto i = bsmeta<creature>::source.indexof((creature*)(this));
+	auto i = bsdata<creature>::source.indexof((creature*)(this));
 	if(i == -1)
 		return 0;
-	return (creature*)bsmeta<creature>::source.ptr(i);
+	return (creature*)bsdata<creature>::source.ptr(i);
 }
 
 slot_s item::getwearerslot() const {
@@ -274,19 +258,19 @@ void item::getstatistic(stringbuilder& sb) const {
 		auto ai = getattack();
 		if(ai.dice.max) {
 			if(ai.attack)
-				sb.adds("%1:%2i%%", bsmeta<abilityi>::elements[Attack].name_short, ai.attack);
+				sb.adds("%1:%2i%%", bsdata<abilityi>::elements[Attack].name_short, ai.attack);
 			if(ai.dice.max)
-				sb.adds("%1:%2i-%3i", bsmeta<abilityi>::elements[Damage].name_short, ai.dice.min, ai.dice.max);
+				sb.adds("%1:%2i-%3i", bsdata<abilityi>::elements[Damage].name_short, ai.dice.min, ai.dice.max);
 		}
-		if(ei.isarmor()) {
-			auto am = getarmor();
+		auto am = getarmor();
+		if(am.armor || am.deflect || am.protection) {
 			if(am.attack)
-				sb.adds("%1:%2i%%", bsmeta<abilityi>::elements[Attack].name_short, am.attack);
-			sb.adds("%1:%2i%%", bsmeta<abilityi>::elements[Armor].name_short, am.protection);
+				sb.adds("%1:%2i%%", bsdata<abilityi>::elements[Attack].name_short, am.attack);
+			sb.adds("%1:%2i%%", bsdata<abilityi>::elements[Armor].name_short, am.protection);
 			if(am.armor)
 				sb.adds("и %1i", am.armor);
 			if(am.deflect)
-				sb.adds("%1:%2i%%", bsmeta<abilityi>::elements[Deflect].name_short, am.deflect);
+				sb.adds("%1:%2i%%", bsdata<abilityi>::elements[Deflect].name_short, am.deflect);
 		}
 	}
 }
@@ -297,7 +281,7 @@ void item::getname(stringbuilder& sb, bool show_cab) const {
 	if(show_cab) {
 		if(is(KnownMagic)) {
 			if(getmagic())
-				sb.adds(bsmeta<item_typei>::elements[getmagic()].name[ei.gender]);
+				sb.adds(bsdata<item_typei>::elements[getmagic()].name[ei.gender]);
 		}
 	}
 	sb.adds("%-1", getname());
@@ -311,8 +295,8 @@ void item::getname(stringbuilder& sb, bool show_cab) const {
 				sb.adds(effect.getnameof());
 			switch(effect.type) {
 			case Ability:
-				format = bsmeta<abilityi>::elements[effect.value].format;
-				q = bsmeta<abilityi>::elements[effect.value].getbonus(q);
+				format = bsdata<abilityi>::elements[effect.value].format;
+				q = bsdata<abilityi>::elements[effect.value].getbonus(q);
 				break;
 			case Skill:
 				if(!is(Readable)) {
@@ -406,18 +390,24 @@ bool item::ismatch(variant v) const {
 	return false;
 }
 
+int item::getquality() const {
+	switch(magic) {
+	case Artifact: return 3;
+	case Blessed: return 1;
+	case Cursed: return -2;
+	default: return 0;
+	}
+}
+
 int	item::getbonus() const {
-	int m = quality;
+	int m = geti().quality;
 	if(identifyc) {
 		switch(magic) {
 		case Artifact: m += 2; break;
 		case Blessed: m += 1; break;
-		case Cursed: return -1 - quality;
+		case Cursed: return -1 - m;
 		}
 	}
-	auto& ei = geti();
-	if(ei.effects.count && ei.effects.data[effect])
-		m++;
 	return m;
 }
 
@@ -432,9 +422,11 @@ variant item::geteffect() const {
 itemi::armori item::getarmor() const {
 	auto& ei = geti();
 	auto result = ei.armor;
+	if(!result.armor && !result.deflect)
+		return result;
 	auto d = getdamage();
 	auto b = getbonus();
-	result.protection += ei.quality * 4 + (b - d) * result.protection_bonus;
+	result.protection += b * 4 - d * 2;
 	result.armor -= (d / 2);
 	if(result.armor < 0)
 		result.armor = 0;
@@ -450,8 +442,8 @@ attacki item::getattack() const {
 	auto b = getbonus();
 	attacki result;
 	result.type = ei.type;
-	result.attack = (geti().quality + b) * 4 - d * 2;
-	result.dice = bsmeta<dicei>::elements[ei.dice];
+	result.attack = b * 4 - d * 2;
+	result.dice = bsdata<dicei>::elements[ei.dice];
 	result.dice.min += ei.damage;
 	result.dice.max += ei.damage;
 	result.speed = ei.speed;
@@ -481,18 +473,12 @@ void item::set(identify_s v) {
 	}
 }
 
-void item::setquality(int v) {
-	auto p = getwearer();
-	quality = v;
-	getwearer()->prepare();
-}
-
 void item::loot() {
 	set(Unknown);
 }
 
 unsigned item::getcost() const {
-	auto& ei = bsmeta<itemi>::elements[type];
+	auto& ei = bsdata<itemi>::elements[type];
 	auto w = ei.cost;
 	auto m = 100;
 	if(sale == Sale75)
@@ -509,8 +495,7 @@ unsigned item::getcost() const {
 	}
 	if(is(KnownPower)) {
 		if(ei.slot >= Head && ei.slot <= Ranged) {
-			w += 5 * GP * quality;
-			if(ei.effects.count && !ei.effects[0] && geteffect())
+			if(geteffect())
 				w += 10 * GP;
 		}
 	}
@@ -558,7 +543,6 @@ bool item::islike(const item& v) const {
 		&& identifyc == v.identifyc
 		&& identifys == v.identifys
 		&& magic == v.magic
-		&& quality == v.quality
 		&& sale == v.sale;
 }
 
@@ -587,7 +571,7 @@ bool item::stack(item& v) {
 
 void item::destroy(damage_s type, bool interactive) {
 	if(interactive) {
-		auto& ei = bsmeta<itemi>::elements[getkind()];
+		auto& ei = bsdata<itemi>::elements[getkind()];
 		static descriptioni text[] = {
 			{Glass, Fire, "%герой расплавил%ась и взорвалась."},
 			{Glass, {}, "%герой разбил%ась вдребезги."},
@@ -608,12 +592,9 @@ void item::decoy() {
 	auto& ei = geti();
 	if(ei.slot != Edible)
 		return;
-	if(creature::rollv(40 + ei.quality * 10))
+	if(creature::rollv(40 + ei.quality * 20))
 		return;
-	if(quality)
-		quality--;
-	else
-		destroy(Magic, true);
+	destroy(Magic, true);
 }
 
 void item::decoy(damage_s type, bool interactive, bool include_artifact) {
@@ -634,10 +615,10 @@ void item::decoy(damage_s type, bool interactive, bool include_artifact) {
 void item::damage(int count, damage_s type, bool interactive) {
 	if(count < 0)
 		return;
-	auto& ei = bsmeta<itemi>::elements[getkind()];
+	auto& ei = bsdata<itemi>::elements[getkind()];
 	auto chance_resist = 70;
 	chance_resist -= count;
-	chance_resist += bsmeta<materiali>::elements[ei.material].resist.data[type];
+	chance_resist += bsdata<materiali>::elements[ei.material].resist.data[type];
 	chance_resist += getbonus() * 4;
 	if(chance_resist < 5)
 		chance_resist = 5;
@@ -659,7 +640,7 @@ void item::breaktest() {
 }
 
 bool item::iscountable() const {
-	return bsmeta<itemi>::elements[type].effects.data == 0;
+	return bsdata<itemi>::elements[type].effects.data == 0;
 }
 
 bool item::ischargeable() const {
@@ -685,7 +666,7 @@ const aref<variant> item::getreceipts() {
 }
 
 item_s item::findcorpse(role_s v) {
-	for(auto& e : bsmeta<itemi>()) {
+	for(auto& e : bsdata<itemi>()) {
 		if(!e.effects)
 			continue;
 		if(e.effects[0].type != Role)
@@ -697,7 +678,7 @@ item_s item::findcorpse(role_s v) {
 }
 
 item_s itemi::getid() const {
-	return item_s(this - bsmeta<itemi>::elements);
+	return item_s(this - bsdata<itemi>::elements);
 }
 
 void item::repair() {

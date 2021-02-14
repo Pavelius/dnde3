@@ -1,3 +1,3 @@
 #include "main.h"
 
-DECLDATA(itemground, 1024);
+BSDATAC(itemground, 1024);

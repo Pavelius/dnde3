@@ -47,7 +47,7 @@ struct imgi {
 	const sprite*	data;
 	bool			notfound;
 };
-imgi bsmeta<imgi>::elements[] = {{""},
+imgi bsdata<imgi>::elements[] = {{""},
 {"blood", "art"},
 {"grass", "art"},
 {"grass_w", "art"},
@@ -95,7 +95,7 @@ static picture trail_images[] = {{}, {ResTrail, 6, ImageMirrorV}, {ResTrail, 6},
 };
 
 static const sprite* gres(img_s i) {
-	auto& e = bsmeta<imgi>::elements[i];
+	auto& e = bsdata<imgi>::elements[i];
 	if(e.notfound)
 		return 0;
 	if(!e.data) {
@@ -109,7 +109,7 @@ static const sprite* gres(img_s i) {
 		if(!e.data)
 			e.notfound = true;
 	}
-	return bsmeta<imgi>::elements[i].data;
+	return bsdata<imgi>::elements[i].data;
 }
 
 void draw::execute(eventproc proc, int param) {
@@ -607,7 +607,7 @@ static void render_info(const creature& e) {
 	for(auto i = Darkvision; i <= LastState; i = (state_s)(i + 1)) {
 		if(!e.is(i))
 			continue;
-		auto& ei = bsmeta<statei>::elements[i];
+		auto& ei = bsdata<statei>::elements[i];
 		if(ei.flags.is(Friendly))
 			continue;
 		x += texth(x, y, ei.name, ei.flags.is(Hostile) ? 2 : 0);
@@ -790,7 +790,7 @@ void location::indoor(point camera, bool show_fow, const picture* effects) {
 	int y0 = 0;
 	// Инициализируем видимые юниты
 	memset(units, 0, sizeof(units));
-	for(auto& e : bsmeta<creature>()) {
+	for(auto& e : bsdata<creature>()) {
 		if(!e)
 			continue;
 		auto i0 = e.getposition();
@@ -889,7 +889,7 @@ void location::indoor(point camera, bool show_fow, const picture* effects) {
 		}
 	}
 	// Предметы на земле
-	for(auto& e : bsmeta<itemground>()) {
+	for(auto& e : bsdata<itemground>()) {
 		if(!e)
 			continue;
 		point pt;
@@ -965,12 +965,12 @@ void location::indoor(point camera, bool show_fow, const picture* effects) {
 					draw::image(x, y, doors, 2 + r, 0);
 				break;
 			default:
-				if(bsmeta<map_objecti>::elements[t].start) {
-					auto c = bsmeta<map_objecti>::elements[t].count;
+				if(bsdata<map_objecti>::elements[t].start) {
+					auto c = bsdata<map_objecti>::elements[t].count;
 					if(c)
-						image(x, y, gres(ResFeature), bsmeta<map_objecti>::elements[t].start + getrand(i) % c, 0);
+						image(x, y, gres(ResFeature), bsdata<map_objecti>::elements[t].start + getrand(i) % c, 0);
 					else
-						image(x, y, gres(ResFeature), bsmeta<map_objecti>::elements[t].start, 0);
+						image(x, y, gres(ResFeature), bsdata<map_objecti>::elements[t].start, 0);
 				}
 				break;
 			}
@@ -1157,8 +1157,8 @@ int	answeri::menuv(bool allow_cancel, const char* format) const {
 	return getresult();
 }
 
-static void render_item(int x, int y, int width, const item& e, bool show_damage = false) {
-	if(!e)
+static void render_item(int x, int y, int width, const item& e, bool show_damage = false, bool show_empthy = false) {
+	if(!show_empthy && !e)
 		return;
 	auto ps_fore = fore;
 	if(e.is(KnownMagic)) {
@@ -1172,7 +1172,7 @@ static void render_item(int x, int y, int width, const item& e, bool show_damage
 	e.getname(sb, false);
 	szupper(temp, 1);
 	text(x, y, temp);
-	if(e.is(KnownStats)) {
+	if(e.is(KnownStats) || !e) {
 		sb.clear();
 		e.getstatistic(sb);
 		text(x + width - 160, y, temp);
@@ -1208,9 +1208,9 @@ static void render(int& x, int y, int width, const item& e, slot_mode_s mode) {
 	const char* name = 0;
 	if(slot >= Head && slot <= LastWear) {
 		if(mode == SlotWhere)
-			name = bsmeta<sloti>::elements[slot].name_where;
+			name = bsdata<sloti>::elements[slot].name_where;
 		else
-			name = bsmeta<sloti>::elements[slot].name;
+			name = bsdata<sloti>::elements[slot].name;
 	}
 	if(name)
 		text(x, y, name);
@@ -1324,10 +1324,9 @@ item* itema::choose(const char* interactive, const char* format, slot_mode_s mod
 				if(button(x0, y, 0, answeri::getkey(index), 0))
 					execute(breakparam, (int)e);
 				x0 += 22;
-				//if((index + 1) % 2)
-				//	rectf({x, y, x + width, y + texth() + 1}, colors::white, 4);
 				render(x0, y, 110, *e, mode);
-				render_item(x0, y, x2 - x0 - 72, *e, mode == NoSlotName);
+				auto slot = e->getwearerslot();
+				render_item(x0, y, x2 - x0 - 72, *e, mode == NoSlotName, slot==Melee);
 				render_weight(x0, y, x2 - x0, *e);
 				index++;
 				y += texth() + 4;
@@ -1367,11 +1366,11 @@ int indexa::choose(const char* interactive) {
 			if(!text_answer) {
 				auto o = loc.getobject(current_index);
 				if(o)
-					text_answer = bsmeta<map_objecti>::elements[o].name;
+					text_answer = bsdata<map_objecti>::elements[o].name;
 			}
 			if(!text_answer) {
 				auto t = loc.gettile(current_index);
-				text_answer = bsmeta<tilei>::elements[t].name;
+				text_answer = bsdata<tilei>::elements[t].name;
 			}
 			if(text_answer)
 				sb.adds("[%1].", text_answer);
@@ -1426,7 +1425,7 @@ spell_s spella::choose(const char* interactive, const char* title, bool* cancel_
 			text(x0, y, getstr(e)); x0 += 220;
 			if(player)
 				x0 += text(x0, y, 46, player->get(e), "%1i ранг");
-			x0 += text(x0, y, 100, bsmeta<spelli>::elements[e].mp, "%1i маны");
+			x0 += text(x0, y, 100, bsdata<spelli>::elements[e].mp, "%1i маны");
 			index++;
 			y += texth() + 4;
 		}
@@ -1479,7 +1478,7 @@ static void view_legends(point origin, bool fow) {
 	auto number = 1;
 	auto x1 = origin.x + mmx*mmaps + 40;
 	auto y1 = origin.y;
-	for(auto& e : bsmeta<site>()) {
+	for(auto& e : bsdata<site>()) {
 		auto index = e.getposition();
 		if(index == Blocked)
 			continue;
@@ -2015,7 +2014,7 @@ void location::worldmap(point camera, bool show_fow) const {
 	screen.x1 = x0 + camera.x; screen.x2 = screen.x1 + getwidth() - 1;
 	screen.y1 = y0 + camera.y; screen.y2 = screen.y1 + getheight() - 1;
 	screen.offset(-64, -64);
-	for(auto& e : bsmeta<outdoori>()) {
+	for(auto& e : bsdata<outdoori>()) {
 		auto i = e.getposition();
 		if(i == Blocked)
 			continue;

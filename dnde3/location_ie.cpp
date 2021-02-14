@@ -37,9 +37,9 @@ public:
 			delete p;
 	}
 	tile_s findtile(char symbol) const {
-		for(auto& e : bsmeta<tilei>()) {
+		for(auto& e : bsdata<tilei>()) {
 			if(e.symbol == symbol)
-				return (tile_s)(&e - bsmeta<tilei>::elements);
+				return (tile_s)(&e - bsdata<tilei>::elements);
 		}
 		return Plain;
 	}
@@ -51,7 +51,7 @@ public:
 					if(i == Blocked)
 						continue;
 					auto t = loc.gettile(i);
-					file.write(&bsmeta<tilei>::elements[t].symbol, sizeof(bsmeta<tilei>::elements[t].symbol));
+					file.write(&bsdata<tilei>::elements[t].symbol, sizeof(bsdata<tilei>::elements[t].symbol));
 				}
 				write("\r\n");
 			}

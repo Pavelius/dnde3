@@ -16,12 +16,12 @@ public:
 		auto pe = boosts.end();
 		for(auto& player : players) {
 			auto owner_id = &player - players.data;
-			auto p1 = bsmeta<creature>::addz();
+			auto p1 = bsdata<creature>::addz();
 			if(p1)
 				*p1 = player;
 			while(pb < pe && pb->owner_id == owner_id) {
 				if(p1) {
-					auto p2 = bsmeta<boosti>::add();
+					auto p2 = bsdata<boosti>::add();
 					if(p2) {
 						*p2 = *pb;
 						p2->owner_id = p1->getid();
@@ -38,7 +38,7 @@ public:
 		auto sb = boosts.begin();
 		auto sbe = boosts.end();
 		auto spb = sp;
-		for(auto& player : bsmeta<creature>()) {
+		for(auto& player : bsdata<creature>()) {
 			if(!player)
 				continue;
 			if(!player.is(Friendly))
@@ -49,8 +49,8 @@ public:
 				*sp = player;
 			// Store boost
 			auto owner_id = player.getid();
-			auto pb = bsmeta<boosti>::elements;
-			for(auto& b : bsmeta<boosti>()) {
+			auto pb = bsdata<boosti>::elements;
+			for(auto& b : bsdata<boosti>()) {
 				if(b.owner_id == owner_id) {
 					if(sp < spe && sb < sbe) {
 						*sb = b;
@@ -60,7 +60,7 @@ public:
 				} else
 					*pb++ = b;
 			}
-			bsmeta<boosti>::source.setcount(pb - bsmeta<boosti>::elements);
+			bsdata<boosti>::source.setcount(pb - bsdata<boosti>::elements);
 			player.clear();
 			if(sp < spe)
 				sp++;
@@ -87,7 +87,7 @@ static void update_los() {
 }
 
 static void move_creatures() {
-	for(auto& e : bsmeta<creature>()) {
+	for(auto& e : bsdata<creature>()) {
 		if(!e)
 			continue;
 		e.makemove();
@@ -95,7 +95,7 @@ static void move_creatures() {
 }
 
 static void move_creatures_overland() {
-	for(auto& e : bsmeta<creature>()) {
+	for(auto& e : bsdata<creature>()) {
 		if(!e)
 			continue;
 		e.makemove();
@@ -105,7 +105,7 @@ static void move_creatures_overland() {
 int	gamei::get(skill_s v) const {
 	auto total = 0;
 	auto count = 0;
-	for(auto& e : bsmeta<creature>()) {
+	for(auto& e : bsdata<creature>()) {
 		if(!e)
 			continue;
 		total += e.get(v);
@@ -146,7 +146,7 @@ void gamei::playactive() {
 }
 
 static void apply(creature::papply p) {
-	for(auto& e : bsmeta<creature>()) {
+	for(auto& e : bsdata<creature>()) {
 		if(e)
 			(e.*p)();
 	}
@@ -194,7 +194,7 @@ bool gamei::enter(int level, map_object_s stairs) {
 	if(level > 0) {
 		auto start_position = loc.find(stairs);
 		if(start_position == Blocked) {
-			auto& ei = bsmeta<landscapei>::elements[loc.type];
+			auto& ei = bsdata<landscapei>::elements[loc.type];
 			auto dir = Right;
 			if(creature::getactive())
 				dir = creature::getactive()->getdirection();
@@ -202,7 +202,7 @@ bool gamei::enter(int level, map_object_s stairs) {
 		}
 		if(start_position == Blocked)
 			start_position = loc.get(mmx / 2, mmy / 2);
-		for(auto& e : bsmeta <creature>()) {
+		for(auto& e : bsdata <creature>()) {
 			if(e && e.is(Friendly))
 				e.setposition(loc.getfree(start_position));
 		}
@@ -253,16 +253,16 @@ void gamei::play() {
 }
 
 void gamei::applyboost() {
-	auto ps = bsmeta<boosti>::elements;
-	for(auto& e : bsmeta<boosti>()) {
-		auto player = bsmeta<creature>::elements + e.owner_id;
+	auto ps = bsdata<boosti>::elements;
+	for(auto& e : bsdata<boosti>()) {
+		auto player = bsdata<creature>::elements + e.owner_id;
 		if(e.time > rounds) {
 			*ps++ = e;
 			continue;
 		}
 		player->add(e.id, e.modifier, player->is(Friendly));
 	}
-	bsmeta<boosti>::source.setcount(ps - bsmeta<boosti>::elements);
+	bsdata<boosti>::source.setcount(ps - bsdata<boosti>::elements);
 }
 
 void gamei::use(map_object_s v) {
@@ -271,7 +271,7 @@ void gamei::use(map_object_s v) {
 
 void gamei::updatepos() {
 	auto index = getposition();
-	for(auto& e : bsmeta<creature>()) {
+	for(auto& e : bsdata<creature>()) {
 		if(!e || !e.is(Friendly))
 			continue;
 		e.look(index);
@@ -302,7 +302,7 @@ void gamei::move(indext index) {
 			return;
 		}
 		difficult += OverlandEnergyCost * 300 / 100;
-		for(auto& e : bsmeta<creature>()) {
+		for(auto& e : bsdata<creature>()) {
 			if(!e || !e.is(Friendly))
 				continue;
 			if(!e.roll(Climbing)) {
@@ -337,7 +337,7 @@ void gamei::setposition(indext v) {
 	tile = loc.gettile(v);
 	auto p = outdoori::find(v);
 	if(p) {
-		outdoor_id = p - bsmeta<outdoori>::elements;
+		outdoor_id = p - bsdata<outdoori>::elements;
 		if(p->descriptor)
 			sb.add(p->descriptor);
 	}
@@ -348,7 +348,7 @@ void gamei::wait() {
 }
 
 item* gamei::find(item_s v) const {
-	for(auto& e : bsmeta<creature>()) {
+	for(auto& e : bsdata<creature>()) {
 		if(!e || !e.is(Friendly))
 			continue;
 		auto r = e.finditem(v);
@@ -360,12 +360,12 @@ item* gamei::find(item_s v) const {
 
 const dungeoni* gamei::getdungeon() const {
 	if(outdoor_id == Blocked)
-		return bsmeta<tilei>::elements[tile].wilderness;
-	return bsmeta<outdoori>::elements[outdoor_id].levels;
+		return bsdata<tilei>::elements[tile].wilderness;
+	return bsdata<outdoori>::elements[outdoor_id].levels;
 }
 
 bool gamei::is(variant v) const {
-	for(auto& e : bsmeta<creature>()) {
+	for(auto& e : bsdata<creature>()) {
 		if(!e || !e.is(Friendly))
 			continue;
 		if(e.match(v))
@@ -375,12 +375,12 @@ bool gamei::is(variant v) const {
 }
 
 void gamei::decoyfood() {
-	for(auto& e : bsmeta<creature>()) {
+	for(auto& e : bsdata<creature>()) {
 		if(!e)
 			continue;
 		e.decoyfood();
 	}
-	for(auto& e : bsmeta<itemground>()) {
+	for(auto& e : bsdata<itemground>()) {
 		if(!e)
 			continue;
 		e.decoy();

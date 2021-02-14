@@ -9,12 +9,12 @@
 #define maprnd(t) t[rand()%(sizeof(t)/sizeof(t[0]))]
 #define lenof(t) (sizeof(t)/sizeof(t[0]))
 #define zendof(t) (t + sizeof(t)/sizeof(t[0]) - 1)
-#define BSDATA(e) template<> e bsmeta<e>::elements[]
-#define DECLFULL(e) template<> array bsmeta<e>::source(bsmeta<e>::elements);
-#define assert_enum(e, last) static_assert(sizeof(bsmeta<e>::elements) / sizeof(bsmeta<e>::elements[0]) == last + 1, "Invalid count of " #e " elements"); DECLFULL(e)
-#define DECLENUM(e) template<> struct bsmeta<e##_s> : bsmeta<e##i> {}
-#define DECLDATA(e, n) template<> e bsmeta<e>::elements[n];\
-template<> array bsmeta<e>::source(bsmeta<e>::elements, sizeof(bsmeta<e>::elements[0]), 0, sizeof(bsmeta<e>::elements)/sizeof(bsmeta<e>::elements[0]));
+#define BSDATA(e) template<> e bsdata<e>::elements[]
+#define DECLFULL(e) template<> array bsdata<e>::source(bsdata<e>::elements);
+#define assert_enum(e, last) static_assert(sizeof(bsdata<e>::elements) / sizeof(bsdata<e>::elements[0]) == last + 1, "Invalid count of " #e " elements"); DECLFULL(e)
+#define DECLENUM(e) template<> struct bsdata<e##_s> : bsdata<e##i> {}
+#define BSDATAC(e, n) template<> e bsdata<e>::elements[n];\
+template<> array bsdata<e>::source(bsdata<e>::elements, sizeof(bsdata<e>::elements[0]), 0, sizeof(bsdata<e>::elements)/sizeof(bsdata<e>::elements[0]));
 
 extern "C" int						atexit(void(*func)(void));
 extern "C" void*					bsearch(const void* key, const void *base, unsigned num, unsigned size, int(*compar)(const void *, const void *));
@@ -198,36 +198,36 @@ public:
 	void					reserve(unsigned count);
 };
 struct bsreq;
-template<typename T> struct bsmeta {
+template<typename T> struct bsdata {
 	typedef T				data_type;
 	static T				elements[];
 	static const bsreq		meta[];
 	static array			source;
 	static constexpr array*	source_ptr = &source;
 	//
-	static T*				addz() { for(auto& e : bsmeta()) if(!e) return &e; return add(); }
+	static T*				addz() { for(auto& e : bsdata()) if(!e) return &e; return add(); }
 	static T*				add() { return (T*)source.add(); }
 	static T*				begin() { return (T*)source.begin(); }
 	static T*				end() { return (T*)source.end(); }
 };
-template<> struct bsmeta<int> {
+template<> struct bsdata<int> {
 	typedef int				data_type;
 	static const bsreq		meta[];
 	static constexpr array*	source_ptr = 0;
 };
-template<> struct bsmeta<const char*> : bsmeta<int> {
+template<> struct bsdata<const char*> : bsdata<int> {
 	typedef const char*		data_type;
 	static const bsreq		meta[];
 };
-template<> struct bsmeta<bsreq> : bsmeta<int> {
+template<> struct bsdata<bsreq> : bsdata<int> {
 	typedef bsreq			data_type;
 	static const bsreq		meta[];
 };
-template<> struct bsmeta<unsigned char> : bsmeta<int> {};
-template<> struct bsmeta<char> : bsmeta<int> {};
-template<> struct bsmeta<unsigned short> : bsmeta<int> {};
-template<> struct bsmeta<short> : bsmeta<int> {};
-template<> struct bsmeta<unsigned> : bsmeta<int> {};
+template<> struct bsdata<unsigned char> : bsdata<int> {};
+template<> struct bsdata<char> : bsdata<int> {};
+template<> struct bsdata<unsigned short> : bsdata<int> {};
+template<> struct bsdata<short> : bsdata<int> {};
+template<> struct bsdata<unsigned> : bsdata<int> {};
 //
 int									getdigitscount(unsigned number); // Get digits count of number. For example if number=100, result be 3.
 template<class T> const char*		getstr(T e); // Template to return string of small class
@@ -283,8 +283,8 @@ template<class T> inline void		seqclear(T* p) { T* z = p->next; while(z) { T* n 
 template<class T> inline T*			seqlast(T* p) { while(p->next) p = p->next; return p; } // Return last element in sequence.
 template<class T> inline void		seqlink(T* p) { p->next = 0; if(!T::first) T::first = p; else seqlast(T::first)->next = p; }
 // Inline strings functions
-template<class T> const char*		getstr(const T e) { return bsmeta<T>::elements[e].name; }
-template<class T> int				getbsid(const T* e) { return e - bsmeta<T>::elements; }
+template<class T> const char*		getstr(const T e) { return bsdata<T>::elements[e].name; }
+template<class T> int				getbsid(const T* e) { return e - bsdata<T>::elements; }
 template<class T> inline const T*	zchr(const T* p, T e) { while(*p) { if(*p == e) return p; p++; } return 0; }
 template<class T> inline void		zcpy(T* p1, const T* p2) { while(*p2) *p1++ = *p2++; *p1 = 0; }
 template<class T> inline void		zcpy(T* p1, const T* p2, int max_count) { while(*p2 && max_count-- > 0) *p1++ = *p2++; *p1 = 0; }

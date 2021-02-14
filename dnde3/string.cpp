@@ -64,7 +64,7 @@ void string::addidentifier(const char* identifier) {
 	else if(opponent_name && strcmp(identifier, "оппоненту") == 0)
 		addto(opponent_name);
 	else if(player && strcmp(identifier, "раса") == 0)
-		add(bsmeta<racei>::elements[player->getrace()].name);
+		add(bsdata<racei>::elements[player->getrace()].name);
 	else if(player && strcmp(identifier, "класс") == 0)
 		add(player->getclass().name);
 	else if(player && strcmp(identifier, "имя") == 0)

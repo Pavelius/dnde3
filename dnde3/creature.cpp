@@ -1,10 +1,11 @@
 #include "main.h"
 
-DECLDATA(creature, 256)
+BSDATAC(creature, 256)
 
 static creature*	current_player;
 static int			skill_level[] = {30, 60, 90};
 static const char*	skill_names[] = {"Новичек", "Специалист", "Эксперт", "Мастер"};
+static slot_s		armor_slots[] = {Head, TorsoBack, Torso, OffHand, Elbows, Legs};
 static int			experience_count[] = {
 	0, 100, 1000, 2500, 4500, 7000, 10000, 13500, 17500, 22000,
 	27000, 35000, 50000,
@@ -33,11 +34,11 @@ creature* creature::getactive() {
 short unsigned creature::getid() const {
 	if(!this)
 		return Blocked;
-	return this - bsmeta<creature>::elements;
+	return this - bsdata<creature>::elements;
 }
 
 void creature::feel(ability_s id, bool raise) {
-	auto& ei = bsmeta<abilityi>::elements[id];
+	auto& ei = bsdata<abilityi>::elements[id];
 	act("%герой почувстовал%а себя %1.", raise ? ei.name_how : ei.curse_how);
 }
 
@@ -57,13 +58,13 @@ void creature::add(state_s id, int v, bool interactive) {
 			return;
 		basic.states.set(id);
 		if(interactive)
-			act(bsmeta<statei>::elements[id].text_set);
+			act(bsdata<statei>::elements[id].text_set);
 	} else {
 		if(!basic.states.is(id))
 			return;
 		basic.states.remove(id);
 		if(interactive)
-			act(bsmeta<statei>::elements[id].text_remove);
+			act(bsdata<statei>::elements[id].text_remove);
 	}
 }
 
@@ -76,8 +77,8 @@ void creature::add(variant id, int v, bool interactive) {
 	case Item:
 		item it(item_s(id.value), v);
 		equip(it);
-		if(bsmeta<itemi>::elements[id.value].getammo()) {
-			item it(bsmeta<itemi>::elements[id.value].getammo(), v);
+		if(bsdata<itemi>::elements[id.value].getammo()) {
+			item it(bsdata<itemi>::elements[id.value].getammo(), v);
 			equip(it);
 		}
 		break;
@@ -100,8 +101,8 @@ void creature::add(variant id, int v, bool interactive) {
 
 void creature::dispell(variant source, bool interactive) {
 	auto id = getid();
-	auto ps = bsmeta<boosti>::elements;
-	for(auto& e : bsmeta<boosti>()) {
+	auto ps = bsdata<boosti>::elements;
+	for(auto& e : bsdata<boosti>()) {
 		if(e.owner_id == id || e.source == source) {
 			if(e.id)
 				add(e.id, e.modifier, interactive);
@@ -121,11 +122,11 @@ void creature::dispell(variant source, bool interactive) {
 		}
 		*ps++ = e;
 	}
-	bsmeta<boosti>::source.setcount(ps - bsmeta<boosti>::elements);
+	bsdata<boosti>::source.setcount(ps - bsdata<boosti>::elements);
 }
 
 void creature::recall(variant id, variant source, int modifier, unsigned rounds) {
-	auto p = bsmeta<boosti>::add();
+	auto p = bsdata<boosti>::add();
 	p->id = id;
 	p->source = source;
 	p->modifier = modifier;
@@ -136,20 +137,20 @@ void creature::recall(variant id, variant source, int modifier, unsigned rounds)
 creature* creature::getobject(short unsigned v) {
 	if(v == Blocked)
 		return 0;
-	return bsmeta<creature>::elements + v;
+	return bsdata<creature>::elements + v;
 }
 
 void creature::dispell(bool interactive) {
 	auto id = getid();
-	auto ps = bsmeta<boosti>::elements;
-	for(auto& e : bsmeta<boosti>()) {
+	auto ps = bsdata<boosti>::elements;
+	for(auto& e : bsdata<boosti>()) {
 		if(e.owner_id == id) {
 			add(e.id, e.modifier, interactive);
 			continue;
 		}
 		*ps++ = e;
 	}
-	bsmeta<boosti>::source.setcount(ps - bsmeta<boosti>::elements);
+	bsdata<boosti>::source.setcount(ps - bsdata<boosti>::elements);
 }
 
 void creature::unlink() {
@@ -162,43 +163,77 @@ void creature::unlink() {
 
 void creature::applyab() {
 	for(auto i = Attack; i <= ManaRate; i = (ability_s)(i + 1)) {
-		auto& ei = bsmeta<abilityi>::elements[i];
+		auto& ei = bsdata<abilityi>::elements[i];
 		abilities[i] += calculate(ei.formula);
 	}
 }
 
 void creature::applywr() {
-	// Modify armor abilities
-	static slot_s armor_slots[] = {Head, TorsoBack, Torso, OffHand, Elbows, Legs};
-	for(auto i : armor_slots) {
+	for(auto i = Head; i <= Ranged; i = slot_s(i + 1)) {
 		if(!wears[i])
 			continue;
-		if(wears[i].geti().isarmor()) {
-			auto ei = wears[i].getarmor();
-			abilities[Protection] += ei.protection;
-			abilities[Deflect] += ei.deflect;
-			abilities[Armor] += ei.armor;
-			abilities[Attack] += ei.attack;
-		}
-	}
-	// Apply enchant effect
-	static slot_s enchant_slots[] = {Head, Neck, OffHand, TorsoBack, Torso, RightFinger, LeftFinger, Elbows, Legs};
-	for(auto i : armor_slots) {
-		if(!wears[i])
-			continue;
-		if(i == OffHand && wears[i].geti().slot != OffHand)
-			continue;
-		auto id = wears[i].geteffect();
-		if(!id)
-			continue;
-		auto q = wears[i].getbonus();
-		switch(id.type) {
+		auto ei = wears[i].getarmor();
+		abilities[Protection] += ei.protection;
+		abilities[Deflect] += ei.deflect;
+		abilities[Armor] += ei.armor;
+		abilities[Attack] += ei.attack;
+		auto v = wears[i].geteffect();
+		auto b = wears[i].getquality();
+		auto isweapon = (i == Melee) || (i == Ranged);
+		if(i == OffHand && wears[i].geti().slot == Melee)
+			isweapon = true;
+		auto isring = (i == RightFinger);
+		switch(v.type) {
 		case Ability:
-			abilities[id.value] += bsmeta<abilityi>::elements[id.value].getbonus(q);
+			if(isweapon)
+				break;
+			if(v.type >= Strenght && v.type <= Charisma && !isring) {
+				if(b < 0) {
+					if(abilities[v.value] > 4)
+						abilities[v.value] = 4;
+				} else {
+					b += 17;
+					if(abilities[v.value] < b)
+						abilities[v.value] = b;
+				}
+			} else {
+				b = bsdata<abilityi>::elements[v.value].getbonus(1 + b) + abilities[v.value];
+				if(b < 0)
+					b = 0;
+				abilities[v.value] = b;
+			}
 			break;
 		case Skill:
-			if(skills[id.value])
-				skills[id.value] += q * 10;
+			if(skills[v.value]) {
+				b += (1 + b) * 20 + skills[v.value];
+				if(b < 0)
+					b = 0;
+				skills[v.value] = b;
+			}
+			break;
+		case Spell:
+			if(isweapon)
+				break;
+			b += 1 + spells[v.value];
+			if(b < 0)
+				b = 0;
+			spells[v.value] = b;
+			break;
+		case State:
+			if(b < 0)
+				states.remove(v.value);
+			else
+				states.set(v.value);
+			break;
+		case Harm:
+			if(isweapon)
+				break;
+			if(b < 0)
+				vulnerability.set(v.value);
+			else if(b > 0)
+				immunity.set(v.value);
+			else
+				resistance.set(v.value);
 			break;
 		}
 	}
@@ -229,7 +264,7 @@ void creature::applyen() {
 
 void creature::applybs() {
 	variant pid = this;
-	for(auto& e : bsmeta<boosti>()) {
+	for(auto& e : bsdata<boosti>()) {
 		if(e.owner_id == pid.value)
 			add(e.id, e.modifier, false);
 	}
@@ -399,7 +434,7 @@ void creature::raiseskills(int number, bool interactive) {
 	source.select(*this);
 	for(auto e : source) {
 		auto n = basic.get(e);
-		n += get(bsmeta<skilli>::elements[e].ability);
+		n += get(bsdata<skilli>::elements[e].ability);
 		if(n > 100)
 			n = 100;
 		source.setcap(e, n);
@@ -434,7 +469,7 @@ void creature::raiseskills(int number, bool interactive) {
 }
 
 void creature::randomequip() {
-	for(auto& ei : bsmeta<equipmenti>()) {
+	for(auto& ei : bsdata<equipmenti>()) {
 		if((!ei.race || ei.race == getrace()) && is(ei.type)) {
 			for(auto v : ei.features)
 				add(v, 3, false);
@@ -485,7 +520,7 @@ attacki creature::getattack(slot_s id, const item& weapon) const {
 	result.dice.max += get(Damage);
 	if(skill.type == Skill && skills[skill.value]) {
 		// Weapon focus modify damage, attack and speed
-		auto& ei = bsmeta<skilli>::elements[skill.value];
+		auto& ei = bsdata<skilli>::elements[skill.value];
 		auto value = get(skill_s(skill.value));
 		if(ei.weapon.attack)
 			result.attack += value / ei.weapon.attack;
@@ -504,7 +539,7 @@ attacki creature::getattack(slot_s id, const item& weapon) const {
 			result.attack -= 20;
 			result.speed -= 8;
 			result.speed += wears[OffHand].geti().weapon.speed;
-			auto& ei = bsmeta<skilli>::elements[TwoWeaponFighting];
+			auto& ei = bsdata<skilli>::elements[TwoWeaponFighting];
 			auto value = get(TwoWeaponFighting);
 			if(ei.weapon.attack)
 				result.attack += value / ei.weapon.attack;
@@ -517,7 +552,7 @@ attacki creature::getattack(slot_s id, const item& weapon) const {
 	case OffHand:
 		if(weapon.is(Light) && wears[Melee]) {
 			result.attack -= 30;
-			auto& ei = bsmeta<skilli>::elements[TwoWeaponFighting];
+			auto& ei = bsdata<skilli>::elements[TwoWeaponFighting];
 			if(ei.weapon.attack)
 				result.attack += get(TwoWeaponFighting) / ei.weapon.attack;
 		}
@@ -980,7 +1015,7 @@ void creature::usestealth() {
 }
 
 creature* creature::find(indext i) {
-	for(auto& e : bsmeta<creature>()) {
+	for(auto& e : bsdata<creature>()) {
 		if(!e)
 			continue;
 		if(e.getposition() == i)
@@ -1364,7 +1399,7 @@ void creature::applyaward() const {
 	if(index == Blocked)
 		return;
 	auto award = getaward();
-	for(auto& e : bsmeta<creature>()) {
+	for(auto& e : bsdata<creature>()) {
 		if(!e)
 			continue;
 		if(!e.isenemy(this))
@@ -1413,7 +1448,7 @@ void creature::kill() {
 }
 
 void creature::damage(int value, damage_s type, int pierce, bool interactive) {
-	auto& di = bsmeta<damagei>::elements[type];
+	auto& di = bsdata<damagei>::elements[type];
 	// Innate resist skills
 	if(isresist(type) && value > 0)
 		value /= 2;
@@ -1556,8 +1591,8 @@ void creature::moveaway(indext index) {
 //}
 
 bool creature::isallow(item_s v) const {
-	auto& ci = bsmeta<classi>::elements[kind];
-	auto& ei = bsmeta<itemi>::elements[v];
+	auto& ci = bsdata<classi>::elements[kind];
+	auto& ei = bsdata<itemi>::elements[v];
 	if(ei.skill.type == Skill && skills[ei.skill.value] > 0)
 		return true;
 	if(ci.restricted.is(v))
@@ -1673,7 +1708,7 @@ void creature::testweapons() {
 
 boosti*	creature::find(variant id) const {
 	auto owner_id = getid();
-	for(auto& e : bsmeta<boosti>()) {
+	for(auto& e : bsdata<boosti>()) {
 		if(e.owner_id == owner_id && e.id == id)
 			return &e;
 	}
@@ -1682,7 +1717,7 @@ boosti*	creature::find(variant id) const {
 
 boosti*	creature::finds(variant source) const {
 	auto owner_id = getid();
-	for(auto& e : bsmeta<boosti>()) {
+	for(auto& e : bsdata<boosti>()) {
 		if(e.owner_id == owner_id && e.source == source)
 			return &e;
 	}
@@ -1758,7 +1793,7 @@ void creature::backpack() {
 int	creature::getboost(variant id) const {
 	auto owner_id = getid();
 	auto result = 0;
-	for(auto& e : bsmeta<boosti>()) {
+	for(auto& e : bsdata<boosti>()) {
 		if(e.owner_id == owner_id && e.id == id)
 			result += e.modifier;
 	}
@@ -1793,7 +1828,7 @@ bool creature::ismatch(const creature& opponent, skill_s id, int value) const {
 
 void creature::fail(skill_s id) {
 	const int chance_fail = 30;
-	auto& ei = bsmeta<skilli>::elements[id];
+	auto& ei = bsdata<skilli>::elements[id];
 	auto isbad = d100() < chance_fail;
 	if(ei.is(Strenght) && isbad) {
 		act("%герой растянул%а мышцу.");
@@ -1927,14 +1962,14 @@ variant creature::choosereceipt(const char* interactive) const {
 }
 
 site* creature::getsite() const {
-	return (site_id != Blocked) ? &bsmeta<site>::elements[site_id] : 0;
+	return (site_id != Blocked) ? &bsdata<site>::elements[site_id] : 0;
 }
 
 void creature::set(const site* v) {
 	if(!v)
 		site_id = Blocked;
 	else
-		site_id = v - bsmeta<site>::elements;
+		site_id = v - bsdata<site>::elements;
 }
 
 item* creature::finditem(item_s v) {
@@ -2082,22 +2117,9 @@ void creature::additem(item_s type, variant effect, bool identified) {
 
 item creature::craft(item_s type, variant effect, skill_s skill, int bonus) {
 	item result(type);
-	if(!roll(skill, bonus)) {
-		result.setquality(xrand(0, 3));
-		result.set(Cursed);
-		return result;
-	}
-	auto quality = 0;
-	if(roll(skill, bonus - 15)) {
-		quality++;
-		if(roll(skill, bonus - 30)) {
-			quality++;
-			if(roll(skill, bonus - 45))
-				quality++;
-		}
-	}
-	result.setquality(quality);
 	result.seteffect(effect);
+	if(!roll(skill, bonus))
+		result.set(Cursed);
 	return result;
 }
 
@@ -2117,7 +2139,7 @@ void creature::setfriendlyto(const creature& player) {
 }
 
 void creature::wait(duration_s v) {
-	consume(bsmeta<durationi>::elements[v].roll());
+	consume(bsdata<durationi>::elements[v].roll());
 }
 
 bool creature::is(condition_s v) const {
@@ -2141,7 +2163,7 @@ bool creature::is(condition_s v) const {
 bool creature::resist(damage_s v, int bonus, bool interactive) const {
 	if(isimmune(v))
 		return true;
-	auto& ei = bsmeta<damagei>::elements[v];
+	auto& ei = bsdata<damagei>::elements[v];
 	bonus += get(Constitution) * 2;
 	if(isresist(v))
 		bonus += 30;

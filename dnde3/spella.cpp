@@ -12,7 +12,7 @@ void spella::select(const creature& player) {
 void spella::match(target_flag_s v, bool remove) {
 	auto ps = data;
 	for(auto id : *this) {
-		auto& ei = bsmeta<spelli>::elements[id];
+		auto& ei = bsdata<spelli>::elements[id];
 		if(remove) {
 			if(ei.target.is(v))
 				continue;

@@ -195,10 +195,10 @@ void location::clear() {
 	memset(this, 0, sizeof(*this));
 	for(auto& e : random)
 		e = rand() % 256;
-	bsmeta<creature>::source.clear();
-	bsmeta<site>::source.clear();
-	bsmeta<boosti>::source.clear();
-	bsmeta<itemground>::source.clear();
+	bsdata<creature>::source.clear();
+	bsdata<site>::source.clear();
+	bsdata<boosti>::source.clear();
+	bsdata<itemground>::source.clear();
 }
 
 tile_s location::gettile(indext i) const {
@@ -224,13 +224,13 @@ void location::set(indext i, trap_s v) {
 
 void location::drop(indext i, item v) {
 	itemground* pi = 0;
-	for(auto& e : bsmeta<itemground>()) {
+	for(auto& e : bsdata<itemground>()) {
 		if(e)
 			continue;
 		pi = &e;
 	}
 	if(!pi)
-		pi = bsmeta<itemground>::add();
+		pi = bsdata<itemground>::add();
 	*static_cast<item*>(pi) = v;
 	pi->index = i;
 }
@@ -245,11 +245,11 @@ void location::addinfo(indext i, stringbuilder& sb) const {
 	if(true) {
 		auto count = 0;
 		if(is(i, Blooded)) {
-			sb.adds("%1 кровью", blooded[bsmeta<tilei>::elements[t].gender]);
+			sb.adds("%1 кровью", blooded[bsdata<tilei>::elements[t].gender]);
 			count++;
 		}
 		if(is(i, Webbed)) {
-			sb.adds("%1 паутиной", webbed[bsmeta<tilei>::elements[t].gender]);
+			sb.adds("%1 паутиной", webbed[bsdata<tilei>::elements[t].gender]);
 			count++;
 		}
 		sb.adds("%-1.", getstr(t));
@@ -266,14 +266,14 @@ void location::addobject(indext i, stringbuilder& sb) const {
 		return;
 	auto o = getobject(i);
 	if(o == Trap)
-		sb.adds("Тут %-1.", bsmeta<trapi>::elements[gettrap(i)].name);
+		sb.adds("Тут %-1.", bsdata<trapi>::elements[gettrap(i)].name);
 	else if(o)
 		sb.adds("Здесь находится %-1.", getstr(o));
 }
 
 int location::getitemscount(indext i) const {
 	auto result = 0;
-	for(auto& e : bsmeta<itemground>()) {
+	for(auto& e : bsdata<itemground>()) {
 		if(!e || e.index != i)
 			continue;
 		result++;
@@ -284,7 +284,7 @@ int location::getitemscount(indext i) const {
 void location::additems(indext i, stringbuilder& sb) const {
 	auto maximum_count = getitemscount(i);
 	auto count = 0;
-	for(auto& e : bsmeta<itemground>()) {
+	for(auto& e : bsdata<itemground>()) {
 		if(!e || e.index != i)
 			continue;
 		if(!count) {
@@ -523,7 +523,7 @@ bool location::isfreelt(indext i) const {
 	case Door:
 		return is(i, Opened);
 	default:
-		return !bsmeta<map_objecti>::elements[v].flags.is(BlockLight);
+		return !bsdata<map_objecti>::elements[v].flags.is(BlockLight);
 	}
 	return true;
 }
@@ -538,7 +538,7 @@ bool location::isfree(indext i) const {
 	case Door:
 		return is(i, Opened);
 	default:
-		return !bsmeta<map_objecti>::elements[v].flags.is(BlockMovement);
+		return !bsdata<map_objecti>::elements[v].flags.is(BlockMovement);
 	}
 	return true;
 }
@@ -668,7 +668,7 @@ indext location::getfree(indext i, procis proc, int radius_maximum) const {
 }
 
 creature* location::add(indext index, role_s role) {
-	auto p = bsmeta<creature>::addz();
+	auto p = bsdata<creature>::addz();
 	p->create(role);
 	p->setposition(getfree(index));
 	if(*p)
@@ -677,7 +677,7 @@ creature* location::add(indext index, role_s role) {
 }
 
 creature* location::add(indext index, race_s race, gender_s gender, class_s type) {
-	auto p = bsmeta<creature>::addz();
+	auto p = bsdata<creature>::addz();
 	p->create(race, gender, type);
 	p->setposition(getfree(index));
 	if(*p)
@@ -723,7 +723,7 @@ void location::makewave(indext index) {
 }
 
 void location::blockcreatures() {
-	for(auto& e : bsmeta<creature>()) {
+	for(auto& e : bsdata<creature>()) {
 		if(!e)
 			continue;
 		if(e.is(Friendly))
@@ -862,7 +862,7 @@ site& location::room(const rect& rc) {
 		for(auto y = rc.y1; y < rc.y2; y++)
 			set(get(x, y), Floor);
 	}
-	auto p = bsmeta<site>::add();
+	auto p = bsdata<site>::add();
 	*((rect*)p) = rc;
 	p->set(Lair);
 	return *p;
@@ -895,7 +895,7 @@ creature* location::monster(indext index) {
 	auto n1 = imax(0, cr - 1);
 	auto n2 = cr + 1;
 	for(auto i = GoblinWarrior; i < Character; i = (role_s)(i + 1)) {
-		auto& ei = bsmeta<rolei>::elements[i];
+		auto& ei = bsdata<rolei>::elements[i];
 		if(ei.type == Commoner)
 			continue;
 		auto n = ei.getcr();
@@ -925,14 +925,13 @@ bool location::ismatch(indext index, variant v) const {
 	return false;
 }
 
-void location::loot(indext index, item_s type, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality) {
+void location::loot(indext index, item_s type, int level, char chance_bigger_price, identify_s identify, char chance_curse) {
 	if(index == Blocked || type == NoItem)
 		return;
 	item it;
 	auto chance_artifact = level / 2;
-	auto chance_quality = 30 + level * 4 + bonus_quality;
 	auto chance_magic = 10 + level * 2;
-	it.create(type, chance_artifact, chance_magic, chance_curse, chance_quality);
+	it.create(type, chance_artifact, chance_magic, chance_curse);
 	it.set(identify);
 	if(it.is(Coinable))
 		it.setcount(xrand(1 * level, 6 * level));
@@ -954,25 +953,25 @@ void location::loot(indext index, item_s type, int level, char chance_bigger_pri
 	loc.drop(index, it);
 }
 
-void location::loot(indext index, slot_s slots, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality) {
+void location::loot(indext index, slot_s slots, int level, char chance_bigger_price, identify_s identify, char chance_curse) {
 	variantc source;
 	source.additems(slots, level);
 	source.match(Natural, true);
 	if(chance_bigger_price)
 		source.matchp(1, true);
-	loot(index, (item_s)source.random().value, level, chance_bigger_price, identify, chance_curse, bonus_quality);
+	loot(index, (item_s)source.random().value, level, chance_bigger_price, identify, chance_curse);
 }
 
-void location::loot(indext index, slota slots, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality) {
+void location::loot(indext index, slota slots, int level, char chance_bigger_price, identify_s identify, char chance_curse) {
 	variantc source;
 	source.additems(slots, level);
 	source.match(Natural, true);
 	if(chance_bigger_price)
 		source.matchp(1, true);
-	loot(index, (item_s)source.random().value, level, chance_bigger_price, identify, chance_curse, bonus_quality);
+	loot(index, (item_s)source.random().value, level, chance_bigger_price, identify, chance_curse);
 }
 
-void location::loot(const rect& rc, const variantc& source, int chance, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality) {
+void location::loot(const rect& rc, const variantc& source, int chance, int level, char chance_bigger_price, identify_s identify, char chance_curse) {
 	if(!source)
 		return;
 	for(auto y = rc.y1; y <= rc.y2; y++) {
@@ -982,7 +981,7 @@ void location::loot(const rect& rc, const variantc& source, int chance, int leve
 			if(x < 0 || x >= mmx)
 				continue;
 			if(d100() < chance)
-				loot(get(x, y), (item_s)source.random().value, level, chance_bigger_price, identify, chance_curse, bonus_quality);
+				loot(get(x, y), (item_s)source.random().value, level, chance_bigger_price, identify, chance_curse);
 		}
 	}
 }
@@ -990,7 +989,7 @@ void location::loot(const rect& rc, const variantc& source, int chance, int leve
 void location::content(const rect& rc, room_s type, site* p) {
 	if(!rc)
 		return;
-	auto& ei = bsmeta<roomi>::elements[type];
+	auto& ei = bsdata<roomi>::elements[type];
 	auto index = center(rc);
 	if(ei.heart)
 		set(index, ei.heart);
@@ -1002,7 +1001,7 @@ void location::content(const rect& rc, room_s type, site* p) {
 		source.match(Natural, true);
 		if(e.price)
 			source.matchp(1, true);
-		loc.loot(rc, source, e.chance, loc.level, e.price, KnownPower, e.cursed, e.quality);
+		loc.loot(rc, source, e.chance, loc.level + e.quality, e.price, KnownPower, e.cursed);
 	}
 	switch(type) {
 	case Temple:
@@ -1129,7 +1128,7 @@ indext location::find(tile_s v, const rect& rc) const {
 }
 
 site* location::addsite(room_s type, const rect& rc) {
-	auto p = bsmeta<site>::add();
+	auto p = bsdata<site>::add();
 	p->clear();
 	p->set(type);
 	p->set(rc);

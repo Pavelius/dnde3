@@ -43,7 +43,7 @@ assert_enum(rolei, Character)
 
 void creature::create(role_s role) {
 	clear();
-	auto& ei = bsmeta<rolei>::elements[role];
+	auto& ei = bsdata<rolei>::elements[role];
 	this->type = Role;
 	this->value = role;
 	this->kind = ei.type;
@@ -66,7 +66,7 @@ int	rolei::getcr() const {
 	auto b = 0;
 	for(auto v : features) {
 		if(v.type == Ability)
-			b += bsmeta<abilityi>::elements[v.value].cost;
+			b += bsdata<abilityi>::elements[v.value].cost;
 		else if(v)
 			b++;
 	}

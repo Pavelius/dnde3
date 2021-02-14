@@ -8,27 +8,27 @@ static creature* create(race_s race, gender_s gender, class_s cls) {
 
 static void create(creature* p1, item_s type) {
 	item it;
-	it.create(type, 3, 20, 6, 30);
+	it.create(type, 3, 20, 6);
 	p1->equip(it);
 }
 
 static void createp(creature* p1, item_s type) {
 	item it;
-	it.create(type, 3, 20, 6, 30);
+	it.create(type, 3, 20, 6);
 	it.setpersonal(true);
 	p1->equip(it);
 }
 
 static void create(creature* p1, item_s type, variant effect) {
 	item it;
-	it.create(type, 5, 20, 6, 40);
+	it.create(type, 5, 20, 6);
 	it.set(KnownPower);
 	it.seteffect(effect);
 	p1->add(it, true, false);
 }
 
 static void test_adventure() {
-	bsmeta<outdoori>::elements[CityMeher].index = loc.get(4, 8);
+	bsdata<outdoori>::elements[CityMeher].index = loc.get(4, 8);
 	if(!game.read()) {
 		auto p1 = create(Elf, Female, Mage);
 		auto p2 = create(Dwarf, Male, Cleric);
@@ -99,7 +99,7 @@ static void test_dungeon() {
 }
 
 static void item_choose() {
-	auto p1 = bsmeta<creature>::addz();
+	auto p1 = bsdata<creature>::addz();
 	p1->create(Human, Male, Theif);
 	p1->inventory();
 }
@@ -110,7 +110,7 @@ static bool test_formula() {
 	c1.create(GnollWarrior);
 	c1.set(Dexterity, 7);
 	c1.set(Athletics, 12);
-	auto r = c1.calculate(bsmeta<abilityi>::elements[Speed].formula);
+	auto r = c1.calculate(bsdata<abilityi>::elements[Speed].formula);
 	return r == 99;
 }
 

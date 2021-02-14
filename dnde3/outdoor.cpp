@@ -18,11 +18,11 @@ BSDATA(outdoori) = {{1349, "вшур", "town",
 assert_enum(outdoori, LastOutdoor)
 
 int	outdoori::getid() const {
-	return this - bsmeta<outdoori>::elements;
+	return this - bsdata<outdoori>::elements;
 }
 
 outdoori* outdoori::find(indext index) {
-	for(auto& e : bsmeta<outdoori>()) {
+	for(auto& e : bsdata<outdoori>()) {
 		if(!e)
 			continue;
 		if(e.getposition() == index)
@@ -38,7 +38,7 @@ void outdoori::clear() {
 
 outdoori* outdoori::choose() {
 	answeri an;
-	for(auto& e : bsmeta<outdoori>()) {
+	for(auto& e : bsdata<outdoori>()) {
 		if(e)
 			continue;
 		an.add((int)&e, e.name);

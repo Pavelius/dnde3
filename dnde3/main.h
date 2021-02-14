@@ -400,7 +400,7 @@ struct abilityi {
 	const char*			name_how;
 	const char*			curse_how;
 	varianta			formula;
-	char				bonus_base, bonus_multiplier;
+	char				bonus_multiplier;
 	const char*			format;
 	int					cost;
 	//
@@ -513,7 +513,6 @@ struct itemi {
 	};
 	struct armori {
 		char			armor;
-		char			protection_bonus;
 		char			deflect;
 		char			protection;
 		char			attack;
@@ -537,7 +536,6 @@ struct itemi {
 	item_s				getid() const;
 	bool				is(slot_s v) const;
 	bool				is(slota source) const;
-	constexpr bool		isarmor() const { return armor.protection_bonus != 0; }
 	variant				randeffect() const;
 };
 class item {
@@ -545,7 +543,6 @@ class item {
 	unsigned char		identifyc : 1;
 	unsigned char		identifys : 1;
 	item_type_s			magic : 2;
-	unsigned char		quality : 2;
 	sale_s				sale : 2;
 	union {
 		struct {
@@ -562,13 +559,13 @@ class item {
 public:
 	item() = default;
 	item(item_s type, int level);
-	constexpr item(item_s type) : type(type), identifyc(0), identifys(0), magic(Mundane), quality(0), sale(Sale100), count(0) {}
+	constexpr item(item_s type) : type(type), identifyc(0), identifys(0), magic(Mundane), sale(Sale100), count(0) {}
 	explicit operator bool() const { return type != NoItem; }
 	void				act(const char* format, ...) const;
 	void				actv(stringbuilder& st, const char* format, const char* format_param) const;
 	bool				apply(creature& player, variant id, int v, int order, bool run);
 	void				clear() { memset(this, 0, sizeof(*this)); }
-	void				create(item_s type, int chance_artifact, int chance_magic, int chance_cursed, int chance_quality);
+	void				create(item_s type, int chance_artifact, int chance_magic, int chance_cursed);
 	void				breaktest();
 	void				damage(int count, damage_s type, bool interactive);
 	void				decoy();
@@ -585,7 +582,7 @@ public:
 	int					getdamage() const;
 	const char*			getdamagetext() const;
 	variant				geteffect() const;
-	const itemi&		geti() const { return bsmeta<itemi>::elements[type]; }
+	const itemi&		geti() const { return bsdata<itemi>::elements[type]; }
 	gender_s			getgender() const { return geti().gender; }
 	item_s				getkind() const { return type; }
 	item_type_s			getmagic() const { return magic; }
@@ -593,7 +590,7 @@ public:
 	const char*			getname() const { return geti().name; }
 	void				getname(stringbuilder& sb, bool show_cab) const;
 	indext				getposition() const;
-	int					getquality() const { return quality; }
+	int					getquality() const;
 	static const aref<variant> getreceipts();
 	void				getstatistic(stringbuilder& sb) const;
 	sale_s				getsale() const { return sale; }
@@ -623,7 +620,6 @@ public:
 	void				setcount(int v);
 	void				seteffect(variant v);
 	void				setpersonal(int v);
-	void				setquality(int v);
 	bool				stack(item& v);
 	void				use();
 };
@@ -934,7 +930,7 @@ public:
 	attacki				getattack(slot_s slot) const { return getattack(slot, wears[slot]); }
 	int					getaward() const { return 10 + 15 * get(Level); }
 	int					getboost(variant id) const;
-	const classi&		getclass() const { return bsmeta<classi>::elements[kind]; }
+	const classi&		getclass() const { return bsdata<classi>::elements[kind]; }
 	direction_s			getdirection() const { return direction; }
 	encumbrance_s		getencumbred() const { return encumbrance; }
 	int					getexperience() const { return experience; }
@@ -1259,10 +1255,10 @@ public:
 	bool				ismatch(indext index, variant v) const;
 	void				lake(const rect& rc);
 	void				interior(const rect& rc, room_s type, indext index, int level, rect* result_rect, site* ps);
-	void				loot(indext index, item_s type, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality);
-	void				loot(indext index, slot_s slot, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality);
-	void				loot(indext index, slota slot, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality);
-	void				loot(const rect& rc, const variantc& source, int chance, int level, char chance_bigger_price, identify_s identify, char chance_curse, char bonus_quality);
+	void				loot(indext index, item_s type, int level, char chance_bigger_price, identify_s identify, char chance_curse);
+	void				loot(indext index, slot_s slot, int level, char chance_bigger_price, identify_s identify, char chance_curse);
+	void				loot(indext index, slota slot, int level, char chance_bigger_price, identify_s identify, char chance_curse);
+	void				loot(const rect& rc, const variantc& source, int chance, int level, char chance_bigger_price, identify_s identify, char chance_curse);
 	void				makewave(indext index);
 	void				minimap(int x, int y, point camera, bool fow) const;
 	void				minimap(indext index, bool fow) const;

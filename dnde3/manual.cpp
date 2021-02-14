@@ -1,7 +1,7 @@
 #include "main.h"
 
 static void choose_children(stringbuilder& sb, manual& mn, answeri& an) {
-	for(auto& e : bsmeta<manual>()) {
+	for(auto& e : bsdata<manual>()) {
 		if(e.parent == mn.value)
 			an.add((int)&e, e.getname());
 	}
@@ -13,7 +13,7 @@ static void choose_children_sort(stringbuilder& sb, manual& mn, answeri& an) {
 }
 
 static void add_children(stringbuilder& sb, manual& mn, answeri& an) {
-	for(auto& e : bsmeta<manual>()) {
+	for(auto& e : bsdata<manual>()) {
 		if(e.parent == mn.value) {
 			sb.addn("[%1]: ", e.name);
 			sb.adds(e.text);
@@ -25,7 +25,7 @@ static void race_ability(stringbuilder& sb, manual& mn, answeri& an) {
 	if(mn.value.type != Race)
 		return;
 	sb.addn("[Артибуты]: ");
-	auto& ei = bsmeta<racei>::elements[mn.value.value];
+	auto& ei = bsdata<racei>::elements[mn.value.value];
 	for(auto i = Strenght; i <= Charisma; i = ability_s(i+1)) {
 		if(i!=Strenght)
 			sb.add(", ");
@@ -48,7 +48,7 @@ static void race_skills(stringbuilder& sb, manual& mn, answeri& an) {
 	const char* header = "Присутствует";
 	auto skill = (skill_s)mn.value.value;
 	auto count = 0;
-	for(auto& ei : bsmeta<racei>()) {
+	for(auto& ei : bsdata<racei>()) {
 		if(!ei.is(skill))
 			continue;
 		if(!count)
@@ -58,7 +58,7 @@ static void race_skills(stringbuilder& sb, manual& mn, answeri& an) {
 		sb.add("%+1", ei.name);
 		count++;
 	}
-	for(auto& ei : bsmeta<classi>()) {
+	for(auto& ei : bsdata<classi>()) {
 		if(!have(ei.bonuses, skill))
 			continue;
 		if(!count)
@@ -78,7 +78,7 @@ static void ability_example(stringbuilder& sb, manual& mn, answeri& an) {
 	sb.addn("[Значения]: ");
 	auto count = 0;
 	for(auto i = 5; i <= 20; i++) {
-		for(auto& e : bsmeta<racei>()) {
+		for(auto& e : bsdata<racei>()) {
 			if(e.abilities[mn.value.value] != i)
 				continue;
 			if(count > 0)
@@ -93,7 +93,7 @@ static void ability_example(stringbuilder& sb, manual& mn, answeri& an) {
 
 static void ability_skills(stringbuilder& sb, manual& mn, answeri& an) {
 	skilla source;
-	for(auto& e : bsmeta<skilli>()) {
+	for(auto& e : bsdata<skilli>()) {
 		if(e.is(ability_s(mn.value.value)))
 			source.add(e.getid());
 	}
@@ -105,7 +105,7 @@ static void ability_skills(stringbuilder& sb, manual& mn, answeri& an) {
 	for(auto i : source) {
 		if(p[0])
 			sb.add(", ");
-		sb.add(bsmeta<skilli>::elements[i].name);
+		sb.add(bsdata<skilli>::elements[i].name);
 	}
 	sb.add(".");
 }
@@ -168,7 +168,7 @@ const char* manual::getname() const {
 
 void gamei::help() {
 	adat<manual*, 32> pages;
-	auto pm = bsmeta<manual>::elements;
+	auto pm = bsdata<manual>::elements;
 	while(pm) {
 		char temp[2048]; stringbuilder sb(temp); answeri an;
 		sb.add(pm->text);

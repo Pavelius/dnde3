@@ -8,7 +8,7 @@ static vector			rooms[256];
 static unsigned char	stack_put, stack_get;
 static direction_s		connectors_side[] = {Up, Left, Right, Down};
 static slot_s			slots_weapons_armor[] = {Melee, Ranged, OffHand, Head, Elbows, Legs, Torso};
-static item_s			item_treasure[] = {Coin, Coin, Coin, Coin, Coin, Coin, Coin, CoinSP, CoinSP, CoinSP, CoinGP};
+static item_s			item_treasure[] = {Coin, Coin, Coin, Coin, Coin, Coin, CoinSP, CoinSP, CoinSP, CoinGP};
 
 static int compare_rect(const void* p1, const void* p2) {
 	auto e1 = (rect*)p1;
@@ -62,19 +62,19 @@ static void create_big_rooms(const rect& rc, rooma& rooms, const landscapei& lan
 }
 
 static void create_weapon(indext index) {
-	loc.loot(index, {Melee, Ranged, Amunitions}, loc.level, 0, Unknown, 0, 0);
+	loc.loot(index, {Melee, Ranged, Amunitions}, loc.level, 0, Unknown, 0);
 }
 
 static void create_armor(indext index) {
-	loc.loot(index, {Head, Torso, Legs, Elbows, OffHand}, loc.level, 0, Unknown, 0, 0);
+	loc.loot(index, {Head, Torso, Legs, Elbows, OffHand}, loc.level, 0, Unknown, 0);
 }
 
 static void create_books_and_scrolls(indext index) {
-	loc.loot(index, {Readable}, loc.level, 0, Unknown, 0, 0);
+	loc.loot(index, {Readable}, loc.level, 0, Unknown, 0);
 }
 
 static void create_potions(indext index) {
-	loc.loot(index, {Drinkable}, loc.level, 0, Unknown, 0, 0);
+	loc.loot(index, {Drinkable}, loc.level, 0, Unknown, 0);
 }
 
 static void create_dungeon_item(indext index) {
@@ -98,7 +98,7 @@ static void create_trap(indext index) {
 }
 
 static void create_treasure(indext index) {
-	loc.loot(index, maprnd(item_treasure), loc.level, 0, Unknown, 0, 0);
+	loc.loot(index, maprnd(item_treasure), loc.level, 0, Unknown, 0);
 }
 
 static void create_monster(indext index) {
@@ -336,7 +336,7 @@ static indext road_start(direction_s dir) {
 	}
 }
 
-template<> landscapei bsmeta<landscapei>::elements[] = {{"Равнина", 0, Plain, {{Tree, 2}, {Water, -16}, {Hill, 1}, {Swamp, -20}, {Plants, 1}}, 0, 0, center_start},
+template<> landscapei bsdata<landscapei>::elements[] = {{"Равнина", 0, Plain, {{Tree, 2}, {Water, -16}, {Hill, 1}, {Swamp, -20}, {Plants, 1}}, 0, 0, center_start},
 {"Лес", 0, Plain, {{Tree, 12}, {Hill, 1}, {Swamp, -20}, {Plants, 1}}, 0, 0, center_start},
 {"Болото", 0, Plain, {{Tree, -40}, {Swamp, 1}, {Lake, 1}}, 0, 0, center_start},
 // 
@@ -348,7 +348,7 @@ assert_enum(landscapei, AreaCity)
 void location::create(const dungeoni& source, int level, bool explored, bool visualize) {
 	clear();
 	*static_cast<dungeoni*>(this) = source;
-	auto& ei = bsmeta<landscapei>::elements[type];
+	auto& ei = bsdata<landscapei>::elements[type];
 	this->level = level;
 	stack_get = stack_put = 0;
 	// Explore all map
