@@ -2,7 +2,7 @@
 
 classi bsdata<classi>::elements[] = {
 	{"Крестьянин", 4, 0, 0, {-1, 1, 0, -1, 1, 0}, {40, 3}},
-	{"Клерик", 8, 8, 0, {1, 0, 0, 0, 2, 1}, {50, 4}, {Diplomacy, Literacy, Literacy, History, Healing, Healing, Healing, Herbalism, BlessSpell, HealingSpell},
+	{"Клерик", 8, 8, 0, {1, 0, 0, 0, 2, 1}, {50, 4}, {Diplomacy, Literacy, Literacy, Healing, Healing, Healing, Religion, Religion, Herbalism, BlessSpell, HealingSpell},
 	{SwordLong, SwordShort, SwordTwoHanded, BowLong, BowShort}},
 	{"Воин", 10, 3, 0, {4, 1, 2, -2, 0, -1}, {50, 5}, {Survival, Survival, Athletics, Athletics, Riding, FindWeakness, FocusSwords},
 	{}},

@@ -7,40 +7,41 @@ static const char* talk_games[] = {"кубики", "карты", "наперстки", "шарады"};
 static item_s common_plants[] = {Tarnelle, Cherry, RoseHip, Physalis};
 
 BSDATA(skilli) = {{"Торговля", "торговли", Charisma, {}, {Creature, {NotYou}, Close, "С кем хотите поторговаться?"}},
-{"Блеф", "обмана", Charisma, {}, {Creature, {NotYou}, Close, "Кого будете обманывать?"}},
-{"Дипломатия", "дипломатии", Charisma, {}, {Creature, {NotYou}, Close, "С кем будете вести переговоры?"}},
-{"Акробатика", "акробатики", Dexterity},
-{"Внимательность", "внимательности", Wisdow},
-{"Атлетика", "атлетики", Strenght, {}, {Object, {}, Close, "Какую дверь выбить?"}},
-{"Убийство", "убийства", Dexterity, {}, {Creature, {NotYou, Friends}, Close, "Кого убить?"}},
-{"Лазание", "лазания", Strenght},
-{"Концентрация", "концетрации", Wisdow},
-{"Обезвредить ловушки", "ловушек", Dexterity, {}, {Object, {}, Close, "Какую ловушку обезвредить?"}},
-{"Удар в уязвимое место", "боевых трюков", Dexterity},
-{"Слышать звуки", "слуха", Wisdow},
-{"Прятаться в тени", "скрытности", Dexterity, {}, {Creature}},
-{"Открыть замок", "взлома", Dexterity, {}, {Object, {}, Close, "Какой замок вскрыть?"}},
-{"Двигаться тихо", "тихого движения", Dexterity},
-{"Очистить карманы", "воровства", Dexterity, {}, {Creature, {NotYou}, Close, "Кого обворовать?"}},
-{"Алхимия", "алхимии", Intellegence, {}, {Item, {LongAction, AlwaysChoose}, You, "Какое зелье хотите попробывать?"}},
-{"Готовка еды", "куховарения", Charisma, {}, {Item, {AlwaysChoose}, You, "Что хотите приготовить?"}},
-{"Танцы", "танцев", Dexterity, {}, {Creature, {NotYou, AllTargets}, Near}},
-{"Инженерное дело", "инженерии", Intellegence},
-{"Азартные игры", "азартных игр", Charisma, {}, {Creature, {Friends, NotYou}, Close, "С кем поиграть?"}},
-{"История", "истории", Intellegence, {}, {Object, {}, Reach, "Какой объект изучить?"}},
-{"Заживание ран", "здоровья", Wisdow},
-{"Травознавство", "травознания", Wisdow, {}, {Object, {}, Close, "Где собрать урожай?"}},
-{"Грамотность", "письма и чтения", Intellegence, {}, {Item, {LongAction, AlwaysChoose}, You, "Что хотите прочитать?"}},
-{"Шахтерское дело", "шахтерского дела", Strenght, {}, {Object, {LongAction}, Close, "Где добывать руду?"}},
-{"Езда верхом", "езды верхом", Dexterity},
-{"Кузнечное дело", "кузнечного дела", Strenght, {}, {Item, {LongAction}, You, "Что хотите отремонтировать?"}},
-{"Выживание", "выживания", Wisdow},
-{"Плавание", "плавания", Strenght},
-{"Владение луком", "стрельбы из лука", Dexterity, {3, 30, 30}},
-{"Владение мечом", "сражения на мечах", Strenght, {4, 20, 25}},
-{"Владение топором", "сражения на топорах", Strenght, {5, 15, 30}},
-{"Владение двуручным оружием", "двуручного оружия", Strenght, {4, 10, 35}},
-{"Сражение двумя оружиями", "ужасного оружия", Dexterity, {5, 30, 15}},
+	{"Блеф", "обмана", Charisma, {}, {Creature, {NotYou}, Close, "Кого будете обманывать?"}},
+	{"Дипломатия", "дипломатии", Charisma, {}, {Creature, {NotYou}, Close, "С кем будете вести переговоры?"}},
+	{"Акробатика", "акробатики", Dexterity},
+	{"Внимательность", "внимательности", Wisdow},
+	{"Атлетика", "атлетики", Strenght, {}, {Object, {}, Close, "Какую дверь выбить?"}},
+	{"Убийство", "убийства", Dexterity, {}, {Creature, {NotYou, Friends}, Close, "Кого убить?"}},
+	{"Лазание", "лазания", Strenght},
+	{"Концентрация", "концетрации", Wisdow},
+	{"Обезвредить ловушки", "ловушек", Dexterity, {}, {Object, {}, Close, "Какую ловушку обезвредить?"}},
+	{"Удар в уязвимое место", "боевых трюков", Dexterity},
+	{"Слышать звуки", "слуха", Wisdow},
+	{"Прятаться в тени", "скрытности", Dexterity, {}, {Creature}},
+	{"Открыть замок", "взлома", Dexterity, {}, {Object, {}, Close, "Какой замок вскрыть?"}},
+	{"Двигаться тихо", "тихого движения", Dexterity},
+	{"Очистить карманы", "воровства", Dexterity, {}, {Creature, {NotYou}, Close, "Кого обворовать?"}},
+	{"Алхимия", "алхимии", Intellegence, {}, {Item, {LongAction, AlwaysChoose}, You, "Какое зелье хотите попробывать?"}},
+	{"Готовка еды", "куховарения", Charisma, {}, {Item, {AlwaysChoose}, You, "Что хотите приготовить?"}},
+	{"Танцы", "танцев", Dexterity, {}, {Creature, {NotYou, AllTargets}, Near}},
+	{"Инженерное дело", "инженерии", Intellegence},
+	{"Азартные игры", "азартных игр", Charisma, {}, {Creature, {Friends, NotYou}, Close, "С кем поиграть?"}},
+	{"История", "истории", Intellegence, {}, {Object, {}, Reach, "Какой объект изучить?"}},
+	{"Заживание ран", "здоровья", Wisdow},
+	{"Травознавство", "травознания", Wisdow, {}, {Object, {}, Close, "Где собрать урожай?"}},
+	{"Грамотность", "письма и чтения", Intellegence, {}, {Item, {LongAction, AlwaysChoose}, You, "Что хотите прочитать?"}},
+	{"Шахтерское дело", "шахтерского дела", Strenght, {}, {Object, {LongAction}, Close, "Где добывать руду?"}},
+	{"Религия", "религии", Wisdow, {}, {Creature, {}, You}},
+	{"Езда верхом", "езды верхом", Dexterity},
+	{"Кузнечное дело", "кузнечного дела", Strenght, {}, {Item, {LongAction}, You, "Что хотите отремонтировать?"}},
+	{"Выживание", "выживания", Wisdow},
+	{"Плавание", "плавания", Strenght},
+	{"Владение луком", "стрельбы из лука", Dexterity, {3, 30, 30}},
+	{"Владение мечом", "сражения на мечах", Strenght, {4, 20, 25}},
+	{"Владение топором", "сражения на топорах", Strenght, {5, 15, 30}},
+	{"Владение двуручным оружием", "двуручного оружия", Strenght, {4, 10, 35}},
+	{"Сражение двумя оружиями", "ужасного оружия", Dexterity, {5, 30, 15}},
 };
 assert_enum(skilli, LastSkill)
 
@@ -128,6 +129,20 @@ bool creature::use(skill_s id, creature& player, int order, bool run) {
 				player.act("Игра не зашла. Все остались при своем.");
 		}
 		break;
+	case Religion:
+		if(!faith)
+			return false;
+		if(!pray(false))
+			return false;
+		if(run) {
+			if(roll(Religion)) {
+				act("%герой помолил%ась богу и случилось чудо.");
+				pray(true);
+			} else
+				act("%герой помолил%ась богу, но молитва не была услышана.");
+			faith--;
+		}
+		break;
 	case PickPockets:
 		if(getmoney() <= 20 || loc.getlight() <= -1)
 			return false;
@@ -140,7 +155,7 @@ bool creature::use(skill_s id, creature& player, int order, bool run) {
 			};
 			player.say(maprnd(talk), maprnd(talk_subjects), maprnd(talk_object), maprnd(talk_location));
 			if(player.roll(PickPockets)) {
-				auto count = xrand(3, 18)*(1 + player.get(PickPockets) / 5);
+				auto count = xrand(3, 18) * (1 + player.get(PickPockets) / 5);
 				if(count > getmoney())
 					count = getmoney();
 				setmoney(getmoney() - count);

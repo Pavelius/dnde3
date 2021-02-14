@@ -59,12 +59,14 @@ void creature::add(state_s id, int v, bool interactive) {
 		basic.states.set(id);
 		if(interactive)
 			act(bsdata<statei>::elements[id].text_set);
+		prepare();
 	} else {
 		if(!basic.states.is(id))
 			return;
 		basic.states.remove(id);
 		if(interactive)
 			act(bsdata<statei>::elements[id].text_remove);
+		prepare();
 	}
 }
 
@@ -1177,6 +1179,7 @@ bool creature::aiskills(creaturea& creatures, bool long_action, bool run) {
 	if(!run)
 		return source.getcount() != 0;
 	else {
+		auto room = getsite();
 		for(auto s : source) {
 			if(use(creatures, s))
 				return true;
@@ -1309,7 +1312,7 @@ void creature::restoration() {
 	restore_mana += get(ManaRate);
 	if(is(Wounded)) {
 		// Wounded creature loose 1 hit point each turn
-		if(roll(Constitution))
+		if(roll(Constitution, -10))
 			add(Wounded, -1, true);
 		else {
 			act("%герой истекает кровью.");
@@ -1325,7 +1328,7 @@ void creature::makemove() {
 	}
 	// Dazzled creature don't make turn
 	if(is(Dazzled)) {
-		if(roll(Constitution, 8))
+		if(roll(Constitution))
 			add(Dazzled, -1, true);
 		else {
 			wait();
@@ -1581,14 +1584,6 @@ void creature::moveaway(indext index) {
 		return;
 	move(index);
 }
-
-//void creature::set(ability_s id, int v) {
-//	abilities[id] = v;
-//}
-//
-//void creature::set(skill_s id, int v) {
-//	skills[id] = v;
-//}
 
 bool creature::isallow(item_s v) const {
 	auto& ci = bsdata<classi>::elements[kind];
@@ -2164,12 +2159,43 @@ bool creature::resist(damage_s v, int bonus, bool interactive) const {
 	if(isimmune(v))
 		return true;
 	auto& ei = bsdata<damagei>::elements[v];
-	bonus += get(Constitution) * 2;
 	if(isresist(v))
 		bonus += 30;
+	bonus += get(ei.ability) * 2;
+	bonus += get(Luck) * 5;
 	if(!rollv(bonus))
 		return false;
 	if(interactive)
 		act(ei.resist_text);
+	return true;
+}
+
+bool creature::roll(ability_s v, int bonus) const {
+	bonus += get(v) * 3;
+	bonus += get(Luck) * 5;
+	return rollv(bonus);
+}
+
+bool creature::pray(bool run) {
+	if(is(Sick)) {
+		if(run)
+			add(Sick, -1, true);
+	} else if(is(Poisoned)) {
+		if(run) {
+			poison = 0;
+			add(Poison, -1, true);
+		}
+	} else if(is(MissAlmostAllMana)) {
+		if(run) {
+			mp = get(ManaPoints);
+			act("%герой полностью ментально восстановил%ась.");
+		}
+	} else if(is(MissAlmostAllHits)) {
+		if(run) {
+			hp = get(LifePoints);
+			act("%герой полностью исцелил%ась.");
+		}
+	} else
+		return false;
 	return true;
 }

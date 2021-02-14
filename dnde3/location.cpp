@@ -1,7 +1,7 @@
 #include "main.h"
 
 location				loc;
-static short unsigned	movements[mmx*mmy];
+static short unsigned	movements[mmx * mmy];
 static indext			stack[256 * 256];
 static direction_s		all_aroud[] = {Left, Right, Up, Down, LeftDown, LeftUp, RightDown, RightUp};
 static direction_s		all_rows[] = {Left, Right, Up, Down};
@@ -69,9 +69,9 @@ int location::getindex2(indext i, tile_s t, int r) const {
 		int			frame;
 	};
 	static element data[] = {{RightDown, 16},
-	{LeftDown, 17},
-	{LeftUp, 18},
-	{RightUp, 19},
+		{LeftDown, 17},
+		{LeftUp, 18},
+		{RightUp, 19},
 	};
 	if(!r) {
 		for(auto& e : data) {
@@ -312,7 +312,7 @@ direction_s	location::getdirection(point s, point d) {
 		return Center;
 	int ax = dx / st;
 	int ay = dy / st;
-	return orientations_7b7[(ay + (osize / 2))*osize + ax + (osize / 2)];
+	return orientations_7b7[(ay + (osize / 2)) * osize + ax + (osize / 2)];
 }
 
 direction_s	location::getdirection(indext from, indext to) {
@@ -408,8 +408,8 @@ void location::set(indext i, tile_s v) {
 
 void location::ellipse(rect rc, tile_s object) {
 	int a = iabs(rc.width()), b = iabs(rc.height()), b1 = b & 1;
-	long dx = 4 * (1 - a)*b*b, dy = 4 * (b1 + 1)*a*a;
-	long err = dx + dy + b1 * a*a, e2; /* error of 1.step */
+	long dx = 4 * (1 - a) * b * b, dy = 4 * (b1 + 1) * a * a;
+	long err = dx + dy + b1 * a * a, e2; /* error of 1.step */
 	if(rc.x1 > rc.x2) {
 		rc.x1 = rc.x2;
 		rc.x2 += a;
@@ -418,7 +418,7 @@ void location::ellipse(rect rc, tile_s object) {
 		rc.y1 = rc.y2; /* .. exchange them */
 	rc.y1 += (b + 1) / 2;
 	rc.y2 = rc.y1 - b1;   /* starting pixel */
-	a *= 8 * a; b1 = 8 * b*b;
+	a *= 8 * a; b1 = 8 * b * b;
 	do {
 		fill({rc.x1, rc.y1, rc.x2, rc.y1}, object);
 		fill({rc.x1, rc.y2, rc.x2, rc.y2}, object);
@@ -510,7 +510,7 @@ void location::lake(const rect& rc) {
 }
 
 void location::forest(const rect& rc) {
-	loc.fill(rc, rc.width()*rc.height()*dense_forest / 100, Tree);
+	loc.fill(rc, rc.width() * rc.height() * dense_forest / 100, Tree);
 }
 
 bool location::isfreelt(indext i) const {
@@ -736,7 +736,7 @@ void location::blockcreatures() {
 }
 
 void location::blockwalls(bool water) {
-	for(indext i = 0; i < mmx*mmy; i++) {
+	for(indext i = 0; i < mmx * mmy; i++) {
 		switch(tiles[i]) {
 		case Water:
 			if(water)
@@ -935,15 +935,26 @@ void location::loot(indext index, item_s type, int level, char chance_bigger_pri
 	it.set(identify);
 	if(it.is(Coinable))
 		it.setcount(xrand(1 * level, 6 * level));
-	if(chance_bigger_price) {
-		if(d100() < chance_bigger_price)
+	if(chance_bigger_price > 0) {
+		if(d100() < chance_bigger_price) {
 			it.set(Sale150);
-		else
+			if(d100() < chance_bigger_price / 2) {
+				it.set(Sale200);
+				if(d100() < chance_bigger_price / 3) {
+					it.set(Sale250);
+					if(d100() < chance_bigger_price / 4)
+						it.set(Sale300);
+				}
+			}
+		} else
 			it.set(Sale100);
 	} else if(chance_bigger_price < 0) {
-		if(d100() < (-chance_bigger_price))
-			it.set(Sale75);
-		else
+		chance_bigger_price = -chance_bigger_price;
+		if(d100() < chance_bigger_price) {
+			it.set(Sale80);
+			if(d100() < chance_bigger_price / 2)
+				it.set(Sale65);
+		} else
 			it.set(Sale100);
 	}
 	if(it.is(Artifact))
@@ -995,7 +1006,7 @@ void location::content(const rect& rc, room_s type, site* p) {
 		set(index, ei.heart);
 	if(p && ei.keeper)
 		p->setowner(loc.add(index, ei.keeper));
-	for(auto& e : ei.shop) {
+	for(auto& e : ei.shops) {
 		variantc source;
 		source.additems(e.slot, level);
 		source.match(Natural, true);
@@ -1112,7 +1123,7 @@ indext location::getrand(const rect& rc) const {
 }
 
 indext location::find(map_object_s v) const {
-	const indext count = mmx*mmy;
+	const indext count = mmx * mmy;
 	for(indext i = 0; i < count; i++) {
 		if(objects[i] == v)
 			return i;
@@ -1151,7 +1162,7 @@ void location::trail(indext i) {
 
 void location::growplants() {
 	int n, r;
-	for(indext i = 0; i < mmx*mmy; i++) {
+	for(indext i = 0; i < mmx * mmy; i++) {
 		auto t = getobject(i);
 		if(t != Plants)
 			continue;

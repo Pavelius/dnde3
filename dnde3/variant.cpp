@@ -34,6 +34,7 @@ const char*	variant::getnameofc() const {
 	case Ability: return bsdata<abilityi>::elements[value].cursedof;
 	case Skill: return bsdata<skilli>::elements[value].nameof;
 	case State: return bsdata<statei>::elements[value].nameof;
+	case Spell: return bsdata<spelli>::elements[value].nameof;
 	default: return "Нет варианта";
 	}
 }

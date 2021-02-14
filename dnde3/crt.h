@@ -197,11 +197,9 @@ public:
 	void					swap(int i1, int i2);
 	void					reserve(unsigned count);
 };
-struct bsreq;
 template<typename T> struct bsdata {
 	typedef T				data_type;
 	static T				elements[];
-	static const bsreq		meta[];
 	static array			source;
 	static constexpr array*	source_ptr = &source;
 	//
@@ -212,16 +210,10 @@ template<typename T> struct bsdata {
 };
 template<> struct bsdata<int> {
 	typedef int				data_type;
-	static const bsreq		meta[];
 	static constexpr array*	source_ptr = 0;
 };
 template<> struct bsdata<const char*> : bsdata<int> {
 	typedef const char*		data_type;
-	static const bsreq		meta[];
-};
-template<> struct bsdata<bsreq> : bsdata<int> {
-	typedef bsreq			data_type;
-	static const bsreq		meta[];
 };
 template<> struct bsdata<unsigned char> : bsdata<int> {};
 template<> struct bsdata<char> : bsdata<int> {};

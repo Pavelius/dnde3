@@ -1,5 +1,6 @@
 #include "main.h"
 
+static unsigned short sale_percent[8] = {0, 65, 80, 100, 150, 200, 250, 300};
 static const char* damage_text[] = {0, "Треснуло", "Повреждено", "Сломано"};
 static variant common_potions[] = {LifePoints, ManaPoints, DrunkenSpell};
 static variant uncommon_potions[] = {Strenght, Dexterity, Wisdow, Charisma, LifeRate, ManaRate, Level, Speed, Movement, PoisonSpell};
@@ -480,11 +481,7 @@ void item::loot() {
 unsigned item::getcost() const {
 	auto& ei = bsdata<itemi>::elements[type];
 	auto w = ei.cost;
-	auto m = 100;
-	if(sale == Sale75)
-		m = 75;
-	else if(sale == Sale150)
-		m = 150;
+	auto m = sale_percent[sale];
 	if(is(KnownMagic)) {
 		switch(magic) {
 		case Blessed: m += 100; break;
@@ -613,7 +610,7 @@ void item::decoy(damage_s type, bool interactive, bool include_artifact) {
 }
 
 void item::damage(int count, damage_s type, bool interactive) {
-	if(count < 0)
+	if(!(*this))
 		return;
 	auto& ei = bsdata<itemi>::elements[getkind()];
 	auto chance_resist = 70;

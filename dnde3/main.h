@@ -97,15 +97,15 @@ enum alignment_s : unsigned char {
 enum ability_s : unsigned char {
 	Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
 	Attack, Damage,
-	Pierce, Protection, Armor, Deflect, Speed, Movement, Visibility,
-	Level, LifePoints, LifeRate, ManaPoints, ManaRate,
+	Pierce, Protection, Armor, Deflect, Luck, Speed, Movement, Visibility,
+	Level, LifePoints, LifeRate, ManaPoints, ManaRate, FaithPoints,
 };
 enum skill_s : unsigned char {
 	Bargaining, Bluff, Diplomacy,
 	Acrobatics, Alertness, Athletics, Backstabbing, Climbing, Concetration,
 	DisarmTraps, FindWeakness, HearNoises, HideInShadow, Lockpicking, MoveSilently, PickPockets,
 	Alchemy, Cooking, Dancing, Engineering, Gambling, History, Healing, Herbalism,
-	Literacy, Mining, Riding, Smithing, Survival, Swimming,
+	Literacy, Mining, Religion, Riding, Smithing, Survival, Swimming,
 	FocusBows, FocusSwords, FocusAxes, FocusTwohanded,
 	TwoWeaponFighting,
 	FirstSkill = Bargaining, LastSkill = TwoWeaponFighting,
@@ -213,7 +213,7 @@ enum identify_s : unsigned char {
 	Unknown, KnownStats, KnownMagic, KnownPower,
 };
 enum sale_s : unsigned char {
-	NotForSale, Sale75, Sale100, Sale150,
+	NotForSale, Sale65, Sale80, Sale100, Sale150, Sale200, Sale250, Sale300
 };
 enum target_flag_s : unsigned char {
 	NotYou, Friends, Enemies, AlwaysChoose,
@@ -543,7 +543,7 @@ class item {
 	unsigned char		identifyc : 1;
 	unsigned char		identifys : 1;
 	item_type_s			magic : 2;
-	sale_s				sale : 2;
+	sale_s				sale : 3;
 	union {
 		struct {
 			unsigned char	effect;
@@ -672,21 +672,22 @@ public:
 	int					getcap(skill_s i) const { return cap[i]; }
 	void				setcap(skill_s i, int v) { cap[i] = v; }
 };
+struct shopi {
+	char				chance;
+	slot_s				slot;
+	char				price;
+	char				cursed;
+	char				quality;
+};
+typedef std::initializer_list<shopi> shopa;
 struct roomi {
 	typedef aref<const char*> strarray;
-	struct shopi {
-		char			chance;
-		slot_s			slot;
-		char			price;
-		char			cursed;
-		char			quality;
-	};
 	const char*			name;
 	const char*			text;
 	strarray			name1, name2;
 	map_object_s		heart;
 	role_s				keeper;
-	shopi				shop[4];
+	shopa				shops;
 };
 class posable {
 	indext				index;
@@ -743,6 +744,7 @@ public:
 	void				setparam(variant v) { param = v; }
 	creature*			shopkeeper();
 	static void			unlink(const creature& player);
+	bool				use(skill_s id, creature& player, int level, int order, bool run);
 };
 struct rolei {
 	const char*			name;
@@ -802,7 +804,7 @@ struct quest {
 	void				play(contexti& e) const;
 };
 struct statable {
-	short				abilities[ManaRate + 1];
+	short				abilities[FaithPoints + 1];
 	unsigned char		skills[LastSkill + 1];
 	unsigned char		spells[LastSpell + 1];
 	damagef				resistance, immunity, vulnerability;
@@ -823,7 +825,7 @@ class creature : public nameable, public statable {
 	item				wears[LastWear + 1];
 	int					restore_energy, restore_hits, restore_mana;
 	flagable<4>			recipes;
-	char				hp, mp, poison, mood;
+	char				hp, mp, poison, faith, mood;
 	short unsigned		location_id, site_id;
 	class_s				kind;
 	indext				guard;
@@ -859,6 +861,7 @@ class creature : public nameable, public statable {
 	void				equip(item it, slot_s id);
 	void				finish();
 	void				movecost(indext index);
+	bool				pray(bool run);
 	void				raiselevel(bool intearctive);
 	void				randomequip();
 	void				recall(variant id, variant source, int modifier, unsigned rounds);
@@ -1001,8 +1004,7 @@ public:
 	void				readsomething();
 	bool				resist(damage_s v, int bonus, bool interactive) const;
 	void				restoration();
-	bool				roll(ability_s v) const { return rollv(get(v)); }
-	bool				roll(ability_s v, int bonus) const { return rollv(get(v) + bonus); }
+	bool				roll(ability_s v, int bonus = 0) const;
 	bool				roll(skill_s v) const { return rollv(get(v)); }
 	bool				roll(skill_s v, int bonus) const { return rollv(get(v) + bonus); }
 	bool				roll(skill_s v, int bonus, int divider) const;
