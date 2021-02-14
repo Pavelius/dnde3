@@ -391,3 +391,21 @@ bool creature::use(const creaturea& source, skill_s id) {
 	wait();
 	return true;
 }
+
+const char* creature::isusedisable(skill_s id) const {
+	auto& ei = bsdata<skilli>::elements[id];
+	switch(id) {
+	case PickPockets:
+		if(hp < get(LifePoints))
+			return "Вы не можете воровать пока ваше здоровье ниже максимума. Восстановите здоровье и попробуйте снова.";
+		return 0;
+	case Healing: return "Используется автоматически восстанавливая 1 очко [жизни] за определенный промежуток времени.";
+	case Concetration: return "Используется автоматически восстанавливая 1 очко [маны] за определенный промежуток времени.";
+	default:
+		if(ei.isweapon())
+			return "Навык владения оружием влияет на шанс [попадания], наносимый [урон], [скорость] проведения удара и используется автоматически где это применимо.";
+		if(!ei.target)
+			return "Этот навык используется автоматически.";
+		return 0;
+	}
+}

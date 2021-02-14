@@ -486,6 +486,7 @@ void creature::finish() {
 	prepare();
 	hp = get(LifePoints);
 	mp = get(ManaPoints);
+	faith = get(FaithPoints);
 }
 
 void creature::create(race_s race, gender_s gender, class_s type) {
