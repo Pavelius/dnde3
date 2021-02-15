@@ -869,6 +869,7 @@ class creature : public nameable, public statable {
 	bool				use(skill_s id, creature& player, int order, bool run);
 	bool				use(spell_s id, creature& player, int level, int order, bool run);
 	void				use(const foodi& ei, const item it, bool interactive);
+	bool				use(indext index, bool moving);
 	void				usestealth();
 	void				usetrap();
 public:

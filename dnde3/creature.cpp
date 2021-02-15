@@ -833,6 +833,47 @@ void creature::lookaround() {
 	}
 }
 
+bool creature::use(indext index, bool moving) {
+	switch(loc.getobject(index)) {
+	case Door:
+		if(!loc.is(index, Opened)) {
+			if(loc.is(index, Sealed))
+				say("Здесь заперто.");
+			else
+				loc.set(index, Opened);
+			wait();
+			return true;
+		} else if(!moving) {
+			wait();
+			loc.remove(index, Opened);
+			return true;
+		}
+		break;
+	case StairsDown:
+		if(isactive()) {
+			if(askyn("Хотите спуститься вниз?")) {
+				wait();
+				game.use(StairsDown);
+				return true;
+			}
+		}
+		break;
+	case StairsUp:
+		if(isactive()) {
+			if(askyn("Хотите подняться наверх?")) {
+				wait();
+				game.use(StairsUp);
+				return true;
+			}
+		}
+		break;
+	case Tree:
+		cantmovehere();
+		return true;
+	}
+	return false;
+}
+
 void creature::move(indext index) {
 	if(is(Drunken) && d100() < 30) {
 		index = loc.movernd(getposition(), index);
@@ -866,41 +907,8 @@ void creature::move(indext index) {
 			return;
 		}
 	}
-	switch(loc.getobject(index)) {
-	case Door:
-		if(!loc.is(index, Opened)) {
-			if(loc.is(index, Sealed))
-				say("Здесь заперто.");
-			else {
-				//appear();
-				loc.set(index, Opened);
-			}
-			wait();
-			return;
-		}
-		break;
-	case StairsDown:
-		if(isactive()) {
-			if(askyn("Хотите спуститься вниз?")) {
-				wait();
-				game.use(StairsDown);
-			}
-		}
+	if(use(index, true))
 		return;
-	case StairsUp:
-		if(isactive()) {
-			if(askyn("Хотите подняться наверх?")) {
-				wait();
-				game.use(StairsUp);
-			}
-		}
-		return;
-	case Altar:
-		return;
-	case Tree:
-		cantmovehere();
-		return;
-	}
 	auto p = find(index);
 	if(p) {
 		if(isenemy(p)) {
