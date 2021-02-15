@@ -48,50 +48,50 @@ struct imgi {
 	bool			notfound;
 };
 imgi bsdata<imgi>::elements[] = {{""},
-{"blood", "art"},
-{"grass", "art"},
-{"grass_w", "art"},
-{"dungeon", "art"},
-{"dungeon_w", "art"},
-{"shadow", "art"},
-{"road", "art"},
-{"water", "art"},
-{"monsters", "art"},
-{"items", "art"},
-{"doors", "art"},
-{"fog", "art"},
-{"features", "art"},
-{"traps", "art"},
-{"sea", "art"},
-{"plain", "art"},
-{"hills", "art"},
-{"forest", "art"},
-{"mount", "art"},
-{"tmount", "art"},
-{"outdoor", "art"},
-{"swamp", "art"},
-{"trail", "art"},
-{"ui", "art"},
-{"pcmar", "art"},
-{"pcmbd", "art"},
-{"pcmac", "art"},
+	{"blood", "art"},
+	{"grass", "art"},
+	{"grass_w", "art"},
+	{"dungeon", "art"},
+	{"dungeon_w", "art"},
+	{"shadow", "art"},
+	{"road", "art"},
+	{"water", "art"},
+	{"monsters", "art"},
+	{"items", "art"},
+	{"doors", "art"},
+	{"fog", "art"},
+	{"features", "art"},
+	{"traps", "art"},
+	{"sea", "art"},
+	{"plain", "art"},
+	{"hills", "art"},
+	{"forest", "art"},
+	{"mount", "art"},
+	{"tmount", "art"},
+	{"outdoor", "art"},
+	{"swamp", "art"},
+	{"trail", "art"},
+	{"ui", "art"},
+	{"pcmar", "art"},
+	{"pcmbd", "art"},
+	{"pcmac", "art"},
 };
 assert_enum(imgi, ResPCmac);
 
 static hotkeym move_keys[] = {{KeyLeft, Left},
-{KeyHome, LeftUp},
-{KeyUp, Up},
-{KeyPageUp, RightUp},
-{KeyRight, Right},
-{KeyPageDown, RightDown},
-{KeyDown, Down},
-{KeyEnd, LeftDown},
+	{KeyHome, LeftUp},
+	{KeyUp, Up},
+	{KeyPageUp, RightUp},
+	{KeyRight, Right},
+	{KeyPageDown, RightDown},
+	{KeyDown, Down},
+	{KeyEnd, LeftDown},
 };
 
 static picture trail_images[] = {{}, {ResTrail, 6, ImageMirrorV}, {ResTrail, 6}, {ResTrail, 4},
-{ResTrail, 3, ImageMirrorH}, {ResTrail, 0, ImageMirrorH | ImageMirrorV}, {ResTrail, 0, ImageMirrorH}, {ResTrail, 5, ImageMirrorH},
-{ResTrail, 3}, {ResTrail, 0, ImageMirrorV}, {ResTrail, 0}, {ResTrail, 5},
-{ResTrail, 2}, {ResTrail, 7, ImageMirrorV}, {ResTrail, 7}, {ResTrail, 1},
+	{ResTrail, 3, ImageMirrorH}, {ResTrail, 0, ImageMirrorH | ImageMirrorV}, {ResTrail, 0, ImageMirrorH}, {ResTrail, 5, ImageMirrorH},
+	{ResTrail, 3}, {ResTrail, 0, ImageMirrorV}, {ResTrail, 0}, {ResTrail, 5},
+	{ResTrail, 2}, {ResTrail, 7, ImageMirrorV}, {ResTrail, 7}, {ResTrail, 1},
 };
 
 static const sprite* gres(img_s i) {
@@ -295,11 +295,11 @@ static void correct(point& camera, indext i1) {
 	if(x < x1)
 		camera.x = x * elx;
 	if(x > x2 - 1)
-		camera.x = (x - viewport.x / elx)*elx;
+		camera.x = (x - viewport.x / elx) * elx;
 	if(y < y1)
 		camera.y = y * ely;
 	if(y > y2 - 1)
-		camera.y = (y - viewport.y / ely)*ely;
+		camera.y = (y - viewport.y / ely) * ely;
 	correct(camera);
 }
 
@@ -379,15 +379,15 @@ static int detail(int x, int y, int width, const char* format, int width_right, 
 
 static void getkeyname(stringbuilder& sb, int key) {
 	*sb.get() = 0;
-	if(key&Ctrl) {
+	if(key & Ctrl) {
 		sb.add("Ctrl+");
 		key &= ~Ctrl;
 	}
-	if(key&Alt) {
+	if(key & Alt) {
 		sb.add("Alt+");
 		key &= ~Alt;
 	}
-	if(key&Shift) {
+	if(key & Shift) {
 		sb.add("Shift+");
 		key &= ~Shift;
 	}
@@ -753,7 +753,7 @@ bool location::wget(short unsigned i, direction_s direction, tile_s value, bool 
 }
 
 void location::indoor(point camera, bool show_fow, const picture* effects) {
-	creature* units[scrx*scry];
+	creature* units[scrx * scry];
 	auto night_percent = 0;
 	auto is_dungeon = isdungeon();
 	const sprite *floor, *walls;
@@ -1326,7 +1326,7 @@ item* itema::choose(const char* interactive, const char* format, slot_mode_s mod
 				x0 += 22;
 				render(x0, y, 110, *e, mode);
 				auto slot = e->getwearerslot();
-				render_item(x0, y, x2 - x0 - 72, *e, mode == NoSlotName, slot==Melee);
+				render_item(x0, y, x2 - x0 - 72, *e, mode == NoSlotName, slot == Melee);
 				render_weight(x0, y, x2 - x0, *e);
 				index++;
 				y += texth() + 4;
@@ -1450,7 +1450,7 @@ static void pixel(int x, int y, color c1) {
 }
 
 static point getpos(point origin, short x, short y) {
-	return {origin.x + x*mmaps + mmaps / 2 + 1, origin.y + y*mmaps + mmaps / 2 + 1};
+	return {origin.x + x * mmaps + mmaps / 2 + 1, origin.y + y * mmaps + mmaps / 2 + 1};
 }
 
 static void view_bullet(point origin, indext index, int number) {
@@ -1476,7 +1476,7 @@ static void view_name(int x, int y, const site& e, int number) {
 
 static void view_legends(point origin, bool fow) {
 	auto number = 1;
-	auto x1 = origin.x + mmx*mmaps + 40;
+	auto x1 = origin.x + mmx * mmaps + 40;
 	auto y1 = origin.y;
 	for(auto& e : bsdata<site>()) {
 		auto index = e.getposition();
@@ -1580,8 +1580,8 @@ void location::minimap(int x, int y, point camera, bool fow) const {
 	rect cm;
 	cm.x1 = x + xs1 * mmx1 / scx;
 	cm.y1 = y + ys1 * mmy1 / scy;
-	cm.x2 = x + (xs1 + viewport.x)*mmx1 / scx;
-	cm.y2 = y + (ys1 + viewport.y)*mmy1 / scy;
+	cm.x2 = x + (xs1 + viewport.x) * mmx1 / scx;
+	cm.y2 = y + (ys1 + viewport.y) * mmy1 / scy;
 	draw::rectb(cm, border);
 	view_legends({(short)x, (short)y}, fow);
 }
@@ -1594,7 +1594,7 @@ void location::minimap(indext index, bool fow) const {
 		sb.add(" - уровень %1i", loc.level);
 	int w = mmx * mmaps + 280;
 	int h = mmy * mmaps;
-	point camera = {getx(index)*elx - viewport.x / 2, gety(index)*ely - viewport.y / 2};
+	point camera = {getx(index) * elx - viewport.x / 2, gety(index) * ely - viewport.y / 2};
 	while(ismodal()) {
 		draw::rectf({0, 0, draw::getwidth(), draw::getheight()}, colors::form);
 		auto y = 4;
@@ -1617,8 +1617,8 @@ void location::minimap(indext index, bool fow) const {
 }
 
 void location::setcamera(short x, short y) {
-	camera.x = x*elx - getwidth() / 2 + elx / 2;
-	camera.y = y*ely - getheight() / 2 + ely / 2;
+	camera.x = x * elx - getwidth() / 2 + elx / 2;
+	camera.y = y * ely - getheight() / 2 + ely / 2;
 	correct(camera);
 }
 
@@ -1686,11 +1686,11 @@ void answeri::information(const char* title, fntext fparam, int w1 = 80) const {
 const char* answeri::getnmshortcut(const void* object, stringbuilder& sb) {
 	auto pe = (element*)object;
 	auto key = pe->param;
-	if(key&Ctrl)
+	if(key & Ctrl)
 		sb.add("Ctrl+");
-	if(key&Alt)
+	if(key & Alt)
 		sb.add("Alt+");
-	if(key&Shift)
+	if(key & Shift)
 		sb.add("Shift+");
 	key = key & 0xFFFF;
 	switch(key) {
@@ -1753,33 +1753,35 @@ static bool translate_commands(creature* player, const hotkey* keys, bool termin
 	return false;
 }
 
-static hotkey indoor_keys[] = {{F1, "Выбрать 1-го героя", change_player, 0},
-{F2, "Выбрать 2-го героя", change_player, 1},
-{F3, "Выбрать 3-го героя", change_player, 2},
-{F4, "Выбрать 4-го героя", change_player, 3},
-{Ctrl + 'M', "Открыть мануал", gamei::help},
-{'I', "Открыть инвентарь", &creature::inventory},
-{'A', "Использовать навык", &creature::useskills},
-{'D', "Положить пердмет", &creature::dropdown},
-{'P', "Поднять пердмет", &creature::pickup},
-{'Q', "Стрелять по врагу", &creature::shoot},
-{'V', "Рюкзак", &creature::backpack},
-{'M', "Карта местности", &creature::minimap},
-{'S', "Создать заклинание", &creature::usespells},
-{'Z', "Использовать волшебный жезл", &creature::usewands},
-{'U', "Использовать объект", &creature::closedoor},
-{'T', "Использовать инструмент", &creature::usetools},
-{'C', "Поговорить к кем-то", &creature::chat},
-{'L', "Осмотреться по сторонам", &creature::lookobjects},
-{KeySpace, "Подождать 10 минут", &creature::waitturn},
-{Ctrl + 'D', "Выпить что-то", &creature::drink},
-{Ctrl + 'E', "Съесть что-то", &creature::eat},
-{Ctrl + 'R', "Прочитать что-то", &creature::readsomething},
-{Ctrl + 'B', "Поработить для отладки", &creature::enslave},
-{Ctrl + 'W', "Тестировать оружие", &creature::testweapons},
-{Ctrl + 'Q', "Сохранить и выйти", &creature::quitandsave},
-{Ctrl + 'T', "Тестировать зелья", &creature::testpotion},
-{}};
+static hotkey indoor_keys[] = {
+	{F1, "Выбрать 1-го героя", change_player, 0},
+	{F2, "Выбрать 2-го героя", change_player, 1},
+	{F3, "Выбрать 3-го героя", change_player, 2},
+	{F4, "Выбрать 4-го героя", change_player, 3},
+	{Ctrl + 'M', "Открыть мануал", gamei::help},
+	{'I', "Открыть инвентарь", &creature::inventory},
+	{'A', "Использовать навык", &creature::useskills},
+	{'D', "Положить пердмет", &creature::dropdown},
+	{'P', "Поднять пердмет", &creature::pickup},
+	{'Q', "Стрелять по врагу", &creature::shoot},
+	{'V', "Рюкзак", &creature::backpack},
+	{'M', "Карта местности", &creature::minimap},
+	{'S', "Создать заклинание", &creature::usespells},
+	{'Z', "Использовать волшебный жезл", &creature::usewands},
+	{Ctrl + 'U', "Использовать опции этого места", &creature::useroom},
+	{'U', "Использовать объект", &creature::closedoor},
+	{'T', "Использовать инструмент", &creature::usetools},
+	{'C', "Поговорить к кем-то", &creature::chat},
+	{'L', "Осмотреться по сторонам", &creature::lookobjects},
+	{KeySpace, "Подождать 10 минут", &creature::waitturn},
+	{Ctrl + 'D', "Выпить что-то", &creature::drink},
+	{Ctrl + 'E', "Съесть что-то", &creature::eat},
+	{Ctrl + 'R', "Прочитать что-то", &creature::readsomething},
+	{Ctrl + 'B', "Поработить для отладки", &creature::enslave},
+	{Ctrl + 'W', "Тестировать оружие", &creature::testweapons},
+	{Ctrl + 'Q', "Сохранить и выйти", &creature::quitandsave},
+	{Ctrl + 'T', "Тестировать зелья", &creature::testpotion},
+	{}};
 
 void creature::playui() {
 	current_index = Blocked;
@@ -1843,10 +1845,10 @@ void location::show(rooma& rooms) {
 		auto x0 = mmaps, y0 = mmaps;
 		for(auto& e : rooms) {
 			rect rc;
-			rc.x1 = x0 + e.x1*mmaps;
-			rc.x2 = x0 + e.x2*mmaps;
-			rc.y1 = x0 + e.y1*mmaps;
-			rc.y2 = x0 + e.y2*mmaps;
+			rc.x1 = x0 + e.x1 * mmaps;
+			rc.x2 = x0 + e.x2 * mmaps;
+			rc.y1 = x0 + e.y1 * mmaps;
+			rc.y2 = x0 + e.y2 * mmaps;
 			rectb(rc, colors::white);
 		}
 		domodal();
@@ -2039,19 +2041,19 @@ void location::worldmap(point camera, bool show_fow) const {
 }
 
 static hotkey overland_keys[] = {{F1, "Выбрать первого героя", change_player, 0},
-{F2, "Выбрать второго героя", change_player, 1},
-{F3, "Выбрать третьего героя", change_player, 2},
-{F4, "Выбрать четвертого героя", change_player, 3},
-{Ctrl + 'M', "Открыть мануал", gamei::help},
-{'I', "Открыть инвентарь", &creature::inventory},
-{'V', "Рюкзак", &creature::backpack},
-{'Z', "Зайти в локацию", &creature::zoomon},
-{Ctrl + 'D', "Выпить что-то", &creature::drink},
-{Ctrl + 'E', "Съесть что-то", &creature::eat},
-{Ctrl + 'R', "Прочитать что-то", &creature::readsomething},
-{Ctrl + 'W', "Тестировать оружие", &creature::testweapons},
-{Ctrl + 'Q', "Сохранить и выйти", &creature::quitandsave},
-{}};
+	{F2, "Выбрать второго героя", change_player, 1},
+	{F3, "Выбрать третьего героя", change_player, 2},
+	{F4, "Выбрать четвертого героя", change_player, 3},
+	{Ctrl + 'M', "Открыть мануал", gamei::help},
+	{'I', "Открыть инвентарь", &creature::inventory},
+	{'V', "Рюкзак", &creature::backpack},
+	{'Z', "Зайти в локацию", &creature::zoomon},
+	{Ctrl + 'D', "Выпить что-то", &creature::drink},
+	{Ctrl + 'E', "Съесть что-то", &creature::eat},
+	{Ctrl + 'R', "Прочитать что-то", &creature::readsomething},
+	{Ctrl + 'W', "Тестировать оружие", &creature::testweapons},
+	{Ctrl + 'Q', "Сохранить и выйти", &creature::quitandsave},
+	{}};
 
 void creature::playuioverland() {
 	current_index = Blocked;
@@ -2100,17 +2102,17 @@ static void editor_read() {
 }
 
 static hotkey editor_keys[] = {{'1', "Выбрать равнину", choose_tile, Plain},
-{'2', "Выбрать Океан", choose_tile, Sea},
-{'3', "Выбрать Болото", choose_tile, Swamp},
-{'4', "Выбрать Холмы", choose_tile, Foothills},
-{'5', "Выбрать Горы", choose_tile, Mountains},
-{'6', "Выбрать снежные Пики", choose_tile, CloudPeaks},
-{'7', "Выбрать Лес", choose_tile, Forest},
-{'R', "Дорога", &location::trail},
-{KeySpace, "Нарисовать выбранный тайл", put_tile},
-{Ctrl + 'S', "Сохранить карту", editor_save},
-{Ctrl + 'R', "Восстановит карту", editor_read},
-{}};
+	{'2', "Выбрать Океан", choose_tile, Sea},
+	{'3', "Выбрать Болото", choose_tile, Swamp},
+	{'4', "Выбрать Холмы", choose_tile, Foothills},
+	{'5', "Выбрать Горы", choose_tile, Mountains},
+	{'6', "Выбрать снежные Пики", choose_tile, CloudPeaks},
+	{'7', "Выбрать Лес", choose_tile, Forest},
+	{'R', "Дорога", &location::trail},
+	{KeySpace, "Нарисовать выбранный тайл", put_tile},
+	{Ctrl + 'S', "Сохранить карту", editor_save},
+	{Ctrl + 'R', "Восстановит карту", editor_read},
+	{}};
 
 void location::editor() {
 	setbackground(render_editor);

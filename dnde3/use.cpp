@@ -287,6 +287,10 @@ bool creature::apply(creature& player, variant id, int v, int order, bool run) {
 	return true;
 }
 
+void creature::useroom() {
+	lookaround();
+}
+
 void creature::closedoor() {
 	indexa indecies;
 	indecies.select(getposition(), 1);

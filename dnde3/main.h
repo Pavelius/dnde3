@@ -229,7 +229,7 @@ enum map_object_flag_s : unsigned char {
 };
 enum modifier_s : unsigned char {
 	NoModifier,
-	Opponent, Easy, Hard, Resist, Immune, Vulnerable,
+	Opponent, Easy, Hard, Random, Resist, Immune, Vulnerable,
 };
 enum action_s : unsigned char {
 	GuardPosition, StopGuardPosition, UseLongActionSkill, MakeDiscount, MakeHappy, MakeAnger,
@@ -1029,6 +1029,7 @@ public:
 	bool				use(const creaturea& creatures, spell_s id, int level, item* magic_source, bool show_errors);
 	bool				use(const creaturea& creatures, item& it);
 	bool				use(spell_s id, int level, item* magic_source = 0, bool show_errors = false);
+	void				useroom();
 	void				useskills();
 	void				usespells();
 	void				usetools();
