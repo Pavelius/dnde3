@@ -58,8 +58,7 @@ bool creature::use(skill_s id, creature& player, int order, bool run) {
 			return false;
 		if(run) {
 			if(!player.roll(id)) {
-				if(isactive())
-					sb.add("Попытка не удалась.");
+				info("Попытка не удалась.");
 				wait(CoupleMinutes);
 				return false;
 			}
@@ -374,8 +373,7 @@ bool creature::use(const creaturea& source, skill_s id) {
 		return false;
 	auto pu = isusedisable(id);
 	if(pu) {
-		if(isactive())
-			sb.add(pu, getstr(id));
+		info(pu, getstr(id));
 		return false;
 	}
 	auto& ei = bsdata<skilli>::elements[id];

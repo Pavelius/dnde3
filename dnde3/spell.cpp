@@ -230,7 +230,7 @@ bool item::use(spell_s id, creature& player, int level, int order, bool run) {
 			return false;
 		if(run) {
 			set(KnownMagic);
-			act("%герой засветил%ась [-красным] светом.");
+			act("%герой засветил%ась красным светом.");
 		}
 		break;
 	case Identify:
@@ -281,13 +281,11 @@ bool creature::use(const creaturea& source, spell_s id, int level, item* magic_s
 	auto& ei = bsdata<spelli>::elements[id];
 	if(magic_source) {
 		if(magic_source->ischargeable() && !magic_source->getcharges()) {
-			if(isactive())
-				act("Не хватает зарядов.");
+			info("Не хватает зарядов.");
 			return false;
 		}
 	} else if(mp < ei.mp) {
-		if(isactive())
-			act("Не хватает маны.");
+		info("Не хватает маны.");
 		return false;
 	}
 	variant effect = id;

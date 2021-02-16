@@ -1269,8 +1269,7 @@ void creature::checksick() {
 		return;
 	if(hp >= get(LifePoints) / 3) {
 		damage(1, Magic, 100, false);
-		if(isactive())
-			sb.add("Болезнь прогрессирует.");
+		info("Болезнь прогрессирует.");
 	}
 }
 
@@ -1843,8 +1842,7 @@ void creature::fail(skill_s id) {
 		act("%герой испытал%а мышечный спазм.");
 		damage(1, Bludgeon, 100, false);
 	} else if(isbad) {
-		if(isactive())
-			act("Вы убили кучу времени, но все было тщетно.");
+		info("Вы убили кучу времени, но все было тщетно.");
 		wait(xrand(2, 4));
 	}
 }
@@ -1855,8 +1853,7 @@ void creature::appear() {
 
 void creature::readsomething() {
 	if(!skills[Literacy]) {
-		if(isactive())
-			sb.add("Вы не грамотны. Для начала научитесь читать.");
+		info("Вы не грамотны. Для начала научитесь читать.");
 		return;
 	}
 	creaturea creatures(*this);
@@ -1940,9 +1937,8 @@ void creature::learnreceipt(variant id) {
 	int receipt_maximum = get(Alchemy) / 10;
 	act("%герой внимательно изучил%а рецепт.");
 	if(knownreceipt(id) || receipt_count >= receipt_maximum) {
-		if(isactive())
-			sb.add("В нем были важные сведения по алхимии, которых вам не доставало.");
-		addexp(2000 * get(Alchemy) / 100);
+		info("В нем были важные сведения по алхимии, которых вам не доставало.");
+		addexp(5 * get(Alchemy));
 	} else {
 		auto i = item::getreceipts().indexof(id);
 		if(i == -1)

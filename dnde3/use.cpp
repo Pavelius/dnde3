@@ -77,17 +77,16 @@ bool creature::use(const creaturea& creatures, item& it) {
 	case Tool:
 		if(skill.type == Ability) {
 			auto ability_value = get((ability_s)skill.value) * 2;
-			ability_value += it.getbonus() * 2 + ei.quality * 4;
+			ability_value += it.getbonus() * 4;
 			if(skill.value == Charisma) {
 				// Музыкальный инструмент
 				if(mp <= 3) {
-					if(isactive())
-						sb.add("Не хватает маны.");
+					info("Не хватает маны.");
 					return false;
 				}
 				static const char* text[] = {"Храбрый %герой отправился в путь, парочку монстров хотел он нагнуть.",
 					"%герой спустился в темнейший лабиринт и тут он увидал, лежащий бинт, лежавший прямо на полу и, безусловно, он очень пригодился бы ему, если бы он знал, что монстр огромный ...",
-					"Заплати, ведьмаку чеканной монетой, чеканной монетой, оу-оу-оу!!",
+					"Ведьмаку заплатите чеканной монетой, чеканной монетой, оу-оу-оу!!",
 					"Бей его бей! Бей, да точней!",
 					"Да здраствует королева! Королева-Вьюга! Королева всего севера и всего юга.",
 					"Шум волны, да морской прибой, ах не остаться уже нам с тобой.",
@@ -105,8 +104,7 @@ bool creature::use(const creaturea& creatures, item& it) {
 					creaturea creatures(*this);
 					creatures.match(*this, Friendly, false, false);
 					if(!creatures) {
-						if(isactive())
-							sb.add("Вокруг дружелюбно настроеных существ, которые смогут оценить всю крсоту выступления.");
+						info("Вокруг нет [дружелюбно] настроеных существ, которые смогут оценить всю крсоту выступления.");
 						return false;
 					}
 					if(rollv(ability_value)) {
@@ -133,16 +131,14 @@ bool creature::use(const creaturea& creatures, item& it) {
 			}
 		} else if(skill.type == Skill) {
 			if(!skills[skill.value]) {
-				if(isactive())
-					sb.add("Вы не владеете навыком [%1], поэтому не можете исопльзовать этот инструмент.", getstr((skill_s)skill.value));
+				info("Вы не владеете навыком [%1], поэтому не можете исопльзовать этот инструмент.", getstr((skill_s)skill.value));
 				return false;
 			}
 			auto ability_value = get((skill_s)skill.value);
 			ability_value += (it.getbonus() + ei.quality) * 4;
 			if(skill.value == Alchemy) {
 				if(!recipes) {
-					if(isactive())
-						sb.add("Вы не выучили ни одного алхимического рецепта.");
+					info("Вы не выучили ни одного алхимического рецепта.");
 					return false;
 				}
 				auto power = choosereceipt(isactive() ? "По какому рецепту хотите создать зелье?" : 0);
