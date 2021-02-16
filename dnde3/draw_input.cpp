@@ -87,7 +87,6 @@ static hotkeym move_keys[] = {{KeyLeft, Left},
 	{KeyDown, Down},
 	{KeyEnd, LeftDown},
 };
-
 static picture trail_images[] = {{}, {ResTrail, 6, ImageMirrorV}, {ResTrail, 6}, {ResTrail, 4},
 	{ResTrail, 3, ImageMirrorH}, {ResTrail, 0, ImageMirrorH | ImageMirrorV}, {ResTrail, 0, ImageMirrorH}, {ResTrail, 5, ImageMirrorH},
 	{ResTrail, 3}, {ResTrail, 0, ImageMirrorV}, {ResTrail, 0}, {ResTrail, 5},
@@ -139,7 +138,6 @@ static void standart_domodal() {
 	hot.key = draw::rawinput();
 	switch(hot.key) {
 	case 0:
-		//loc.write("overland.map");
 		exit(0);
 		break;
 	}
@@ -1768,7 +1766,7 @@ static hotkey indoor_keys[] = {
 	{'M', "Карта местности", &creature::minimap},
 	{'S', "Создать заклинание", &creature::usespells},
 	{'Z', "Использовать волшебный жезл", &creature::usewands},
-	{Ctrl + 'U', "Использовать опции этого места", &creature::useroom},
+	{Ctrl + 'U', "Использовать окружение", &creature::useroom},
 	{'U', "Использовать объект", &creature::closedoor},
 	{'T', "Использовать инструмент", &creature::usetools},
 	{'C', "Поговорить к кем-то", &creature::chat},

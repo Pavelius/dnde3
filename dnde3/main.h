@@ -713,6 +713,8 @@ public:
 	void				actv(stringbuilder& sb, nameable& e, const char* format, const char* param) const;
 	bool				askv(stringbuilder& st, const nameable& e, const char* format, const char* param) const;
 	bool				cansee() const;
+	void				info(const char* format, ...) const;
+	void				infov(stringbuilder& sb, const char* format, const char* param) const;
 	gender_s			getgender() const;
 	const char*			getname() const;
 	void				getname(stringbuilder& sb) const;

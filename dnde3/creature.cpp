@@ -812,8 +812,7 @@ void creature::usespells() {
 }
 
 void creature::cantmovehere() const {
-	if(isactive())
-		act("—юда не пройти.");
+	info("—юда не пройти.");
 }
 
 void creature::look(indext index) {

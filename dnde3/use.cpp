@@ -288,18 +288,22 @@ bool creature::apply(creature& player, variant id, int v, int order, bool run) {
 }
 
 void creature::useroom() {
-	lookaround();
+	auto site = getsite();
+	if(!site) {
+		info("Ќадо находитьс€ в комнате или в здании, чтобы выполнить эту команду.");
+		return;
+	}
+	info(site->getdescription());
 }
 
 void creature::closedoor() {
 	indexa indecies;
 	indecies.select(getposition(), 1);
 	indecies.match(Door, false);
-	indecies.match(Opened, false);
 	auto i = indecies.choose(isactive() ? "„то использовать из того что р€дом?" : 0);
 	if(i == -1)
 		return;
-	loc.remove(indecies[i], Opened);
+	use(indecies[i], false);
 }
 
 void creature::add(const effecti& e, item_s source) {

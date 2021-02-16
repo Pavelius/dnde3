@@ -312,8 +312,23 @@ void nameable::actv(stringbuilder& st, nameable& e, const char* format, const ch
 	st = sb;
 }
 
+void nameable::infov(stringbuilder& st, const char* format, const char* param) const {
+	if(this != creature::getactive())
+		return;
+	string sb = st;
+	sb.name = getname();
+	sb.gender = getgender();
+	sb.addsep(' ');
+	sb.addv(format, param);
+	st = sb;
+}
+
 void nameable::act(const char* format, ...) const {
 	actv(sb, format, xva_start(format));
+}
+
+void nameable::info(const char* format, ...) const {
+	infov(sb, format, xva_start(format));
 }
 
 bool nameable::askv(stringbuilder& st, const nameable& opponent, const char* format, const char* param) const {

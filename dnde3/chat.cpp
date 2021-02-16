@@ -22,9 +22,9 @@ static quest all_chat[] = {
 	{1, {Random, Opponent, HumanGuard}, "Я за тобой слежу."},
 	{1, {Random, Opponent, HumanGuard}, "Я есть закон."},
 	{1, {Random, Opponent, HumanGuard}, "Что? Куда он побежал?"},
-	{1, {Opponent, HumanGuard}, "Нужны проблемы?"},
-	{1, {Opponent, HumanFemale}, "Знаете какие удои у коров были меяц назад?"},
-	{1, {Opponent, HumanMale}, "Сена в этом году мало, как бы заготовить побольше."},
+	{1, {Random, Opponent, HumanGuard}, "Нужны проблемы?"},
+	{1, {Random, Opponent, HumanFemale}, "Знаете какие удои у коров были меяц назад?"},
+	{1, {Random, Opponent, HumanMale}, "Сена в этом году мало, как бы заготовить побольше."},
 	{1, {Random}, "Чего-то хотите?"},
 	{1, {}, "Хороший день, да?"},
 	{}};
