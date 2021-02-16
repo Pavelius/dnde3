@@ -51,7 +51,7 @@ bool creature::use(const creaturea& creatures, item& it) {
 		if(d100() >= it.getdamage() * 10) {
 			switch(effect.type) {
 			case Ability:
-				potion((ability_s)effect.value, it.getkind(), true, it.getmagic(), it.geti().quality, 120);
+				drink((ability_s)effect.value, it.getkind(), true, it.getmagic(), it.geti().quality, 120);
 				break;
 			case Spell:
 				use((spell_s)effect.value, *this, it.getbonus(), 0, true);
@@ -111,7 +111,7 @@ bool creature::use(const creaturea& creatures, item& it) {
 						auto index = 0;
 						for(auto p : creatures) {
 							if(effect.type == Ability)
-								p->potion((ability_s)effect.value, it.getkind(), true, Mundane, it.geti().quality, 10);
+								p->drink((ability_s)effect.value, it.getkind(), true, Mundane, it.geti().quality, 10);
 							else
 								p->apply(*this, effect, 1, index, true);
 							index++;
@@ -177,7 +177,7 @@ void creature::use(const foodi& fi, const item it, bool interactive) {
 	}
 }
 
-void creature::potion(ability_s id, variant source, bool interactive, item_type_s magic, int quality, int minutes) {
+void creature::drink(ability_s id, variant source, bool interactive, item_type_s magic, int quality, int minutes) {
 	int v;
 	switch(id) {
 	case LifePoints: case ManaPoints:

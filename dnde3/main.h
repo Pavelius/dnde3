@@ -997,7 +997,7 @@ public:
 	void				playuioverland();
 	void				playui();
 	void				pickup();
-	void				potion(ability_s id, variant source, bool interactive, item_type_s magic, int quality, int minutes);
+	void				drink(ability_s id, variant source, bool interactive, item_type_s magic, int quality, int minutes);
 	void				prepare();
 	void				quitandsave();
 	void				raiseathletics();

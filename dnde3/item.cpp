@@ -589,6 +589,10 @@ void item::decoy() {
 	auto& ei = geti();
 	if(ei.slot != Edible)
 		return;
+	auto chance = 20 + ei.quality * 20;
+	auto owner = getwearer();
+	if(owner)
+		chance += owner->get(Cooking) / 3;
 	if(creature::rollv(40 + ei.quality * 20))
 		return;
 	destroy(Magic, true);
