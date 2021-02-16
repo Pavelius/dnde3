@@ -183,7 +183,7 @@ bool gamei::enter(int level, map_object_s stairs) {
 		loc.read("game/overland.loc", true);
 	else if(!loc.read(getposition(), getlevel())) {
 		loc.clear();
-		loc.create(*p, level, false, false);
+		loc.create(*p, level, false);
 	}
 	players.restore();
 	if(!creature::getactive()) {

@@ -42,9 +42,9 @@ bool targeti::prepare(creature& player, creaturea& creatures, itema& items, inde
 	auto result = getcount(creatures, items, indecies) > 0;
 	if(!result && show_errors && player.isactive()) {
 		switch(type) {
-		case Creature: sb.adds("Вокруг нет никого, на кого это могло бы подействовать."); break;
-		case Item: sb.adds("У вас нету подходящего предмета, на которое это подействует."); break;
-		default: sb.adds("Рядом нет объекта, на который это может подействовать."); break;
+		case Creature: sb.adds("Вокруг нет [никого], на кого это могло бы подействовать."); break;
+		case Item: sb.adds("У вас нету подходящего [предмета], на которое это подействует."); break;
+		default: sb.adds("Рядом нет [объекта], на который это может подействовать."); break;
 		}
 	}
 	return result;
@@ -95,6 +95,13 @@ void targeti::use(creature& player, const creaturea& source, creaturea& creature
 	}
 	switch(type) {
 	case Creature:
+		if(is(TargetArea)) {
+			static const targeti targets = {Creature, {Friends}, Close};
+			auto pc = creatures[0];
+			targets.prepare(*pc, creatures, items, indecies, id, v, false);
+			creatures.add(pc);
+			count = creatures.getcount();
+		}
 		for(unsigned i = 0; i < count; i++)
 			creatures[i]->apply(player, id, v, i, true);
 		break;
@@ -103,6 +110,13 @@ void targeti::use(creature& player, const creaturea& source, creaturea& creature
 			items[i]->apply(player, id, v, i, true);
 		break;
 	default:
+		if(is(TargetArea)) {
+			auto pc = indecies[0];
+			indecies.select(pc, 1);
+			indecies.matcha(player, id, v);
+			indecies.sort(pc);
+			count = indecies.getcount();
+		}
 		for(unsigned i = 0; i < count; i++)
 			loc.use(indecies[i], id, player, v, i, true);
 		break;

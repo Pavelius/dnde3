@@ -1135,23 +1135,23 @@ bool creature::needrestore(ability_s id) const {
 
 void creature::add(spell_s id, int v, bool interactive) {
 	if(v > 0) {
-		spells[id] += v;
+		basic.spells[id] += v;
 		if(interactive) {
-			if(spells[id] == 1)
+			if(basic.spells[id] == 1)
 				act("%герой изучил%а заклинание [%+1].", getstr(id));
-			else if(spells[id] > 1)
-				act("%герой улучшил%а владение заклинанием [%+1] до [+%2i] ранга.", getstr(id), spells[id]);
+			else if(basic.spells[id] > 1)
+				act("%герой улучшил%а владение заклинанием [%+1] до [+%2i] ранга.", getstr(id), basic.spells[id]);
 		}
 	} else if(v < 0) {
 		v = -v;
-		if(v > spells[id])
-			v = spells[id];
-		spells[id] -= v;
+		if(v > basic.spells[id])
+			v = basic.spells[id];
+		basic.spells[id] -= v;
 		if(interactive) {
-			if(spells[id] == 0)
+			if(basic.spells[id] == 0)
 				act("%герой забыл%а заклинание %+1.", getstr(id));
 			else
-				act("%герой ухудшил%а уровень владения заклинанием [%+1] до [-%2i] ранга.", getstr(id), spells[id]);
+				act("%герой ухудшил%а уровень владения заклинанием [%+1] до [-%2i] ранга.", getstr(id), basic.spells[id]);
 		}
 	}
 }

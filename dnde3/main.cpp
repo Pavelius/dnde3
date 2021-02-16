@@ -78,7 +78,7 @@ static void test_pause() {
 
 static void test_dungeon() {
 	static dungeoni dungeon = {AreaDungeon, 5, -2};
-	loc.create(dungeon, 1, true, false);
+	loc.create(dungeon, 1, true);
 	loc.setlight(-2);
 	auto p1 = create(Human, Female, Mage);
 	auto p2 = create(Dwarf, Male, Cleric);
@@ -144,6 +144,7 @@ static void begin_game() {
 		auto p3 = create(Ratling, Male, Fighter);
 		create(p1, AlchemyReceipt);
 		p1->raise(Dancing);
+		p1->add(variant(FireBall), 1, false);
 		create(p2, Potion1, DrunkenSpell);
 		create(p1, AlchemySet);
 		createp(p1, Staff);

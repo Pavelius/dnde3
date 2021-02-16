@@ -168,7 +168,7 @@ enum img_s : unsigned char {
 enum spell_s : unsigned char {
 	ArmorSpell, BlessSpell, BlessItem, ChatPerson, CharmPerson,
 	DrunkenSpell, DetectEvil, DetectMagic, Domination,
-	FearSpell, HealingSpell,
+	FearSpell, FireBall, HealingSpell,
 	Identify, Invisibility, KnockDoor, LightSpell, MagicMissile, PoisonSpell,
 	Repair, RemovePoisonSpell, RemoveSickSpell,
 	SickSpell, ShieldSpell, ShokingGrasp, Sleep, SlowMonster, SummonAlly, Web,
@@ -218,7 +218,7 @@ enum sale_s : unsigned char {
 enum target_flag_s : unsigned char {
 	NotYou, Friends, Enemies, AlwaysChoose,
 	LongAction,
-	RandomTargets, TwoTargets, ThreeTargets,
+	RandomTargets, TwoTargets, ThreeTargets, TargetArea,
 	AllTargets,
 };
 enum intellegence_s : unsigned char {
@@ -288,7 +288,7 @@ typedef adat<role_s, 4> summona;
 typedef void(*gentileproc)(indext index);
 typedef void(*stageproc)();
 typedef indext(*getposproc)(direction_s i);
-typedef void(*genareaproc)(const rect& rc, rooma& rooms, const landscapei& landscape, bool visualize);
+typedef void(*genareaproc)(const rect& rc, rooma& rooms, const landscapei& landscape);
 typedef std::initializer_list<slot_s> slota;
 typedef std::initializer_list<item_s> iteme;
 struct variant {
@@ -1120,6 +1120,7 @@ struct targeti {
 	explicit constexpr operator bool() const { return type != NoVariant; }
 	unsigned			getcount(creaturea& creatures, itema& items, indexa& indecies) const;
 	constexpr bool		is(target_flag_s v) const { return flags.is(v); }
+	void				match(creature& player, creaturea& creatures, int r, variant id, int v) const;
 	bool				prepare(creature& player, creaturea& creatures, itema& items, indexa& indecies, variant id, int v, bool show_errors = false) const;
 	bool				use(creature& player, const creaturea& source, variant id, int v, bool show_erros = false) const;
 	void				use(creature& player, const creaturea& source, creaturea& creatures, itema& items, indexa& indecies, variant id, int v) const;
@@ -1214,7 +1215,7 @@ public:
 	static void			clearblock();
 	void				content(const rect& rc, room_s type, site* p);
 	creature*			commoner(indext index);
-	void				create(const dungeoni& type, int level, bool explored, bool visualize);
+	void				create(const dungeoni& type, int level, bool explored);
 	void				drop(indext i, item v);
 	void				editor();
 	void				ellipse(rect rc, tile_s object);

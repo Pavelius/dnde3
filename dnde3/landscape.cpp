@@ -1,5 +1,7 @@
 #include "main.h"
 
+static const bool		visualize_dungeon = false;
+
 struct vector {
 	short unsigned		index;
 	direction_s			dir;
@@ -26,12 +28,12 @@ static vector& getb() {
 	return rooms[stack_get++];
 }
 
-static void show_minimap_step(short unsigned index, bool visualize) {
-	if(visualize)
+static void show_minimap_step(short unsigned index) {
+	if(visualize_dungeon)
 		loc.minimap(index, false);
 }
 
-static void create_big_rooms(const rect& rc, rooma& rooms, const landscapei& land, bool visualize) {
+static void create_big_rooms(const rect& rc, rooma& rooms, const landscapei& land) {
 	if(rc.width() < 4 + 5 || rc.height() < 4 + 3)
 		return;
 	if(rc.height() < max_building_size * 2 && rc.width() < max_building_size * 2) {
@@ -47,17 +49,17 @@ static void create_big_rooms(const rect& rc, rooma& rooms, const landscapei& lan
 			auto x1 = rc.x1 + 1 + rand() % dws;
 			auto y1 = rc.y1 + 1 + rand() % dhs;
 			rooms.add({x1, y1, x1 + dw, y1 + dh});
-			if(visualize)
+			if(visualize_dungeon)
 				loc.show(rooms);
 		}
 	} else if(rc.width() > rc.height()) {
 		auto w1 = rc.width() / 2 + (rand() % 8) - 4;
-		create_big_rooms({rc.x1, rc.y1, rc.x1 + w1 - 1, rc.y2}, rooms, land, visualize);
-		create_big_rooms({rc.x1 + w1, rc.y1, rc.x2, rc.y2}, rooms, land, visualize);
+		create_big_rooms({rc.x1, rc.y1, rc.x1 + w1 - 1, rc.y2}, rooms, land);
+		create_big_rooms({rc.x1 + w1, rc.y1, rc.x2, rc.y2}, rooms, land);
 	} else {
 		auto h1 = rc.height() / 2 + (rand() % 6) - 3;
-		create_big_rooms({rc.x1, rc.y1, rc.x2, rc.y1 + h1 - 1}, rooms, land, visualize);
-		create_big_rooms({rc.x1, rc.y1 + h1, rc.x2, rc.y2}, rooms, land, visualize);
+		create_big_rooms({rc.x1, rc.y1, rc.x2, rc.y1 + h1 - 1}, rooms, land);
+		create_big_rooms({rc.x1, rc.y1 + h1, rc.x2, rc.y2}, rooms, land);
 	}
 }
 
@@ -193,7 +195,7 @@ static void create_corridor(int x, int y, int w, int h, direction_s dir) {
 	}
 }
 
-static void create_dungeon_content(const rect& rc, rooma& rooms, const landscapei& land, bool visualize) {
+static void create_dungeon_content(const rect& rc, rooma& rooms, const landscapei& land) {
 	rooms.count -= 2; // Two room of lesser size would cutted off
 	zshuffle(rooms.data, rooms.count);
 	int index = 0;
@@ -216,7 +218,7 @@ static void create_dungeon_content(const rect& rc, rooma& rooms, const landscape
 	while(stack_get != stack_put) {
 		auto& e = getb();
 		create_connector(e.index, e.dir, rc);
-		show_minimap_step(e.index, visualize);
+		show_minimap_step(e.index);
 	}
 }
 
@@ -224,7 +226,7 @@ static void create_road(const rect& rc) {
 	loc.fill(rc, Road);
 }
 
-static void create_city_buildings(const rect& rc, rooma& rooms, const landscapei& land, bool visualize) {
+static void create_city_buildings(const rect& rc, rooma& rooms, const landscapei& land) {
 	rect r1 = rc.getoffset(2, 2);
 	auto current = 1;
 	auto max_possible_points = rooms.getcount() / 3;
@@ -245,11 +247,11 @@ static void create_city_buildings(const rect& rc, rooma& rooms, const landscapei
 		rect r2; loc.interior(e, t, door, 0, &r2, p);
 		p->setposition(loc.center(r2));
 		current++;
-		show_minimap_step(p->getposition(), visualize);
+		show_minimap_step(p->getposition());
 	}
 }
 
-static void create_city_level(const rect& rc, int level, rooma& rooms, bool visualize) {
+static void create_city_level(const rect& rc, int level, rooma& rooms) {
 	auto w = rc.width();
 	auto h = rc.height();
 	if(d100() < chance_special_area &&
@@ -280,8 +282,8 @@ static void create_city_level(const rect& rc, int level, rooma& rooms, bool visu
 		r = (d100() < 50) ? 0 : 1;
 	if(r == 0) {
 		int w1 = (w*m) / 100; // horizontal
-		create_city_level({rc.x1, rc.y1, rc.x1 + w1, rc.y2}, level + 1, rooms, visualize);
-		create_city_level({rc.x1 + w1 + 1, rc.y1, rc.x2, rc.y2}, level + 1, rooms, visualize);
+		create_city_level({rc.x1, rc.y1, rc.x1 + w1, rc.y2}, level + 1, rooms);
+		create_city_level({rc.x1 + w1 + 1, rc.y1, rc.x2, rc.y2}, level + 1, rooms);
 		if(level <= 2) {
 			auto r1 = rc;
 			if(r1.y2 >= mmy - 3)
@@ -295,8 +297,8 @@ static void create_city_level(const rect& rc, int level, rooma& rooms, bool visu
 		}
 	} else {
 		int h1 = (h*m) / 100; // vertial
-		create_city_level({rc.x1, rc.y1, rc.x2, rc.y1 + h1}, level + 1, rooms, visualize);
-		create_city_level({rc.x1, rc.y1 + h1 + 1, rc.x2, rc.y2}, level + 1, rooms, visualize);
+		create_city_level({rc.x1, rc.y1, rc.x2, rc.y1 + h1}, level + 1, rooms);
+		create_city_level({rc.x1, rc.y1 + h1 + 1, rc.x2, rc.y2}, level + 1, rooms);
 		if(level <= 2) {
 			auto r1 = rc;
 			if(r1.x2 >= mmx - 3)
@@ -311,8 +313,8 @@ static void create_city_level(const rect& rc, int level, rooma& rooms, bool visu
 	}
 }
 
-static void create_city(const rect& rc, rooma& rooms, const landscapei& land, bool visualize) {
-	create_city_level(rc, 0, rooms, visualize);
+static void create_city(const rect& rc, rooma& rooms, const landscapei& land) {
+	create_city_level(rc, 0, rooms);
 }
 
 static indext center_start(direction_s dir) {
@@ -345,7 +347,7 @@ template<> landscapei bsdata<landscapei>::elements[] = {{"Равнина", 0, Plain, {{
 };
 assert_enum(landscapei, AreaCity)
 
-void location::create(const dungeoni& source, int level, bool explored, bool visualize) {
+void location::create(const dungeoni& source, int level, bool explored) {
 	clear();
 	*static_cast<dungeoni*>(this) = source;
 	auto& ei = bsdata<landscapei>::elements[type];
@@ -375,11 +377,11 @@ void location::create(const dungeoni& source, int level, bool explored, bool vis
 	rc.x2 -= ei.border; rc.y2 -= ei.border;
 	// Create rooms
 	if(ei.genarea)
-		ei.genarea(rc, rooms, ei, visualize);
+		ei.genarea(rc, rooms, ei);
 	qsort(rooms.data, rooms.count, sizeof(rooms.data[0]), compare_rect);
 	// Object generator (from big to small)
 	if(ei.genroom)
-		ei.genroom(rc, rooms, ei, visualize);
+		ei.genroom(rc, rooms, ei);
 	// Finish step
 	update_doors();
 }
