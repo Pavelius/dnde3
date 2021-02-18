@@ -5,3 +5,4 @@
 #define BSDATA(e) template<> e bsmeta<e>::elements[]
 #define DECLFULL(e) template<> array bsmeta<e>::source(bsmeta<e>::elements);
 #define DECLDATA(e, n) template<> e bsmeta<e>::elements[n];template<> array bsmeta<e>::source(bsmeta<e>::elements, sizeof(bsmeta<e>::elements[0]), 0, sizeof(bsmeta<e>::elements)/sizeof(bsmeta<e>::elements[0]));
+#define BSDATAC(e, n) template<> e bsdata<e>::elements[n];template<> array bsdata<e>::source(bsdata<e>::elements, sizeof(bsdata<e>::elements[0]), 0, sizeof(bsdata<e>::elements)/sizeof(bsdata<e>::elements[0]));

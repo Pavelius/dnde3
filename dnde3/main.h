@@ -275,15 +275,13 @@ class location;
 class site;
 typedef short unsigned indext;
 typedef adat<rect, 64> rooma;
-typedef flagable<1 + Chaotic / 8> alignmenta;
+typedef flagable<1 + Chaotic / 8> alignmentf;
 typedef flagable<1 + LastState / 8> statef;
-typedef flagable<1 + LastRace / 8> racea;
+typedef flagable<1 + LastRace / 8> racef;
 typedef flagable<1 + ManyItems / 8>	itemf;
 typedef flagable<1 + Blooded / 8> mapflf;
 typedef flagable<1 + WaterAttack / 8> damagef;
 typedef cflags<map_object_flag_s> mapobjf;
-typedef casev<ability_s> abilityv;
-typedef aset<damage_s, 1 + WaterAttack> damagea;
 typedef adat<role_s, 4> summona;
 typedef void(*gentileproc)(indext index);
 typedef void(*stageproc)();
@@ -481,7 +479,7 @@ struct attacki {
 struct materiali {
 	const char*			name;
 	const char*			genders[3];
-	damagea				resist;
+	damagef				resist, vulnerable;
 };
 struct damagei {
 	const char*			name;
@@ -1076,7 +1074,7 @@ struct dungeoni {
 	char				level;
 	char				light_level;
 	room_s				rooms[8];
-	racea				denyrace;
+	racef				denyrace;
 	itemc				items;
 	explicit constexpr operator bool() const { return level != 0; }
 	const dungeoni*		find(int level) const;

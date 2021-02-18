@@ -62,40 +62,9 @@ static void modify_weapon(creature* p1) {
 	//pi->setidentify(1);
 }
 
-static void test_stack(creature* p1) {
-	item i1(Arrow, 1);
-	item i2 = i1;
-	i1.setcount(40000);
-	i2.setcount(40000);
-	p1->add(i1, true, false);
-	p1->add(i2, true, false);
-}
-
 static void test_pause() {
 	sb.add("Текст, который написан и который будет выведен с паузой.");
 	creature::pause();
-}
-
-static void test_dungeon() {
-	static dungeoni dungeon = {AreaDungeon, 5, -2};
-	loc.create(dungeon, 1, true);
-	loc.setlight(-2);
-	auto p1 = create(Human, Female, Mage);
-	auto p2 = create(Dwarf, Male, Cleric);
-	auto p3 = create(Human, Male, Fighter);
-	p1->activate();
-	create(p1, Potion3, Level);
-	create(p1, Amulet1, Lockpicking);
-	create(p1, Boot1);
-	create(p1, Helmet);
-	create(p1, RingRed);
-	create(p1, Wand1, Sleep);
-	create(p1, Book1);
-	create(p1, Guitar, Damage);
-	create(p3, BracersLeather);
-	create(p3, Wand1);
-	modify_weapon(p1);
-	game.play();
 }
 
 static void item_choose() {
@@ -149,7 +118,7 @@ static void begin_game() {
 		create(p1, AlchemySet);
 		createp(p1, Staff);
 		p1->addexp(10000, false);
-		game.setposition(loc.get(8, 8));
+		game.setposition(774);
 		if(!game.enter(0, NoTileObject))
 			return;
 	}

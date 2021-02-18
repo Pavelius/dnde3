@@ -1,6 +1,6 @@
 #include "main.h"
 
-static const bool		visualize_dungeon = false;
+static const bool		visualize_dungeon = true;
 
 struct vector {
 	short unsigned		index;

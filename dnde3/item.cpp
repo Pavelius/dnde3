@@ -404,7 +404,7 @@ int	item::getbonus() const {
 	int m = geti().quality;
 	if(identifyc) {
 		switch(magic) {
-		case Artifact: m += 2; break;
+		case Artifact: m += 3; break;
 		case Blessed: m += 1; break;
 		case Cursed: return -1 - m;
 		}
@@ -472,6 +472,7 @@ void item::set(identify_s v) {
 	case KnownStats: identifys = 1; break;
 	default: identifyc = identifys = identifye = 0; break;
 	}
+	getwearer()->prepare();
 }
 
 void item::loot() {
@@ -570,6 +571,7 @@ void item::destroy(damage_s type, bool interactive) {
 	if(interactive) {
 		auto& ei = bsdata<itemi>::elements[getkind()];
 		static descriptioni text[] = {
+			{Iron, WaterAttack, "%герой полностью заржавел%а и рассыпал%ась."},
 			{Glass, Fire, "%герой расплавил%ась и взорвалась."},
 			{Glass, {}, "%герой разбил%ась вдребезги."},
 			{Wood, Fire, "%герой сгорел%а до тла."},
@@ -619,14 +621,12 @@ void item::damage(int count, damage_s type, bool interactive) {
 	auto& ei = bsdata<itemi>::elements[getkind()];
 	auto chance_resist = 70;
 	chance_resist -= count;
-	chance_resist += bsdata<materiali>::elements[ei.material].resist.data[type];
+	if(bsdata<materiali>::elements[ei.material].resist.is(type))
+		chance_resist += 40;
+	if(bsdata<materiali>::elements[ei.material].vulnerable.is(type))
+		chance_resist -= 40;
 	chance_resist += getbonus() * 4;
-	if(chance_resist < 5)
-		chance_resist = 5;
-	else if(chance_resist > 95)
-		chance_resist = 95;
-	auto roll_result = d100();
-	if(roll_result < chance_resist)
+	if(creature::rollv(chance_resist))
 		return;
 	decoy(type, interactive);
 }
