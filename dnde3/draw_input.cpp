@@ -956,6 +956,8 @@ void location::indoor(point camera, bool show_fow, const picture* effects) {
 			auto r = getrand(i);
 			switch(t) {
 			case Door:
+				if(gettile(i) == Wall)
+					break; // Hidden door
 				r = is(i, Opened) ? 0 : 1;
 				if(gettile(to(i, Left)) == Wall && gettile(to(i, Right)) == Wall)
 					draw::image(x, y + 16, doors, r, 0);
@@ -1538,6 +1540,8 @@ void location::minimap(int x, int y, point camera, bool fow) const {
 				pixel(x3, y3, water);
 				break;
 			case Wall:
+				pixel(x3, y3, wall);
+				continue; // Hidden objects don't shown
 			case CloudPeaks:
 				pixel(x3, y3, wall);
 				break;
@@ -1779,6 +1783,7 @@ static hotkey indoor_keys[] = {
 	{Ctrl + 'W', "Тестировать оружие", &creature::testweapons},
 	{Ctrl + 'Q', "Сохранить и выйти", &creature::quitandsave},
 	{Ctrl + 'T', "Тестировать зелья", &creature::testpotion},
+	{Ctrl + 'S', "Обыскать область вокруг", &creature::search},
 	{}};
 
 void creature::playui() {

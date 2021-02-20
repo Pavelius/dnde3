@@ -862,6 +862,7 @@ class creature : public nameable, public statable {
 	void				finish();
 	void				movecost(indext index);
 	bool				pray(bool run);
+	void				qsearch();
 	void				raiselevel(bool intearctive);
 	void				randomequip();
 	void				recall(variant id, variant source, int modifier, unsigned rounds);
@@ -1013,6 +1014,7 @@ public:
 	static int			rollv(int v1, int v2);
 	void				say(const char* format, ...) const;
 	bool				saybusy();
+	void				search();
 	void				select(itema& a, slot_s i1, slot_s i2, bool filled_only);
 	void				select(skilla& e) const;
 	void				set(ability_s i, int v) { abilities[i] = v; }
@@ -1152,6 +1154,7 @@ struct spelli {
 };
 struct itemground : item {
 	short unsigned		index;
+	void				clear();
 };
 struct vproc {
 	void(*pinp)();
@@ -1224,6 +1227,7 @@ public:
 	void				fill(const rect& rc, map_flag_s v);
 	void				fill(const rect& rc, map_object_s v);
 	void				fill(const rect& rc, tile_s v);
+	void				fille(const rect& rc, tile_s v);
 	indext				find(map_object_s v) const;
 	indext				find(tile_s v, const rect& rc) const;
 	void				forest(const rect& rc);
@@ -1250,8 +1254,10 @@ public:
 	tile_s				gettile(indext i) const;
 	trap_s				gettrap(indext i) const;
 	void				growplants();
+	void				hide(indext i);
 	void				indoor(point camera, bool show_fow = true, const picture* effects = 0);
 	bool				is(indext i, map_flag_s v) const { return flags[i].is(v); }
+	bool				ishidden(indext i) const;
 	bool				isfree(indext i) const;
 	bool				isfreelt(indext i) const;
 	bool				isfreenc(indext i) const;
@@ -1274,6 +1280,7 @@ public:
 	bool				read(indext index, int level);
 	void				remove(indext i, map_flag_s v) { flags[i].remove(v); }
 	void				remove(indext i);
+	void				reveal(indext i);
 	void				serialx(const char* url, bool write_mode);
 	void				set(indext i, map_flag_s v) { flags[i].set(v); }
 	void				set(indext i, tile_s v);

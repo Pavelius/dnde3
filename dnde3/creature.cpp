@@ -2203,3 +2203,28 @@ bool creature::pray(bool run) {
 		return false;
 	return true;
 }
+
+void creature::qsearch() {
+	auto x0 = loc.getx(getposition());
+	auto y0 = loc.gety(getposition());
+	for(auto x = x0 - 1; x <= x0 + 1; x++) {
+		for(auto y = y0 - 1; y <= y0 + 1; y++) {
+			auto i = loc.get(x, y);
+			if(i == Blocked)
+				continue;
+			if(!loc.ishidden(i))
+				continue;
+			if(roll(Wisdow, get(Alertness) / 3)) {
+				static const char* speech[] = {"—мотрите! Ёто %1.", "я наш%ла %1.", "“ут %1.", "я кое что наш%ел."};
+				say(maprnd(speech), getstr(loc.getobject(i)));
+				loc.reveal(i);
+				addexp(10, false);
+			}
+		}
+	}
+}
+
+void creature::search() {
+	qsearch();
+	wait(CoupleMinutes);
+}

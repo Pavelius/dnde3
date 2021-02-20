@@ -365,6 +365,16 @@ void location::fill(const rect& rc, tile_s v) {
 			set(get(x, y), v);
 }
 
+void location::fille(const rect& rc, tile_s v) {
+	auto r1 = normalize(rc);
+	for(auto y = r1.y1; y <= r1.y2; y++)
+		for(auto x = r1.x1; x <= r1.x2; x++) {
+			auto i = get(x, y);
+			set(i, v);
+			set(i, Explored);
+		}
+}
+
 void location::fill(const rect& r1, map_flag_s v) {
 	for(auto y = r1.y1; y <= r1.y2; y++)
 		for(auto x = r1.x1; x <= r1.x2; x++) {
@@ -871,9 +881,8 @@ site& location::room(const rect& rc) {
 bool location::ismatch(indext index, const rect& rectangle) const {
 	if(index == Blocked)
 		return false;
-	auto x = getx(index);
-	auto y = gety(index);
-	if(x < rectangle.x1 || x >= rectangle.x2 || y < rectangle.y1 || y >= rectangle.y2)
+	auto x = getx(index), y = gety(index);
+	if(x < rectangle.x1 || x > rectangle.x2 || y < rectangle.y1 || y > rectangle.y2)
 		return false;
 	return true;
 }
@@ -1217,4 +1226,22 @@ void location::generate(indext start, tile_s tile, int chance, int count) {
 			}
 		}
 	}
+}
+
+bool location::ishidden(indext i) const {
+	if(i == Blocked)
+		return false;
+	return tiles[i] == Wall && objects[i] != NoTileObject;
+}
+
+void location::reveal(indext i) {
+	if(i == Blocked)
+		return;
+	tiles[i] = Floor;
+}
+
+void location::hide(indext i) {
+	if(i == Blocked)
+		return;
+	tiles[i] = Wall;
 }

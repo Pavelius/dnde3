@@ -306,8 +306,7 @@ bool location::use(indext index, skill_s id, creature& player, int level, int or
 		if(getobject(index) != Door || !is(index, Sealed) || is(index, Opened) || is(index, Hidden))
 			return false;
 		if(run) {
-			// Random bonus for door to open
-			if(!player.roll(id, (getrand(index) % 21) - 10)) {
+			if(!player.roll(id)) {
 				player.act("%герой ударил%а двери, но те не поддались.");
 				player.fail(id);
 				return false;

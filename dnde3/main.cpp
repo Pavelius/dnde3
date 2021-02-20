@@ -27,39 +27,9 @@ static void create(creature* p1, item_s type, variant effect) {
 	p1->add(it, true, false);
 }
 
-static void test_adventure() {
-	bsdata<outdoori>::elements[CityMeher].index = loc.get(4, 8);
-	if(!game.read()) {
-		auto p1 = create(Elf, Female, Mage);
-		auto p2 = create(Dwarf, Male, Cleric);
-		auto p3 = create(Elf, Male, Fighter);
-		create(p1, AlchemyReceipt);
-		create(p1, AlchemySet);
-		createp(p1, Staff);
-		p1->activate();
-		game.setposition(loc.get(8, 8));
-		if(!game.enter(0, NoTileObject))
-			return;
-	}
-	game.play();
-}
-
-static void test_answers() {
-	sb.addn("##Создание персонажа");
-	sb.addn("У вас есть преимущество при выборе данных этого элемента.");
-	answeri an;
-	an.add(1, "Тестовый выбор для строки");
-	an.add(1, "Тестовый выбор для второй строки");
-	an.choosev(true, false, true, sb);
-}
-
 static void modify_weapon(creature* p1) {
 	item* pi = (item*)&p1->get(Melee);
 	pi->seteffect(Attack);
-	//pi->decoy(Bludgeon, true);
-	//pi->set(Cursed);
-	//pi->setquality(3);
-	//pi->setidentify(1);
 }
 
 static void test_pause() {
@@ -137,7 +107,8 @@ static void exit_game() {
 }
 
 static void test_game() {
-	game.begin();
+	//game.begin();
+	loc.create(bsdata<outdoori>::elements[2].levels[0], 2, true);
 }
 
 static stageproc choose_stage() {
@@ -172,6 +143,6 @@ int main(int argc, char* argv[]) {
 
 int __stdcall WinMain(void* ci, void* pi, char* cmd, int sw) {
 	srand((unsigned)time(0));
-	//srand(12200);
+	//srand(2210);
 	return main(0, 0);
 }
