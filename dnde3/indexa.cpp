@@ -58,7 +58,7 @@ void indexa::matcha(creature& player, variant id, int v) {
 void indexa::matchr(indext index, int range) {
 	auto ps = data;
 	for(auto i : *this) {
-		if(loc.getrange(i, index)>range)
+		if(loc.getrange(i, index) > range)
 			continue;
 		*ps++ = i;
 	}
@@ -78,4 +78,15 @@ static int compare_distance(const void* v1, const void* v2) {
 void indexa::sort(indext start) {
 	compare_index = start;
 	qsort(data, count, sizeof(data[0]), compare_distance);
+}
+
+void indexa::matchobj(bool remove) {
+	auto ps = data;
+	for(auto i : *this) {
+		auto result = (loc.getobject(i) != NoTileObject);
+		if(result == remove)
+			continue;
+		*ps++ = i;
+	}
+	count = ps - data;
 }

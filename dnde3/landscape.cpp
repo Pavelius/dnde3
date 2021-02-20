@@ -218,7 +218,7 @@ static void create_connector(indext index, direction_s dir, const rect& correct)
 				create_corridor_content(i0);
 		}
 		index = i0;
-		if(count>=minimum_corridor_lenght && d100() >= chance_line_corridor)
+		if(count >= minimum_corridor_lenght && d100() >= chance_line_corridor)
 			break;
 		count++;
 	}
@@ -462,10 +462,10 @@ static indext road_start(direction_s dir) {
 	}
 }
 
-template<> landscapei bsdata<landscapei>::elements[] = {{"Равнина", 0, Plain, {{Tree, 2}, {Water, -16}, {Hill, 1}, {Swamp, -20}, {Plants, 1}}, 0, 0, center_start},
+template<> landscapei bsdata<landscapei>::elements[] = {
+	{"Равнина", 0, Plain, {{Tree, 2}, {Water, -16}, {Hill, 1}, {Swamp, -20}, {Plants, 1}}, 0, 0, center_start},
 	{"Лес", 0, Plain, {{Tree, 12}, {Hill, 1}, {Swamp, -20}, {Plants, 1}}, 0, 0, center_start},
 	{"Болото", 0, Plain, {{Tree, -40}, {Swamp, 1}, {Lake, 1}}, 0, 0, center_start},
-	// 
 	{"Подземелье", 1, Wall, {}, create_dungeon_rooms, create_dungeon_content, center_start},
 	{"Город", 1, Plain, {{Tree, 2}, {Water, -16}}, create_city, create_city_buildings, road_start},
 };

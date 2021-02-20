@@ -360,6 +360,11 @@ struct sloti {
 struct dietyi {
 	const char*			name;
 	const char*			nameof;
+	gender_s			gender;
+	itemf				sacred;
+	const char*			symbol;
+	void				act(const char* format, ...) const;
+	void				actv(stringbuilder& sb, const char* format, const char* format_param) const;
 };
 struct chancei {
 	state_s				state;
@@ -686,6 +691,7 @@ struct roomi {
 	map_object_s		heart;
 	role_s				keeper;
 	shopa				shops;
+	fntext				getdescription;
 };
 class posable {
 	indext				index;
@@ -731,12 +737,13 @@ class site : public nameable, public rect {
 	unsigned			recoil;
 public:
 	explicit operator bool() { return x2 > x1 && y2 > y1; }
+	void				addlook(stringbuilder& sb) const;
 	void				clear();
 	static site*		find(indext index);
-	const char*			getdescription() const;
 	room_s				getkind() const { return (room_s)value; }
 	creature*			getowner() const;
 	variant				getparam() const { return param; }
+	bool				haslook() const;
 	creature*			priest();
 	void				set(const rect& v) { *static_cast<rect*>(this) = v; }
 	void				set(room_s v) { type = Room; value = v; }
@@ -866,7 +873,7 @@ class creature : public nameable, public statable {
 	void				raiselevel(bool intearctive);
 	void				randomequip();
 	void				recall(variant id, variant source, int modifier, unsigned rounds);
-	bool				remove(item& it, bool run, bool talk);
+	bool				remove(item& it, bool run, bool talk, bool same_owner);
 	bool				use(skill_s id, creature& player, int order, bool run);
 	bool				use(spell_s id, creature& player, int level, int order, bool run);
 	void				use(const foodi& ei, const item it, bool interactive);
@@ -905,7 +912,6 @@ public:
 	void				create(role_s type);
 	void				clear();
 	void				consume(int energy_value);
-	void				closedoor();
 	void				damage(int count, damage_s type, int pierce = 0, bool interactive = true);
 	void				damagewears(int count, damage_s type, int item_count = 1);
 	void				decoyfood();
@@ -1012,6 +1018,7 @@ public:
 	bool				roll(skill_s v, int bonus, int divider) const;
 	static bool			rollv(int v);
 	static int			rollv(int v1, int v2);
+	void				sacrifice(diety_s god, item& it);
 	void				say(const char* format, ...) const;
 	bool				saybusy();
 	void				search();
@@ -1031,6 +1038,7 @@ public:
 	bool				use(const creaturea& creatures, spell_s id, int level, item* magic_source, bool show_errors);
 	bool				use(const creaturea& creatures, item& it);
 	bool				use(spell_s id, int level, item* magic_source = 0, bool show_errors = false);
+	void				useobject();
 	void				useroom();
 	void				useskills();
 	void				usespells();
@@ -1103,6 +1111,7 @@ public:
 	void				match(variant v, bool remove);
 	void				matcha(creature& player, variant id, int v);
 	void				matchr(indext index, int range);
+	void				matchobj(bool remove);
 	void				select(indext index, int distance);
 	void				sort(indext start);
 };

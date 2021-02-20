@@ -634,19 +634,10 @@ void creature::select(itema& a, slot_s i1, slot_s i2, bool filled_only) {
 }
 
 void creature::dropdown(item& item) {
-	if(!remove(item, false, true))
+	if(!remove(item, false, true, false))
 		return;
-	if(item.ispersonal()) {
-		static const char* text[] = {
-			"Я не отбам свое.",
-			"Это только для моего личного использования.",
-			"Не могу. Это мое личное. Оно дорого мне, как память."
-		};
-		say(maprnd(text));
-		return;
-	}
 	loc.drop(getposition(), item);
-	remove(item, true, true);
+	remove(item, true, true, false);
 	consume(StandartEnergyCost / 4);
 }
 
@@ -710,7 +701,7 @@ void creature::inventory() {
 			break;
 		auto slot = pi->getwearerslot();
 		if(*pi) {
-			if(!remove(*pi, false, true)) {
+			if(!remove(*pi, false, true, true)) {
 				pause();
 				continue;
 			}
@@ -719,7 +710,7 @@ void creature::inventory() {
 				continue;
 			}
 			add(*pi, true, false);
-			remove(*pi, true, false);
+			remove(*pi, true, false, true);
 		} else {
 			if(slot >= Head && slot <= LastWear) {
 				items.clear();
@@ -735,7 +726,7 @@ void creature::inventory() {
 	}
 }
 
-bool creature::remove(item& e, bool run, bool talk) {
+bool creature::remove(item& e, bool run, bool talk, bool same_owner) {
 	if(!e)
 		return false;
 	auto slot = e.getwearerslot();
@@ -757,6 +748,16 @@ bool creature::remove(item& e, bool run, bool talk) {
 				"Как я это сниму? Отрежу?",
 				"Ты в своем уме?",
 				"Это приросло ко мне намертво.",
+			};
+			say(maprnd(text));
+		}
+		return false;
+	} else if(!same_owner && e.ispersonal()) {
+		if(talk) {
+			static const char* text[] = {
+				"Я не отбам свое.",
+				"Это только для моего личного использования.",
+				"Не могу. Это мое личное. Оно дорого мне, как память."
 			};
 			say(maprnd(text));
 		}
@@ -835,7 +836,9 @@ void creature::lookaround() {
 bool creature::use(indext index, bool moving) {
 	switch(loc.getobject(index)) {
 	case Door:
-		if(!loc.is(index, Opened)) {
+		if(getposition() == index)
+			info("Вы стоите в дверном проходе. Двери закрыть не получится.");
+		else if(!loc.is(index, Opened)) {
 			if(loc.is(index, Sealed))
 				say("Здесь заперто.");
 			else
@@ -866,8 +869,26 @@ bool creature::use(indext index, bool moving) {
 			}
 		}
 		break;
+	case Altar:
+		if(getsite()) {
+			auto site = getsite();
+			auto param = site->getparam();
+			if(param.type != God)
+				return false;
+			itema items;
+			items.selectb(*this);
+			auto p = items.choose(isactive() ? "Что хотите принести в жертву на алтаре?" : 0, 0, NoSlotName);
+			if(p)
+				sacrifice((diety_s)param.value, *p);
+			return true;
+		}
+		break;
 	case Tree:
-		cantmovehere();
+		if(moving)
+			cantmovehere();
+		else {
+			act("%герой потряс%ла дерево.");
+		}
 		return true;
 	}
 	return false;
@@ -978,12 +999,11 @@ void creature::move(indext index) {
 	}
 	// Выведем сообщение об окруающей среде
 	if(site != pnewsite && pnewsite) {
-		auto p = pnewsite->getdescription();
-		if(p && isactive()) {
+		if(pnewsite->haslook() && isactive()) {
 			sb.add("Перед вами ");
 			pnewsite->getname(sb);
 			sb.add(". ");
-			sb.add(p);
+			pnewsite->addlook(sb);
 		}
 	}
 	movecost(index);
@@ -2205,6 +2225,11 @@ bool creature::pray(bool run) {
 }
 
 void creature::qsearch() {
+	auto site = getsite();
+	if(site) {
+		if(isactive())
+			site->addlook(sb);
+	}
 	auto x0 = loc.getx(getposition());
 	auto y0 = loc.gety(getposition());
 	for(auto x = x0 - 1; x <= x0 + 1; x++) {
@@ -2227,4 +2252,29 @@ void creature::qsearch() {
 void creature::search() {
 	qsearch();
 	wait(CoupleMinutes);
+}
+
+void creature::sacrifice(diety_s god, item& it) {
+	auto& ei = bsdata<dietyi>::elements[god];
+	if(!remove(it, false, isactive(), false))
+		return;
+	if(ei.sacred.is(it.getkind())) {
+		switch(ei.gender) {
+		case Female: info("%1 приняла дар и осталась довольна.", ei.name); break;
+		default: info("%1 принял дар и остался доволен.", ei.name); break;
+		}
+		auto magic = it.getmagic();
+		it.clear();
+		faith = get(FaithPoints);
+		if(magic >= Cursed)
+			faith += 2;
+		if(magic >= Artifact) {
+		}
+	} else {
+		switch(ei.gender) {
+		case Female: info("%1 осталась равнодушной.", ei.name); break;
+		default: info("%1 оставил тебя без внимания.", ei.name); break;
+		}
+		dropdown(it);
+	}
 }

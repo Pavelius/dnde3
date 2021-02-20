@@ -31,18 +31,31 @@ static const char* temple[] = {"Храм %6",
 "Молебня %6",
 };
 
-BSDATA(roomi) = {{""},
-{"Сокровищница", "На полу лежало множество сундуков и золотых монет.", {}, {}, NoTileObject, {}, {{60, Coinable}}},
-{"Спуск ниже", 0, {}, {}, StairsDown},
-{"Подъем наверх", 0, {}, {}, StairsUp},
-{"Дом"},
-{"Логово"},
-{0, 0, temple},
-{"Таверна \"%1 %2\"", "Вокруг стен стояли деревянные столы, на которых была выпивка. За столом сидели люди, пили и ели.", {}, {}, NoTileObject, Bartender},
-{"Бараки", "Вокруг стен стояло множество стеллажей с оружием. Хмурая охрана пристально следила за вами."},
-{"Магистратура"},
-{0, "Вокруг стен стояло множество стоек и шкафов на которых было развешено оружие и доспехи.", shop_weapon, shop_end, NoTileObject, Shopkeeper, {{30, Torso, 10}, {70, Melee, 10}}},
-{0, "Вокруг стен стояло множество шкафов на которых стояли бутылочки различных цветов.", shop_potions, shop_end, NoTileObject, Shopkeeper, {{80, Drinkable, 20}}},
-{0, 0, shop_scrolls, shop_end, NoTileObject, Shopkeeper, {{70, Readable, 30}}},
-{0, 0, shop_food, shop_end, NoTileObject, Shopkeeper, {{90, Edible, 5}}},
+static const char* addlooktemple(const void* object, stringbuilder& sb) {
+	auto p = (site*)object;
+	auto v = p->getparam();
+	if(v.type != God)
+		return 0;
+	auto& ei = bsdata<dietyi>::elements[v.value];
+	sb.add("Вокруг вас была комната с величественными колонами и высоким потолком. Посредине находился алтарь, на котором нарисован знак: ");
+	sb.add(ei.symbol);
+	sb.add(".");
+	return sb.begin();
+}
+
+BSDATA(roomi) = {
+	{""},
+	{"Сокровищница", "На полу вдоль стен стояло множество сундуков, а на полу лежало множество золотых монет.", {}, {}, NoTileObject, {}, {{60, Coinable}}},
+	{"Спуск ниже", 0, {}, {}, StairsDown},
+	{"Подъем наверх", 0, {}, {}, StairsUp},
+	{"Дом"},
+	{"Логово"},
+	{0, 0, temple, {}, Altar, {}, {}, addlooktemple},
+	{"Таверна \"%1 %2\"", "Вокруг стен стояли деревянные столы, на которых была выпивка. За столом сидели люди, пили и ели.", {}, {}, NoTileObject, Bartender},
+	{"Бараки", "Вокруг стен стояло множество стеллажей с оружием. Хмурая охрана пристально следила за вами."},
+	{"Магистратура", "Пол и стены этого здания состояли из красивого мощеного камня и были накрыты акуратными коврами. Вокру стояли столы и несколько стульев."},
+	{0, "Вокруг стен стояло множество стоек и шкафов на которых было развешено оружие и доспехи.", shop_weapon, shop_end, NoTileObject, Shopkeeper, {{30, Torso, 10}, {70, Melee, 10}}},
+	{0, "Вокруг стен стояло множество шкафов на которых стояли бутылочки различных цветов.", shop_potions, shop_end, NoTileObject, Shopkeeper, {{80, Drinkable, 20}}},
+	{0, 0, shop_scrolls, shop_end, NoTileObject, Shopkeeper, {{70, Readable, 30}}},
+	{0, 0, shop_food, shop_end, NoTileObject, Shopkeeper, {{90, Edible, 5}}},
 };

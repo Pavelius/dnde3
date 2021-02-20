@@ -12,10 +12,23 @@ creature* site::getowner() const {
 	return (owner_id == Blocked) ? 0 : bsdata<creature>::elements + owner_id;
 }
 
-const char* site::getdescription() const {
-	if(type == Room)
-		return bsdata<roomi>::elements[value].text;
-	return 0;
+bool site::haslook() const {
+	switch(type) {
+	case Room:
+		return bsdata<roomi>::elements[value].getdescription || bsdata<roomi>::elements[value].text;
+	default:
+		return false;
+	}
+}
+
+void site::addlook(stringbuilder& sb) const {
+	if(type == Room) {
+		auto& ei = bsdata<roomi>::elements[value];
+		if(ei.getdescription)
+			ei.getdescription(this, sb);
+		else
+			sb.add(ei.text);
+	}
 }
 
 site* site::find(indext index) {

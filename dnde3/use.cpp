@@ -283,25 +283,6 @@ bool creature::apply(creature& player, variant id, int v, int order, bool run) {
 	return true;
 }
 
-void creature::useroom() {
-	auto site = getsite();
-	if(!site) {
-		info("Ќадо находитьс€ в комнате или в здании, чтобы выполнить эту команду.");
-		return;
-	}
-	info(site->getdescription());
-}
-
-void creature::closedoor() {
-	indexa indecies;
-	indecies.select(getposition(), 1);
-	indecies.match(Door, false);
-	auto i = indecies.choose(isactive() ? "„то использовать из того что р€дом?" : 0);
-	if(i == -1)
-		return;
-	use(indecies[i], false);
-}
-
 void creature::add(const effecti& e, item_s source) {
 	act(e.text, getstr(source));
 	if(e.id.type == Ability) {
@@ -326,4 +307,14 @@ void creature::add(const effecti& e, item_s source) {
 		}
 	} else
 		add(e.id, e.value, true);
+}
+
+void creature::useobject() {
+	indexa indecies;
+	indecies.select(getposition(), 1);
+	indecies.matchobj(false);
+	auto i = indecies.choose(isactive() ? "„то использовать из того что р€дом?" : 0);
+	if(i == -1)
+		return;
+	use(indecies[i], false);
 }
