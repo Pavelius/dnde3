@@ -1038,6 +1038,9 @@ void location::content(const rect& rc, room_s type, site* p) {
 		for(auto i = xrand(2, 4); i > 0; i--)
 			loc.add(index, HumanGuard);
 		break;
+	case RoomOfBlood:
+		loc.fill(rc, rc.width()*rc.height(), Blooded);
+		break;
 	case CityHall:
 		break;
 	}

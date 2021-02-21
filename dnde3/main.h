@@ -131,7 +131,8 @@ enum room_s : unsigned char {
 	StairsDownRoom, StairsUpRoom, House, Lair,
 	Temple, Tavern, Barracs, CityHall,
 	ShopWeaponAndArmor, ShopPotions, ShopScrolls, ShopFood, // Last magazine
-	RoomOfDarkness, RoomOfDull, RoomOfSticking,
+	RoomOfBlood, RoomOfDamage, RoomOfDarkness, RoomOfDull, RoomOfSpellLearning, RoomOfMana,
+	RoomOfNature, RoomOfSticking, RoomOfWind,
 };
 enum map_object_s : unsigned char {
 	NoTileObject,

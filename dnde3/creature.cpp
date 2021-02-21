@@ -511,7 +511,7 @@ void creature::getfullname(stringbuilder& sb) const {
 }
 
 attacki creature::getattack(slot_s id, const item& weapon) const {
-	attacki result = {0};
+	attacki result = {};
 	auto skill = weapon.geti().skill;
 	if(id == Melee || weapon)
 		result = weapon.getattack();
@@ -1122,10 +1122,13 @@ void creature::attack(creature& enemy, const attacki& ai, int bonus, int danger)
 
 void creature::meleeattack(creature& enemy, int bonus) {
 	auto am = getattack(Melee, wears[Melee]);
-	attack(enemy, am, bonus, 100);
+	auto mp = 100;
+	if(is(RoomOfDamage))
+		mp = 300;
+	attack(enemy, am, bonus, mp);
 	wears[Melee].breaktest();
 	if(wears[OffHand] && wears[OffHand].is(Light)) {
-		attack(enemy, getattack(OffHand), bonus, 100);
+		attack(enemy, getattack(OffHand), bonus, mp);
 		wears[OffHand].breaktest();
 	}
 	consume(am.getenergy());
@@ -1344,13 +1347,18 @@ void creature::restoration() {
 		restore_mana -= pc / 4;
 	}
 	restore_mana += get(ManaRate);
+	if(is(RoomOfMana))
+		restore_mana += get(ManaRate) * 2;
 	if(is(Wounded)) {
 		// Wounded creature loose 1 hit point each turn
 		if(roll(Constitution, -10))
 			add(Wounded, -1, true);
 		else {
 			act("%герой истекает кровью.");
-			damage(1, Slashing, 100, false);
+			if(is(RoomOfBlood))
+				damage(xrand(2, 4), Slashing, 100, false);
+			else
+				damage(1, Slashing, 100, false);
 		}
 	}
 }
@@ -1502,6 +1510,8 @@ void creature::damage(int value, damage_s type, int pierce, bool interactive) {
 			act("%герой восстановил%а [+%1i] повреждений.", value);
 		hp += value;
 	} else {
+		if(is(RoomOfNature))
+			value /= 3;
 		if(di.damage_wears != 0 && di.damage_chance != 0) {
 			auto count = di.damage_wears;
 			if(count < 0)
@@ -1710,6 +1720,8 @@ void creature::shoot() {
 
 void creature::rangeattack(creature& enemy, int bonus) {
 	auto ai = getattack(Ranged);
+	if(is(RoomOfWind) || enemy.is(RoomOfWind))
+		ai.attack -= 40;
 	attack(enemy, ai, 0, 100);
 	if(wears[Ranged].getammo())
 		wears[Amunitions].use();
@@ -2288,7 +2300,7 @@ void creature::sacrifice(diety_s god, item& it) {
 
 bool creature::is(room_s v) const {
 	auto s = getsite();
-	if(!s || s->type!=Room)
+	if(!s || s->type != Room)
 		return false;
 	return s->value == v;
 }

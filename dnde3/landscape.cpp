@@ -324,7 +324,7 @@ static void create_dungeon_rooms(rooma& rooms) {
 		max_possible_points = 25;
 	for(const auto& e : rooms) {
 		loc.fille(e, Floor);
-		auto t = (room_s)xrand(RoomOfDarkness, RoomOfSticking);
+		auto t = (room_s)xrand(RoomOfBlood, RoomOfWind);
 		if(current > max_possible_points)
 			t = EmpthyRoom;
 		if(index < index_maximum && loc.rooms[index]) {

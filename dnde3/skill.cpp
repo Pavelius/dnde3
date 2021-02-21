@@ -235,6 +235,8 @@ bool item::use(skill_s id, creature& player, int order, bool run) {
 				switch(v.type) {
 				case Spell:
 					b -= player.get((spell_s)v.value) * 12;
+					if(player.is(RoomOfSpellLearning))
+						b += 50;
 					break;
 				}
 			}
