@@ -1466,12 +1466,15 @@ static void view_bullet(point origin, indext index, int number) {
 	fore = p_fore;
 }
 
-static void view_name(int x, int y, const site& e, int number) {
+static bool view_name(int x, int y, const site& e, int number) {
 	char temp[260]; stringbuilder sb(temp); e.getname(sb);
+	if(!temp[0])
+		return false;
 	text(x, y, temp);
 	sb.clear();
 	sb.add("%1i.", number);
 	text(x - 26, y, temp);
+	return true;
 }
 
 static void view_legends(point origin, bool fow) {
@@ -1484,10 +1487,8 @@ static void view_legends(point origin, bool fow) {
 			continue;
 		if(fow && !loc.is(index, Explored))
 			continue;
-		auto type = e.getkind();
-		if(type == House || type == EmpthyRoom)
+		if(!view_name(x1, y1, e, number))
 			continue;
-		view_name(x1, y1, e, number);
 		view_bullet(origin, index, number);
 		y1 += texth() + 4;
 		number++;

@@ -1,7 +1,7 @@
 #include "main.h"
 
 const bool				visualize_dungeon = false;
-const bool				visualize_dungeon_final = false;
+const bool				visualize_dungeon_final = true;
 const int				chance_line_corridor = 90;
 const int				chance_create_door = 10;
 const int				chance_hidden_door = 30;
@@ -314,14 +314,19 @@ static void create_doors(const rect& rc) {
 	}
 }
 
-static void create_dungeon_content(const rect& rc, rooma& rooms, const landscapei& land) {
+static void create_dungeon_rooms(rooma& rooms) {
 	rooms.count -= 2; // Two room of lesser size would cutted off
 	zshuffle(rooms.data, rooms.count);
-	int index = 0;
+	int index = 0, current = 0;
 	int index_maximum = sizeof(loc.rooms) / sizeof(loc.rooms[0]);
+	auto max_possible_points = 2 * rooms.getcount() / 3;
+	if(max_possible_points > 25)
+		max_possible_points = 25;
 	for(const auto& e : rooms) {
 		loc.fille(e, Floor);
-		auto t = EmpthyRoom;
+		auto t = (room_s)xrand(RoomOfDarkness, RoomOfSticking);
+		if(current > max_possible_points)
+			t = EmpthyRoom;
 		if(index < index_maximum && loc.rooms[index]) {
 			t = loc.rooms[index];
 			index++;
@@ -329,7 +334,12 @@ static void create_dungeon_content(const rect& rc, rooma& rooms, const landscape
 		auto p = loc.addsite(t, e);
 		p->setposition(loc.center(e));
 		loc.content(e, t, p);
+		current++;
 	}
+}
+
+static void create_dungeon_content(const rect& rc, rooma& rooms, const landscapei& land) {
+	create_dungeon_rooms(rooms);
 	for(auto& e : rooms) {
 		direction_s side[4]; memcpy(side, connectors_side, sizeof(connectors_side));
 		zshuffle(side, sizeof(side) / sizeof(side[0]));

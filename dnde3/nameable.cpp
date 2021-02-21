@@ -230,7 +230,7 @@ void nameable::getname(stringbuilder& sb) const {
 			sb.add(ri->name,
 				bsdata<adjectivei>::elements[name[0]].get(bsdata<objectivei>::elements[name[1]].gender),
 				bsdata<objectivei>::elements[name[1]].name);
-		} else {
+		} else if(ri->name1) {
 			const char* p2 = "";
 			const char* n1 = "";
 			const char* n2 = "";
@@ -252,7 +252,8 @@ void nameable::getname(stringbuilder& sb) const {
 				}
 			}
 			sb.add(ri->name1[name[0]], "", p2, n1, n2, v1, v2);
-		}
+		} else
+			sb.add("");
 		break;
 	default:
 		sb.add(getname());

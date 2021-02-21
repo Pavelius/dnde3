@@ -239,6 +239,8 @@ bool item::use(skill_s id, creature& player, int order, bool run) {
 				}
 			}
 			auto result = player.roll(Literacy, b);
+			if(player.is(RoomOfDull))
+				result = false;
 			if(is(Unknown)) {
 				player.act("%герой внимательно изучал%а %-1.", getname());
 				if(result) {

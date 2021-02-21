@@ -1000,9 +1000,14 @@ void creature::move(indext index) {
 	// Выведем сообщение об окруающей среде
 	if(site != pnewsite && pnewsite) {
 		if(pnewsite->haslook() && isactive()) {
+			auto p = sb.get();
 			sb.add("Перед вами ");
+			auto p1 = sb.get();
 			pnewsite->getname(sb);
-			sb.add(". ");
+			if(p1 == sb.get())
+				sb.set(p);
+			else
+				sb.add(". ");
 			pnewsite->addlook(sb);
 		}
 	}
@@ -1022,6 +1027,8 @@ void creature::movecost(indext index) {
 	v -= (StandartEnergyCost / 20) * abilities[Movement];
 	if(v < StandartEnergyCost / 20)
 		v = StandartEnergyCost / 20;
+	if(is(RoomOfSticking))
+		v *= 3;
 	consume(v);
 }
 
@@ -2277,4 +2284,11 @@ void creature::sacrifice(diety_s god, item& it) {
 		}
 		dropdown(it);
 	}
+}
+
+bool creature::is(room_s v) const {
+	auto s = getsite();
+	if(!s || s->type!=Room)
+		return false;
+	return s->value == v;
 }

@@ -58,4 +58,8 @@ BSDATA(roomi) = {
 	{0, "Вокруг стен стояло множество шкафов на которых стояли бутылочки различных цветов.", shop_potions, shop_end, NoTileObject, Shopkeeper, {{80, Drinkable, 20}}},
 	{0, 0, shop_scrolls, shop_end, NoTileObject, Shopkeeper, {{70, Readable, 30}}},
 	{0, 0, shop_food, shop_end, NoTileObject, Shopkeeper, {{90, Edible, 5}}},
+	{0, "Странный свет мигает в этой комнате."},
+	{0, "В этом месте присутствует странное чуство отупения."},
+	{0, "Пол в этой комнате очень липкий."},
 };
+assert_enum(roomi, RoomOfSticking)

@@ -130,8 +130,8 @@ enum room_s : unsigned char {
 	EmpthyRoom, TreasureRoom,
 	StairsDownRoom, StairsUpRoom, House, Lair,
 	Temple, Tavern, Barracs, CityHall,
-	ShopWeaponAndArmor, ShopPotions, ShopScrolls,
-	ShopFood, // Last magazine
+	ShopWeaponAndArmor, ShopPotions, ShopScrolls, ShopFood, // Last magazine
+	RoomOfDarkness, RoomOfDull, RoomOfSticking,
 };
 enum map_object_s : unsigned char {
 	NoTileObject,
@@ -971,6 +971,7 @@ public:
 	bool				is(intellegence_s v) const;
 	bool				is(gender_s v) const { return getgender() == v; }
 	bool				is(race_s v) const { return getrace() == v; }
+	bool				is(room_s v) const;
 	bool				is(state_s v) const { return states.is(v); }
 	bool				is(spell_s v) const { return finds(v) != 0; }
 	bool				is(const creature* p) const { return this == p; }
