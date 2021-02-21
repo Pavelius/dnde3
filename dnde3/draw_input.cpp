@@ -1467,7 +1467,7 @@ static void view_bullet(point origin, indext index, int number) {
 }
 
 static bool view_name(int x, int y, const site& e, int number) {
-	char temp[260]; stringbuilder sb(temp); e.getname(sb);
+	char temp[260]; temp[0] = 0; stringbuilder sb(temp); e.getname(sb);
 	if(!temp[0])
 		return false;
 	text(x, y, temp);
@@ -1784,6 +1784,7 @@ static hotkey indoor_keys[] = {
 	{Ctrl + 'Q', "Сохранить и выйти", &creature::quitandsave},
 	{Ctrl + 'T', "Тестировать зелья", &creature::testpotion},
 	{Ctrl + 'S', "Обыскать область вокруг", &creature::search},
+	{Ctrl + 'P', "Молиться богу о помощи", &creature::pray},
 	{}};
 
 void creature::playui() {

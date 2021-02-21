@@ -6,6 +6,7 @@ BSDATA(dietyi) = {
 	{"Грумш", "Грумша", Male, {Spear, ChainMail}, "октрытый глаз"},
 	{"Хелм", "Хелма", Male, {HammerWar, ChainMail, PlateMail}, "открытая ладонь"},
 	{"Мистра", "Мистры", Female, {Staff, Wand1, Wand2, Wand3, Wand4, Wand5}, "круг из семи сине-белых звезд с красной мглой идущей из центра"},
+	{"Морадин", "Морадина", Male, {AxeBattle, ChainMail, ScaleMail}, "молот на наковальне"},
 	{"Темпус", "Темпуса", Male, {AxeBattle, SwordLong, SwordTwoHanded, SwordShort, Shield}, "сверкающий серебрянный меч на кроваво красном щите"},
 	{"Тир", "Тира", Male, {SwordLong}, "весы опирающиеся на молот"},
 };

@@ -128,20 +128,6 @@ bool creature::use(skill_s id, creature& player, int order, bool run) {
 				player.act("Игра не зашла. Все остались при своем.");
 		}
 		break;
-	case Religion:
-		if(!faith)
-			return false;
-		if(!pray(false))
-			return false;
-		if(run) {
-			if(roll(Religion)) {
-				act("%герой помолил%ась богу и случилось чудо.");
-				pray(true);
-			} else
-				act("%герой помолил%ась богу, но молитва не была услышана.");
-			faith--;
-		}
-		break;
 	case PickPockets:
 		if(getmoney() <= 20 || loc.getlight() <= -1)
 			return false;
@@ -320,6 +306,8 @@ bool location::use(indext index, skill_s id, creature& player, int level, int or
 			player.addexp(20);
 		}
 		break;
+	case History:
+		break;
 	case DisarmTraps:
 		if(getobject(index) != Trap || is(index, Hidden))
 			return false;
@@ -370,6 +358,31 @@ bool location::use(indext index, skill_s id, creature& player, int level, int or
 	return true;
 }
 
+bool site::use(skill_s id, creature& player, int level, int order, bool run) {
+	switch(id) {
+	case History:
+		if(!is(DungeonSite))
+			return false;
+		if(is(KnownSite))
+			return false;
+		if(run) {
+			if(!player.roll(id))
+				return false;
+			static const char* speech[] = {
+				"Это очень древнее место. Я знаю что это!",
+				"Я знаю где мы находимся.",
+				"История этого места тянется из глубины веков."
+			};
+			player.say(maprnd(speech));
+			set(KnownSite);
+			player.addexp(50, true);
+		}
+		break;
+	default: return false;
+	}
+	return true;
+}
+
 bool creature::use(const creaturea& source, skill_s id) {
 	auto v = get(id);
 	if(v <= 0)
@@ -380,10 +393,15 @@ bool creature::use(const creaturea& source, skill_s id) {
 		return false;
 	}
 	auto& ei = bsdata<skilli>::elements[id];
-	creaturea creatures = source; itema items; indexa indecies;
-	if(!ei.target.prepare(*this, creatures, items, indecies, id, get(id), true))
-		return false;
-	ei.target.use(*this, source, creatures, items, indecies, id, v);
+	auto ps = getsite();
+	if(ps && ps->use(id, *this, v, 0, true)) {
+		// Do nothing
+	} else {
+		creaturea creatures = source; itema items; indexa indecies;
+		if(!ei.target.prepare(*this, creatures, items, indecies, id, v, true))
+			return false;
+		ei.target.use(*this, source, creatures, items, indecies, id, v);
+	}
 	// Appear when do some activity
 	if(is(Invisible)) {
 		if(ei.target.range != You)

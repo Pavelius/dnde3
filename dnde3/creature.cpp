@@ -999,7 +999,7 @@ void creature::move(indext index) {
 	}
 	// Выведем сообщение об окруающей среде
 	if(site != pnewsite && pnewsite) {
-		if(pnewsite->haslook() && isactive()) {
+		if(isactive()) {
 			auto p = sb.get();
 			sb.add("Перед вами ");
 			auto p1 = sb.get();
@@ -2243,6 +2243,23 @@ bool creature::pray(bool run) {
 	return true;
 }
 
+void creature::pray() {
+	static const char* speech_male[] = {"%1, дай мне силы!", "Да святится %1 и будет его воля!", "%1 всемогущий, помоги!", "Да снизойдет благодать %2 на меня и моих товарищей!"};
+	static const char* speech_female[] = {"%1, дай мне силы!", "Да святится %1 и будет ее воля!", "%1 всемогущая, помоги!", "Да снизойдет благодать %2 на меня и моих товарищей!"};
+	auto god = getgod();
+	auto& ei = bsdata<dietyi>::elements[god];
+	if(ei.gender == Male)
+		say(maprnd(speech_male), ei.name, ei.nameof);
+	else
+		say(maprnd(speech_female), ei.name, ei.nameof);
+	if(!faith)
+		return;
+	if(!pray(false))
+		return;
+	pray(true);
+	faith--;
+}
+
 void creature::qsearch() {
 	auto site = getsite();
 	if(site) {
@@ -2303,4 +2320,12 @@ bool creature::is(room_s v) const {
 	if(!s || s->type != Room)
 		return false;
 	return s->value == v;
+}
+
+diety_s creature::getgod() const {
+	switch(getrace()) {
+	case Orc: return GodGruumsh;
+	case Dwarf: return GodMoradin;
+	default: return GodMistra;
+	}
 }

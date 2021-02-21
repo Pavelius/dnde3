@@ -1,7 +1,6 @@
 #include "main.h"
 
-variant::variant(const creature* v) : type(v ? Creature : NoVariant), value(v - bsdata<creature>::elements)
-{}
+variant::variant(const creature* v) : type(v ? Creature : NoVariant), value(v ? v - bsdata<creature>::elements : 0) {}
 
 const char*	variant::getname() const {
 	switch(type) {

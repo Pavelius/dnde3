@@ -221,46 +221,6 @@ const char* nameable::getname() const {
 	}
 }
 
-void nameable::getname(stringbuilder& sb) const {
-	roomi* ri;
-	switch(type) {
-	case Room:
-		ri = bsdata<roomi>::elements + value;
-		if(ri->name) {
-			sb.add(ri->name,
-				bsdata<adjectivei>::elements[name[0]].get(bsdata<objectivei>::elements[name[1]].gender),
-				bsdata<objectivei>::elements[name[1]].name);
-		} else if(ri->name1) {
-			const char* p2 = "";
-			const char* n1 = "";
-			const char* n2 = "";
-			const char* v1 = "";
-			const char* v2 = "";
-			if(ri->name2)
-				p2 = ri->name2[name[1]];
-			auto ps = getsite();
-			if(ps) {
-				auto owner = ps->getowner();
-				if(owner) {
-					n1 = owner->getname();
-					n2 = owner->getnameof();
-				}
-				auto param = ps->getparam();
-				if(param) {
-					v1 = param.getname();
-					v2 = param.getnameof();
-				}
-			}
-			sb.add(ri->name1[name[0]], "", p2, n1, n2, v1, v2);
-		} else
-			sb.add("");
-		break;
-	default:
-		sb.add(getname());
-		break;
-	}
-}
-
 bool nameable::cansee() const {
 	auto player = creature::getactive();
 	if(!player)
@@ -389,4 +349,45 @@ site* nameable::getsite() const {
 	if(i == -1)
 		return 0;
 	return bsdata<site>::elements + i;
+}
+
+void nameable::getname(stringbuilder& sb) const {
+	roomi* ri;
+	switch(type) {
+	case Room:
+		if(getsite() && !getsite()->is(KnownSite))
+			break;
+		ri = bsdata<roomi>::elements + value;
+		if(ri->name) {
+			sb.add(ri->name,
+				bsdata<adjectivei>::elements[name[0]].get(bsdata<objectivei>::elements[name[1]].gender),
+				bsdata<objectivei>::elements[name[1]].name);
+		} else if(ri->name1) {
+			const char* p2 = "";
+			const char* n1 = "";
+			const char* n2 = "";
+			const char* v1 = "";
+			const char* v2 = "";
+			if(ri->name2)
+				p2 = ri->name2[name[1]];
+			auto ps = getsite();
+			if(ps) {
+				auto owner = ps->getowner();
+				if(owner) {
+					n1 = owner->getname();
+					n2 = owner->getnameof();
+				}
+				auto param = ps->getparam();
+				if(param) {
+					v1 = param.getname();
+					v2 = param.getnameof();
+				}
+			}
+			sb.add(ri->name1[name[0]], "", p2, n1, n2, v1, v2);
+		}
+		break;
+	default:
+		sb.add(getname());
+		break;
+	}
 }

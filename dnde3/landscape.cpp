@@ -377,6 +377,8 @@ static void create_city_buildings(const rect& rc, rooma& rooms, const landscapei
 			index++;
 		}
 		auto p = loc.addsite(t, e);
+		if(t!=House)
+			p->set(KnownSite);
 		auto door = loc.building(e);
 		rect r2; loc.interior(e, t, door, 0, &r2, p);
 		p->setposition(loc.center(r2));

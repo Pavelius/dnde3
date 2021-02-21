@@ -46,6 +46,12 @@ site* site::find(indext index) {
 	return 0;
 }
 
+void site::set(room_s v) {
+	type = Room;
+	value = v;
+	flags = bsdata<roomi>::elements[v].flags;
+}
+
 void site::setowner(const creature* v) {
 	owner_id = v->getid();
 }

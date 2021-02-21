@@ -54,7 +54,7 @@ enum item_s : unsigned char {
 	ManyItems
 };
 enum diety_s : unsigned char {
-	GodBane, GodBhaal, GodGruumsh, GodHelm, GodMistra, GodTempus, GodTyr
+	GodBane, GodBhaal, GodGruumsh, GodHelm, GodMistra, GodMoradin, GodTempus, GodTyr
 };
 enum slot_s : unsigned char {
 	Backpack, Edible, Readable, Drinkable, Zapable, Coinable, LastBackpack = Backpack + 31,
@@ -228,6 +228,10 @@ enum intellegence_s : unsigned char {
 enum map_object_flag_s : unsigned char {
 	BlockMovement, BlockLight,
 };
+enum site_flag_s : unsigned char {
+	DungeonSite, CitySite,
+	UsedPower, UsedSearch, KnownSite,
+};
 enum modifier_s : unsigned char {
 	NoModifier,
 	Opponent, Easy, Hard, Random, Resist, Immune, Vulnerable,
@@ -282,6 +286,7 @@ typedef flagable<1 + LastRace / 8> racef;
 typedef flagable<1 + ManyItems / 8>	itemf;
 typedef flagable<1 + Blooded / 8> mapflf;
 typedef flagable<1 + WaterAttack / 8> damagef;
+typedef flagable<1 + KnownSite / 8> sitef;
 typedef cflags<map_object_flag_s> mapobjf;
 typedef adat<role_s, 4> summona;
 typedef void(*gentileproc)(indext index);
@@ -687,6 +692,7 @@ typedef std::initializer_list<shopi> shopa;
 struct roomi {
 	typedef aref<const char*> strarray;
 	const char*			name;
+	sitef				flags;
 	const char*			text;
 	strarray			name1, name2;
 	map_object_s		heart;
@@ -734,8 +740,7 @@ public:
 class site : public nameable, public rect {
 	variant				param;
 	short unsigned		owner_id;
-	unsigned char		found;
-	unsigned			recoil;
+	sitef				flags;
 public:
 	explicit operator bool() { return x2 > x1 && y2 > y1; }
 	void				addlook(stringbuilder& sb) const;
@@ -745,9 +750,11 @@ public:
 	creature*			getowner() const;
 	variant				getparam() const { return param; }
 	bool				haslook() const;
+	bool				is(site_flag_s v) const { return flags.is(v); }
 	creature*			priest();
 	void				set(const rect& v) { *static_cast<rect*>(this) = v; }
-	void				set(room_s v) { type = Room; value = v; }
+	void				set(room_s v);
+	void				set(site_flag_s v) { flags.set(v); }
 	void				setowner(const creature* v);
 	void				setparam(variant v) { param = v; }
 	creature*			shopkeeper();
@@ -947,6 +954,7 @@ public:
 	encumbrance_s		getencumbred() const { return encumbrance; }
 	int					getexperience() const { return experience; }
 	void				getfullname(stringbuilder& sb) const;
+	diety_s				getgod() const;
 	short unsigned		getguard() const { return guard; }
 	int					gethits() const { return hp; }
 	short unsigned		getid() const;
@@ -1005,6 +1013,7 @@ public:
 	void				playui();
 	void				pickup();
 	void				drink(ability_s id, variant source, bool interactive, item_type_s magic, int quality, int minutes);
+	void				pray();
 	void				prepare();
 	void				quitandsave();
 	void				raiseathletics();
