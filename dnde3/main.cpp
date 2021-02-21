@@ -73,6 +73,7 @@ static void create_overland() {
 	loc.fill({0, 0, 1, mmy - 1}, Sea);
 	loc.fill({mmx - 2, 0, mmx - 1, mmy - 1}, Sea);
 	loc.fill({0, mmy - 2, mmx - 1, mmy - 1}, Sea);
+	loc.serialx("export/map.txt", false);
 }
 
 static void begin_game() {

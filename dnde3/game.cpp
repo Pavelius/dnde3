@@ -117,7 +117,7 @@ int	gamei::get(skill_s v) const {
 }
 
 void gamei::playoverland() {
-	const auto speed = get(Riding);
+	const auto speed = 10 + get(Riding);
 	while(restore_energy < OverlandEnergyCost) {
 		passminute();
 		restore_energy += speed;
@@ -331,6 +331,16 @@ void gamei::move(indext index) {
 	randomencounter();
 }
 
+static void recurse_vision(indext i) {
+	static direction_s all_around[] = {Center, LeftUp, Up, RightUp, Right, RightDown, Down, LeftDown, Left};
+	for(auto d : all_around) {
+		auto i1 = loc.to(i, d);
+		if(i1 == Blocked)
+			continue;
+		loc.set(i1, Explored);
+	}
+}
+
 void gamei::setposition(indext v) {
 	geoposable::setposition(v);
 	outdoor_id = Blocked;
@@ -341,6 +351,7 @@ void gamei::setposition(indext v) {
 		if(p->descriptor)
 			sb.add(p->descriptor);
 	}
+	recurse_vision(v);
 }
 
 void gamei::wait() {

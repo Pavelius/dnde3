@@ -271,6 +271,9 @@ enum dice_s : unsigned char {
 	NoDice,
 	D1d3, D1d4, D1d6, D1d8, D1d10, D1d12, D2d6,
 };
+enum tile_flag_s : unsigned char {
+	RestrictMovement, RestrictVision,
+};
 struct dungeoni;
 struct targeti;
 struct landscapei;
@@ -287,6 +290,7 @@ typedef flagable<1 + ManyItems / 8>	itemf;
 typedef flagable<1 + Blooded / 8> mapflf;
 typedef flagable<1 + WaterAttack / 8> damagef;
 typedef flagable<1 + KnownSite / 8> sitef;
+typedef flagable<1 + RestrictVision / 8> tilef;
 typedef cflags<map_object_flag_s> mapobjf;
 typedef adat<role_s, 4> summona;
 typedef void(*gentileproc)(indext index);
@@ -1323,6 +1327,7 @@ public:
 	bool				use(indext index, spell_s id, creature& player, int level, int order, bool run);
 	bool				use(indext index, skill_s id, creature& player, int level, int order, bool run);
 	bool				use(indext index, variant id, creature& player, int level, int order, bool run);
+	void				viewfow(int x0, int y0, const rect& rc) const;
 	void				worldmap(point camera, bool show_fow = true) const;
 	bool				write(const char* url, bool overland);
 	bool				write(indext index, int level);
@@ -1343,6 +1348,7 @@ struct outdoori {
 };
 struct tilei {
 	const char*			id;
+	tilef				flags;
 	const char*			name;
 	char				symbol;
 	gender_s			gender;

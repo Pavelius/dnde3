@@ -1,7 +1,7 @@
 #include "main.h"
 
 const bool				visualize_dungeon = false;
-const bool				visualize_dungeon_final = true;
+const bool				visualize_dungeon_final = false;
 const int				chance_line_corridor = 90;
 const int				chance_create_door = 10;
 const int				chance_hidden_door = 30;

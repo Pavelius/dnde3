@@ -4,6 +4,7 @@
 class archivet {
 	typedef char identifiert[260];
 	io::file&		file;
+	const char*		pf;
 	const char*		p;
 	void write(const char* v) {
 		file.write(v, zlen(v));
@@ -30,12 +31,13 @@ class archivet {
 			p++;
 	}
 public:
-	archivet(io::file& file) : file(file), p(0) { }
-	archivet(const char* url) : file(io::file()), p(loadt(url)) {}
+	archivet(io::file& file) : file(file), pf(0), p(0) { }
+	archivet(const char* url) : file(io::file()), pf(loadt(url)) { p = pf; }
 	~archivet() {
-		if(p)
-			delete p;
+		if(pf)
+			delete pf;
 	}
+	bool isread() const { return p != 0; }
 	tile_s findtile(char symbol) const {
 		for(auto& e : bsdata<tilei>()) {
 			if(e.symbol == symbol)
@@ -81,6 +83,8 @@ void location::serialx(const char* url, bool write_mode) {
 		a.set(*this);
 	} else {
 		archivet a(url);
+		if(!a.isread())
+			return;
 		a.set(*this);
 	}
 }

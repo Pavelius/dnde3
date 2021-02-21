@@ -457,7 +457,7 @@ static void setbackground(eventproc proc) {
 }
 
 static void render_editor() {
-	loc.worldmap(camera, true);
+	loc.worldmap(camera, false);
 	picture effects[1]; effects[0].setcursor(current_index, 1);
 	render(effects);
 }
@@ -750,6 +750,44 @@ bool location::wget(short unsigned i, direction_s direction, tile_s value, bool 
 	return gettile(i1) == value;
 }
 
+void location::viewfow(int x0, int y0, const rect& rc) const {
+	for(auto my = rc.y1; my <= rc.y2; my++) {
+		if(my >= mmy)
+			break;
+		for(auto mx = rc.x1; mx <= rc.x2; mx++) {
+			if(mx >= mmx)
+				continue;
+			auto x = x0 + mx * elx - camera.x;
+			auto y = y0 + my * ely - camera.y - ely / 2;
+			auto i = get(mx, my);
+			if(!is(i, Explored))
+				draw::rectf({x - elx / 2, y - ely / 2, x + elx / 2, y + ely / 2}, colors::fow);
+			else {
+				bool dw = loc.xget(i, Down);
+				bool up = loc.xget(i, Up);
+				bool rg = loc.xget(i, Right);
+				bool lf = loc.xget(i, Left);
+				if(dw)
+					image(x, y, gres(ResFog), 2, 0);
+				if(up)
+					image(x, y, gres(ResFog), 2, ImageMirrorV);
+				if(lf)
+					image(x, y, gres(ResFog), 1, 0);
+				if(rg)
+					image(x, y, gres(ResFog), 1, ImageMirrorH);
+				if(!lf && !up && xget(i, LeftUp))
+					draw::image(x, y, gres(ResFog), 0, ImageMirrorV);
+				if(!lf && !dw && xget(i, LeftDown))
+					draw::image(x, y, gres(ResFog), 0, 0);
+				if(!rg && !up && xget(i, RightUp))
+					draw::image(x, y, gres(ResFog), 0, ImageMirrorV | ImageMirrorH);
+				if(!rg && !dw && xget(i, RightDown))
+					draw::image(x, y, gres(ResFog), 0, ImageMirrorH);
+			}
+		}
+	}
+}
+
 void location::indoor(point camera, bool show_fow, const picture* effects) {
 	creature* units[scrx * scry];
 	auto night_percent = 0;
@@ -1019,43 +1057,8 @@ void location::indoor(point camera, bool show_fow, const picture* effects) {
 	if(night_percent)
 		rectf({0, 0, draw::getwidth(), draw::getheight()}, color::create(0, 0, 64), night_percent);
 	// Show fog of war
-	if(show_fow) {
-		for(auto my = rc.y1; my <= rc.y2; my++) {
-			if(my >= mmy)
-				break;
-			for(auto mx = rc.x1; mx <= rc.x2; mx++) {
-				if(mx >= mmx)
-					continue;
-				auto x = x0 + mx * elx - camera.x;
-				auto y = y0 + my * ely - camera.y - ely / 2;
-				auto i = get(mx, my);
-				if(!is(i, Explored))
-					draw::rectf({x - elx / 2, y - ely / 2, x + elx / 2, y + ely / 2}, colors::fow);
-				else {
-					bool dw = xget(i, Down);
-					bool up = xget(i, Up);
-					bool rg = xget(i, Right);
-					bool lf = xget(i, Left);
-					if(dw)
-						image(x, y, gres(ResFog), 2, 0);
-					if(up)
-						image(x, y, gres(ResFog), 2, ImageMirrorV);
-					if(lf)
-						image(x, y, gres(ResFog), 1, 0);
-					if(rg)
-						image(x, y, gres(ResFog), 1, ImageMirrorH);
-					if(!lf && !up && xget(i, LeftUp))
-						draw::image(x, y, gres(ResFog), 0, ImageMirrorV);
-					if(!lf && !dw && xget(i, LeftDown))
-						draw::image(x, y, gres(ResFog), 0, 0);
-					if(!rg && !up && xget(i, RightUp))
-						draw::image(x, y, gres(ResFog), 0, ImageMirrorV | ImageMirrorH);
-					if(!rg && !dw && xget(i, RightDown))
-						draw::image(x, y, gres(ResFog), 0, ImageMirrorH);
-				}
-			}
-		}
-	}
+	if(show_fow)
+		viewfow(x0, y0, rc);
 }
 
 int	answeri::paint(int x, int y, int width, int i, int& maximum_width) const {
@@ -2042,6 +2045,8 @@ void location::worldmap(point camera, bool show_fow) const {
 	pictures.count = pb - pictures.data;
 	for(auto& e : pictures)
 		e.render(x0 - camera.x, y0 - camera.y);
+	if(show_fow)
+		viewfow(x0, y0, rc);
 }
 
 static hotkey overland_keys[] = {{F1, "Выбрать первого героя", change_player, 0},
