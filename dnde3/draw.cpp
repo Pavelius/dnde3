@@ -1034,7 +1034,8 @@ void draw::bezierseg(int x0, int y0, int x1, int y1, int x2, int y2) {
 	int sx = x2 - x1, sy = y2 - y1;
 	long xx = x0 - x1, yy = y0 - y1, xy;             /* relative values for checks */
 	double dx, dy, err, ed, cur = xx * sy - yy * sx;    /* curvature */
-	assert(xx*sx <= 0 && yy*sy <= 0);				/* sign of gradient must not change */
+	if(!(xx * sx <= 0 && yy * sy <= 0))
+		return; /* sign of gradient must not change */
 	if(sx*(long)sx + sy * (long)sy > xx*xx + yy * yy) { /* begin with longer part */
 		x2 = x0; x0 = sx + x1; y2 = y0; y0 = sy + y1; cur = -cur;     /* swap P0 P2 */
 	}
@@ -1105,7 +1106,6 @@ void draw::spline(point* original_points, int n) {
 	const int M_MAX = 6;
 	float mi = 1, m[M_MAX];                    /* diagonal constants of matrix */
 	int i, x0, y0, x1, y1, x2 = points[n].x, y2 = points[n].y;
-	assert(n > 1);                        /* need at least 3 points P[0]..P[n] */
 	points[1].x = x0 = 8 * points[1].x - 2 * points[0].x;                          /* first row of matrix */
 	points[1].y = y0 = 8 * points[1].y - 2 * points[0].y;
 	for(i = 2; i < n; i++) {                                 /* forward sweep */

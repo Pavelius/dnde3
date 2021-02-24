@@ -866,7 +866,7 @@ class creature : public nameable, public statable {
 	bool				aispells(creaturea& creatures);
 	void				aiturn(creaturea& creatures, creaturea& enemies, creature* enemy);
 	void				applyab();
-	void				applyabilities();
+	//void				applyabilities();
 	void				applyaward() const;
 	void				applybs();
 	void				applyen();

@@ -32,7 +32,7 @@ class archivet {
 	}
 public:
 	archivet(io::file& file) : file(file), pf(0), p(0) { }
-	archivet(const char* url) : file(io::file()), pf(loadt(url)) { p = pf; }
+	archivet(const char* url) : file(file), pf(loadt(url)) { p = pf; }
 	~archivet() {
 		if(pf)
 			delete pf;

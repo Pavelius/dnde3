@@ -1,10 +1,5 @@
 #pragma once
 
-#ifdef _DEBUG
-#define assert(e) if(!(e)) {exit(255);}
-#else
-#define assert(e)
-#endif
 #define maptbl(t, id) (t[imax((unsigned)0, imin((unsigned)id, (sizeof(t)/sizeof(t[0])-1)))])
 #define maprnd(t) t[rand()%(sizeof(t)/sizeof(t[0]))]
 #define lenof(t) (sizeof(t)/sizeof(t[0]))
@@ -13,7 +8,7 @@
 #define DECLFULL(e) template<> array bsdata<e>::source(bsdata<e>::elements);
 #define assert_enum(e, last) static_assert(sizeof(bsdata<e>::elements) / sizeof(bsdata<e>::elements[0]) == last + 1, "Invalid count of " #e " elements"); DECLFULL(e)
 #define DECLENUM(e) template<> struct bsdata<e##_s> : bsdata<e##i> {}
-#define BSDATAC(e, n) template<> e bsdata<e>::elements[n];\
+#define BSDATAC(e, n) e bsdata<e>::elements[n];\
 template<> array bsdata<e>::source(bsdata<e>::elements, sizeof(bsdata<e>::elements[0]), 0, sizeof(bsdata<e>::elements)/sizeof(bsdata<e>::elements[0]));
 
 extern "C" int						atexit(void(*func)(void));
@@ -29,6 +24,21 @@ extern "C" int						rand(void); // Get next random value
 extern "C" void						srand(unsigned seed); // Set random seed
 extern "C" int						strcmp(const char* s1, const char* s2); // Compare two strings
 extern "C" long long				time(long long* seconds);
+
+template<class T> inline T			imax(T a, T b) { return a > b ? a : b; }
+template<class T> inline T			imin(T a, T b) { return a < b ? a : b; }
+template<class T> inline T			iabs(T a) { return a > 0 ? a : -a; }
+template<class T> inline void		iswap(T & a, T & b) { T i = a; a = b; b = i; }
+template<class T> inline const T*	zchr(const T * p, T e) { while(*p) { if(*p == e) return p; p++; } return 0; }
+template<class T> inline void		zcpy(T * p1, const T * p2) { while(*p2) *p1++ = *p2++; *p1 = 0; }
+template<class T> inline void		zcpy(T * p1, const T * p2, int max_count) { while(*p2 && max_count-- > 0) *p1++ = *p2++; *p1 = 0; }
+template<class T> inline T*			zend(T * p) { while(*p) p++; return p; }
+template<class T> inline void		zcat(T * p1, const T e) { p1 = zend(p1); p1[0] = e; p1[1] = 0; }
+template<class T> inline void		zcat(T * p1, const T * p2) { zcpy(zend(p1), p2); }
+template<class T> inline int		zlen(T * p) { return zend(p) - p; }
+template<unsigned N> inline char*	zprint(char(&result)[N], const char* format, ...) { return szprintv(result, result + N - 1, format, (const char*)&format + sizeof(format)); }
+template<class T> inline T*			zskipsp(T * p) { if(p) while(*p == 32 || *p == 9) p++; return p; }
+template<class T> inline T*			zskipspcr(T * p) { if(p) while(*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r') p++; return p; }template<class T> inline void		zshuffle(T * p, int count) { for(int i = 0; i < count; i++) iswap(p[i], p[rand() % count]); }
 
 enum codepages { CPNONE, CP1251, CPUTF8, CPU16BE, CPU16LE };
 namespace metrics {
@@ -61,7 +71,7 @@ struct adat {
 	T						data[count_max];
 	unsigned				count;
 	constexpr adat() : count(0) {}
-	constexpr adat(const std::initializer_list<T>& list) : count(0) { for(auto& e : list) *add() = e; }
+	constexpr adat(const std::initializer_list<T> list) : count(0) { for(auto& e : list) *add() = e; }
 	constexpr const T& operator[](unsigned index) const { return data[index]; }
 	constexpr T& operator[](unsigned index) { return data[index]; }
 	explicit operator bool() const { return count != 0; }
@@ -266,10 +276,6 @@ inline int							xrand(int n1, int n2) { return n1 + rand() % (n2 - n1 + 1); }
 inline int							d100() { return rand() % 100; }
 // Common used templates
 inline int							ifloor(double n) { return (int)n; }
-template<class T> inline T			imax(T a, T b) { return a > b ? a : b; }
-template<class T> inline T			imin(T a, T b) { return a < b ? a : b; }
-template<class T> inline T			iabs(T a) { return a > 0 ? a : -a; }
-template<class T> inline void		iswap(T& a, T& b) { T i = a; a = b; b = i; }
 // Inline sequence functions
 template<class T> inline void		seqclear(T* p) { T* z = p->next; while(z) { T* n = z->next; z->next = 0; delete z; z = n; } p->next = 0; } // Use to clean up sequenced resources if destructor. Use it like 'clear(this)'.
 template<class T> inline T*			seqlast(T* p) { while(p->next) p = p->next; return p; } // Return last element in sequence.
@@ -277,14 +283,3 @@ template<class T> inline void		seqlink(T* p) { p->next = 0; if(!T::first) T::fir
 // Inline strings functions
 template<class T> const char*		getstr(const T e) { return bsdata<T>::elements[e].name; }
 template<class T> int				getbsid(const T* e) { return e - bsdata<T>::elements; }
-template<class T> inline const T*	zchr(const T* p, T e) { while(*p) { if(*p == e) return p; p++; } return 0; }
-template<class T> inline void		zcpy(T* p1, const T* p2) { while(*p2) *p1++ = *p2++; *p1 = 0; }
-template<class T> inline void		zcpy(T* p1, const T* p2, int max_count) { while(*p2 && max_count-- > 0) *p1++ = *p2++; *p1 = 0; }
-template<class T> inline T*			zend(T* p) { while(*p) p++; return p; }
-template<class T> inline void		zcat(T* p1, const T e) { p1 = zend(p1); p1[0] = e; p1[1] = 0; }
-template<class T> inline void		zcat(T* p1, const T* p2) { zcpy(zend(p1), p2); }
-template<class T> inline int		zlen(T* p) { return zend(p) - p; }
-template<unsigned N> inline char*	zprint(char(&result)[N], const char* format, ...) { return szprintv(result, result + N - 1, format, (const char*)&format + sizeof(format)); }
-template<class T> inline void		zshuffle(T* p, int count) { for(int i = 0; i < count; i++) iswap(p[i], p[rand() % count]); }
-template<class T> inline T*			zskipsp(T* p) { if(p) while(*p == 32 || *p == 9) p++; return p; }
-template<class T> inline T*			zskipspcr(T* p) { if(p) while(*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r') p++; return p; }

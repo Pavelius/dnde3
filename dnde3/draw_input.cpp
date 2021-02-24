@@ -1058,7 +1058,7 @@ void location::indoor(point camera, bool show_fow, const picture* effects) {
 		rectf({0, 0, draw::getwidth(), draw::getheight()}, color::create(0, 0, 64), night_percent);
 	// Show fog of war
 	if(show_fow)
-		viewfow(x0, y0, rc);
+		viewfow(x0+elx/2, y0+ely/2, rc);
 }
 
 int	answeri::paint(int x, int y, int width, int i, int& maximum_width) const {
