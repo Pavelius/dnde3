@@ -39,6 +39,16 @@ Bugbear, BugbearF};
 static variant bones[] = {Skeleton};
 static variant bugshell[] = {AntWorker, AntWarrior, AntQueen, Bee, Bee2, Bee3};
 
+// Идея другоценных камней
+// 1) Обычный - стоит денег, можно продать.
+// 2) Проклятый - стоит денег, с ним тяжело расстаться, вызывает жадность и зависть.
+// 3) Благословенный - стоит денег, можно жертвовать богам.
+// 4) Артефакт - стоит очень много денег, используется для заданий.
+
+// Идея растений:
+// 1) Из них можно создавать зелья. Тогда алхимия должна работать по другой схеме.
+// 2) Из них можно готовить еду. Тогда можно использовать навык готовка по схеме алхимии выше.
+
 BSDATA(itemi) = {
 	{"Кулак", "item-1", 0, 0, 0, 2, Male, Organic, {Bludgeon, D1d3, 0, 4}, {}, {}, {}, Melee},
 	{"Боевой топор", "item5", 3, 850, 5 * GP, -1, Male, Iron, {Slashing, D1d8, 0, -1}, {}, weapon_enchanments, {Versatile}, Melee, FocusAxes},
@@ -51,10 +61,10 @@ BSDATA(itemi) = {
 	{"Длинный меч", "item4", 6, 700, 8 * GP, -1, Male, Iron, {Slashing, D1d8, 0, -1}, {}, swords_enchanments, {Versatile}, Melee, FocusSwords},
 	{"Короткий меч", "item2", 5, 700, 8 * GP, 0, Male, Iron, {Slashing, D1d6}, {}, swords_enchanments, {Light}, Melee, FocusSwords},
 	{"Двуручный меч", "item190", 7, 700, 8 * GP, -3, Male, Iron, {Slashing, D2d6, 0, -4}, {}, swords_enchanments, {TwoHanded}, Melee, FocusTwohanded},
-	{"Арбалет", "item33", 4, 700, 40 * GP, 0, Male, Wood, {Piercing, D1d8, 0, -2, Bolt}, {}, weapon_enchanments, {}, Ranged},
-	{"Тяжелый арбалет", "item67", 8, 1200, 80 * GP, -2, Male, Wood, {Piercing, D1d12, 0, -5, Bolt}, {}, weapon_enchanments, {}, Ranged},
-	{"Длинный лук", "item76", 6, 500, 60 * GP, -2, Male, Wood, {Piercing, D1d8, 0, -1, Arrow}, {}, weapon_enchanments, {}, Ranged, FocusBows},
-	{"Короткий лук", "item50", 4, 300, 20 * GP, -1, Male, Wood, {Piercing, D1d6, 0, 0, Arrow}, {}, weapon_enchanments, {}, Ranged, FocusBows},
+	{"Арбалет", "item33", 4, 700, 40 * GP, 0, Male, Wood, {Piercing, D1d8, 0, -2, Bolt}, {}, weapon_enchanments, {TwoHanded}, Ranged},
+	{"Тяжелый арбалет", "item67", 8, 1200, 80 * GP, -2, Male, Wood, {Piercing, D1d12, 0, -4, Bolt}, {}, weapon_enchanments, {TwoHanded}, Ranged},
+	{"Длинный лук", "item76", 6, 500, 60 * GP, -2, Male, Wood, {Piercing, D1d8, 0, -1, Arrow}, {}, weapon_enchanments, {TwoHanded}, Ranged, FocusBows},
+	{"Короткий лук", "item50", 4, 300, 20 * GP, -1, Male, Wood, {Piercing, D1d6, 0, 0, Arrow}, {}, weapon_enchanments, {TwoHanded}, Ranged, FocusBows},
 	{"Дарт", "item34", 1, 30, 1 * SP, 1, Male, Wood, {Piercing, D1d3, 0, 4}, {}, weapon_enchanments, {}, Ranged},
 	{"Праща", "item52", 2, 50, 1 * SP, 0, Female, Leather, {Bludgeon, D1d4, 0, -2, Rock}, {}, weapon_enchanments, {}, Ranged},
 	{"Камень", "items53", 1, 15, 0, -1, Male, Stone, {Bludgeon, D1d3, 0, -2, NoItem, Rock}, {}, {}, {}, Ranged},
@@ -129,6 +139,9 @@ BSDATA(itemi) = {
 	{"Амулет", "item168", 4, 20, 350 * GP, 0, Male, Iron, {}, {}, common_amulet, {}, Neck},
 	{"Амулет", "item170", 5, 30, 400 * GP, 1, Male, Iron, {}, {}, common_amulet, {}, Neck},
 	{"Ожерелье", "item174", 6, 40, 450 * GP, 2, NoGender, Iron, {}, {}, common_amulet, {}, Neck},
+	{"Железный слиток", "item73", 6, 40, 2 * GP, 2, NoGender, Iron},
+	{"Серебряный слиток", "item74", 6, 40, 10 * GP, 2, NoGender, Iron},
+	{"Мифриловый слиток", "item156", 6, 40, 50 * GP, 2, NoGender, Iron},
 	{"Набор скалолаза", "item522", 1, 100, 10 * GP, 0, Male, Iron, {}, {}, {}, {}, Tool},
 	{"Набор стрелодела", "item468", 1, 100, 8 * GP, 0, Male, Wood, {}, {}, {}, {}, Tool},
 	{"Наковальня", "item72", 5, 2000, 9 * GP, 0, Male, Iron, {}, {}, {}, {}, Tool},

@@ -47,6 +47,7 @@ enum item_s : unsigned char {
 	AlchemyPotion, Potion1, Potion2, Potion3, Potion4, Potion5,
 	RingRed, RingBlue, RingGreen,
 	Amulet1, Amulet2, Amulet3, Amulet4, Amulet5,
+	IronIgnot, SilverIgnot, MythrilIgnot,
 	ClimbingTool, FletcherySet, Forge, HealingKit, ScriblingKit, CrystalBall, AlchemySet, TheifTool, CookingSet,
 	Lute, Arfa, Baboon, Guitar, Vilanchelle, Flute,
 	Corpse, Bones, Shell, DoorKey, Coin, CoinSP, CoinGP,
