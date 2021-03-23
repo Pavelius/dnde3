@@ -1189,12 +1189,12 @@ struct vproc {
 	constexpr vproc(void(location::*v)(indext i)) : pinp(0), pcre(0), ploc(v) {}
 };
 struct manual {
-	typedef void(*proc)(stringbuilder& sb, manual& e, answeri& an);
+	typedef void(*fntext)(stringbuilder& sb, manual& e, answeri& an);
 	variant				parent;
 	variant				value;
 	const char*			name;
 	const char*			text;
-	aref<proc>			procs;
+	fntext				description;
 	explicit operator bool() const { return (bool)value; }
 	const char*			getname() const;
 };

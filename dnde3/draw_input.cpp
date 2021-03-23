@@ -1087,13 +1087,21 @@ int	answeri::paint(int x, int y, int width, int i, int& maximum_width) const {
 	return h;
 }
 
-int	answeri::paint(int x, int y, int width, const char* format, int& maximum_width) const {
+int	answeri::paint(int x, int y, int width, const char* format, int& maximum_width, int y2) const {
 	auto i = 0;
 	auto z = y;
+	auto c = 2;
 	if(format)
 		y += textf(x, y, width, format, &maximum_width) + 4;
-	for(auto& e : elements)
-		y += paint(x, y, width, i++, maximum_width) + 2;
+	auto w = width / c;
+	auto t = y;
+	for(auto& e : elements) {
+		if(y2 != -1 && (y + texth() + 4) >= y2) {
+			x += w;
+			y = t;
+		}
+		y += paint(x, y, w, i++, maximum_width) + 2;
+	}
 	return y - z;
 }
 
@@ -1127,7 +1135,7 @@ int	answeri::dialogv(bool allow_cancel, const char* title, const char* format) c
 		current_background();
 		dialogw(x, y, width, 440, title);
 		auto maximum_width = 0;
-		paint(x, y, width, format, maximum_width);
+		paint(x, y, width, format, maximum_width, 480);
 		domodal();
 		if(allow_cancel && hot.key == KeyEscape)
 			breakmodal(0);

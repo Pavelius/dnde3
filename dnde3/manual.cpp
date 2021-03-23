@@ -83,6 +83,38 @@ static void race_skills(stringbuilder& sb, manual& mn, answeri& an) {
 		sb.add(".");
 }
 
+static void item_example(stringbuilder& sb, manual& mn, answeri& an) {
+	auto count = 0;
+	if(mn.value.type == Skill) {
+		auto id = (skill_s)mn.value.value;
+		const char* header = "Применимо";
+		for(auto& ei : bsdata<itemi>()) {
+			if(ei.skill != id)
+				continue;
+			if(!count)
+				sb.addn("[%1]: ", header);
+			else
+				sb.add(", ");
+			sb.add("%+1", ei.name);
+			count++;
+		}
+	}
+}
+
+static void weapon_skill_ability(stringbuilder& sb, manual& mn, answeri& an) {
+	auto count = 0;
+	if(mn.value.type == Skill) {
+		auto id = (skill_s)mn.value.value;
+		auto& ei = bsdata<skilli>::elements[id];
+		if(ei.weapon.attack)
+			sb.addn("* Дает +1%% к шансу попасть за каждые [%1i%%] навыка.", ei.weapon.attack);
+		if(ei.weapon.damage)
+			sb.addn("* Дает +1 к повреждениям за каждые [%1i%%] навыка.", ei.weapon.damage);
+		if(ei.weapon.speed)
+			sb.addn("* Дает +1 к скорости атаки за каждые [%1i%%] навыка.", ei.weapon.speed);
+	}
+}
+
 static void ability_example(stringbuilder& sb, manual& mn, answeri& an) {
 	if(mn.value.type != Ability)
 		return;
@@ -121,14 +153,47 @@ static void ability_skills(stringbuilder& sb, manual& mn, answeri& an) {
 	sb.add(".");
 }
 
-static manual::proc ability_list[] = {choose_children};
-static manual::proc ability_procs[] = {add_children, ability_example, ability_skills};
-static manual::proc general_list[] = {choose_children};
-static manual::proc manual_list[] = {choose_children};
-static manual::proc skill_list[] = {choose_children_sort};
-static manual::proc skill_proc[] = {race_skills};
-static manual::proc state_list[] = {choose_children_sort};
-static manual::proc race_ability_list[] = {race_ability, race_skills};
+static void ability_list(stringbuilder& sb, manual& mn, answeri& an) {
+	choose_children(sb, mn, an);
+}
+
+static void ability_procs(stringbuilder& sb, manual& mn, answeri& an) {
+	add_children(sb, mn, an);
+	ability_example(sb, mn, an);
+	ability_skills(sb, mn, an);
+}
+
+static void general_list(stringbuilder& sb, manual& mn, answeri& an) {
+	choose_children(sb, mn, an);
+}
+
+static void manual_list(stringbuilder& sb, manual& mn, answeri& an) {
+	choose_children(sb, mn, an);
+}
+
+static void skill_list(stringbuilder& sb, manual& mn, answeri& an) {
+	choose_children_sort(sb, mn, an);
+}
+
+static void skill_proc(stringbuilder& sb, manual& mn, answeri& an) {
+	race_skills(sb, mn, an);
+}
+
+static void weapon_skill(stringbuilder& sb, manual& mn, answeri& an) {
+	weapon_skill_ability(sb, mn, an);
+	item_example(sb, mn, an);
+	race_skills(sb, mn, an);
+}
+
+static void state_list(stringbuilder& sb, manual& mn, answeri& an) {
+	choose_children_sort(sb, mn, an);
+}
+
+static void race_ability_list(stringbuilder& sb, manual& mn, answeri& an) {
+	race_ability(sb, mn, an);
+	race_skills(sb, mn, an);
+}
+
 BSDATA(manual) = {
 	{NoVariant, Variant, "Мануал", "Содержит справочную информацию по правилам игры.", manual_list},
 	{Variant, Ability, "Способности персонажей", "Каждый персонаж имеет [6] базовых способностей, которые его характеризуют. От базовых атрибутов зависят множество характеристик, плюс время от времени происходит **тест** атрибута. Шанс пройти такой тест (в процентах) равен удвоенному значению атрибута плюс различные модификаторы.", ability_list},
@@ -152,11 +217,11 @@ BSDATA(manual) = {
 	{Skill, Alchemy, 0, "Позволяет определить зелье. Также можно изготавливать зелья по рецептам.", skill_proc},
 	{Skill, Athletics, 0, "Персонаж с этим навыком разносит двери в щепки. При повышении уровня имеется шанс повысить **ловкость** или **силу**. Также повышает скорость движения персонажа в локации.", skill_proc},
 	{Skill, Backstabbing, 0, "Добавляется к шансу попадания и увеличивает урон в процентах равный утроенному навыку, если атака делается из невидимого состояния. После такой атаки вы становитесь видимым.", skill_proc},
-	{Skill, Climbing, 0, "При движении по горам делается тест и если он не пройден затраты времени на движения существенно увеличивается на 50%%. Такой тест делается для каждого героя в партии. Кроме того тестируется при попытке вылезти из **паутины**.", skill_proc},
+	{Skill, Climbing, 0, "При движении по горам делается тест и если он не пройден затраты времени на движения увеличивается на 50%%. Такой тест делается для каждого героя в партии. Кроме того тестируется при попытке вылезти из **паутины** или ловушки **ямы**.", skill_proc},
 	{Skill, Concetration, 0, "Скорость восстановления маны персонажа.", skill_proc},
 	{Skill, DisarmTraps, 0, "Убирает ловушку и дает немного опыта.", skill_proc},
 	{Skill, FindWeakness, 0, "Шанс попасть в уязвимое место врага и нанести [++30%%] урона, а также в зависимости от типа оружия дополнительный эффект:\n* Колющее оружие причиняет +40%% урона вместо +30%% и игнорирует броню.\n* Режущее оружие заставляет противника истекать кровью\n* Ударное оружие наносит оглушительный удар после которого соперник должен прийти в себя чтобы ходить дальше.\nИз шанса попасть в уязвимое место вычитается покрытость врага броней.", skill_proc},
-	{Skill, Gambling, 0, "Шанс выиграть дньги в азартной игре (кубики, карты, фишки). Можно играть только в заведении и только с достойным соперником, у каоторого также имеется даннй навык.", skill_proc},
+	{Skill, Gambling, 0, "Шанс выиграть деньги в азартной игре (кубики, карты, фишки). Можно играть только в заведении и только с достойным соперником, у которого также имеется данный навык.", skill_proc},
 	{Skill, Healing, 0, "Скорость восстановления здоровья персонажа.", skill_proc},
 	{Skill, HearNoises, 0, "Шанс услышать движение невидимого врага и сделать его видимым.", skill_proc},
 	{Skill, Herbalism, 0, "Шанс удачно собрать урожай с цветов и получить качественное растение в свое распоряжение. Конкретный тип собранного растения определяется случайным образом.", skill_proc},
@@ -167,6 +232,11 @@ BSDATA(manual) = {
 	{Skill, PickPockets, 0, "В любом городском здании можно разжиться монетами обворовывая обывателей.", skill_proc},
 	{Skill, Religion, 0, "Отображает знание религие и принадлежность своей вере. От религии зависит количество очков веры персонажа.", skill_proc},
 	{Skill, Riding, 0, "Позволяет передвигаться быстрее на глобальной карте.", skill_proc},
+	{Skill, FocusAxes, 0, "Позволяет применять сложные приемы с таким оружием как топор.", weapon_skill},
+	{Skill, FocusSwords, 0, "Позволяет более эффективно сражаться на мечах.", weapon_skill},
+	{Skill, FocusBows, 0, "Позволяет более эффективно стрелять из лука.", weapon_skill},
+	{Skill, FocusTwohanded, 0, "Позволяет более эффективно сражаться двуручным оружием.", skill_proc},
+	{Skill, TwoWeaponFighting, 0, "Позволяет сражаться более эффективно с оружием в каждой руке.", skill_proc},
 	{State, Poisoned, 0, "Отравленный персонаж теряет по одному очку жизни каждые 5 минут если не выполнит сопротивление яду. При удачном сопротивлении уменьшается уровень яда."},
 	{State, Sick, 0, "Больной персонаж не восстанавливает очки жизни природным путем. При лечение количество восстанавливаемых хитов делится на три."},
 	{Variant, Race, "Расы", "От выбранной расы зависят стартовые атрибуты к которым добавяется случайный модификатор от [--2] до [++2].", general_list},
@@ -187,8 +257,8 @@ void gamei::help() {
 	while(pm) {
 		char temp[2048]; stringbuilder sb(temp); answeri an;
 		sb.add(pm->text);
-		for(auto p : pm->procs)
-			p(sb, *pm, an);
+		if(pm->description)
+			pm->description(sb, *pm, an);
 		if(pages.getcount() == pages.getmaximum())
 			pages.remove(0);
 		pages.add(pm);

@@ -12,7 +12,7 @@ class answeri : stringbuilder {
 	char						buffer[4096];
 	adat<element, 48>			elements;
 	int							paint(int x, int y, int width, int i, int& maximum_width) const;
-	int							paint(int x, int y, int width, const char* format, int& maximum_width) const;
+	int							paint(int x, int y, int width, const char* format, int& maximum_width, int maximum_height = -1) const;
 	static const char*			getnmshortcut(const void* object, stringbuilder& sb);
 	void						information(const char* text, fntext fparam, int width) const;
 public:
