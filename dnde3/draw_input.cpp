@@ -915,6 +915,10 @@ void location::indoor(point camera, bool show_fow, const picture* effects) {
 				if(!is(i, Hidden))
 					image(x, y, gres(ResTraps), gettrap(i), 0);
 				break;
+			case Pool:
+				if(!is(i, Hidden))
+					image(x, y, gres(ResTraps), bsdata<map_objecti>::elements[Pool].start + getrand(i) % 15, 0);
+				break;
 			case Plants:
 				image(x, y, gres(ResFeature), 36 + (getrand(i) / 60) % 3, 0);
 				break;
@@ -1058,7 +1062,7 @@ void location::indoor(point camera, bool show_fow, const picture* effects) {
 		rectf({0, 0, draw::getwidth(), draw::getheight()}, color::create(0, 0, 64), night_percent);
 	// Show fog of war
 	if(show_fow)
-		viewfow(x0+elx/2, y0+ely/2, rc);
+		viewfow(x0 + elx / 2, y0 + ely / 2, rc);
 }
 
 int	answeri::paint(int x, int y, int width, int i, int& maximum_width) const {

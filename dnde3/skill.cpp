@@ -27,7 +27,7 @@ BSDATA(skilli) = {{"Торговля", "торговли", Charisma, {}, {Creature, {NotYou}, Cl
 	{"Танцы", "танцев", Dexterity, {}, {Creature, {NotYou, AllTargets}, Near}},
 	{"Инженерное дело", "инженерии", Intellegence},
 	{"Азартные игры", "азартных игр", Charisma, {}, {Creature, {Friends, NotYou}, Close, "С кем поиграть?"}},
-	{"История", "истории", Intellegence, {}, {Object, {}, Reach, "Какой объект изучить?"}},
+	{"История", "истории", Intellegence, {}, {Room, {}, Reach, "Какой объект изучить?"}},
 	{"Заживание ран", "здоровья", Wisdow},
 	{"Травознавство", "травознания", Wisdow, {}, {Object, {}, Close, "Где собрать урожай?"}},
 	{"Грамотность", "письма и чтения", Intellegence, {}, {Item, {LongAction, AlwaysChoose}, You, "Что хотите прочитать?"}},
@@ -53,6 +53,29 @@ bool creature::use(skill_s id, creature& player, int order, bool run) {
 	site* pst;
 	auto& ei = bsdata<skilli>::elements[id];
 	switch(id) {
+	case History:
+		pst = getsite();
+		if(!pst)
+			return false;
+		if(!pst->is(DungeonSite))
+			return false;
+		if(pst->is(KnownSite))
+			return false;
+		if(run) {
+			if(!roll(id)) {
+				fail(id);
+				return false;
+			}
+			static const char* speech[] = {
+				"Это очень древнее место. Это %1!",
+				"Я знаю где мы находимся. Это %1.",
+				"История этого места тянется из глубины веков. Похоже, что это %1."
+			};
+			pst->set(KnownSite);
+			say(maprnd(speech), pst->getname());
+			addexp(50, true);
+		}
+		break;
 	case HideInShadow:
 		if(is(Invisible))
 			return false;
@@ -67,20 +90,22 @@ bool creature::use(skill_s id, creature& player, int order, bool run) {
 		break;
 	case Diplomacy:
 		pst = getsite();
-		if(pst) {
-			if(pst->getowner() != this)
-				return false;
-			if(!execute(MakeDiscount, false))
-				return false;
-			if(run) {
-				if(!player.roll(id)) {
-					static const char* talk[] = {"Ой, не смеши меня.", "Эй, хватит торговаться.", "Давай, давай, проходи."};
-					say(maprnd(talk));
-				} else
-					execute(MakeDiscount, true);
-			}
-		} else {
-
+		if(!pst)
+			return false;
+		if(pst->getowner() != this)
+			return false;
+		if(!execute(MakeDiscount, false))
+			return false;
+		if(run) {
+			if(!player.roll(id)) {
+				static const char* talk[] = {
+					"Ой, не смеши меня.",
+					"Эй, хватит торговаться.",
+					"Давай, давай, проходи."
+				};
+				say(maprnd(talk));
+			} else
+				execute(MakeDiscount, true);
 		}
 		break;
 	case Dancing:
@@ -358,31 +383,6 @@ bool location::use(indext index, skill_s id, creature& player, int level, int or
 	return true;
 }
 
-bool site::use(skill_s id, creature& player, int level, int order, bool run) {
-	switch(id) {
-	case History:
-		if(!is(DungeonSite))
-			return false;
-		if(is(KnownSite))
-			return false;
-		if(run) {
-			if(!player.roll(id))
-				return false;
-			static const char* speech[] = {
-				"Это очень древнее место. Я знаю что это!",
-				"Я знаю где мы находимся.",
-				"История этого места тянется из глубины веков."
-			};
-			player.say(maprnd(speech));
-			set(KnownSite);
-			player.addexp(50, true);
-		}
-		break;
-	default: return false;
-	}
-	return true;
-}
-
 bool creature::use(const creaturea& source, skill_s id) {
 	auto v = get(id);
 	if(v <= 0)
@@ -393,15 +393,10 @@ bool creature::use(const creaturea& source, skill_s id) {
 		return false;
 	}
 	auto& ei = bsdata<skilli>::elements[id];
-	auto ps = getsite();
-	if(ps && ps->use(id, *this, v, 0, true)) {
-		// Do nothing
-	} else {
-		creaturea creatures = source; itema items; indexa indecies;
-		if(!ei.target.prepare(*this, creatures, items, indecies, id, v, true))
-			return false;
-		ei.target.use(*this, source, creatures, items, indecies, id, v);
-	}
+	creaturea creatures = source; itema items; indexa indecies;
+	if(!ei.target.prepare(*this, creatures, items, indecies, id, v, true))
+		return false;
+	ei.target.use(*this, source, creatures, items, indecies, id, v);
 	// Appear when do some activity
 	if(is(Invisible)) {
 		if(ei.target.range != You)

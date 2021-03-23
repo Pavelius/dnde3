@@ -136,7 +136,7 @@ enum room_s : unsigned char {
 };
 enum map_object_s : unsigned char {
 	NoTileObject,
-	Door, Tree, Altar, Statue, Trap, Plants, StairsUp, StairsDown
+	Door, Tree, Altar, Statue, Trap, Plants, Pool, StairsUp, StairsDown
 };
 enum trap_s : unsigned char {
 	NoTrap,
@@ -763,7 +763,6 @@ public:
 	void				setparam(variant v) { param = v; }
 	creature*			shopkeeper();
 	static void			unlink(const creature& player);
-	bool				use(skill_s id, creature& player, int level, int order, bool run);
 };
 struct rolei {
 	const char*			name;

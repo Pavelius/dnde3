@@ -14,15 +14,18 @@ bool targeti::prepare(creature& player, creaturea& creatures, itema& items, inde
 	auto los = player.getlos();
 	if(r != -1 && r > los)
 		r = los;
+	int result = 0;
 	switch(type) {
 	case Item:
 		items.selecta(player);
 		items.matcha(player, id, v);
+		result = getcount(creatures, items, indecies) > 0;
 		break;
 	case Object:
 		indecies.select(player.getposition(), r);
 		indecies.matcha(player, id, v);
 		indecies.sort(player.getposition());
+		result = getcount(creatures, items, indecies) > 0;
 		break;
 	case Creature:
 		if(r == -1)
@@ -37,13 +40,17 @@ bool targeti::prepare(creature& player, creaturea& creatures, itema& items, inde
 			creatures.remove(creatures.indexof(&player), 1);
 		creatures.matcha(player, id, v, false);
 		creatures.sort(player.getposition());
+		result = getcount(creatures, items, indecies) > 0;
+		break;
+	case Room:
+		result = player.apply(player, id, v, 0, false) ? 1 : 0;
 		break;
 	}
-	auto result = getcount(creatures, items, indecies) > 0;
 	if(!result && show_errors && player.isactive()) {
 		switch(type) {
 		case Creature: sb.adds("Вокруг нет [никого], на кого это могло бы подействовать."); break;
 		case Item: sb.adds("У вас нету подходящего [предмета], на которое это подействует."); break;
+		case Room: sb.adds("Вы должны находится в особом [месте] или [комнате], чтобы это могло подействовать."); break;
 		default: sb.adds("Рядом нет [объекта], на который это может подействовать."); break;
 		}
 	}
@@ -108,6 +115,9 @@ void targeti::use(creature& player, const creaturea& source, creaturea& creature
 	case Item:
 		for(unsigned i = 0; i < count; i++)
 			items[i]->apply(player, id, v, i, true);
+		break;
+	case Room:
+		player.apply(player, id, v, 0, true);
 		break;
 	default:
 		if(is(TargetArea)) {

@@ -273,12 +273,9 @@ bool creature::apply(creature& player, variant id, int v, int order, bool run) {
 		if(run)
 			add(id, v, true);
 		break;
-	case Spell:
-		return use((spell_s)id.value, player, v, order, run);
-	case Skill:
-		return use((skill_s)id.value, player, order, run);
-	default:
-		return false;
+	case Spell: return use((spell_s)id.value, player, v, order, run);
+	case Skill: return use((skill_s)id.value, player, order, run);
+	default: return false;
 	}
 	return true;
 }
