@@ -190,6 +190,7 @@ void gamei::intialize() {
 	draw::initialize();
 	setnobackground();
 	draw::create(-1, -1, 800, 600, WFResize | WFMinmax, 32);
+	draw::setcaption("Dungeon adventures");
 }
 
 static indext gets2i(const point& camera) {
@@ -1065,7 +1066,7 @@ void location::indoor(point camera, bool show_fow, const picture* effects) {
 		viewfow(x0 + elx / 2, y0 + ely / 2, rc);
 }
 
-int	answeri::paint(int x, int y, int width, int i, int& maximum_width) const {
+int	answeri::paint(int x, int y, int width, int i, int& maximum_width, const column* columns) const {
 	char k = '1' + i;
 	if(i >= 9)
 		k = 'A' + (i - 9);
@@ -1084,23 +1085,52 @@ int	answeri::paint(int x, int y, int width, int i, int& maximum_width) const {
 	}
 	if(hot.key == k)
 		execute(breakparam, elements[i].param);
+	if(columns) {
+		auto x2 = x + width;
+		for(auto* p = columns; *p; p++) {
+			char temp[260]; stringbuilder sb(temp);
+			auto x1 = x2 - p->width;
+			p->proc((void*)elements[i].param, sb);
+			textf(x1, y, x2 - x1, temp);
+		}
+	}
 	return h;
 }
 
-int	answeri::paint(int x, int y, int width, const char* format, int& maximum_width, int y2) const {
+static void paint_header(int x, int& y, int width, const answeri::column* columns) {
+	auto push_fore = fore;
+	fore = colors::yellow.mix(colors::text);
+	auto x2 = x + width;
+	y += metrics::padding;
+	for(auto* p = columns; *p; p++) {
+		auto x1 = x2 - p->width;
+		textc(x1, y, p->width, p->id);
+	}
+	text(x + 22, y, "Наименование");
+	fore = push_fore;
+	y += texth() + metrics::padding;
+}
+
+int	answeri::paint(int x, int y, int width, const char* format, int& maximum_width, int y2, const answeri::column* columns, int columns_count) const {
 	auto i = 0;
 	auto z = y;
-	auto c = 2;
 	if(format)
 		y += textf(x, y, width, format, &maximum_width) + 4;
-	auto w = width / c;
+	auto w = width / columns_count;
 	auto t = y;
+	if(columns) {
+		maximum_width = width;
+		paint_header(x, y, width, columns);
+	}
 	for(auto& e : elements) {
 		if(y2 != -1 && (y + texth() + 4) >= y2) {
 			x += w;
 			y = t;
 		}
-		y += paint(x, y, w, i++, maximum_width) + 2;
+		if(columns)
+			y += paint(x, y, width, i++, maximum_width, columns) + 2;
+		else
+			y += paint(x, y, w, i++, maximum_width, columns) + 2;
 	}
 	return y - z;
 }
@@ -1128,6 +1158,21 @@ int	answeri::choosev(bool interactive, bool clear_text, bool return_single, cons
 	return getresult();
 }
 
+int	answeri::choosev(const char* interactive, const char* format, bool allow_cancel, const answeri::column* columns) const {
+	int x, y;
+	const int width = 600;
+	while(ismodal()) {
+		current_background();
+		dialogw(x, y, width, 440, interactive);
+		auto maximum_width = 0;
+		paint(x, y, width, format, maximum_width, 480, columns);
+		domodal();
+		if(allow_cancel && hot.key == KeyEscape)
+			breakmodal(0);
+	}
+	return getresult();
+}
+
 int	answeri::dialogv(bool allow_cancel, const char* title, const char* format) const {
 	int x, y;
 	const int width = 600;
@@ -1135,7 +1180,7 @@ int	answeri::dialogv(bool allow_cancel, const char* title, const char* format) c
 		current_background();
 		dialogw(x, y, width, 440, title);
 		auto maximum_width = 0;
-		paint(x, y, width, format, maximum_width, 480);
+		paint(x, y, width, format, maximum_width, 480, 0, 2);
 		domodal();
 		if(allow_cancel && hot.key == KeyEscape)
 			breakmodal(0);

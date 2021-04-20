@@ -11,11 +11,15 @@ class answeri : stringbuilder {
 	};
 	char						buffer[4096];
 	adat<element, 48>			elements;
-	int							paint(int x, int y, int width, int i, int& maximum_width) const;
-	int							paint(int x, int y, int width, const char* format, int& maximum_width, int maximum_height = -1) const;
 	static const char*			getnmshortcut(const void* object, stringbuilder& sb);
 	void						information(const char* text, fntext fparam, int width) const;
 public:
+	struct column {
+		const char*				id;
+		int						width;
+		fntext					proc;
+		constexpr explicit operator bool() const { return width != 0; }
+	};
 	typedef void(*tipspr)(stringbuilder& sb, int param);
 	typedef void(*callpr)();
 	explicit operator bool() const { return elements.count != 0; }
@@ -27,6 +31,7 @@ public:
 	int							choose() const;
 	int							choose(bool interactive, bool clear_text, const char* format, ...) const;
 	int							choosev(bool interactive, bool clear_text, bool return_single, const char* format) const;
+	int							choosev(const char* interactive, const char* format, bool allow_cancel, const column* columns) const;
 	void						clear() { stringbuilder::clear(); elements.clear(); }
 	static int					compare(const void* p1, const void* p2);
 	int							dialogv(bool allow_cancel, const char* title, const char* format) const;
@@ -34,6 +39,8 @@ public:
 	static char					getkey(int v);
 	stringbuilder&				getsb() { return *this; }
 	int							menuv(bool allow_cancel, const char* format) const;
+	int							paint(int x, int y, int width, int i, int& maximum_width, const answeri::column* columns) const;
+	int							paint(int x, int y, int width, const char* format, int& maximum_width, int maximum_height = -1, const answeri::column* columns = 0, int columns_count = 1) const;
 	void						shortcuts(const char* text) const { information(text, getnmshortcut, 100); }
 	void						sort();
 };

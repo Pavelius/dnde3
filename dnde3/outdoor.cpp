@@ -2,9 +2,8 @@
 
 BSDATA(outdoori) = {{1349, "Тига", "town",
 "На холме расположилась небольшая деревушка шахтеров.",
-{{AreaCity, 1, 0, {StairsDownRoom, Barracs, Lair}},
-{AreaDungeon, 8, -2, {StairsDownRoom, StairsUpRoom}},
-{AreaDungeon, 1, -2, {StairsUpRoom}}}},
+{{AreaCity, 1, 0, {Barracs, Lair}},
+}},
 {Blocked, "Мехер", "borderland_entry",
 "Шумный город Мехер никогда не разочаровывал путишественника. Магазины, таверны и гостиницы - здесь было все высшего качества",
 {{AreaCity, 1, 0, {StairsDownRoom, ShopFood, ShopWeaponAndArmor}},
@@ -12,7 +11,7 @@ BSDATA(outdoori) = {{1349, "Тига", "town",
 {AreaDungeon, 1, -2, {StairsUpRoom}}}},
 {774, "Заброшенная шахта", "tunnel",
 "В скале находится заброшенная шахта. Проход уходит вниз, в темноту. Похоже здесь давно никого не было.",
-{{AreaDungeon, 10, -2, {StairsDownRoom, StairsUpRoom}},
+{{AreaDungeon, 5, -2, {StairsDownRoom, StairsUpRoom}},
 {AreaDungeon, 1, -2, {StairsUpRoom}}}},
 };
 assert_enum(outdoori, LastOutdoor)

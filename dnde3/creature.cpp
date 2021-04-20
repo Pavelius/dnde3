@@ -2050,11 +2050,33 @@ bool creature::leaving(direction_s v) {
 	return true;
 }
 
+static const char* getmaterials(const void* object, stringbuilder& sb) {
+	auto p = (crafti*)object;
+	for(auto e : p->materials) {
+		if(sb)
+			sb.add(", ");
+		sb.add(bsdata<itemi>::elements[e].name);
+	}
+	return sb;
+}
+
 void creature::testpotion() {
 	//loc.growplants();
 	//game.decoyfood();
 	//additem(Wand1, Domination);
-	additem(Wand1, SummonAlly);
+	//additem(Wand1, SummonAlly);
+	static crafti crafts[] = {
+		{10, SwordLong, {IronIgnot}, {}},
+		{10, SwordTwoHanded, {IronIgnot, IronIgnot}, {}},
+	};
+	static answeri::column columns[] = {
+		{"Ингридиенты", 400, getmaterials},
+		{},
+	};
+	answeri an;
+	for(auto& e : crafts)
+		an.add((int)&e, bsdata<itemi>::elements[e.type].name);
+	an.choosev("Создание зелий", "Укажите зелье, которое необходимо создать. При этом будут потрачены указанные ингридиенты.", true, columns);
 }
 
 int	creature::getallowedweight() const {
@@ -2328,4 +2350,20 @@ diety_s creature::getgod() const {
 	case Dwarf: return GodMoradin;
 	default: return GodMistra;
 	}
+}
+
+item creature::craft(item_s type, variant effect, skill_s skill) {
+	auto value = get(skill);
+	if(!value)
+		return item();
+	item result(type);
+	result.seteffect(effect);
+	auto number = rand() % value;
+	if(number < 13)
+		result.set(Cursed);
+	else if(number >= 70)
+		result.set(Blessed);
+	else if(number >= 98)
+		result.set(Artifact);
+	return result;
 }

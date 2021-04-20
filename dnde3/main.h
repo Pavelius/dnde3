@@ -839,6 +839,12 @@ struct statable {
 	void				raise(role_s role, class_s type);
 	void				set(variant i, int v);
 };
+struct crafti {
+	char				level;
+	item_s				type;
+	iteme				materials;
+	variant				effect;
+};
 class creature : public nameable, public statable {
 	statable			basic;
 	item				wears[LastWear + 1];
@@ -919,7 +925,9 @@ public:
 	void				checkpoison();
 	void				checksick();
 	variant				choosereceipt(const char* interactive) const;
-	item				craft(item_s type, variant effect, skill_s skill, int bonus = 0);
+	crafti*				choose(const char* interactive, std::initializer_list<crafti> source) const;
+	item				craft(item_s type, variant effect, skill_s skill);
+	item				craft(item_s type, variant effect, skill_s skill, int bonus);
 	void				create(race_s race, gender_s gender, class_s type);
 	void				create(role_s type);
 	void				clear();
