@@ -47,7 +47,8 @@ struct imgi {
 	const sprite*	data;
 	bool			notfound;
 };
-imgi bsdata<imgi>::elements[] = {{""},
+imgi bsdata<imgi>::elements[] = {
+	{""},
 	{"blood", "art"},
 	{"grass", "art"},
 	{"grass_w", "art"},
@@ -87,7 +88,8 @@ static hotkeym move_keys[] = {{KeyLeft, Left},
 	{KeyDown, Down},
 	{KeyEnd, LeftDown},
 };
-static picture trail_images[] = {{}, {ResTrail, 6, ImageMirrorV}, {ResTrail, 6}, {ResTrail, 4},
+static picture trail_images[] = {
+	{}, {ResTrail, 6, ImageMirrorV}, {ResTrail, 6}, {ResTrail, 4},
 	{ResTrail, 3, ImageMirrorH}, {ResTrail, 0, ImageMirrorH | ImageMirrorV}, {ResTrail, 0, ImageMirrorH}, {ResTrail, 5, ImageMirrorH},
 	{ResTrail, 3}, {ResTrail, 0, ImageMirrorV}, {ResTrail, 0}, {ResTrail, 5},
 	{ResTrail, 2}, {ResTrail, 7, ImageMirrorV}, {ResTrail, 7}, {ResTrail, 1},
@@ -1178,9 +1180,9 @@ int	answeri::dialogv(bool allow_cancel, const char* title, const char* format) c
 	const int width = 600;
 	while(ismodal()) {
 		current_background();
-		dialogw(x, y, width, 440, title);
+		dialogw(x, y, width, 400, title);
 		auto maximum_width = 0;
-		paint(x, y, width, format, maximum_width, 480, 0, 2);
+		paint(x, y, width, format, maximum_width, 440, 0, 2);
 		domodal();
 		if(allow_cancel && hot.key == KeyEscape)
 			breakmodal(0);

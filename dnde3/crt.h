@@ -1,10 +1,12 @@
+#include "my_initialize_list.h"
+
 #pragma once
 
 #define maptbl(t, id) (t[imax((unsigned)0, imin((unsigned)id, (sizeof(t)/sizeof(t[0])-1)))])
 #define maprnd(t) t[rand()%(sizeof(t)/sizeof(t[0]))]
 #define lenof(t) (sizeof(t)/sizeof(t[0]))
 #define zendof(t) (t + sizeof(t)/sizeof(t[0]) - 1)
-#define BSDATA(e) template<> e bsdata<e>::elements[]
+#define BSDATA(e) e bsdata<e>::elements[]
 #define DECLFULL(e) template<> array bsdata<e>::source(bsdata<e>::elements);
 #define assert_enum(e, last) static_assert(sizeof(bsdata<e>::elements) / sizeof(bsdata<e>::elements[0]) == last + 1, "Invalid count of " #e " elements"); DECLFULL(e)
 #define DECLENUM(e) template<> struct bsdata<e##_s> : bsdata<e##i> {}
@@ -47,24 +49,6 @@ const codepages						code = CP1251;
 // Untility structures
 template<typename T, T v> struct static_value { static constexpr T value = v; };
 template<int v> struct static_int : static_value<int, v> {};
-namespace std {
-template<class T> class initializer_list {	// list of pointers to elements
-	const T*				first;
-	const T*				last;
-public:
-	typedef T				value_type;
-	typedef const T&		reference;
-	typedef const T&		const_reference;
-	typedef unsigned		size_type;
-	typedef const T*		iterator;
-	typedef const T*		const_iterator;
-	constexpr initializer_list() noexcept : first(0), last(0) {}
-	constexpr initializer_list(const T *first_arg, const T *last_arg) noexcept : first(first_arg), last(last_arg) {}
-	constexpr const T*		begin() const noexcept { return first; }
-	constexpr const T*		end() const noexcept { return last; }
-	constexpr unsigned		size() const noexcept { return last - first; }
-};
-}
 // Storge like vector
 template<class T, int count_max = 128>
 struct adat {

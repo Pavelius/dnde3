@@ -202,6 +202,7 @@
     <ClInclude Include="draw.h" />
     <ClInclude Include="io.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="my_initialize_list.h" />
     <ClInclude Include="point.h" />
     <ClInclude Include="rect.h" />
     <ClInclude Include="stringbuilder.h" />
