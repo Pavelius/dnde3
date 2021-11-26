@@ -415,7 +415,7 @@ int item::getquality() const {
 
 int	item::getbonus() const {
 	int m = geti().quality;
-	if(identifyc) {
+	if(known_cursed) {
 		switch(magic) {
 		case Artifact: m += 3; break;
 		case Blessed: m += 1; break;
@@ -480,10 +480,10 @@ void item::set(identify_s v) {
 	if(v == KnownPower && iscountable())
 		return;
 	switch(v) {
-	case KnownMagic: identifyc = 1; break;
-	case KnownPower: identifye = 1; break;
-	case KnownStats: identifys = 1; break;
-	default: identifyc = identifys = identifye = 0; break;
+	case KnownMagic: known_cursed = 1; break;
+	case KnownPower: known_effect = 1; break;
+	case KnownStats: known_stats = 1; break;
+	default: known_cursed = known_effect = known_stats = 0; break;
 	}
 	getwearer()->prepare();
 }
@@ -551,8 +551,8 @@ void item::actv(stringbuilder& st, const char* format, const char* format_param)
 bool item::islike(const item& v) const {
 	return iscountable()
 		&& type == v.type
-		&& identifyc == v.identifyc
-		&& identifys == v.identifys
+		&& known_cursed == v.known_cursed
+		&& known_stats == v.known_stats
 		&& magic == v.magic
 		&& sale == v.sale;
 }
@@ -668,10 +668,10 @@ bool item::ischargeable() const {
 
 bool item::is(identify_s v) const {
 	switch(v) {
-	case KnownMagic: return identifyc != 0;
-	case KnownStats: return identifys != 0;
-	case KnownPower: return !iscountable() && identifye != 0;
-	default: return !identifys && !identifyc && !identifye;
+	case KnownMagic: return known_cursed != 0;
+	case KnownStats: return known_stats != 0;
+	case KnownPower: return !iscountable() && known_effect != 0;
+	default: return !known_stats && !known_cursed;
 	}
 }
 
