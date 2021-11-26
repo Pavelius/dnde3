@@ -200,6 +200,7 @@
     <ClInclude Include="converter.h" />
     <ClInclude Include="crt.h" />
     <ClInclude Include="draw.h" />
+    <ClInclude Include="flagable.h" />
     <ClInclude Include="io.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="my_initialize_list.h" />

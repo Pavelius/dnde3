@@ -273,6 +273,9 @@
     <ClInclude Include="my_initialize_list.h">
       <Filter>Поддержка</Filter>
     </ClInclude>
+    <ClInclude Include="flagable.h">
+      <Filter>Поддержка</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Поддержка">

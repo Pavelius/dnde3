@@ -1,4 +1,5 @@
 #include "answer.h"
+#include "flagable.h"
 #include "point.h"
 #include "rect.h"
 
@@ -218,8 +219,8 @@ enum sale_s : unsigned char {
 	NotForSale, Sale65, Sale80, Sale100, Sale150, Sale200, Sale250, Sale300
 };
 enum target_flag_s : unsigned char {
-	NotYou, Friends, Enemies, AlwaysChoose,
-	LongAction,
+	NotYou, Friends, Enemies,
+	AlwaysChoose, LongAction,
 	RandomTargets, TwoTargets, ThreeTargets, TargetArea,
 	AllTargets,
 };
@@ -872,7 +873,6 @@ class creature : public nameable, public statable {
 	bool				aispells(creaturea& creatures);
 	void				aiturn(creaturea& creatures, creaturea& enemies, creature* enemy);
 	void				applyab();
-	//void				applyabilities();
 	void				applyaward() const;
 	void				applybs();
 	void				applyen();
@@ -1174,7 +1174,6 @@ struct skilli {
 	constexpr bool		isweapon() const { return weapon.attack != 0; }
 };
 struct spelli {
-	char				priority;
 	const char*			name;
 	const char*			nameof;
 	unsigned char		mp;

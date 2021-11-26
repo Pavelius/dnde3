@@ -110,22 +110,6 @@ struct arem : aref<T> {
 	void					remove(int index, int elements_count = 1) { rmremove(aref<T>::data, sizeof(T), index, aref<T>::count, elements_count); }
 	void					reserve(unsigned count) { rmreserve((void**)&(aref<T>::data), count, count_maximum, sizeof(T)); }
 };
-// Abstract flag storage
-template<unsigned c>
-class flagable {
-	unsigned char			data[c];
-public:
-	constexpr flagable() : data{0} {}
-	constexpr explicit operator bool() const { for(auto e : data) if(e) return true; return false; }
-	template<class T> constexpr flagable(const std::initializer_list<T> v) : data{0} { for(auto e : v) set(e); }
-	void					clear() { memset(this, 0, sizeof(*this)); }
-	constexpr bool			is(short unsigned v) const { return (data[v / 8] & (1 << (v % 8))) != 0; }
-	constexpr unsigned		getcount() const { unsigned r = 0; for(unsigned i = 0; i < c * 8; i++) if(is(i)) r++; return r; }
-	constexpr void			remove(short unsigned v) { data[v / 8] &= ~(1 << (v % 8)); }
-	constexpr void			set(const flagable& e) { for(unsigned i = 0; i < c; i++) data[i] |= e.data[i]; }
-	constexpr void			set(short unsigned v) { data[v / 8] |= 1 << (v % 8); }
-	constexpr void			set(short unsigned v, bool activate) { if(activate) set(v); else remove(v); }
-};
 // Abstract value collection
 template<class T> struct casev {
 	T						id;
