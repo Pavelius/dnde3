@@ -5,30 +5,30 @@ BSDATA(spelli) = {
 	{"Благословение", "благословения", 6, {Creature, {NotYou, Friends, AllTargets}, Reach}, {1, 3}},
 	{"Зачаровать предмет", "зачарования предмета", 30, {Item, {AlwaysChoose}, You, "Какой предмет сделать волшебным?"}},
 	{"Поговорить с персоной", "разговора", 0, {Creature, {NotYou}, Close, "С кем вы хотите поговорить?"}},
-	{"Очаровать персону", "шарма", 20, {Creature, {NotYou, Enemies, RandomTargets}, Near, "Кто станет вашим другом?"}},
+	{"Очаровать персону", "шарма", 20, {Creature, {NotYou, Enemies, RandomTargets, MultiplyTarget}, Near, "Кто станет вашим другом?"}},
 	{"Опьянение", "бренди", 5, {Creature, {NotYou, Enemies, RandomTargets}, Near, "Кто станет пьяным вдрызг?"}},
-	{"Обнаружить зло", "обнаружения зла", 10, {Item, {RandomTargets}}},
-	{"Обнаружить волшебство", "обнаружения магии", 10, {Item, {RandomTargets}}},
+	{"Обнаружить зло", "обнаружения зла", 10, {Item, {RandomTargets, MultiplyTarget}}},
+	{"Обнаружить волшебство", "обнаружения магии", 10, {Item, {RandomTargets, MultiplyTarget}}},
 	{"Подчинение", "подчинения", 30, {Creature, {NotYou, Enemies, RandomTargets}, Everywhere, "Кого хотите поработить?"}},
-	{"Страх", "страха", 10, {Creature, {Enemies, TwoTargets}, Near}},
-	{"Шар огня", "шара огня", 6, {Creature, {Enemies, TargetArea}, Far}, {3, 18}, 0, Fire, "вылетел большой шар огня, поразивший цель"},
-	{"Исцеление", "исцеления", 4, {Creature, {Friends}, Reach, "Кому вылечить ранения?"}, {1, 6}, 2},
+	{"Страх", "страха", 10, {Creature, {Enemies, MultiplyTarget}, Near}},
+	{"Шар огня", "шара огня", 6, {Creature, {Enemies, TargetArea}, Far}, {3, 18}, Fire, "вылетел большой шар огня, поразивший цель"},
+	{"Исцеление", "исцеления", 4, {Creature, {Friends}, Reach, "Кому вылечить ранения?"}, {1, 6}},
 	{"Опознание", "опознания", 20, {Item, {AlwaysChoose}, You, "Какой предмет хотите опознать?"}},
 	{"Невидимость", "невидимости", 8, {Creature, {}, You}},
 	{"Открытие дверей", "открытия дверей", 1, {Object, {AllTargets}, Near}},
 	{"Свет", "света", 1, {Creature, {Friends}, Near, "Где появится свет?"}},
-	{"Волшебный заряд", "волшебного заряда", 3, {Creature, {Enemies}, Near}, {1, 4}, 1, Magic, "вылетел светящийся шарик, поразивший цель"},
+	{"Волшебный заряд", "волшебного заряда", 3, {Creature, {Enemies}, Near}, {1, 4}, Magic, "вылетел светящийся шарик, поразивший цель"},
 	{"Отравление", "яда", 2, {Creature, {Enemies}, Close}},
 	{"Починка", "починки", 2, {Item, {}, You, "Какой предмет починить?"}},
 	{"Убрать яд", "исцеления яда", 10, {Creature, {Friends}, Close, "У кого убрать яд?"}},
 	{"Убрать болезнь", "исцеления болезни", 20, {Creature, {Friends}, Close, "Кого излечить от болезни?"}},
 	{"Болезнь", "болезни", 10, {Creature, {Enemies}, Close, "Кого заразить?"}},
 	{"Волшебный щит", "щита", 6, {Creature, {Friends}, Close, "На кого наложить щит?"}},
-	{"Шокирующая хватка", "электричества", 3, {Creature, {Enemies}, Close}, {1, 8}, 2, Electricity, "сорвался элекрический заряд"},
-	{"Сон", "сна", 10, {Creature, {Enemies, TwoTargets, NotYou}, Reach}},
+	{"Шокирующая хватка", "электричества", 3, {Creature, {Enemies}, Close}, {1, 8}, Electricity, "сорвался элекрический заряд"},
+	{"Сон", "сна", 10, {Creature, {Enemies, MultiplyTarget, NotYou}, Reach}},
 	{"Замедлить монстра", "замедления", 12, {Creature, {Enemies, RandomTargets}, Near}},
-	{"Призвать союзника", "призыва", 10, {Creature, {}, You}},
-	{"Паутина", "паутины", 10, {Creature, {Enemies}, Near}},
+	{"Призвать союзника", "призыва", 10, {Creature, {MultiplyTarget}, You}},
+	{"Паутина", "паутины", 10, {Creature, {Enemies, MultiplyTarget}, Near}},
 };
 assert_enum(spelli, LastSpell)
 
@@ -292,10 +292,8 @@ bool creature::use(const creaturea& source, spell_s id, int level, item* magic_s
 	}
 	variant effect = id;
 	auto v = ei.dice.roll();
-	if(ei.multiplier)
-		v += level * ei.multiplier;
-	else
-		v += level;
+	if(!ei.target.is(MultiplyTarget))
+		v += (level - 1) * 2;
 	creaturea creatures = source;
 	itema items;
 	indexa indecies;

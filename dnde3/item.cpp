@@ -2,42 +2,90 @@
 
 static unsigned short sale_percent[8] = {0, 65, 80, 100, 150, 200, 250, 300};
 static const char* damage_text[] = {0, "Треснуло", "Повреждено", "Сломано"};
-static variant common_potions[] = {LifePoints, ManaPoints, DrunkenSpell};
-static variant uncommon_potions[] = {Strenght, Dexterity, Wisdow, Charisma, LifeRate, ManaRate, Level, Speed, Movement, PoisonSpell};
-static variant rare_potions[] = {Attack, Damage, Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma, Armor, Protection, Speed, Movement, Level};
-static variant weapon_enchanments[] = {{}, Attack, Damage, Speed, Strenght, Constitution};
-static variant swords_enchanments[] = {{}, Attack, Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma, Protection, LifePoints, ManaPoints, Speed};
-static variant common_rings[] = {Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
-Acid, Charm, Cold, Electricity, Fire, Poison, WaterAttack,
-Armor, Protection, LifePoints, ManaPoints, Speed};
-static variant common_boots[] = {{}, Constitution, Speed};
-static variant common_armor[] = {{}, Charisma, Armor, Cold, Fire, Poison, Speed};
-static variant common_helm[] = {{}, Intellegence, Charisma};
-static variant common_bracers[] = {{}, FocusBows, Lockpicking, PickPockets, Dexterity, Protection};
-static variant wand_common_spells[] = {Domination, MagicMissile, ShokingGrasp, HealingSpell, ArmorSpell, CharmPerson, FearSpell, Invisibility, Repair, SickSpell, Sleep, Web};
-static variant common_mage_spells[] = {MagicMissile, ShokingGrasp, ArmorSpell, CharmPerson, FearSpell, Invisibility, Repair, Sleep, Web};
-static variant common_priest_spells[] = {BlessSpell, HealingSpell, DetectEvil};
-static variant common_scroll[] = {BlessItem, DetectEvil, DetectMagic, Identify, KnockDoor, SummonAlly};
-static variant common_amulet[] = {Charisma, Strenght, Lockpicking};
-static variant common_shield[] = {{}, Protection, Deflect};
-static variant common_cloack[] = {Protection, Survival, HideInShadow, MoveSilently, Dancing};
-static variant alchemy_receipts[] = {LifePoints, ManaPoints, Strenght, Dexterity, Constitution, Wisdow, Charisma, Armor, Protection, RemoveSickSpell, RemovePoisonSpell};
-static variant lute_songs[] = {{}, Attack, Damage, BlessSpell, LifePoints, ManaPoints};
-static variant flute_songs[] = {{}, Wisdow, Intellegence, Charisma};
-static variant booben_songs[] = {{}, Strenght, Dexterity, Constitution, Armor};
-static variant corpse[] = {GoblinWarrior, GoblinRockthrower, OrcWarrior, LargeBat, GiantRat,
-HumanMale, HumanGuard, HumanChild, HumanFemale,
-Shopkeeper, DwarvenSmith, Bartender,
-KobolWarrior, KoboldShaman,
-LargeDog, Lynx, GiantFrog,
-GnollWarrior,
-GoblinRockthrowerWarrior, GoblinRockthrowerWarriorF,
-OrcWarrio2r, OrcWarrior2F,
-LargeBat2, LargeBat3,
-OrgeCommoner, OrgeCommonerF,
-Bugbear, BugbearF};
-static variant bones[] = {Skeleton};
-static variant bugshell[] = {AntWorker, AntWarrior, AntQueen, Bee, Bee2, Bee3};
+static variant common_potions[] = {
+	LifePoints, ManaPoints, DrunkenSpell
+};
+static variant uncommon_potions[] = {
+	Wisdow, Charisma, LifeRate, ManaRate, Level, Speed, Movement, PoisonSpell
+};
+static variant rare_potions[] = {
+	Attack, Damage, Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma, Armor, Protection, Speed, Movement, Level
+};
+static variant weapon_enchanments[] = {
+	{}, Attack, Damage, Speed, Strenght, Constitution
+};
+static variant swords_enchanments[] = {
+	{}, Attack, Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma, Protection, LifePoints, ManaPoints, Speed
+};
+static variant common_rings[] = {
+	Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
+	Acid, Charm, Cold, Electricity, Fire, Poison, WaterAttack,
+	Armor, Protection, LifePoints, ManaPoints, Speed
+};
+static variant common_boots[] = {
+	{}, Constitution, Speed
+};
+static variant common_armor[] = {
+	{}, Charisma, Armor, Cold, Fire, Poison, Speed
+};
+static variant common_helm[] = {
+	{}, Intellegence, Charisma
+};
+static variant common_bracers[] = {
+	{}, FocusBows, Lockpicking, PickPockets, Dexterity, Protection
+};
+static variant wand_common_spells[] = {
+	Domination, MagicMissile, ShokingGrasp, HealingSpell, ArmorSpell, CharmPerson, FearSpell, Invisibility, Repair, SickSpell, Sleep, Web
+};
+static variant common_mage_spells[] = {
+	MagicMissile, ShokingGrasp, ArmorSpell, CharmPerson, FearSpell, Invisibility, Repair, Sleep, Web
+};
+static variant common_priest_spells[] = {
+	BlessSpell, HealingSpell, DetectEvil
+};
+static variant common_scroll[] = {
+	BlessItem, DetectEvil, DetectMagic, Identify, KnockDoor, SummonAlly
+};
+static variant common_amulet[] = {
+	Charisma, Strenght, Lockpicking
+};
+static variant common_shield[] = {
+	{}, Protection, Deflect
+};
+static variant common_cloack[] = {
+	Protection, Survival, HideInShadow, MoveSilently, Dancing
+};
+static variant alchemy_receipts[] = {
+	LifePoints, ManaPoints, Strenght, Dexterity, Constitution, Wisdow, Charisma, Armor, Protection, RemoveSickSpell, RemovePoisonSpell
+};
+static variant lute_songs[] = {
+	{}, Attack, Damage, BlessSpell, LifePoints, ManaPoints
+};
+static variant flute_songs[] = {
+	{}, Wisdow, Intellegence, Charisma
+};
+static variant booben_songs[] = {
+	{}, Strenght, Dexterity, Constitution, Armor
+};
+static variant corpse[] = {
+	GoblinWarrior, GoblinRockthrower, OrcWarrior, LargeBat, GiantRat,
+	HumanMale, HumanGuard, HumanChild, HumanFemale,
+	Shopkeeper, DwarvenSmith, Bartender,
+	KobolWarrior, KoboldShaman,
+	LargeDog, Lynx, GiantFrog,
+	GnollWarrior,
+	GoblinRockthrowerWarrior, GoblinRockthrowerWarriorF,
+	OrcWarrio2r, OrcWarrior2F,
+	LargeBat2, LargeBat3,
+	OrgeCommoner, OrgeCommonerF,
+	Bugbear, BugbearF
+};
+static variant bones[] = {
+	Skeleton
+};
+static variant bugshell[] = {
+	AntWorker, AntWarrior, AntQueen, Bee, Bee2, Bee3
+};
 
 // Идея другоценных камней
 // 1) Обычный - стоит денег, можно продать.
@@ -111,9 +159,9 @@ BSDATA(itemi) = {
 	{"Шпинат", "item192", 13, 10, 3 * CP, -1, Male, Organic, {}, {}, {}, {}, Edible},
 	{"Петрушка", "item193", 14, 10, 2 * CP, -1, Female, Organic, {}, {}, {}, {}, Edible},
 	{"Морковь", "item194", 15, 10, 3 * CP, -1, Female, Organic, {}, {}, {}, {}, Edible},
-	{"Свиток", "item188", 1, 1, 10 * GP, -1, Male, Paper, {}, {}, common_scroll, {SingleUse}, Readable},
-	{"Свиток", "item185", 3, 1, 12 * GP, 0, Male, Paper, {}, {}, common_scroll, {SingleUse}, Readable},
-	{"Свиток", "item186", 5, 1, 15 * GP, 1, Male, Paper, {}, {}, common_scroll, {SingleUse}, Readable},
+	{"Свиток", "item188", 1, 1, 10 * GP, 1, Male, Paper, {}, {}, common_scroll, {SingleUse}, Readable},
+	{"Свиток", "item185", 3, 1, 12 * GP, 3, Male, Paper, {}, {}, common_scroll, {SingleUse}, Readable},
+	{"Свиток", "item186", 5, 1, 15 * GP, 5, Male, Paper, {}, {}, common_scroll, {SingleUse}, Readable},
 	{"Рецепт", "item200", 7, 1, 5 * GP, 1, Male, Paper, {}, {}, alchemy_receipts, {SingleUse}, Readable, Alchemy},
 	{"Жезл", "item231", 4, 10, 100 * GP, -2, NoGender, Wood, {}, {}, wand_common_spells, {}, Zapable},
 	{"Жезл", "item232", 5, 10, 120 * GP, -1, NoGender, Wood, {}, {}, wand_common_spells, {}, Zapable},
@@ -415,7 +463,7 @@ int item::getquality() const {
 
 int	item::getbonus() const {
 	int m = geti().quality;
-	if(known_cursed) {
+	if(known_magic) {
 		switch(magic) {
 		case Artifact: m += 3; break;
 		case Blessed: m += 1; break;
@@ -480,10 +528,10 @@ void item::set(identify_s v) {
 	if(v == KnownPower && iscountable())
 		return;
 	switch(v) {
-	case KnownMagic: known_cursed = 1; break;
-	case KnownPower: known_effect = 1; break;
+	case KnownMagic: known_magic = 1; break;
+	case KnownPower: known_power = 1; break;
 	case KnownStats: known_stats = 1; break;
-	default: known_cursed = known_effect = known_stats = 0; break;
+	default: known_magic = known_power = known_stats = 0; break;
 	}
 	getwearer()->prepare();
 }
@@ -551,7 +599,7 @@ void item::actv(stringbuilder& st, const char* format, const char* format_param)
 bool item::islike(const item& v) const {
 	return iscountable()
 		&& type == v.type
-		&& known_cursed == v.known_cursed
+		&& known_magic == v.known_magic
 		&& known_stats == v.known_stats
 		&& magic == v.magic
 		&& sale == v.sale;
@@ -668,10 +716,10 @@ bool item::ischargeable() const {
 
 bool item::is(identify_s v) const {
 	switch(v) {
-	case KnownMagic: return known_cursed != 0;
+	case KnownMagic: return known_magic != 0;
 	case KnownStats: return known_stats != 0;
-	case KnownPower: return !iscountable() && known_effect != 0;
-	default: return !known_stats && !known_cursed;
+	case KnownPower: return !iscountable() && known_power != 0;
+	default: return !known_stats && !known_magic;
 	}
 }
 

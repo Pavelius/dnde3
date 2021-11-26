@@ -51,7 +51,7 @@ bool creature::use(const creaturea& creatures, item& it) {
 		if(d100() >= it.getdamage() * 10) {
 			switch(effect.type) {
 			case Ability:
-				drink((ability_s)effect.value, it.getkind(), true, it.getmagic(), it.geti().quality, 120);
+				drink((ability_s)effect.value, it.getkind(), true, it.getmagic(), 120);
 				break;
 			case Spell:
 				use((spell_s)effect.value, *this, it.getbonus(), 0, true);
@@ -111,7 +111,7 @@ bool creature::use(const creaturea& creatures, item& it) {
 						auto index = 0;
 						for(auto p : creatures) {
 							if(effect.type == Ability)
-								p->drink((ability_s)effect.value, it.getkind(), true, Mundane, it.geti().quality, 10);
+								p->drink((ability_s)effect.value, it.getkind(), true, Mundane, 10);
 							else
 								p->apply(*this, effect, 1, index, true);
 							index++;
@@ -177,60 +177,43 @@ void creature::use(const foodi& fi, const item it, bool interactive) {
 	}
 }
 
-void creature::drink(ability_s id, variant source, bool interactive, item_type_s magic, int quality, int minutes) {
-	int v;
+void creature::drink(ability_s id, variant source, bool interactive, item_type_s magic, int minutes) {
 	switch(id) {
 	case LifePoints: case ManaPoints:
-		v = xrand(2, 12);
-		if(v < 2)
-			v = 2;
-		v += quality;
 		switch(magic) {
-		case Artifact: add(id, (1 + quality) * 3, interactive); break;
-		case Cursed: add(id, -(1 + quality), interactive); break;
-		case Blessed:
-			if(id == LifePoints)
-				damage(-3 * v, Magic, 0, interactive);
-			else
-				paymana(-3 * v, interactive);
-			break;
+		case Artifact: add(id, 5, interactive); break;
+		case Cursed: add(id, -1, interactive); break;
+		case Blessed: add(id, 1, interactive); break;
 		default:
 			if(id == LifePoints)
-				damage(-v, Magic, 0, interactive);
+				damage(-xrand(12, 36), Magic, 0, interactive);
 			else
-				paymana(-v, interactive);
+				paymana(-xrand(12, 36), interactive);
 			break;
 		}
 		break;
 	case Level:
-		v = xrand(1, 6);
-		if(v < 1)
-			v = 1;
-		v += quality;
 		switch(magic) {
-		case Artifact: v *= 5000; break;
-		case Cursed: v *= -1000; break;
-		case Blessed: v *= 1000; break;
-		default: v *= 250; break;
+		case Artifact: addexp(20000, interactive); break;
+		case Cursed: addexp(-5000, interactive); break;
+		case Blessed: addexp(5000, interactive); ; break;
+		default: addexp(500, interactive); break;
 		}
-		addexp(v, interactive);
 		break;
 	case Attack: case Protection: case Deflect:
-		v = xrand(6, 24);
 		switch(magic) {
-		case Artifact: add(id, (1 + quality) * 2, interactive); break;
-		case Cursed: add(id, source, -v, interactive, 5 * (minutes + minutes * quality)); break;
-		case Blessed: add(id, source, v, interactive, 5 * (minutes + minutes * quality)); break;
-		default: add(id, source, v, interactive, minutes + minutes * quality); break;
+		case Artifact: add(id, 5, interactive); break;
+		case Cursed: add(id, -1, interactive); break;
+		case Blessed: add(id, 1, interactive); break;
+		default: add(id, source, xrand(6, 24), interactive, minutes); break;
 		}
 		break;
 	default:
-		v = 1 + quality;
 		switch(magic) {
-		case Artifact: add(id, v, interactive); break;
-		case Cursed: add(id, -v, interactive); break;
-		case Blessed: add(id, source, v, interactive, 5 * minutes); break;
-		default: add(id, source, v, interactive, minutes); break;
+		case Artifact: add(id, 2, interactive); break;
+		case Cursed: add(id, -1, interactive); break;
+		case Blessed: add(id, 1, interactive); break;
+		default: add(id, source, xrand(1, 6), interactive, minutes); break;
 		}
 		break;
 	}

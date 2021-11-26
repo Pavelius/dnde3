@@ -221,7 +221,7 @@ enum sale_s : unsigned char {
 enum target_flag_s : unsigned char {
 	NotYou, Friends, Enemies,
 	AlwaysChoose, LongAction,
-	RandomTargets, TwoTargets, ThreeTargets, TargetArea,
+	RandomTargets, TargetArea, MultiplyTarget,
 	AllTargets,
 };
 enum intellegence_s : unsigned char {
@@ -555,7 +555,7 @@ struct itemi {
 };
 class item {
 	item_s				type;
-	unsigned char		known_cursed : 1;
+	unsigned char		known_magic : 1;
 	unsigned char		known_stats : 1;
 	item_type_s			magic : 2;
 	sale_s				sale : 3;
@@ -563,7 +563,7 @@ class item {
 		struct {
 			unsigned char	effect;
 			unsigned char	personal : 1;
-			unsigned char	known_effect : 1;
+			unsigned char	known_power : 1;
 			unsigned char	damaged : 2;
 			unsigned char	charge : 4;
 		};
@@ -574,7 +574,7 @@ class item {
 public:
 	item() = default;
 	item(item_s type, int level);
-	constexpr item(item_s type) : type(type), known_cursed(0), known_stats(0), magic(Mundane), sale(Sale100), count(0) {}
+	constexpr item(item_s type) : type(type), known_magic(0), known_stats(0), magic(Mundane), sale(Sale100), count(0) {}
 	explicit operator bool() const { return type != NoItem; }
 	void				act(const char* format, ...) const;
 	void				actv(stringbuilder& st, const char* format, const char* format_param) const;
@@ -1024,7 +1024,7 @@ public:
 	void				playuioverland();
 	void				playui();
 	void				pickup();
-	void				drink(ability_s id, variant source, bool interactive, item_type_s magic, int quality, int minutes);
+	void				drink(ability_s id, variant source, bool interactive, item_type_s magic, int minutes);
 	void				pray();
 	void				prepare();
 	void				quitandsave();
@@ -1179,7 +1179,6 @@ struct spelli {
 	unsigned char		mp;
 	targeti				target;
 	dicei				dice;
-	char				multiplier;
 	variant				bonus;
 	const char*			throw_text;
 };

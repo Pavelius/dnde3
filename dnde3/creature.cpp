@@ -2326,8 +2326,8 @@ void creature::sacrifice(diety_s god, item& it) {
 		faith = get(FaithPoints);
 		if(magic >= Cursed)
 			faith += 2;
-		if(magic >= Artifact) {
-		}
+		if(magic >= Artifact)
+			faith += 10;
 	} else {
 		switch(ei.gender) {
 		case Female: info("%1 осталась равнодушной.", ei.name); break;

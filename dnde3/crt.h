@@ -97,19 +97,6 @@ struct aref {
 	int						indexof(const T t) const { for(unsigned i = 0; i < count; i++) if(data[i] == t) return i; return -1; }
 	bool					is(const T t) const { return indexof(t) != -1; }
 };
-// Autogrow typized array
-template<class T>
-struct arem : aref<T> {
-	unsigned				count_maximum;
-	constexpr arem() : aref<T>(0, 0), count_maximum(0) {}
-	constexpr arem(T* source, unsigned count) : aref<T>(source, count), count_maximum(0) {}
-	~arem() { if(aref<T>::data && count_maximum) delete aref<T>::data; }
-	T*						add() { reserve(aref<T>::count + 1); return &aref<T>::data[aref<T>::count++]; }
-	void					add(const T& e) { *(add()) = e; }
-	void					clear() { aref<T>::count = 0; }
-	void					remove(int index, int elements_count = 1) { rmremove(aref<T>::data, sizeof(T), index, aref<T>::count, elements_count); }
-	void					reserve(unsigned count) { rmreserve((void**)&(aref<T>::data), count, count_maximum, sizeof(T)); }
-};
 // Abstract value collection
 template<class T> struct casev {
 	T						id;

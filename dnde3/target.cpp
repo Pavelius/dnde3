@@ -61,10 +61,8 @@ void targeti::use(creature& player, const creaturea& source, creaturea& creature
 	auto maximum_count = getcount(creatures, items, indecies);
 	unsigned count = 1;
 	auto interactive = this->interactive;
-	if(is(TwoTargets))
-		count += 1;
-	else if(is(ThreeTargets))
-		count += 2;
+	if(is(MultiplyTarget) && v > 0)
+		count += (v - 1);
 	else if(is(AllTargets)) {
 		count = maximum_count;
 		interactive = 0;
