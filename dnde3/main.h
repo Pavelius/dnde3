@@ -236,7 +236,8 @@ enum site_flag_s : unsigned char {
 };
 enum modifier_s : unsigned char {
 	NoModifier,
-	Opponent, Easy, Hard, Random, Resist, Immune, Vulnerable,
+	Opponent, Easy, Hard, Random,
+	Resist, Immune, Vulnerable,
 };
 enum action_s : unsigned char {
 	GuardPosition, StopGuardPosition, UseLongActionSkill, MakeDiscount, MakeHappy, MakeAnger,
@@ -293,6 +294,7 @@ typedef flagable<1 + Blooded / 8> mapflf;
 typedef flagable<1 + WaterAttack / 8> damagef;
 typedef flagable<1 + KnownSite / 8> sitef;
 typedef flagable<1 + RestrictVision / 8> tilef;
+typedef flagable<1 + LastSpell / 8> spellf;
 typedef cflags<map_object_flag_s> mapobjf;
 typedef adat<role_s, 4> summona;
 typedef void(*gentileproc)(indext index);
@@ -825,20 +827,26 @@ struct quest {
 };
 struct statable {
 	short				abilities[FaithPoints + 1];
+	spellf				active_spells;
 	unsigned char		skills[LastSkill + 1];
 	unsigned char		spells[LastSpell + 1];
 	damagef				resistance, immunity, vulnerability;
 	statef				states;
+	void				add(ability_s i, int v) { abilities[i] += v; }
 	void				add(variant i, int v) { set(i, get(i) + v); }
 	void				apply(varianta source);
-	void				copy(statable* source);
 	void				create(class_s type, race_s race);
+	bool				is(spell_s v) const { return active_spells.is(v); }
 	int					get(variant i) const;
 	int					getcap(skill_s v) const;
 	dicei				getraise(skill_s v) const;
 	void				raise(skill_s i);
 	void				raise(role_s role, class_s type);
 	void				set(variant i, int v);
+	void				set(spell_s i) { active_spells.set(i); }
+	void				update(const statable& source);
+	void				update_boost(short unsigned owner_id);
+	void				update_finish();
 };
 struct crafti {
 	char				level;
@@ -847,6 +855,7 @@ struct crafti {
 	variant				effect;
 };
 class creature : public nameable, public statable {
+	spellf				spells_active;
 	statable			basic;
 	item				wears[LastWear + 1];
 	int					restore_energy, restore_hits, restore_mana;

@@ -272,10 +272,15 @@ void creature::applybs() {
 	}
 }
 
+template<typename T>
+static void copy(T& v1, const T& v2) {
+	v1 = v2;
+}
+
 void creature::prepare() {
 	if(!this)
 		return;
-	copy(&basic);
+	copy<statable>(*this, basic);
 	applywr();
 	applyab();
 	applybs();
@@ -1871,16 +1876,18 @@ void creature::fail(skill_s id) {
 	const int chance_fail = 30;
 	auto& ei = bsdata<skilli>::elements[id];
 	auto isbad = d100() < chance_fail;
-	if(ei.is(Strenght) && isbad) {
+	if(!isbad)
+		return;
+	if(ei.is(Strenght)) {
 		act("%герой растянул%а мышцу.");
 		damage(1, Bludgeon, 100, false);
-	} else if((ei.is(Intellegence) || ei.is(Wisdow)) && isbad) {
+	} else if(ei.is(Intellegence) || ei.is(Wisdow)) {
 		act("%герой почуствовал%а моральное переутомление.");
 		paymana(1, false);
-	} else if(ei.is(Dexterity) && isbad) {
+	} else if(ei.is(Dexterity)) {
 		act("%герой испытал%а мышечный спазм.");
 		damage(1, Bludgeon, 100, false);
-	} else if(isbad) {
+	} else {
 		info("Вы убили кучу времени, но все было тщетно.");
 		wait(xrand(2, 4));
 	}

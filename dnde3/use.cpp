@@ -233,8 +233,10 @@ bool item::apply(creature& player, variant id, int v, int order, bool run) {
 		if(run)
 			set((identify_s)id.value);
 		break;
-	case Spell: return use((spell_s)id.value, player, v, order, run);
-	case Skill: return use((skill_s)id.value, player, order, run);
+	case Spell:
+		return use((spell_s)id.value, player, v, order, run);
+	case Skill:
+		return use((skill_s)id.value, player, order, run);
 	}
 	return true;
 }

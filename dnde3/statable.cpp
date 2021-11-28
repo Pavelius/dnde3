@@ -2,10 +2,6 @@
 
 static dicei skill_raise[] = {{3, 18}, {3, 12}, {2, 10}, {2, 8}, {2, 8}, {2, 6}, {1, 5}, {1, 4}, {1, 3}};
 
-void statable::copy(statable* source) {
-	memcpy(this, source, sizeof(*this));
-}
-
 void statable::set(variant i, int v) {
 	if(v < 0)
 		v = 0;
@@ -113,4 +109,24 @@ void statable::create(class_s type, race_s race) {
 		add(i, ci.ability[i]);
 	apply(ri.bonuses);
 	apply(ci.bonuses);
+}
+
+void statable::update_boost(short unsigned owner_id) {
+	for(auto& e : bsdata<boosti>()) {
+		if(e.owner_id != owner_id)
+			continue;
+		auto v = get(e.id) + e.modifier;
+		set(e.id, v);
+	}
+}
+
+static void copy(statable & v1, const statable & v2) {
+	v1 = v2;
+}
+
+void statable::update(const statable& source) {
+	copy(*this, source);
+}
+
+void statable::update_finish() {
 }
