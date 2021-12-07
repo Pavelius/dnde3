@@ -42,7 +42,8 @@ void creature::usetrap() {
 		case Role:
 			while(c-- > 0) {
 				auto p = loc.add(i, (role_s)ei.effect.value);
-				p->add(Hostile, 1, false);
+				if(p)
+					p->add(Hostile, 1, false);
 			}
 			break;
 		default:

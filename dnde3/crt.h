@@ -164,7 +164,6 @@ public:
 };
 // Abstract data access class
 template<typename T> struct bsdata {
-	//typedef T				data_type;
 	static T				elements[];
 	static array			source;
 	static constexpr array*	source_ptr = &source;

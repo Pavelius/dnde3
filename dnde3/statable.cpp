@@ -4,8 +4,7 @@ static dicei skill_raise[] = {{3, 18}, {3, 12}, {3, 10}, {3, 8}, {2, 7}, {1, 6},
 
 void statable::set(variant i, int v) {
 	switch(i.type) {
-	case Ability:
-		abilities[i.value] = v; break;
+	case Ability: abilities[i.value] = v; break;
 	case Harm:
 		if(v > 0)
 			resistance.set(i.value);
@@ -69,7 +68,6 @@ void statable::apply(varianta source) {
 
 void statable::raise(role_s role, class_s type) {
 	auto& ei = bsdata<classi>::elements[type];
-	abilities[Attack] += ei.weapon.multiplier;
 	if(abilities[Level] == 1 && role == Character) {
 		abilities[LifePoints] += ei.hp;
 		abilities[ManaPoints] += ei.mp;
@@ -89,7 +87,7 @@ void statable::create(class_s type, race_s race) {
 	const auto& ri = bsdata<racei>::elements[race];
 	const auto& ci = bsdata<classi>::elements[type];
 	abilities[Level] = 0;
-	abilities[Attack] += ci.weapon.base;
+	abilities[Attack] += 40;
 	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1))
 		abilities[i] += ri.abilities[i] + (rand() % 5) - 2;
 	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1))

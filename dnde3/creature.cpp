@@ -37,11 +37,6 @@ short unsigned creature::getid() const {
 	return this - bsdata<creature>::elements;
 }
 
-void creature::feel(ability_s id, bool raise) {
-	auto& ei = bsdata<abilityi>::elements[id];
-	act("%герой почувстовал%а себя %1.", raise ? ei.name_how : ei.curse_how);
-}
-
 void creature::add(ability_s id, int v, bool interactive) {
 	if(!v)
 		return;
@@ -485,13 +480,13 @@ void creature::update() {
 	update_finish();
 }
 
-void creature::create(race_s race, gender_s gender, class_s type) {
+void creature::create(race_s race, gender_s gender, class_s kind) {
 	clear();
 	this->type = Role;
 	this->value = Character;
-	this->kind = type;
+	this->kind = kind;
 	setname(race, gender);
-	basic.create(type, race);
+	basic.create(kind, race);
 	basic.raise(Climbing);
 	basic.raise(Climbing);
 	if(basic.abilities[Intellegence] >= 9)
@@ -719,6 +714,7 @@ void creature::inventory() {
 				}
 			}
 		}
+		update();
 	}
 }
 
@@ -1558,6 +1554,9 @@ void creature::raiselevel(bool interactive) {
 	if(sb.get() > start_log)
 		pause(interactive);
 	raiseskills(interactive);
+	update();
+	hp = get(LifePoints);
+	mp = get(ManaPoints);
 }
 
 void creature::addexp(int v, bool interactive) {
@@ -1905,17 +1904,6 @@ void creature::damagewears(int count, damage_s type, int item_count) {
 		item_count = maximum;
 	for(auto i = 0; i < maximum; i++)
 		items[i]->damage(count, type, true);
-}
-
-bool creature::ask(const nameable& opponent, const char* format, ...) const {
-	return askv(sb, opponent, format, xva_start(format));
-}
-
-bool creature::askyn(const char* format, ...) const {
-	if(!isactive())
-		return true;
-	act(format);
-	return askyn();
 }
 
 bool creature::saybusy() {

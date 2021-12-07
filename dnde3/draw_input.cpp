@@ -474,9 +474,9 @@ static void header(int x, int y, const char* name) {
 
 static int fielw(int x, int y, int v1, int b1, const char* format = "%1i") {
 	auto p_fore = fore;
-	if(b1 > 0)
+	if(v1 > b1)
 		fore = colors::text.mix(colors::green, 96);
-	else if(b1 < 0)
+	else if(v1 < b1)
 		fore = colors::text.mix(colors::red, 64);
 	char temp[32]; stringbuilder sb(temp);
 	sb.add(format, v1, b1);
@@ -569,22 +569,24 @@ static void render_info(const creature& e) {
 		draw::text(x + width - draw::textw(sb), y, sb);
 	}
 	y += draw::texth() + 2;
+	auto attm = e.getattack(Melee);
+	auto attr = e.getattack(Ranged);
 	int y1 = y;
 	int x1 = x;
-	y += fiela(x, y, tw, "ÑË", e.get(Strenght), e.getboost(Strenght));
-	y += fiela(x, y, tw, "ÈÍ", e.get(Intellegence), e.getboost(Intellegence));
+	y += fiela(x, y, tw, "ÑË", e.get(Strenght), e.getbase(Strenght));
+	y += fiela(x, y, tw, "ÈÍ", e.get(Intellegence), e.getbase(Intellegence));
 	x += dx;
 	y = y1;
-	y += fiela(x, y, tw, "ËÂ", e.get(Dexterity), e.getboost(Dexterity));
-	y += fiela(x, y, tw, "ÌÄ", e.get(Wisdow), e.getboost(Wisdow));
+	y += fiela(x, y, tw, "ËÂ", e.get(Dexterity), e.getbase(Dexterity));
+	y += fiela(x, y, tw, "ÌÄ", e.get(Wisdow), e.getbase(Wisdow));
 	x += dx;
 	y = y1;
-	y += fiela(x, y, tw, "ÒË", e.get(Constitution), e.getboost(Constitution));
-	y += fiela(x, y, tw, "ÕÐ", e.get(Charisma), e.getboost(Charisma));
+	y += fiela(x, y, tw, "ÒË", e.get(Constitution), e.getbase(Constitution));
+	y += fiela(x, y, tw, "ÕÐ", e.get(Charisma), e.getbase(Charisma));
 	x += dx + 6;
 	y = y1;
-	y += fiela(x, y, tw, "ÀÒ", e.getattack(Melee).attack, e.getboost(Attack), "%1i%%", e.getattack(Ranged).attack, e.getboost(Attack), "%1i%%");
-	y += fiela(x, y, tw, "ÁÐ", e.get(Protection), e.getboost(Protection), "%1i%%", e.get(Armor), e.getboost(Armor));
+	y += fiela(x, y, tw, "ÀÒ", attm.attack, attm.attack, "%1i%%", attr.attack, attr.attack, "%1i%%");
+	y += fiela(x, y, tw, "ÁÐ", e.get(Protection), e.get(Protection), "%1i%%", e.get(Armor), e.getbase(Armor));
 	x += dx + 50;
 	y = y1;
 	y += field(x, y, 40, "Õèòû", e.gethits(), e.get(LifePoints));
@@ -596,7 +598,7 @@ static void render_info(const creature& e) {
 	x += dx + 58;
 	y = y1;
 	y += fielt(x, y, 52, "Âðåìÿ", game.getrounds());
-	y += fiela(x, y, 52, "ÏÁ", e.get(Deflect), e.getboost(Deflect), "%1i%%");
+	y += fiela(x, y, 52, "ÏÁ", e.get(Deflect), e.get(Deflect), "%1i%%");
 	x = x1;
 	y = y1 + draw::texth() * 2;
 	// Draw encumbrance
@@ -1882,7 +1884,7 @@ void creature::pause(bool interactive) {
 	sb.clear();
 }
 
-bool creature::askyn() {
+bool nameable::askyn() {
 	current_index = Blocked;
 	while(ismodal()) {
 		current_background();

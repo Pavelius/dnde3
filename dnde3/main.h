@@ -101,7 +101,8 @@ enum ability_s : unsigned char {
 	Attack, AttackMelee, AttackRanged,
 	Damage, DamageMelee, DamageRanged,
 	Pierce, Protection, Armor, Deflect, Luck, Speed, Movement, Visibility,
-	Level, LifePoints, LifeRate, ManaPoints, ManaRate, FaithPoints,
+	Level, LifeRate, ManaRate, FaithPoints,
+	LifePoints, ManaPoints,
 };
 enum skill_s : unsigned char {
 	Bargaining, Bluff, Diplomacy,
@@ -396,15 +397,10 @@ struct leveli {
 	varianta			features;
 };
 struct classi {
-	struct weaponi {
-		char			base;
-		char			multiplier;
-	};
 	const char*			name;
 	unsigned char		hp, mp;
 	unsigned char		naked_avatar;
 	char				ability[6];
-	weaponi				weapon;
 	varianta			bonuses;
 	itemf				restricted;
 };
@@ -730,8 +726,12 @@ public:
 	void				actev(stringbuilder& st, const char* format, const char* param, bool add_sep) const;
 	void				actv(stringbuilder& sb, const char* format, const char* param) const;
 	void				actv(stringbuilder& sb, nameable& e, const char* format, const char* param) const;
+	bool				ask(const nameable& opponent, const char* format, ...) const;
 	bool				askv(stringbuilder& st, const nameable& e, const char* format, const char* param) const;
+	static bool			askyn();
+	bool				askyn(const char* format, ...) const;
 	bool				cansee() const;
+	void				feel(ability_s id, bool raise);
 	void				info(const char* format, ...) const;
 	void				infov(stringbuilder& sb, const char* format, const char* param) const;
 	gender_s			getgender() const;
@@ -826,7 +826,7 @@ struct quest {
 	void				play(contexti& e) const;
 };
 struct statable {
-	char				abilities[FaithPoints + 1];
+	short				abilities[ManaPoints + 1];
 	unsigned char		skills[LastSkill + 1];
 	unsigned char		spells[LastSpell + 1];
 	damagef				resistance, immunity, vulnerability;
@@ -834,8 +834,11 @@ struct statable {
 	void				add(variant i, int v) { set(i, get(i) + v); }
 	void				apply(varianta source);
 	void				create(class_s type, race_s race);
+	bool				isimmune(damage_s v) const { return immunity.is(v); }
 	bool				ismaster(skill_s v) const { return skills[v] >= 70; }
 	bool				isgrandmaster(skill_s v) const { return skills[v] >= 100; }
+	bool				isresist(damage_s v) const { return resistance.is(v); }
+	bool				isvulnerable(damage_s v) const { return vulnerability.is(v); }
 	int					get(variant i) const;
 	int					getbonus(ability_s v) const { return abilities[v] / 2 - 5; }
 	int					getcap(skill_s v) const;
@@ -844,7 +847,6 @@ struct statable {
 	void				raise(role_s role, class_s type);
 	void				set(variant i, int v);
 	void				update(const statable& source);
-	void				update_boost(short unsigned owner_id);
 	void				update_finish();
 };
 struct crafti {
@@ -917,9 +919,6 @@ public:
 	void				addexp(int count, bool interactive = false);
 	void				appear();
 	bool				apply(creature& target, variant id, int v, int order, bool run);
-	bool				ask(const nameable& opponent, const char* format, ...) const;
-	bool				askyn(const char* format, ...) const;
-	static bool			askyn();
 	void				backpack();
 	void				bloodstain() const;
 	int					calculate(const varianta& source) const;
@@ -934,7 +933,6 @@ public:
 	void				checkpoison();
 	void				checksick();
 	variant				choosereceipt(const char* interactive) const;
-	crafti*				choose(const char* interactive, std::initializer_list<crafti> source) const;
 	item				craft(item_s type, variant effect, skill_s skill);
 	item				craft(item_s type, variant effect, skill_s skill, int bonus);
 	void				create(race_s race, gender_s gender, class_s type);
@@ -954,21 +952,21 @@ public:
 	void				enslave();
 	bool				execute(action_s v, bool run);
 	void				fail(skill_s id);
-	void				feel(ability_s id, bool raise);
 	static creature*	find(indext i);
 	boosti*				find(variant id) const;
-	boosti*				finds(variant id) const;
 	item*				finditem(item_s v);
 	int					get(ability_s v) const { return abilities[v]; }
 	int					get(spell_s v) const { return spells[v]; }
 	int					get(skill_s v) const { return skills[v]; }
 	const item&			get(slot_s v) const { return wears[v]; }
+	item&				get(slot_s v) { return wears[v]; }
 	static creature*	getactive();
 	static creature*	getactive(int index);
 	int					getallowedweight() const;
 	attacki				getattack(slot_s slot, const item& weapon) const;
 	attacki				getattack(slot_s slot) const { return getattack(slot, wears[slot]); }
 	int					getaward() const { return 10 + 15 * get(Level); }
+	int					getbase(variant id) const { return basic.get(id); }
 	int					getboost(variant id) const;
 	const classi&		getclass() const { return bsdata<classi>::elements[kind]; }
 	direction_s			getdirection() const { return direction; }
@@ -981,7 +979,6 @@ public:
 	short unsigned		getid() const;
 	intellegence_s		getint() const;
 	creature*			getleader() const;
-	int					getlevel(skill_s v) const;
 	unsigned			getlevelup() const;
 	int					getlos() const;
 	int					getmana() const { return mp; }
@@ -1007,12 +1004,9 @@ public:
 	bool				is(const creature* p) const { return this == p; }
 	bool				isallow(item_s v) const;
 	bool				isenemy(const creature* target) const;
-	bool				isimmune(damage_s v) const { return immunity.is(v); }
 	bool				ismatch(const creature& opponent, skill_s id, int value) const;
 	bool				ismaster(skill_s v) const;
-	bool				isresist(damage_s v) const { return resistance.is(v); }
 	const char*			isusedisable(skill_s id) const;
-	bool				isvulnerable(damage_s v) const { return vulnerability.is(v); }
 	void				kill();
 	bool				knownreceipt(variant id) const;
 	void				learnreceipt(variant id);
@@ -1377,6 +1371,7 @@ class gamei : public geoposable {
 	unsigned short		outdoor_id;
 	char				reputation;
 	int					restore_energy;
+	unsigned			restore_half_turn, restore_turn, restore_hour, restore_day_part, restore_day;
 	deck				events;
 	fractiona			progress;
 	//
@@ -1387,7 +1382,6 @@ class gamei : public geoposable {
 public:
 	void				addmoney(int v) {}
 	void				addreputation(int v) { reputation += v; }
-	void				applyboost();
 	void				begin();
 	void				decoyfood();
 	bool				enter(int level, map_object_s stairs);

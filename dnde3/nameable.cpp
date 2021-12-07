@@ -284,12 +284,23 @@ void nameable::infov(stringbuilder& st, const char* format, const char* param) c
 	st = sb;
 }
 
+bool nameable::ask(const nameable& opponent, const char* format, ...) const {
+	return askv(sb, opponent, format, xva_start(format));
+}
+
 void nameable::act(const char* format, ...) const {
 	actv(sb, format, xva_start(format));
 }
 
 void nameable::info(const char* format, ...) const {
 	infov(sb, format, xva_start(format));
+}
+
+bool nameable::askyn(const char* format, ...) const {
+	if(!isactive())
+		return true;
+	act(format);
+	return askyn();
 }
 
 bool nameable::askv(stringbuilder& st, const nameable& opponent, const char* format, const char* param) const {
@@ -336,6 +347,11 @@ const char* adjectivei::get(gender_s v) const {
 	case Female: return name_female;
 	default: return name;
 	}
+}
+
+void nameable::feel(ability_s id, bool raise) {
+	auto& ei = bsdata<abilityi>::elements[id];
+	act("%герой почувстовал%а себя %1.", raise ? ei.name_how : ei.curse_how);
 }
 
 bool nameable::isactive() const {

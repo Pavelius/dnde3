@@ -291,13 +291,10 @@ bool creature::use(const creaturea& source, spell_s id, int level, item* magic_s
 		return false;
 	}
 	variant effect = id;
-	auto v = ei.dice.roll();
-	if(!ei.target.is(MultiplyTarget))
-		v += (level - 1) * 2;
 	creaturea creatures = source;
 	itema items;
 	indexa indecies;
-	if(!ei.target.prepare(*this, creatures, items, indecies, id, v, show_errors))
+	if(!ei.target.prepare(*this, creatures, items, indecies, id, level, show_errors))
 		return false;
 	if(magic_source) {
 		if(ei.target.type == Creature && ei.target.range != You)
@@ -314,7 +311,7 @@ bool creature::use(const creaturea& source, spell_s id, int level, item* magic_s
 		else
 			act("Ñ êîí÷èêà ïàëüöåâ %1.", ei.throw_text);
 	}
-	ei.target.use(*this, source, creatures, items, indecies, id, v);
+	ei.target.use(*this, source, creatures, items, indecies, id, level);
 	if(magic_source) {
 		if(magic_source->ischargeable())
 			magic_source->use();

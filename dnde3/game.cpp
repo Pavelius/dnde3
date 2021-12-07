@@ -156,27 +156,43 @@ static void boost_update() {
 	auto rounds = game.getrounds();
 	auto ps = bsdata<boosti>::elements;
 	for(auto& e : bsdata<boosti>()) {
-		auto player = bsdata<creature>::elements + e.owner_id;
 		if(e.time > rounds)
 			*ps++ = e;
 	}
 	bsdata<boosti>::source.setcount(ps - bsdata<boosti>::elements);
 }
 
+static void update_all_creature() {
+	for(auto& e : bsdata<creature>()) {
+		if(e)
+			e.update();
+	}
+}
+
 void gamei::passminute() {
 	rounds++; // One round is one minute
 	boost_update();
 	apply(&creature::restoration);
-	if((rounds % 5) == 0)
+	while(restore_half_turn < rounds) {
 		apply(&creature::checkpoison);
-	if((rounds % 10) == 0)
+		restore_half_turn += 5;
+	}
+	while(restore_turn < rounds) {
 		apply(&creature::checkmood);
-	if((rounds % 60) == 0)
+		restore_turn += 10;
+	}
+	while(restore_hour < rounds) {
 		apply(&creature::checksick);
-	if((rounds % (24 * 60)) == 0)
-		loc.growplants();
-	if((rounds % (4 * 60)) == 0)
+		restore_hour += 60;
+	}
+	while(restore_day_part < rounds) {
 		decoyfood();
+		restore_day_part += 4 * 60;
+	}
+	while(restore_day < rounds) {
+		loc.growplants();
+		restore_day += 24 * 60;
+	}
 }
 
 bool gamei::enter(int level, map_object_s stairs) {
