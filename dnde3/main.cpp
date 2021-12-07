@@ -43,16 +43,6 @@ static void item_choose() {
 	p1->inventory();
 }
 
-static bool test_formula() {
-	creature c1;
-	auto s1 = sizeof(c1);
-	c1.create(GnollWarrior);
-	c1.set(Dexterity, 7);
-	c1.set(Athletics, 12);
-	auto r = c1.calculate(bsdata<abilityi>::elements[Speed].formula);
-	return r == 99;
-}
-
 static void continue_game() {
 	if(!game.read())
 		return;
@@ -135,8 +125,6 @@ static void main_menu() {
 void util_main();
 
 int main(int argc, char* argv[]) {
-	if(!test_formula())
-		return false;
 	game.intialize();
 	util_main();
 	main_menu();

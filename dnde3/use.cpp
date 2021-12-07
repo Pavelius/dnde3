@@ -51,7 +51,7 @@ bool creature::use(const creaturea& creatures, item& it) {
 		if(d100() >= it.getdamage() * 10) {
 			switch(effect.type) {
 			case Ability:
-				drink((ability_s)effect.value, it.getkind(), true, it.getmagic(), 120);
+				drink((ability_s)effect.value, true, it.getmagic(), 120);
 				break;
 			case Spell:
 				use((spell_s)effect.value, *this, it.getbonus(), 0, true);
@@ -111,7 +111,7 @@ bool creature::use(const creaturea& creatures, item& it) {
 						auto index = 0;
 						for(auto p : creatures) {
 							if(effect.type == Ability)
-								p->drink((ability_s)effect.value, it.getkind(), true, Mundane, 10);
+								p->drink((ability_s)effect.value, true, Mundane, 10);
 							else
 								p->apply(*this, effect, 1, index, true);
 							index++;
@@ -177,7 +177,7 @@ void creature::use(const foodi& fi, const item it, bool interactive) {
 	}
 }
 
-void creature::drink(ability_s id, variant source, bool interactive, item_type_s magic, int minutes) {
+void creature::drink(ability_s id, bool interactive, item_type_s magic, int minutes) {
 	switch(id) {
 	case LifePoints: case ManaPoints:
 		switch(magic) {
@@ -205,7 +205,7 @@ void creature::drink(ability_s id, variant source, bool interactive, item_type_s
 		case Artifact: add(id, 5, interactive); break;
 		case Cursed: add(id, -1, interactive); break;
 		case Blessed: add(id, 1, interactive); break;
-		default: add(id, source, xrand(6, 24), interactive, minutes); break;
+		default: add(id, xrand(6, 24), interactive, minutes); break;
 		}
 		break;
 	default:
@@ -213,7 +213,7 @@ void creature::drink(ability_s id, variant source, bool interactive, item_type_s
 		case Artifact: add(id, 2, interactive); break;
 		case Cursed: add(id, -1, interactive); break;
 		case Blessed: add(id, 1, interactive); break;
-		default: add(id, source, xrand(1, 6), interactive, minutes); break;
+		default: add(id, xrand(1, 6), interactive, minutes); break;
 		}
 		break;
 	}
@@ -265,8 +265,8 @@ bool creature::apply(creature& player, variant id, int v, int order, bool run) {
 	return true;
 }
 
-void creature::add(const effecti& e, item_s source) {
-	act(e.text, getstr(source));
+void creature::add(const effecti& e) {
+	act(e.text);
 	if(e.id.type == Ability) {
 		auto id = (ability_s)e.id.value;
 		switch(id) {
@@ -281,10 +281,10 @@ void creature::add(const effecti& e, item_s source) {
 			if(e.permanent)
 				add(id, e.value, true);
 			else
-				add(id, source, e.value, true, xrand(60, 180));
+				add(id, e.value, true, xrand(60, 180));
 			break;
 		default:
-			add(id, source, e.value, true, xrand(120, 240));
+			add(id, e.value, true, xrand(120, 240));
 			break;
 		}
 	} else

@@ -152,9 +152,20 @@ static void apply(creature::papply p) {
 	}
 }
 
+static void boost_update() {
+	auto rounds = game.getrounds();
+	auto ps = bsdata<boosti>::elements;
+	for(auto& e : bsdata<boosti>()) {
+		auto player = bsdata<creature>::elements + e.owner_id;
+		if(e.time > rounds)
+			*ps++ = e;
+	}
+	bsdata<boosti>::source.setcount(ps - bsdata<boosti>::elements);
+}
+
 void gamei::passminute() {
 	rounds++; // One round is one minute
-	applyboost();
+	boost_update();
 	apply(&creature::restoration);
 	if((rounds % 5) == 0)
 		apply(&creature::checkpoison);
@@ -250,19 +261,6 @@ void gamei::play() {
 		else
 			playactive();
 	}
-}
-
-void gamei::applyboost() {
-	auto ps = bsdata<boosti>::elements;
-	for(auto& e : bsdata<boosti>()) {
-		auto player = bsdata<creature>::elements + e.owner_id;
-		if(e.time > rounds) {
-			*ps++ = e;
-			continue;
-		}
-		player->add(e.id, e.modifier, player->is(Friendly));
-	}
-	bsdata<boosti>::source.setcount(ps - bsdata<boosti>::elements);
 }
 
 void gamei::use(map_object_s v) {

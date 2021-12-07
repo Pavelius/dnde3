@@ -54,19 +54,17 @@ void creature::add(state_s id, int v, bool interactive) {
 	if(!v)
 		return;
 	if(v > 0) {
-		if(basic.states.is(id))
+		if(is(id))
 			return;
-		basic.states.set(id);
+		states.set(id);
 		if(interactive)
 			act(bsdata<statei>::elements[id].text_set);
-		prepare();
 	} else {
-		if(!basic.states.is(id))
+		if(!is(id))
 			return;
-		basic.states.remove(id);
+		states.remove(id);
 		if(interactive)
 			act(bsdata<statei>::elements[id].text_remove);
-		prepare();
 	}
 }
 
@@ -102,35 +100,27 @@ void creature::add(variant id, int v, bool interactive) {
 }
 
 void creature::dispell(variant source, bool interactive) {
-	auto id = getid();
+	auto owner_id = getid();
 	auto ps = bsdata<boosti>::elements;
 	for(auto& e : bsdata<boosti>()) {
-		if(e.owner_id == id || e.source == source) {
-			if(e.id)
-				add(e.id, e.modifier, interactive);
-			else if(source.type == Spell) {
+		if(e.owner_id == owner_id && e.id == source) {
+			if(e.id.type == Spell) {
 				if(interactive) {
 					switch(source.value) {
-					case Sleep:
-						act("%герой внезапно проснул%ась.");
-						break;
-					default:
-						feel(LifePoints, true);
-						break;
+					case Sleep: act("%герой внезапно проснул%ась."); break;
+					default: feel(LifePoints, true); break;
 					}
 				}
 			}
-			continue;
-		}
-		*ps++ = e;
+		} else
+			*ps++ = e;
 	}
 	bsdata<boosti>::source.setcount(ps - bsdata<boosti>::elements);
 }
 
-void creature::recall(variant id, variant source, int modifier, unsigned rounds) {
+void creature::addboost(variant id, int modifier, unsigned rounds) {
 	auto p = bsdata<boosti>::add();
 	p->id = id;
-	p->source = source;
 	p->modifier = modifier;
 	p->time = rounds;
 	p->owner_id = getid();
@@ -170,7 +160,7 @@ void creature::applyab() {
 	}
 }
 
-void creature::applywr() {
+void creature::update_wear() {
 	for(auto i = Head; i <= Ranged; i = slot_s(i + 1)) {
 		if(!wears[i])
 			continue;
@@ -241,7 +231,7 @@ void creature::applywr() {
 	}
 }
 
-void creature::applyen() {
+void creature::update_encumbrance() {
 	auto aw = getallowedweight();
 	auto mw = getweight();
 	auto penalty_attack = 0;
@@ -262,29 +252,6 @@ void creature::applyen() {
 	abilities[Speed] -= penalty_speed;
 	abilities[Attack] -= penalty_attack;
 	abilities[Protection] -= penalty_deflect;
-}
-
-void creature::applybs() {
-	variant pid = this;
-	for(auto& e : bsdata<boosti>()) {
-		if(e.owner_id == pid.value)
-			add(e.id, e.modifier, false);
-	}
-}
-
-template<typename T>
-static void copy(T& v1, const T& v2) {
-	v1 = v2;
-}
-
-void creature::prepare() {
-	if(!this)
-		return;
-	copy<statable>(*this, basic);
-	applywr();
-	applyab();
-	applybs();
-	applyen();
 }
 
 const char* creature::getrangname(int v) {
@@ -399,7 +366,6 @@ bool creature::equip(item& v1, item& v2, bool run) {
 	v1 = v2;
 	v2 = v;
 	v1.set(KnownStats);
-	prepare();
 	return true;
 }
 
@@ -488,10 +454,35 @@ void creature::randomequip() {
 }
 
 void creature::finish() {
-	prepare();
+	update_start();
+	update_wear();
+	update_encumbrance();
+	update_finish();
 	hp = get(LifePoints);
 	mp = get(ManaPoints);
 	faith = get(FaithPoints);
+}
+
+void creature::update_boost() {
+	auto owner_id = getid();
+	for(auto& e : bsdata<boosti>()) {
+		if(e.owner_id != owner_id)
+			continue;
+		if(e.id.type == Spell)
+			active_spells.set(e.id.value);
+		else {
+			auto v = statable::get(e.id) + e.modifier;
+			statable::set(e.id, v);
+		}
+	}
+}
+
+void creature::update() {
+	update_start();
+	update_wear();
+	update_boost();
+	update_encumbrance();
+	update_finish();
 }
 
 void creature::create(race_s race, gender_s gender, class_s type) {
@@ -768,10 +759,8 @@ bool creature::remove(item& e, bool run, bool talk, bool same_owner) {
 		}
 		return false;
 	}
-	if(run) {
+	if(run)
 		e.clear();
-		prepare();
-	}
 	return true;
 }
 
@@ -1353,7 +1342,7 @@ void creature::restoration() {
 	}
 	restore_mana += get(ManaRate);
 	if(is(RoomOfMana))
-		restore_mana += get(ManaRate) * 2;
+		restore_mana += get(ManaRate) * 3;
 	if(is(Wounded)) {
 		// Wounded creature loose 1 hit point each turn
 		if(roll(Constitution, -10))
@@ -1373,6 +1362,7 @@ void creature::makemove() {
 		restore_energy += get(Speed);
 		return;
 	}
+	update();
 	// Dazzled creature don't make turn
 	if(is(Dazzled)) {
 		if(roll(Constitution))
@@ -1554,7 +1544,7 @@ void creature::damage(int value, damage_s type, int pierce, bool interactive) {
 }
 
 unsigned creature::getlevelup() const {
-	auto n = abilities[Level];
+	auto n = basic.get(Level);
 	if(n + 2 >= sizeof(experience_count) / sizeof(experience_count[0]))
 		return 0;
 	return experience_count[n + 1];
@@ -1568,7 +1558,6 @@ void creature::raiselevel(bool interactive) {
 	if(sb.get() > start_log)
 		pause(interactive);
 	raiseskills(interactive);
-	prepare();
 }
 
 void creature::addexp(int v, bool interactive) {
@@ -1761,24 +1750,13 @@ boosti*	creature::find(variant id) const {
 	return 0;
 }
 
-boosti*	creature::finds(variant source) const {
-	auto owner_id = getid();
-	for(auto& e : bsdata<boosti>()) {
-		if(e.owner_id == owner_id && e.source == source)
-			return &e;
-	}
-	return 0;
-}
-
 void creature::add(spell_s id, unsigned minutes) {
-	recall({}, id, 0, game.getrounds() + minutes);
+	addboost(id, 0, game.getrounds() + minutes);
 }
 
-void creature::add(ability_s id, variant source, int v, bool interactive, unsigned minutes) {
-	if(!v)
-		return;
-	add(id, v, interactive);
-	recall(id, source, -v, game.getrounds() + minutes);
+void creature::add(ability_s id, int v, bool interactive, unsigned minutes) {
+	if(v)
+		addboost(id, v, game.getrounds() + minutes);
 }
 
 void creature::paymana(int value, bool interactive) {

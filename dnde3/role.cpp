@@ -32,7 +32,7 @@ BSDATA(rolei) = {
 	{"Ћетуча€ мышь", "летучей мыши", "19", Animal, Female, Chaotic, Monster, 2, {Bite}, {Dexterity}},
 	{"ѕчела", "пчелы", "20", Animal, Female, Neutral, Monster, 0, {Bite}},
 	{"ѕчела", "пчелы", "21", Animal, Female, Neutral, Monster, 1, {Bite}},
-	{"ѕчела", "пчелы", "22", Animal, Female, Neutral, Monster, 1, {Bite}},
+	{"ѕчела", "пчелы", "22", Animal, Female, Neutral, Monster, 2, {Bite}},
 	{"ќгр", "огра", "23", Ogre, Male, Chaotic, Monster, 5, {Slam}},
 	{"ќгриха", "огрихи", "23_f", Ogre, Female, Chaotic, Monster, 5, {Slam}},
 	{"ћедвежук", "медвежука", "24", Goblin, Male, Chaotic, Monster, 3, {Fur}, {Hard, Strenght, Constitution}},

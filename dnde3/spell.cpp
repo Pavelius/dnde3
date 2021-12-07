@@ -33,20 +33,20 @@ BSDATA(spelli) = {
 assert_enum(spelli, LastSpell)
 
 bool creature::use(spell_s id, creature& player, int level, int order, bool run) {
-	if(finds(id))
+	if(is(id))
 		return false; // Not allow two spells be effected
 	auto& ei = bsdata<spelli>::elements[id];
 	switch(id) {
 	case ArmorSpell:
 		if(run) {
-			add(Armor, id, 4, false, 60 * level);
+			add(Armor, 4, false, 60 * level);
 			act("%герой озарил%ась белым си€нием.");
 		}
 		break;
 	case BlessSpell:
 		if(run) {
-			add(Attack, id, level * 5, false, 30);
-			add(Damage, id, 1 + level, false, 30);
+			add(Attack, level * 5, false, 30);
+			add(Damage, 1 + level, false, 30);
 			act("%герой испытал%а небывалый прилив сил.");
 		}
 		break;
@@ -102,7 +102,7 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 		break;
 	case LightSpell:
 		if(run) {
-			add(Visibility, id, 1, true, level * 60);
+			add(Visibility, 1, true, level * 60);
 			act("ќколо %геро€ по€вилась маленька€ волшебна€ сфера света.");
 		}
 		break;
@@ -160,7 +160,7 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 		break;
 	case ShieldSpell:
 		if(run) {
-			add(Protection, id, 20 * level, false, 20);
+			add(Protection, 20 * level, false, 20);
 			act("¬округ %геро€ по€вилось защитное поле.");
 		}
 		break;
@@ -176,7 +176,7 @@ bool creature::use(spell_s id, creature& player, int level, int order, bool run)
 		break;
 	case SlowMonster:
 		if(run)
-			add(Movement, id, -level, true, 60);
+			add(Movement, -level, true, 60);
 		break;
 	case SummonAlly:
 		if(run) {

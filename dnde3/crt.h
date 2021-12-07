@@ -126,13 +126,13 @@ struct cflags {
 };
 // Abstract array vector
 class array {
-	void*					data;
 	unsigned				size;
 	unsigned				count;
 	unsigned				count_maximum;
 	bool					growable;
 	friend struct archive;
 public:
+	void*					data;
 	constexpr array(const array& e) = default;
 	constexpr array() : data(0), size(0), count(0), count_maximum(0), growable(false) {}
 	constexpr array(unsigned size) : data(0), size(size), count(0), count_maximum(0), growable(true) {}
@@ -162,16 +162,18 @@ public:
 	void					swap(int i1, int i2);
 	void					reserve(unsigned count);
 };
+// Abstract data access class
 template<typename T> struct bsdata {
-	typedef T				data_type;
+	//typedef T				data_type;
 	static T				elements[];
 	static array			source;
 	static constexpr array*	source_ptr = &source;
-	//
-	static T*				addz() { for(auto& e : bsdata()) if(!e) return &e; return add(); }
 	static T*				add() { return (T*)source.add(); }
-	static T*				begin() { return (T*)source.begin(); }
-	static T*				end() { return (T*)source.end(); }
+	static T*				addz() { for(auto& e : bsdata<T>()) if(!e) return &e; return add(); }
+	static constexpr T*		begin() { return (T*)source.data; }
+	static constexpr T*		end() { return (T*)source.data + source.getcount(); }
+	static constexpr bool	have(const void* p) { return source.have(p); }
+	static constexpr T&		get(int i) { return begin()[i]; }
 };
 template<> struct bsdata<int> {
 	typedef int				data_type;

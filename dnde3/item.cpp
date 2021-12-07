@@ -394,7 +394,6 @@ void item::seteffect(variant v) {
 		if(n != -1)
 			effect = n;
 	}
-	getwearer()->prepare();
 }
 
 int	item::getcount() const {
@@ -413,7 +412,6 @@ void item::setcount(int count) {
 			count = 256 * 256;
 		this->count = count - 1;
 	}
-	getwearer()->prepare();
 }
 
 void item::use() {
@@ -429,7 +427,6 @@ void item::use() {
 			destroy(Magic, true);
 	} else
 		destroy(Magic, false);
-	getwearer()->prepare();
 }
 
 bool item::ismatch(variant v) const {
@@ -519,7 +516,6 @@ void item::setpersonal(int v) {
 
 void item::set(item_type_s v) {
 	magic = v;
-	getwearer()->prepare();
 }
 
 void item::set(identify_s v) {
@@ -533,7 +529,6 @@ void item::set(identify_s v) {
 	case KnownStats: known_stats = 1; break;
 	default: known_magic = known_power = known_stats = 0; break;
 	}
-	getwearer()->prepare();
 }
 
 void item::loot() {
@@ -620,11 +615,6 @@ bool item::stack(item& v) {
 		count = 0xFFFF;
 		v.count = c1 - 0xFFFF - 1;
 	}
-	auto p1 = getwearer();
-	auto p2 = v.getwearer();
-	p2->prepare();
-	if(p2 != p1)
-		p1->prepare();
 	return result;
 }
 

@@ -1,12 +1,11 @@
 #include "main.h"
 
-static dicei skill_raise[] = {{3, 18}, {3, 12}, {2, 10}, {2, 8}, {2, 8}, {2, 6}, {1, 5}, {1, 4}, {1, 3}};
+static dicei skill_raise[] = {{3, 18}, {3, 12}, {3, 10}, {3, 8}, {2, 7}, {1, 6}, {1, 5}, {1, 4}, {1, 3}};
 
 void statable::set(variant i, int v) {
-	if(v < 0)
-		v = 0;
 	switch(i.type) {
-	case Ability: abilities[i.value] = v; break;
+	case Ability:
+		abilities[i.value] = v; break;
 	case Harm:
 		if(v > 0)
 			resistance.set(i.value);
@@ -15,12 +14,6 @@ void statable::set(variant i, int v) {
 		break;
 	case Skill: skills[i.value] = v; break;
 	case Spell: spells[i.value] = v; break;
-	case State:
-		if(v > 0)
-			states.set(i.value);
-		else
-			states.remove(i.value);
-		break;
 	}
 }
 
@@ -30,7 +23,6 @@ int statable::get(variant i) const {
 	case Harm: return resistance.is(i.value) ? 1 : 0;
 	case Skill: return skills[i.value];
 	case Spell: return spells[i.value];
-	case State: return states.is(i.value) ? 1 : 0;
 	default: return 0;
 	}
 }
@@ -65,9 +57,6 @@ void statable::apply(varianta source) {
 		case Skill:
 			raise((skill_s)v.value);
 			break;
-		case State:
-			states.set(v.value);
-			break;
 		default:
 			switch(modifier) {
 			case Hard: add(v, 5); break;
@@ -99,25 +88,14 @@ void statable::raise(role_s role, class_s type) {
 void statable::create(class_s type, race_s race) {
 	const auto& ri = bsdata<racei>::elements[race];
 	const auto& ci = bsdata<classi>::elements[type];
-	// Create base abilities
 	abilities[Level] = 0;
 	abilities[Attack] += ci.weapon.base;
-	// Generate abilities
 	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1))
-		set(i, ri.abilities[i] + (rand() % 5) - 2);
+		abilities[i] += ri.abilities[i] + (rand() % 5) - 2;
 	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1))
-		add(i, ci.ability[i]);
+		abilities[i] += ci.ability[i];
 	apply(ri.bonuses);
 	apply(ci.bonuses);
-}
-
-void statable::update_boost(short unsigned owner_id) {
-	for(auto& e : bsdata<boosti>()) {
-		if(e.owner_id != owner_id)
-			continue;
-		auto v = get(e.id) + e.modifier;
-		set(e.id, v);
-	}
 }
 
 static void copy(statable & v1, const statable & v2) {
@@ -129,4 +107,21 @@ void statable::update(const statable& source) {
 }
 
 void statable::update_finish() {
+	auto level = get(Level);
+	abilities[AttackMelee] += get(Strenght);
+	abilities[AttackMelee] += get(Attack);
+	abilities[AttackRanged] += get(Dexterity);
+	abilities[AttackRanged] += get(Attack);
+	abilities[DamageMelee] += getbonus(Strenght);
+	abilities[DamageMelee] += get(Damage);
+	abilities[DamageRanged] += get(Damage);
+	abilities[Protection] += get(Dexterity) + get(Acrobatics) / 4;
+	abilities[Speed] += 95 + get(Dexterity) / 2 + get(Athletics) / 10;
+	abilities[Luck] += getbonus(Charisma);
+	abilities[LifePoints] += imax(level, getbonus(Constitution) * level);
+	abilities[LifeRate] += get(Healing) / 4;
+	abilities[ManaPoints] += imax(level, getbonus(Wisdow) * level) + get(Concetration) / 2;
+	abilities[ManaRate] += get(Concetration) / 4;
+	abilities[FaithPoints] += 1 + get(Religion) / 10;
+	abilities[Visibility] += 5;
 }

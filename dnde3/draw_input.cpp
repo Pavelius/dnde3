@@ -475,9 +475,9 @@ static void header(int x, int y, const char* name) {
 static int fielw(int x, int y, int v1, int b1, const char* format = "%1i") {
 	auto p_fore = fore;
 	if(b1 > 0)
-		fore = colors::text.mix(colors::red, 96);
+		fore = colors::text.mix(colors::green, 96);
 	else if(b1 < 0)
-		fore = colors::text.mix(colors::green, 64);
+		fore = colors::text.mix(colors::red, 64);
 	char temp[32]; stringbuilder sb(temp);
 	sb.add(format, v1, b1);
 	draw::text(x, y, sb);

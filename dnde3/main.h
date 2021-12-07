@@ -98,7 +98,8 @@ enum alignment_s : unsigned char {
 };
 enum ability_s : unsigned char {
 	Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
-	Attack, Damage,
+	Attack, AttackMelee, AttackRanged,
+	Damage, DamageMelee, DamageRanged,
 	Pierce, Protection, Armor, Deflect, Luck, Speed, Movement, Visibility,
 	Level, LifePoints, LifeRate, ManaPoints, ManaRate, FaithPoints,
 };
@@ -384,10 +385,9 @@ struct chancei {
 	state_s				state;
 };
 struct boosti {
-	short unsigned		owner_id;
-	variant				source;
 	variant				id;
 	char				modifier;
+	short unsigned		owner_id;
 	unsigned			time;
 };
 struct leveli {
@@ -826,24 +826,23 @@ struct quest {
 	void				play(contexti& e) const;
 };
 struct statable {
-	short				abilities[FaithPoints + 1];
-	spellf				active_spells;
+	char				abilities[FaithPoints + 1];
 	unsigned char		skills[LastSkill + 1];
 	unsigned char		spells[LastSpell + 1];
 	damagef				resistance, immunity, vulnerability;
-	statef				states;
-	void				add(ability_s i, int v) { abilities[i] += v; }
+	spellf				active_spells;
 	void				add(variant i, int v) { set(i, get(i) + v); }
 	void				apply(varianta source);
 	void				create(class_s type, race_s race);
-	bool				is(spell_s v) const { return active_spells.is(v); }
+	bool				ismaster(skill_s v) const { return skills[v] >= 70; }
+	bool				isgrandmaster(skill_s v) const { return skills[v] >= 100; }
 	int					get(variant i) const;
+	int					getbonus(ability_s v) const { return abilities[v] / 2 - 5; }
 	int					getcap(skill_s v) const;
 	dicei				getraise(skill_s v) const;
 	void				raise(skill_s i);
 	void				raise(role_s role, class_s type);
 	void				set(variant i, int v);
-	void				set(spell_s i) { active_spells.set(i); }
 	void				update(const statable& source);
 	void				update_boost(short unsigned owner_id);
 	void				update_finish();
@@ -855,25 +854,26 @@ struct crafti {
 	variant				effect;
 };
 class creature : public nameable, public statable {
-	spellf				spells_active;
+	class_s				kind;
 	statable			basic;
+	statef				states;
 	item				wears[LastWear + 1];
 	int					restore_energy, restore_hits, restore_mana;
 	flagable<4>			recipes;
-	char				hp, mp, poison, faith, mood;
+	short				hp, mp, poison, faith, mood;
 	short unsigned		location_id, site_id;
-	class_s				kind;
 	indext				guard;
 	direction_s			direction;
 	unsigned			experience;
 	unsigned			money;
 	encumbrance_s		encumbrance;
 	void				add(ability_s id, int v, bool interactive);
+	void				add(ability_s id, int v, bool interactive, unsigned minutes);
 	void				add(spell_s id, int v, bool interactive);
 	void				add(state_s id, int v, bool interactive);
 	void				add(skill_s id, int v, bool interactive);
 	void				add(spell_s id, unsigned minutes);
-	void				add(ability_s id, variant source, int v, bool interactive, unsigned minutes);
+	void				addboost(variant id, int modifier, unsigned minutes);
 	void				additem(item_s type, variant effect, bool identified = true);
 	bool				aiuse(const creaturea& creatures, const char* interactive, slot_s slot, variant effect);
 	void				aimove();
@@ -883,9 +883,6 @@ class creature : public nameable, public statable {
 	void				aiturn(creaturea& creatures, creaturea& enemies, creature* enemy);
 	void				applyab();
 	void				applyaward() const;
-	void				applybs();
-	void				applyen();
-	void				applywr();
 	void				attack(creature& enemy, const attacki& ai, int bonus, int multiplier);
 	void				cantmovehere() const;
 	bool				cantakeoff(slot_s id, bool interactive);
@@ -899,8 +896,11 @@ class creature : public nameable, public statable {
 	void				qsearch();
 	void				raiselevel(bool intearctive);
 	void				randomequip();
-	void				recall(variant id, variant source, int modifier, unsigned rounds);
 	bool				remove(item& it, bool run, bool talk, bool same_owner);
+	void				update_boost();
+	void				update_encumbrance();
+	void				update_start() { statable::update(basic); }
+	void				update_wear();
 	bool				use(skill_s id, creature& player, int order, bool run);
 	bool				use(spell_s id, creature& player, int level, int order, bool run);
 	void				use(const foodi& ei, const item it, bool interactive);
@@ -913,7 +913,7 @@ public:
 	void				activate();
 	void				add(variant id, int v, bool interactive);
 	bool				add(item v, bool run, bool interactive);
-	void				add(const effecti& id, item_s source);
+	void				add(const effecti& id);
 	void				addexp(int count, bool interactive = false);
 	void				appear();
 	bool				apply(creature& target, variant id, int v, int order, bool run);
@@ -1003,7 +1003,7 @@ public:
 	bool				is(race_s v) const { return getrace() == v; }
 	bool				is(room_s v) const;
 	bool				is(state_s v) const { return states.is(v); }
-	bool				is(spell_s v) const { return finds(v) != 0; }
+	bool				is(spell_s v) const { return active_spells.is(v); }
 	bool				is(const creature* p) const { return this == p; }
 	bool				isallow(item_s v) const;
 	bool				isenemy(const creature* target) const;
@@ -1033,9 +1033,8 @@ public:
 	void				playuioverland();
 	void				playui();
 	void				pickup();
-	void				drink(ability_s id, variant source, bool interactive, item_type_s magic, int minutes);
+	void				drink(ability_s id, bool interactive, item_type_s magic, int minutes);
 	void				pray();
-	void				prepare();
 	void				quitandsave();
 	void				raiseathletics();
 	void				raiseskills(int number, bool interactive);
@@ -1066,6 +1065,7 @@ public:
 	void				testpotion();
 	void				testweapons();
 	void				unlink();
+	void				update();
 	bool				use(const creaturea& source, skill_s id);
 	bool				use(const creaturea& creatures, spell_s id, int level, item* magic_source, bool show_errors);
 	bool				use(const creaturea& creatures, item& it);
