@@ -64,14 +64,10 @@ bool creature::use(const creaturea& creatures, item& it) {
 		break;
 	case Zapable:
 		if(effect.type == Spell) {
-			auto level = it.getbonus();
-			if(level > 0) {
-				if(use((spell_s)effect.value, level, &it, false))
-					it.set(KnownPower);
-				else
-					act("%герой вытащил%а %-1 и махнул%а несколько раз. Ничего не произошло.", it.getname());
-			} else
-				it.destroy(Magic, true);
+			if(use((spell_s)effect.value, it.getspelllevel(), &it, false))
+				it.set(KnownPower);
+			else
+				act("%герой вытащил%а %-1 и махнул%а несколько раз. Ничего не произошло.", it.getname());
 		}
 		break;
 	case Tool:
@@ -135,7 +131,7 @@ bool creature::use(const creaturea& creatures, item& it) {
 				return false;
 			}
 			auto ability_value = get((skill_s)skill.value);
-			ability_value += (it.getbonus() + ei.quality) * 4;
+			ability_value += it.getbonus() * 10;
 			if(skill.value == Alchemy) {
 				if(!recipes) {
 					info("Вы не выучили ни одного алхимического рецепта.");

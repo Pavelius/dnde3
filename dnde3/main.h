@@ -110,9 +110,8 @@ enum skill_s : unsigned char {
 	DisarmTraps, FindWeakness, HearNoises, HideInShadow, Lockpicking, MoveSilently, PickPockets,
 	Alchemy, Cooking, Dancing, Engineering, Gambling, History, Healing, Herbalism,
 	Literacy, Mining, Religion, Riding, Smithing, Survival, Swimming,
-	FocusBows, FocusSwords, FocusAxes, FocusTwohanded,
-	TwoWeaponFighting,
-	FirstSkill = Bargaining, LastSkill = TwoWeaponFighting,
+	ProficiencyAxes, ProficiencyBows, ProficiencyDaggers, ProficiencyMaces, ProficiencyPolearms, ProficiencyStaff, ProficiencySwords,
+	FirstSkill = Bargaining, LastSkill = ProficiencySwords,
 };
 enum state_s : unsigned char {
 	Darkvision, Dazzled, Drunken, Fear, Friendly, Hostile,
@@ -528,14 +527,12 @@ struct itemi {
 		char			armor;
 		char			deflect;
 		char			protection;
-		char			attack;
 	};
 	const char*			name;
 	const char*			avatar_id;
 	unsigned char		level;
 	int					weight;
 	int					cost;
-	int					quality;
 	gender_s			gender;
 	material_s			material;
 	weaponi				weapon;
@@ -547,6 +544,8 @@ struct itemi {
 	//
 	constexpr item_s	getammo() const { return weapon.amunition; }
 	item_s				getid() const;
+	skill_s				getskill() const;
+	int					getspelllevel() const;
 	bool				is(slot_s v) const;
 	bool				is(slota source) const;
 	variant				randeffect() const;
@@ -603,8 +602,9 @@ public:
 	const char*			getname() const { return geti().name; }
 	void				getname(stringbuilder& sb, bool show_cab) const;
 	indext				getposition() const;
-	int					getquality() const;
 	static const aref<variant> getreceipts();
+	skill_s				getskill() const { return geti().getskill(); }
+	int					getspelllevel() const;
 	void				getstatistic(stringbuilder& sb) const;
 	sale_s				getsale() const { return sale; }
 	creature*			getwearer() const;
@@ -841,7 +841,7 @@ struct statable {
 	bool				isvulnerable(damage_s v) const { return vulnerability.is(v); }
 	int					get(variant i) const;
 	int					getbonus(ability_s v) const { return abilities[v] / 2 - 5; }
-	int					getcap(skill_s v) const;
+	//int					getcap(skill_s v) const { return 10; }
 	dicei				getraise(skill_s v) const;
 	void				raise(skill_s i);
 	void				raise(role_s role, class_s type);
@@ -885,7 +885,7 @@ class creature : public nameable, public statable {
 	void				aiturn(creaturea& creatures, creaturea& enemies, creature* enemy);
 	void				applyab();
 	void				applyaward() const;
-	void				attack(creature& enemy, const attacki& ai, int bonus, int multiplier);
+	void				attack(creature& enemy, const attacki& ai, int bonus, int multiplier, skill_s skill);
 	void				cantmovehere() const;
 	bool				cantakeoff(slot_s id, bool interactive);
 	bool				canuse(const item& e, bool talk) const;
@@ -1037,10 +1037,9 @@ public:
 	void				readsomething();
 	bool				resist(damage_s v, int bonus, bool interactive) const;
 	void				restoration();
-	bool				roll(ability_s v, int bonus = 0) const;
-	bool				roll(skill_s v) const { return rollv(get(v)); }
-	bool				roll(skill_s v, int bonus) const { return rollv(get(v) + bonus); }
-	bool				roll(skill_s v, int bonus, int divider) const;
+	bool				roll(ability_s v, int bonus = 0) const { return rollv(get(v) * 3 + bonus); }
+	bool				roll(skill_s v, int bonus = 0) const { return rollv(get(v) + bonus); }
+	bool				rolld(ability_s v, skill_s vs, int bonus = 0) const { return roll(v, bonus) || roll(vs, bonus); }
 	static bool			rollv(int v);
 	static int			rollv(int v1, int v2);
 	void				sacrifice(diety_s god, item& it);
@@ -1168,12 +1167,10 @@ struct skilli {
 	};
 	const char*			name;
 	const char*			nameof;
-	ability_s			ability;
 	weaponi				weapon;
 	targeti				target;
 	//
 	skill_s				getid() const;
-	constexpr bool		is(ability_s v) const { return ability == v; }
 	constexpr bool		isweapon() const { return weapon.attack != 0; }
 };
 struct spelli {

@@ -163,9 +163,8 @@ void creature::update_wear() {
 		abilities[Protection] += ei.protection;
 		abilities[Deflect] += ei.deflect;
 		abilities[Armor] += ei.armor;
-		abilities[Attack] += ei.attack;
 		auto v = wears[i].geteffect();
-		auto b = wears[i].getquality();
+		auto b = wears[i].getbonus();
 		auto isweapon = (i == Melee) || (i == Ranged);
 		if(i == OffHand && wears[i].geti().slot == Melee)
 			isweapon = true;
@@ -402,7 +401,7 @@ void creature::raiseskills(int number, bool interactive) {
 	source.select(*this);
 	for(auto e : source) {
 		auto n = basic.get(e);
-		n += get(bsdata<skilli>::elements[e].ability);
+		n += 10;
 		if(n > 100)
 			n = 100;
 		source.setcap(e, n);
@@ -503,53 +502,23 @@ void creature::getfullname(stringbuilder& sb) const {
 
 attacki creature::getattack(slot_s id, const item& weapon) const {
 	attacki result = {};
-	auto skill = weapon.geti().skill;
 	if(id == Melee || weapon)
 		result = weapon.getattack();
 	if(!result.dice.max)
 		return result;
-	auto& ci = getclass();
 	result.attack += get(Attack);
 	result.dice.min += get(Damage);
 	result.dice.max += get(Damage);
-	if(skill.type == Skill && skills[skill.value]) {
-		// Weapon focus modify damage, attack and speed
-		auto& ei = bsdata<skilli>::elements[skill.value];
-		auto value = get(skill_s(skill.value));
-		if(ei.weapon.attack)
-			result.attack += value / ei.weapon.attack;
-		if(ei.weapon.damage)
-			result.dice.max += value / ei.weapon.damage;
-		if(ei.weapon.speed)
-			result.speed += value / ei.weapon.speed;
-	}
 	switch(id) {
 	case Melee:
 		if(weapon.is(Versatile) && !wears[OffHand]) {
 			result.dice.min += 1;
 			result.dice.max += 1;
 		}
-		if(wears[OffHand].is(Light)) {
-			result.attack -= 20;
-			result.speed -= 8;
-			result.speed += wears[OffHand].geti().weapon.speed;
-			auto& ei = bsdata<skilli>::elements[TwoWeaponFighting];
-			auto value = get(TwoWeaponFighting);
-			if(ei.weapon.attack)
-				result.attack += value / ei.weapon.attack;
-			if(ei.weapon.damage)
-				result.dice.max += value / ei.weapon.damage;
-			if(ei.weapon.speed)
-				result.speed += value / ei.weapon.speed;
-		}
 		break;
 	case OffHand:
-		if(weapon.is(Light) && wears[Melee]) {
+		if(weapon.is(Light) && wears[Melee])
 			result.attack -= 30;
-			auto& ei = bsdata<skilli>::elements[TwoWeaponFighting];
-			if(ei.weapon.attack)
-				result.attack += get(TwoWeaponFighting) / ei.weapon.attack;
-		}
 		break;
 	}
 	result.dice.normalize();
@@ -901,7 +870,7 @@ void creature::move(indext index) {
 	}
 	auto current_index = getposition();
 	if(loc.is(current_index, Webbed)) {
-		if(roll(Climbing))
+		if(rolld(Strenght, Climbing, 0))
 			loc.remove(current_index, Webbed);
 		else {
 			act("%герой запутал%ась в паутине.");
@@ -911,7 +880,7 @@ void creature::move(indext index) {
 	}
 	if(loc.gettrap(current_index) == TrapPit
 		&& !loc.is(current_index, Hidden)) {
-		if(!roll(Climbing)) {
+		if(!roll(Dexterity, Climbing)) {
 			act("%герой не смог%ла вылезти из ямы.");
 			wait();
 			return;
@@ -1056,24 +1025,20 @@ void creature::consume(int v) {
 		restore_energy -= v;
 }
 
-void creature::attack(creature& enemy, const attacki& ai, int bonus, int danger) {
+void creature::attack(creature& enemy, const attacki& ai, int bonus, int multiplier, skill_s skill) {
 	if(is(Invisible) || enemy.is(Sleep) || enemy.is(Unaware)) {
 		appear();
 		enemy.dispell(Sleep, true);
 		// Attack from invisible state
-		// increase danger and chance to hit
-		bonus += get(Backstabbing);
-		danger += get(Backstabbing) * 3;
+		// increase damage multiplier and automatic hit
+		bonus += 100;
+		multiplier += get(Backstabbing) * 3;
 	}
 	bonus += ai.attack;
 	bonus -= enemy.get(Protection);
-	if(enemy.is(Unaware)) {
+	if(enemy.is(Unaware) || enemy.is(Fear)) {
 		bonus += 20;
-		danger += 20;
-	}
-	if(enemy.is(Fear)) {
-		bonus += 20;
-		danger += 20;
+		multiplier += 20;
 	}
 	if(bonus < 5)
 		bonus = 5;
@@ -1084,11 +1049,11 @@ void creature::attack(creature& enemy, const attacki& ai, int bonus, int danger)
 	}
 	auto pierce = 0;
 	auto deflect = enemy.get(Deflect);
-	if(roll(FindWeakness, -deflect)) {
-		danger += 30;
+	if(roll(skill, -deflect)) {
+		multiplier += 30;
 		switch(ai.type) {
 		case Piercing:
-			danger += 10;
+			multiplier += 10;
 			pierce = 100;
 			act("%герой попал%а в уязвимое место.");
 			break;
@@ -1106,22 +1071,22 @@ void creature::attack(creature& enemy, const attacki& ai, int bonus, int danger)
 		act("%герой попал%а.");
 	// Calculate damage from danger
 	auto dv = ai.dice.roll();
-	dv = dv * danger / 100;
+	dv = dv * multiplier / 100;
 	enemy.damage(dv, ai.type, pierce);
 }
 
 void creature::meleeattack(creature& enemy, int bonus) {
-	auto am = getattack(Melee, wears[Melee]);
-	auto mp = 100;
+	auto info = getattack(Melee, wears[Melee]);
+	auto multiplier = 100;
 	if(is(RoomOfDamage))
-		mp = 300;
-	attack(enemy, am, bonus, mp);
+		multiplier *= 2;
+	attack(enemy, info, bonus, multiplier, wears[Melee].getskill());
 	wears[Melee].breaktest();
 	if(wears[OffHand] && wears[OffHand].is(Light)) {
-		attack(enemy, getattack(OffHand), bonus, mp);
+		attack(enemy, getattack(OffHand), bonus, multiplier, wears[OffHand].getskill());
 		wears[OffHand].breaktest();
 	}
-	consume(am.getenergy());
+	consume(info.getenergy());
 }
 
 bool creature::isenemy(const creature* target) const {
@@ -1361,7 +1326,7 @@ void creature::makemove() {
 	update();
 	// Dazzled creature don't make turn
 	if(is(Dazzled)) {
-		if(roll(Constitution))
+		if(roll(Constitution, 0))
 			add(Dazzled, -1, true);
 		else {
 			wait();
@@ -1401,22 +1366,9 @@ void creature::makemove() {
 		aiturn(creatures, enemies, enemy);
 }
 
-bool creature::roll(skill_s v, int bonus, int divider) const {
-	auto r = get(v);
-	switch(divider) {
-	case 0: break;
-	case 1: r = r * 2 / 3; break;
-	default: r /= divider; break;
-	}
-	r += bonus;
-	return rollv(r);
-}
-
 bool creature::rollv(int v) {
 	if(v <= 0)
 		return false;
-	if(v < 5)
-		v = 5;
 	else if(v > 95)
 		v = 95;
 	return d100() < v;
@@ -1712,16 +1664,16 @@ void creature::shoot() {
 }
 
 void creature::rangeattack(creature& enemy, int bonus) {
-	auto ai = getattack(Ranged);
+	auto info = getattack(Ranged);
 	if(is(RoomOfWind) || enemy.is(RoomOfWind))
-		ai.attack -= 40;
-	attack(enemy, ai, 0, 100);
+		info.attack -= 40;
+	attack(enemy, info, 0, 100, wears[Ranged].getskill());
 	if(wears[Ranged].getammo())
 		wears[Amunitions].use();
 	else if(wears[Ranged].iscountable())
 		wears[Ranged].use();
-	wears[Melee].breaktest();
-	consume(ai.getenergy());
+	wears[Ranged].breaktest();
+	consume(info.getenergy());
 }
 
 void creature::testweapons() {
@@ -1855,18 +1807,29 @@ void creature::fail(skill_s id) {
 	auto isbad = d100() < chance_fail;
 	if(!isbad)
 		return;
-	if(ei.is(Strenght)) {
+	switch(id) {
+	case Athletics:
+	case Acrobatics:
 		act("%герой растянул%а мышцу.");
 		damage(1, Bludgeon, 100, false);
-	} else if(ei.is(Intellegence) || ei.is(Wisdow)) {
-		act("%герой почуствовал%а моральное переутомление.");
+		break;
+	case Bargaining:
+	case Diplomacy:
+	case Bluff:
+		act("Это занятие жутко скучно и утомительно.");
 		paymana(1, false);
-	} else if(ei.is(Dexterity)) {
+		break;
+	case MoveSilently:
+	case PickPockets:
+	case HideInShadow:
+	case Dancing:
 		act("%герой испытал%а мышечный спазм.");
 		damage(1, Bludgeon, 100, false);
-	} else {
+		break;
+	default:
 		info("Вы убили кучу времени, но все было тщетно.");
 		wait(xrand(2, 4));
+		break;
 	}
 }
 
@@ -2200,18 +2163,11 @@ bool creature::resist(damage_s v, int bonus, bool interactive) const {
 	if(isresist(v))
 		bonus += 30;
 	bonus += get(ei.ability) * 2;
-	bonus += get(Luck) * 5;
 	if(!rollv(bonus))
 		return false;
 	if(interactive)
 		act(ei.resist_text);
 	return true;
-}
-
-bool creature::roll(ability_s v, int bonus) const {
-	bonus += get(v) * 3;
-	bonus += get(Luck) * 5;
-	return rollv(bonus);
 }
 
 bool creature::pray(bool run) {
@@ -2270,7 +2226,7 @@ void creature::qsearch() {
 				continue;
 			if(!loc.ishidden(i))
 				continue;
-			if(roll(Wisdow, get(Alertness) / 3)) {
+			if(roll(Wisdow, Alertness)) {
 				static const char* speech[] = {"Смотрите! Это %1.", "Я наш%ла %1.", "Тут %1.", "Я кое что наш%ел."};
 				say(maprnd(speech), getstr(loc.getobject(i)));
 				loc.reveal(i);

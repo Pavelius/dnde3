@@ -3,7 +3,7 @@
 BSDATA(racei) = {
 	{"„еловек", {10, 10, 10, 10, 10, 10}, "human", {Bluff, Bargaining, Gambling, Swimming}},
 	{"√ном", {11, 8, 12, 10, 10, 9}, "dwarf", {DisarmTraps, Smithing, Mining, Athletics, Resist, Poison, Darkvision}},
-	{"Ёльф", {9, 12, 8, 10, 10, 11}, "helf", {MoveSilently, FocusSwords, FocusBows, Swimming, Visibility, Resist, Charm}},
+	{"Ёльф", {9, 12, 8, 10, 10, 11}, "helf", {MoveSilently, ProficiencySwords, ProficiencyBows, Swimming, Visibility, Resist, Charm}},
 	{"ѕолурослик", {7, 13, 12, 10, 8, 10}, "hurth", {Cooking, HideInShadow, MoveSilently, Swimming, Resist, Poison}},
 	{" рысолюд", {9, 11, 12, 7, 9, 8}, "ratling", {HideInShadow, Healing, Gambling, Resist, Poison, Darkvision}},
 	{"ќрк", {12, 9, 11, 6, 9, 6}, "orc", {Athletics, Mining, Swimming, Backstabbing, Darkvision}},

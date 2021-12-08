@@ -4,13 +4,13 @@ classi bsdata<classi>::elements[] = {
 	{"Крестьянин", 4, 1, 0, {-1, 1, 0, -1, 1, 0}},
 	{"Клерик", 8, 6, 0, {1, 0, 0, 0, 2, 1}, {Diplomacy, Literacy, Literacy, Healing, Healing, Healing, Religion, Religion, Herbalism, BlessSpell, HealingSpell},
 	{SwordLong, SwordShort, SwordTwoHanded, BowLong, BowShort}},
-	{"Воин", 10, 2, 0, {4, 1, 2, -2, 0, -1}, {Survival, Survival, Athletics, Athletics, Riding, FindWeakness, FocusSwords},
+	{"Воин", 10, 2, 0, {4, 1, 2, -2, 0, -1}, {Survival, Survival, Athletics, Athletics, Riding, FindWeakness, ProficiencySwords},
 	{}},
 	{"Маг", 4, 8, 0, {-2, -1, 0, 4, 1, 2}, {Alchemy, Concetration, Concetration, History, Literacy, Literacy, Literacy, ArmorSpell, MagicMissile, Sleep},
 	{AxeBattle, HammerWar, SwordLong, SwordShort, Spear, BowLong, BowShort, LeatherArmor, StuddedLeatherArmor, ScaleMail, ChainMail, SplintMail, PlateMail}},
-	{"Паладин", 10, 4, 0, {2, -1, 1, -1, 1, 2}, {Diplomacy, Athletics, Athletics, Literacy, FocusSwords, DetectEvil},
+	{"Паладин", 10, 4, 0, {2, -1, 1, -1, 1, 2}, {Diplomacy, Athletics, Athletics, Literacy, ProficiencySwords, DetectEvil},
 	{}},
-	{"Следопыт", 10, 4, 0, {1, 3, 1, 0, 1, -2}, {Survival, Survival, Survival, Acrobatics, Acrobatics, Athletics, Swimming, Riding, FocusBows, TwoWeaponFighting},
+	{"Следопыт", 10, 4, 0, {1, 3, 1, 0, 1, -2}, {Survival, Survival, Survival, Acrobatics, Acrobatics, Athletics, Swimming, Riding, ProficiencyBows},
 	{SwordTwoHanded}},
 	{"Вор", 6, 3, 0, {0, 4, 0, 0, -1, 1}, {Literacy, PickPockets, PickPockets, Lockpicking, Lockpicking, Lockpicking, HideInShadow, HideInShadow, Acrobatics, DisarmTraps, DisarmTraps, Bluff, MoveSilently, MoveSilently},
 	{AxeBattle, HammerWar, BowLong, PlateMail}},
@@ -35,8 +35,8 @@ BSDATA(equipmenti) = {
 DECLFULL(equipmenti)
 
 BSDATA(leveli) = {
-	{Fighter, 3, {FocusSwords}},
-	{Fighter, 6, {FocusSwords}},
+	{Fighter, 3, {ProficiencySwords}},
+	{Fighter, 6, {ProficiencySwords}},
 	{Fighter, 10, {Strenght}},
 	{Fighter, 12, {Strenght}},
 	{Fighter, 14, {Strenght}},

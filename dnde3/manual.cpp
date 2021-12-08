@@ -134,25 +134,6 @@ static void ability_example(stringbuilder& sb, manual& mn, answeri& an) {
 	sb.add(".");
 }
 
-static void ability_skills(stringbuilder& sb, manual& mn, answeri& an) {
-	skilla source;
-	for(auto& e : bsdata<skilli>()) {
-		if(e.is(ability_s(mn.value.value)))
-			source.add(e.getid());
-	}
-	if(!source.count)
-		return;
-	source.sort();
-	sb.addn("[Навыки]: ");
-	auto p = sb.get();
-	for(auto i : source) {
-		if(p[0])
-			sb.add(", ");
-		sb.add(bsdata<skilli>::elements[i].name);
-	}
-	sb.add(".");
-}
-
 static void ability_list(stringbuilder& sb, manual& mn, answeri& an) {
 	choose_children(sb, mn, an);
 }
@@ -160,7 +141,6 @@ static void ability_list(stringbuilder& sb, manual& mn, answeri& an) {
 static void ability_procs(stringbuilder& sb, manual& mn, answeri& an) {
 	add_children(sb, mn, an);
 	ability_example(sb, mn, an);
-	ability_skills(sb, mn, an);
 }
 
 static void general_list(stringbuilder& sb, manual& mn, answeri& an) {
@@ -213,9 +193,9 @@ BSDATA(manual) = {
 	{Variant, Skill, "Навыки персонажей", "Каждый персонаж имеет определенное количество навыков. Их число зависит от класса и расы.", skill_list},
 	{Variant, State, "Состояния персонажей", "Во время приключений персонажи сталкиваются с множетсвом опасностей.", state_list},
 	{Skill, Acrobatics, 0, "Добавляет [++1%%] к шансу промазать по персонажу за каждые 4 единицы.", skill_proc},
-	{Skill, Alertness, 0, "Добавляет [++1%%] к шансу обнаружить ловушку за каждые 4 единицы. Добавляет [++1%%] к шансу обнаружить скрытые двери за каждые 3 единицы при активном поиске.", skill_proc},
+	{Skill, Alertness, 0, "Шанс обнаружить ловушку или секретную дверь.", skill_proc},
 	{Skill, Alchemy, 0, "Позволяет определить зелье. Также можно изготавливать зелья по рецептам.", skill_proc},
-	{Skill, Athletics, 0, "Персонаж с этим навыком разносит двери в щепки. При повышении уровня имеется шанс повысить **ловкость** или **силу**. Также повышает скорость движения персонажа в локации.", skill_proc},
+	{Skill, Athletics, 0, "Персонаж с этим навыком разносит двери в щепки. При повышении уровня имеется шанс повысить **ловкость** или **силу**. Также добавляет +1 к максимальным хитам на каждые 5 очков навыка.", skill_proc},
 	{Skill, Backstabbing, 0, "Добавляется к шансу попадания и увеличивает урон в процентах равный утроенному навыку, если атака делается из невидимого состояния. После такой атаки вы становитесь видимым.", skill_proc},
 	{Skill, Climbing, 0, "При движении по горам делается тест и если он не пройден затраты времени на движения увеличивается на 50%%. Такой тест делается для каждого героя в партии. Кроме того тестируется при попытке вылезти из **паутины** или ловушки **ямы**.", skill_proc},
 	{Skill, Concetration, 0, "Скорость восстановления маны персонажа.", skill_proc},
@@ -232,11 +212,9 @@ BSDATA(manual) = {
 	{Skill, PickPockets, 0, "В любом городском здании можно разжиться монетами обворовывая обывателей.", skill_proc},
 	{Skill, Religion, 0, "Отображает знание религие и принадлежность своей вере. От религии зависит количество очков веры персонажа.", skill_proc},
 	{Skill, Riding, 0, "Позволяет передвигаться быстрее на глобальной карте.", skill_proc},
-	{Skill, FocusAxes, 0, "Позволяет применять сложные приемы с таким оружием как топор.", weapon_skill},
-	{Skill, FocusSwords, 0, "Позволяет более эффективно сражаться на мечах.", weapon_skill},
-	{Skill, FocusBows, 0, "Позволяет более эффективно стрелять из лука.", weapon_skill},
-	{Skill, FocusTwohanded, 0, "Позволяет более эффективно сражаться двуручным оружием.", weapon_skill},
-	{Skill, TwoWeaponFighting, 0, "Позволяет попадаеть более точно по противнику, при сражении с оружием в каждой руке.", skill_proc},
+	{Skill, ProficiencyAxes, 0, "Позволяет применять сложные приемы с таким оружием как топор.", weapon_skill},
+	{Skill, ProficiencySwords, 0, "Позволяет более эффективно сражаться на мечах.", weapon_skill},
+	{Skill, ProficiencyBows, 0, "Позволяет более эффективно стрелять из лука.", weapon_skill},
 	{State, Poisoned, 0, "Отравленный персонаж теряет по одному очку жизни каждые 5 минут если не выполнит сопротивление яду. При удачном сопротивлении уменьшается уровень яда."},
 	{State, Sick, 0, "Больной персонаж не восстанавливает очки жизни природным путем. При лечение количество восстанавливаемых хитов делится на три."},
 	{Variant, Race, "Расы", "От выбранной расы зависят стартовые атрибуты к которым добавяется случайный модификатор от [--2] до [++2].", general_list},

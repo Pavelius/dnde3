@@ -28,8 +28,7 @@ void creature::usetrap() {
 	int chance = ei.modifier;
 	if(!loc.is(i, Hidden))
 		chance += 40;
-	chance += get(Alertness) / 4;
-	if(roll(Dexterity, chance)) {
+	if(rolld(Dexterity, Alertness, chance)) {
 		if(loc.is(i, Hidden) && is(Friendly)) {
 			act("%герой обнаружил%а ловушку.");
 			loc.remove(i, Hidden);

@@ -26,10 +26,6 @@ int statable::get(variant i) const {
 	}
 }
 
-int statable::getcap(skill_s v) const {
-	return abilities[bsdata<skilli>::elements[v].ability];
-}
-
 dicei statable::getraise(skill_s v) const {
 	auto n = skills[v] / 10;
 	return maptbl(skill_raise, n);
@@ -87,7 +83,7 @@ void statable::create(class_s type, race_s race) {
 	const auto& ri = bsdata<racei>::elements[race];
 	const auto& ci = bsdata<classi>::elements[type];
 	abilities[Level] = 0;
-	abilities[Attack] += 40;
+	abilities[Attack] += 50;
 	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1))
 		abilities[i] += ri.abilities[i] + (rand() % 5) - 2;
 	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1))
@@ -114,9 +110,9 @@ void statable::update_finish() {
 	abilities[DamageMelee] += get(Damage);
 	abilities[DamageRanged] += get(Damage);
 	abilities[Protection] += get(Dexterity) + get(Acrobatics) / 4;
-	abilities[Speed] += 95 + get(Dexterity) / 2 + get(Athletics) / 10;
+	abilities[Speed] += 90 + get(Dexterity);
 	abilities[Luck] += getbonus(Charisma);
-	abilities[LifePoints] += imax(level, getbonus(Constitution) * level);
+	abilities[LifePoints] += imax(level, getbonus(Constitution) * level) + get(Athletics) / 5;
 	abilities[LifeRate] += get(Healing) / 4;
 	abilities[ManaPoints] += imax(level, getbonus(Wisdow) * level) + get(Concetration) / 2;
 	abilities[ManaRate] += get(Concetration) / 4;
