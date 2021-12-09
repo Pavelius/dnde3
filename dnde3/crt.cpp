@@ -1,48 +1,6 @@
 #include "crt.h"
 #include "io.h"
 
-//export module crt;
-//
-//export #define maptbl(t, id) (t[imax((unsigned)0, imin((unsigned)id, (sizeof(t)/sizeof(t[0])-1)))])
-//export #define maprnd(t) t[rand()%(sizeof(t)/sizeof(t[0]))]
-//export #define lenof(t) (sizeof(t)/sizeof(t[0]))
-//export #define zendof(t) (t + sizeof(t)/sizeof(t[0]) - 1)
-//export #define BSDATA(e) template<> e bsdata<e>::elements[]
-//export #define DECLFULL(e) template<> array bsdata<e>::source(bsdata<e>::elements);
-//export #define assert_enum(e, last) static_assert(sizeof(bsdata<e>::elements) / sizeof(bsdata<e>::elements[0]) == last + 1, "Invalid count of " #e " elements"); DECLFULL(e)
-//export #define DECLENUM(e) template<> struct bsdata<e##_s> : bsdata<e##i> {}
-//export #define BSDATAC(e, n) e bsdata<e>::elements[n];\
-//export template<> array bsdata<e>::source(bsdata<e>::elements, sizeof(bsdata<e>::elements[0]), 0, sizeof(bsdata<e>::elements)/sizeof(bsdata<e>::elements[0]));
-//
-//export extern "C" int						atexit(void(*func)(void));
-//export extern "C" void*					bsearch(const void* key, const void *base, unsigned num, unsigned size, int(*compar)(const void *, const void *));
-//export extern "C" unsigned					clock(); // Returns the processor time consumed by the program.
-//export extern "C" void						exit(int exit_code);
-//export extern "C" int						memcmp(const void* p1, const void* p2, unsigned size);
-//export extern "C" void*					memmove(void* destination, const void* source, unsigned size);
-//export extern "C" void*					memcpy(void* destination, const void* source, unsigned size);
-//export extern "C" void*					memset(void* destination, int value, unsigned size);
-//export extern "C" void						qsort(void* base, unsigned num, unsigned size, int(*compar)(const void*, const void*));
-//export extern "C" int						rand(void); // Get next random value
-//export extern "C" void						srand(unsigned seed); // Set random seed
-//export extern "C" int						strcmp(const char* s1, const char* s2); // Compare two strings
-//export extern "C" long long				time(long long* seconds);
-//
-//export template<class T> inline T			imax(T a, T b) { return a > b ? a : b; }
-//export template<class T> inline T			imin(T a, T b) { return a < b ? a : b; }
-//export template<class T> inline T			iabs(T a) { return a > 0 ? a : -a; }
-//export template<class T> inline void		iswap(T & a, T & b) { T i = a; a = b; b = i; }
-//export template<class T> inline const T*	zchr(const T * p, T e) { while(*p) { if(*p == e) return p; p++; } return 0; }
-//export template<class T> inline void		zcpy(T * p1, const T * p2) { while(*p2) *p1++ = *p2++; *p1 = 0; }
-//export template<class T> inline void		zcpy(T * p1, const T * p2, int max_count) { while(*p2 && max_count-- > 0) *p1++ = *p2++; *p1 = 0; }
-//export template<class T> inline T*			zend(T * p) { while(*p) p++; return p; }
-//export template<class T> inline void		zcat(T * p1, const T e) { p1 = zend(p1); p1[0] = e; p1[1] = 0; }
-//export template<class T> inline void		zcat(T * p1, const T * p2) { zcpy(zend(p1), p2); }
-//export template<class T> inline int		zlen(T * p) { return zend(p) - p; }
-//export template<unsigned N> inline char*	zprint(char(&result)[N], const char* format, ...) { return szprintv(result, result + N - 1, format, (const char*)&format + sizeof(format)); }
-//export template<class T> inline T*			zskipsp(T * p) { if(p) while(*p == 32 || *p == 9) p++; return p; }
-//export template<class T> inline T*			zskipspcr(T * p) { if(p) while(*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r') p++; return p; }template<class T> inline void		zshuffle(T * p, int count) { for(int i = 0; i < count; i++) iswap(p[i], p[rand() % count]); }
-
 extern "C" void* malloc(unsigned size);
 extern "C" void* realloc(void *ptr, unsigned size);
 extern "C" void	free(void* pointer);

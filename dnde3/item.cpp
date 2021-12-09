@@ -199,12 +199,12 @@ BSDATA(itemi) = {
 	{"Набор алхимика", "item739", 7, 400, 30 * GP, Male, Wood, {}, {}, alchemy_receipts, {}, Tool, Alchemy},
 	{"Инструменты вора", "item23", 1, 300, 25 * GP, Male, Iron, {}, {}, {}, {}, Tool},
 	{"Котелок", "item463", 3, 1000, 2 * GP, Male, Iron, {}, {}, {}, {}, Tool},
-	{"Лютня", "item81", 3, 300, 30 * GP, Female, Wood, {}, {}, lute_songs, {}, Tool, Charisma},
-	{"Арфа", "item82", 4, 300, 20 * GP, Female, Wood, {}, {}, lute_songs, {}, Tool, Charisma},
-	{"Бубен", "item83", 4, 300, 35 * GP, Male, Leather, {}, {}, booben_songs, {}, Tool, Charisma},
-	{"Гитара", "item84", 4, 300, 35 * GP, Female, Wood, {}, {}, lute_songs, {}, Tool, Charisma},
-	{"Скрипка", "item85", 3, 300, 35 * GP, Female, Wood, {}, {}, flute_songs, {}, Tool, Charisma},
-	{"Флейта", "item86", 10, 300, 35 * GP, Female, Wood, {}, {}, flute_songs, {}, Tool, Charisma},
+	{"Лютня", "item81", 3, 300, 30 * GP, Female, Wood, {}, {}, lute_songs, {}, Tool, MusicalInstrument},
+	{"Арфа", "item82", 4, 300, 20 * GP, Female, Wood, {}, {}, lute_songs, {}, Tool, MusicalInstrument},
+	{"Бубен", "item83", 4, 300, 35 * GP, Male, Leather, {}, {}, booben_songs, {}, Tool, MusicalInstrument},
+	{"Гитара", "item84", 4, 300, 35 * GP, Female, Wood, {}, {}, lute_songs, {}, Tool, MusicalInstrument},
+	{"Скрипка", "item85", 3, 300, 35 * GP, Female, Wood, {}, {}, flute_songs, {}, Tool, MusicalInstrument},
+	{"Флейта", "item86", 10, 300, 35 * GP, Female, Wood, {}, {}, flute_songs, {}, Tool, MusicalInstrument},
 	{"Тело", "item103", 0, 1500, 0 * GP, NoGender, Organic, {}, {}, corpse, {}, Edible},
 	{"Кости", "items383", 0, 500, 0 * GP, NoGender, Organic, {}, {}, bones, {}},
 	{"Панцирь", "item258", 0, 400, 0 * GP, NoGender, Organic, {}, {}, bugshell, {}},
@@ -719,9 +719,7 @@ item_s itemi::getid() const {
 }
 
 skill_s	itemi::getskill() const {
-	if(skill.type == Skill)
-		return (skill_s)skill.value;
-	return (skill_s)0;
+	return skill;
 }
 
 int	item::getspelllevel() const {

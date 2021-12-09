@@ -229,6 +229,15 @@
     <ClCompile Include="statable.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="condition.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="crt_translate.cpp">
+      <Filter>Поддержка</Filter>
+    </ClCompile>
+    <ClCompile Include="log.cpp">
+      <Filter>Поддержка</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="answer.h">
@@ -274,6 +283,12 @@
       <Filter>Поддержка</Filter>
     </ClInclude>
     <ClInclude Include="flagable.h">
+      <Filter>Поддержка</Filter>
+    </ClInclude>
+    <ClInclude Include="log.h">
+      <Filter>Поддержка</Filter>
+    </ClInclude>
+    <ClInclude Include="slice.h">
       <Filter>Поддержка</Filter>
     </ClInclude>
   </ItemGroup>

@@ -124,6 +124,21 @@ struct cflags {
 	constexpr bool			is(const T id) const { return (data & (1 << id)) != 0; }
 	constexpr void			remove(T id) { data &= ~(1 << id); }
 };
+// Simple slice object
+template<class T>
+class slice {
+	T*						data;
+	size_t					count;
+public:
+	typedef T data_type;
+	constexpr slice() : data(0), count(0) {}
+	template<size_t N> constexpr slice(T(&v)[N]) : data(v), count(N) {}
+	template<int N> constexpr slice(adat<T, N>& v) : data(v), count(v.count) {}
+	constexpr slice(T* data, unsigned count) : data(data), count(count) {}
+	constexpr T*			begin() const { return data; }
+	constexpr T*			end() const { return data + count; }
+	constexpr unsigned		size() const { return count; }
+};
 // Abstract array vector
 class array {
 	unsigned				size;
@@ -154,6 +169,7 @@ public:
 	bool					isgrowable() const { return growable; }
 	void*					ptr(int index) const { return (char*)data + size * index; }
 	int						random() const { return count ? (rand() % count) : 0; }
+	template<class T> slice<T> records() const { return slice<T>((T*)data, count); }
 	void					remove(int index, int elements_count);
 	void					setcount(unsigned value) { count = value; }
 	void					setup(unsigned size);
@@ -188,7 +204,9 @@ template<> struct bsdata<short> : bsdata<int> {};
 template<> struct bsdata<unsigned> : bsdata<int> {};
 //
 int									getdigitscount(unsigned number); // Get digits count of number. For example if number=100, result be 3.
+const char*							getnm(const char* id);
 template<class T> const char*		getstr(T e); // Template to return string of small class
+void								initialize_translation(const char* locale);
 bool								ischa(unsigned u); // is alphabetical character?
 inline bool							isnum(unsigned u) { return u >= '0' && u <= '9'; } // is numeric character?
 void*								loadb(const char* url, int* size = 0, int additional_bytes_alloated = 0); // Load binary file.
@@ -222,8 +240,8 @@ char*								szprint(char* result, const char* result_maximum, const char* forma
 char*								szprintv(char* result, const char* result_maximum, const char* format, const char* format_param);
 void								szput(char** output, unsigned u, codepages page = metrics::code);
 char*								szput(char* output, unsigned u, codepages page = metrics::code); // Fast symbol put function. Return 'output'.
-const char*							szskipcr(const char* p);
-const char*							szskipcrr(const char* p0, const char* p);
+const char*							skipcr(const char* p);
+inline const char*					skipsp(const char* p) { if(p) while(*p == 32 || *p == 9) p++; return p; }
 unsigned							szupper(unsigned u);
 char*								szupper(char* p, int count = 1); // to upper reg
 char*								szurl(char* p, const char* path, const char* name, const char* ext = 0, const char* suffix = 0);

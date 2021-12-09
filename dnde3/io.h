@@ -12,6 +12,8 @@ namespace io {
 enum protocols { NoProtocol, TCP, UDP };
 // Abstract bi-stream interface
 struct stream {
+	stream&				operator<<(const char* t); // Post text string into stream data in correct coding.
+	stream&				operator<<(const int n); // Post number as string into stream data in correct coding.
 	unsigned char		get();
 	unsigned short		getLE16();
 	unsigned			getLE32();
@@ -39,19 +41,19 @@ struct stream {
 	void				writescan(void* p, int width, int heght, int scan_line, int element_size);
 	int					writesig(const char* signature) { return write(signature, 4); }
 };
-struct sequence : public stream {
-	int					read(void* result, int count) override;
-	int					write(const void* result, int count) override;
-	int					seek(int count, int rel = SeekCur) override;
-	bool				match(const char* value);
-	sequence(io::stream& parent);
-private:
-	char				cashed[64];
-	int					cashed_count;
-	io::stream&			parent;
-	//
-	void				makecashe(int count);
-};
+//struct sequence : public stream {
+//	int					read(void* result, int count) override;
+//	int					write(const void* result, int count) override;
+//	int					seek(int count, int rel = SeekCur) override;
+//	bool				match(const char* value);
+//	sequence(io::stream& parent);
+//private:
+//	char				cashed[64];
+//	int					cashed_count;
+//	io::stream&			parent;
+//	//
+//	void				makecashe(int count);
+//};
 struct file : public stream {
 	struct find {
 		find(const char* url);

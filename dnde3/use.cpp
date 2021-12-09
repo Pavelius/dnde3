@@ -20,9 +20,9 @@ bool item::isboost(variant id) const {
 bool creature::use(const creaturea& creatures, item& it) {
 	if(!it)
 		return false;
-	auto& ei = it.geti();
 	variant effect = it.geteffect();
-	variant skill = ei.skill;
+	auto skill = it.getskill();
+	auto skill_value = get(skill);
 	const char* current_string;
 	switch(it.geti().slot) {
 	case Edible:
@@ -71,77 +71,70 @@ bool creature::use(const creaturea& creatures, item& it) {
 		}
 		break;
 	case Tool:
-		if(skill.type == Ability) {
-			auto ability_value = get((ability_s)skill.value) * 2;
-			ability_value += it.getbonus() * 4;
-			if(skill.value == Charisma) {
-				// Музыкальный инструмент
-				if(mp <= 3) {
-					info("Не хватает маны.");
-					return false;
-				}
-				static const char* text[] = {"Храбрый %герой отправился в путь, парочку монстров хотел он нагнуть.",
-					"%герой спустился в темнейший лабиринт и тут он увидал, лежащий бинт, лежавший прямо на полу и, безусловно, он очень пригодился бы ему, если бы он знал, что монстр огромный ...",
-					"Ведьмаку заплатите чеканной монетой, чеканной монетой, оу-оу-оу!!",
-					"Бей его бей! Бей, да точней!",
-					"Да здраствует королева! Королева-Вьюга! Королева всего севера и всего юга.",
-					"Шум волны, да морской прибой, ах не остаться уже нам с тобой.",
-				};
-				say(maprnd(text));
-				if(effect && (d100() < 60))
-					ability_value += 20;
-				else if(ei.effects.data && ei.effects.count) {
-					if(ei.effects[0])
-						effect = ei.effects[rand() % ei.effects.count];
-					else
-						effect = ei.effects[1 + rand() % (ei.effects.count - 1)];
-				}
-				if(effect) {
-					creaturea creatures(*this);
-					creatures.match(*this, Friendly, false, false);
-					if(!creatures) {
-						info("Вокруг нет [дружелюбно] настроеных существ, которые смогут оценить всю крсоту выступления.");
-						return false;
-					}
-					if(rollv(ability_value)) {
-						auto index = 0;
-						for(auto p : creatures) {
-							if(effect.type == Ability)
-								p->drink((ability_s)effect.value, true, Mundane, 10);
-							else
-								p->apply(*this, effect, 1, index, true);
-							index++;
-						}
-					} else {
-						auto p = creatures.random();
-						static const char* text[] = {"Пожалей мои уши.",
-							"Лучше бы ты молчал.",
-							"Что за дичь ты несешь?",
-							"Хватит трепаться!",
-							"АААааа! Убейте меня кто-то!",
-						};
-						p->say(maprnd(text));
-					}
-				}
-				paymana(xrand(1, 3), false);
-			}
-		} else if(skill.type == Skill) {
-			if(!skills[skill.value]) {
-				info("Вы не владеете навыком [%1], поэтому не можете исопльзовать этот инструмент.", getstr((skill_s)skill.value));
+		if(!skill_value) {
+			info("Вы не владеете навыком [%1], поэтому не можете использовать этот инструмент.", getstr(skill));
+			return false;
+		}
+		skill_value += it.getbonus() * 10;
+		if(skill == Alchemy) {
+			if(!recipes) {
+				info("Вы не выучили ни одного алхимического рецепта.");
 				return false;
 			}
-			auto ability_value = get((skill_s)skill.value);
-			ability_value += it.getbonus() * 10;
-			if(skill.value == Alchemy) {
-				if(!recipes) {
-					info("Вы не выучили ни одного алхимического рецепта.");
+			auto power = choosereceipt(isactive() ? "По какому рецепту хотите создать зелье?" : 0);
+			item it = craft(AlchemyPotion, power, Alchemy, skill_value);
+			add(it, true, true);
+			wait(60);
+		} else if(skill == MusicalInstrument) {
+			if(mp <= 3) {
+				info("Не хватает маны.");
+				return false;
+			}
+			static const char* text[] = {"Храбрый %герой отправился в путь, парочку монстров хотел он нагнуть.",
+				"%герой спустился в темнейший лабиринт и тут он увидал, лежащий бинт, лежавший прямо на полу и, безусловно, он очень пригодился бы ему, если бы он знал, что монстр огромный ...",
+				"Ведьмаку заплатите чеканной монетой, чеканной монетой, оу-оу-оу!!",
+				"Бей его бей! Бей, да точней!",
+				"Да здраствует королева! Королева-Вьюга! Королева всего севера и всего юга.",
+				"Шум волны, да морской прибой, ах не остаться уже нам с тобой.",
+			};
+			say(maprnd(text));
+			auto& ei = it.geti();
+			if(effect && (d100() < 60))
+				skill_value += 20;
+			else if(ei.effects.data && ei.effects.count) {
+				if(ei.effects[0])
+					effect = ei.effects[rand() % ei.effects.count];
+				else
+					effect = ei.effects[1 + rand() % (ei.effects.count - 1)];
+			}
+			if(effect) {
+				creaturea creatures(*this);
+				creatures.match(*this, Friendly, false, false);
+				if(!creatures) {
+					info("Вокруг нет [дружелюбно] настроеных существ, которые смогут оценить всю красоту выступления.");
 					return false;
 				}
-				auto power = choosereceipt(isactive() ? "По какому рецепту хотите создать зелье?" : 0);
-				item it = craft(AlchemyPotion, power, Alchemy, ability_value);
-				add(it, true, true);
-				wait(60);
+				if(rollv(skill_value)) {
+					auto index = 0;
+					for(auto p : creatures) {
+						if(effect.type == Ability)
+							p->drink((ability_s)effect.value, true, Mundane, 10);
+						else
+							p->apply(*this, effect, 1, index, true);
+						index++;
+					}
+				} else {
+					auto p = creatures.random();
+					static const char* text[] = {"Пожалей мои уши.",
+						"Лучше бы ты молчал.",
+						"Что за дичь ты несешь?",
+						"Хватит трепаться!",
+						"АААааа! Убейте меня кто-то!",
+					};
+					p->say(maprnd(text));
+				}
 			}
+			paymana(xrand(1, 3), false);
 		}
 		break;
 	}

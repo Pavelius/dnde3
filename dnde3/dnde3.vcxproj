@@ -120,7 +120,9 @@
     <ClCompile Include="archive.cpp" />
     <ClCompile Include="chat.cpp" />
     <ClCompile Include="commandi.cpp" />
+    <ClCompile Include="condition.cpp" />
     <ClCompile Include="converter.cpp" />
+    <ClCompile Include="crt_translate.cpp" />
     <ClCompile Include="damage.cpp" />
     <ClCompile Include="boost.cpp" />
     <ClCompile Include="bstream.cpp" />
@@ -144,6 +146,7 @@
     <ClCompile Include="event.cpp" />
     <ClCompile Include="food.cpp" />
     <ClCompile Include="location_ie.cpp" />
+    <ClCompile Include="log.cpp" />
     <ClCompile Include="quest.cpp" />
     <ClCompile Include="indexa.cpp" />
     <ClCompile Include="intellegence.cpp" />
@@ -202,10 +205,12 @@
     <ClInclude Include="draw.h" />
     <ClInclude Include="flagable.h" />
     <ClInclude Include="io.h" />
+    <ClInclude Include="log.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="my_initialize_list.h" />
     <ClInclude Include="point.h" />
     <ClInclude Include="rect.h" />
+    <ClInclude Include="slice.h" />
     <ClInclude Include="stringbuilder.h" />
     <ClInclude Include="win.h" />
   </ItemGroup>

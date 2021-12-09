@@ -107,17 +107,17 @@ enum ability_s : unsigned char {
 enum skill_s : unsigned char {
 	Bargaining, Bluff, Diplomacy,
 	Acrobatics, Alertness, Athletics, Backstabbing, Climbing, Concetration,
-	DisarmTraps, FindWeakness, HearNoises, HideInShadow, Lockpicking, MoveSilently, PickPockets,
+	DisarmTraps, HearNoises, HideInShadow, Lockpicking, MoveSilently, PickPockets,
 	Alchemy, Cooking, Dancing, Engineering, Gambling, History, Healing, Herbalism,
-	Literacy, Mining, Religion, Riding, Smithing, Survival, Swimming,
+	Literacy, Mining, MusicalInstrument, Religion, Riding, Smithing, Survival, Swimming,
 	ProficiencyAxes, ProficiencyBows, ProficiencyDaggers, ProficiencyMaces, ProficiencyPolearms, ProficiencyStaff, ProficiencySwords,
 	FirstSkill = Bargaining, LastSkill = ProficiencySwords,
 };
 enum state_s : unsigned char {
 	Darkvision, Dazzled, Drunken, Fear, Friendly, Hostile,
 	Invisible, Poisoned, Sick, Summoned,
-	Unaware, Wounded,
-	LastState = Wounded,
+	Unaware,
+	LastState = Unaware,
 };
 enum tile_s : unsigned char {
 	Plain, Water, Floor, Wall, Road,
@@ -253,7 +253,7 @@ enum command_s : unsigned char {
 	LastCommand = LoseMoney50,
 };
 enum condition_s : unsigned char {
-	Anger, Berserking, Busy, Guardian, Happy,
+	Anger, Berserking, Busy, Guardian, Happy, Wounded,
 	MissHits, MissMana, MissHalfHits, MissHalfMana, MissAlmostAllHits, MissAlmostAllMana,
 	Owner,
 };
@@ -366,6 +366,9 @@ struct durationi {
 	const char*			name;
 	unsigned			range[2];
 	int					roll() const;
+};
+struct conditioni {
+	const char*			id;
 };
 struct sloti {
 	const char*			id;
@@ -540,7 +543,7 @@ struct itemi {
 	aref<variant>		effects;
 	cflags<itemflag_s>	flags;
 	slot_s				slot;
-	variant				skill;
+	skill_s				skill;
 	//
 	constexpr item_s	getammo() const { return weapon.amunition; }
 	item_s				getid() const;
@@ -862,7 +865,7 @@ class creature : public nameable, public statable {
 	item				wears[LastWear + 1];
 	int					restore_energy, restore_hits, restore_mana;
 	flagable<4>			recipes;
-	short				hp, mp, poison, faith, mood;
+	short				hp, mp, poison, faith, mood, wounds;
 	short unsigned		location_id, site_id;
 	indext				guard;
 	direction_s			direction;
@@ -871,6 +874,7 @@ class creature : public nameable, public statable {
 	encumbrance_s		encumbrance;
 	void				add(ability_s id, int v, bool interactive);
 	void				add(ability_s id, int v, bool interactive, unsigned minutes);
+	void				add(condition_s id, int v, bool interactive);
 	void				add(spell_s id, int v, bool interactive);
 	void				add(state_s id, int v, bool interactive);
 	void				add(skill_s id, int v, bool interactive);

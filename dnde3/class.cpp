@@ -4,7 +4,7 @@ classi bsdata<classi>::elements[] = {
 	{"Крестьянин", 4, 1, 0, {-1, 1, 0, -1, 1, 0}},
 	{"Клерик", 8, 6, 0, {1, 0, 0, 0, 2, 1}, {Diplomacy, Literacy, Literacy, Healing, Healing, Healing, Religion, Religion, Herbalism, BlessSpell, HealingSpell},
 	{SwordLong, SwordShort, SwordTwoHanded, BowLong, BowShort}},
-	{"Воин", 10, 2, 0, {4, 1, 2, -2, 0, -1}, {Survival, Survival, Athletics, Athletics, Riding, FindWeakness, ProficiencySwords},
+	{"Воин", 10, 2, 0, {4, 1, 2, -2, 0, -1}, {Survival, Survival, Athletics, Athletics, Riding, ProficiencySwords},
 	{}},
 	{"Маг", 4, 8, 0, {-2, -1, 0, 4, 1, 2}, {Alchemy, Concetration, Concetration, History, Literacy, Literacy, Literacy, ArmorSpell, MagicMissile, Sleep},
 	{AxeBattle, HammerWar, SwordLong, SwordShort, Spear, BowLong, BowShort, LeatherArmor, StuddedLeatherArmor, ScaleMail, ChainMail, SplintMail, PlateMail}},

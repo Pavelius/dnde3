@@ -114,11 +114,29 @@ void creature::dispell(variant source, bool interactive) {
 }
 
 void creature::addboost(variant id, int modifier, unsigned rounds) {
+	auto owner_id = getid();
+	if(modifier > 0) {
+		for(auto& e : bsdata<boosti>()) {
+			if(e.owner_id == owner_id && e.id == id && e.modifier < modifier) {
+				e.modifier = modifier;
+				e.time = rounds;
+				return;
+			}
+		}
+	} else if(modifier < 0) {
+		for(auto& e : bsdata<boosti>()) {
+			if(e.owner_id == owner_id && e.id == id && e.modifier > modifier) {
+				e.modifier = modifier;
+				e.time = rounds;
+				return;
+			}
+		}
+	}
 	auto p = bsdata<boosti>::add();
 	p->id = id;
 	p->modifier = modifier;
 	p->time = rounds;
-	p->owner_id = getid();
+	p->owner_id = owner_id;
 }
 
 creature* creature::getobject(short unsigned v) {
@@ -131,10 +149,8 @@ void creature::dispell(bool interactive) {
 	auto id = getid();
 	auto ps = bsdata<boosti>::elements;
 	for(auto& e : bsdata<boosti>()) {
-		if(e.owner_id == id) {
-			add(e.id, e.modifier, interactive);
+		if(e.owner_id == id)
 			continue;
-		}
 		*ps++ = e;
 	}
 	bsdata<boosti>::source.setcount(ps - bsdata<boosti>::elements);
@@ -1049,13 +1065,14 @@ void creature::attack(creature& enemy, const attacki& ai, int bonus, int multipl
 	}
 	auto pierce = 0;
 	auto deflect = enemy.get(Deflect);
-	if(roll(skill, -deflect)) {
-		multiplier += 30;
+	if(skill && roll(skill, -deflect)) {
+		multiplier += 50;
 		switch(ai.type) {
 		case Piercing:
-			multiplier += 10;
+			multiplier += 20;
 			pierce = 100;
 			act("%герой попал%а в уязвимое место.");
+			enemy.bloodstain();
 			break;
 		case Slashing:
 			act("%герой нанес%ла кровоточащую рану.");
@@ -1147,6 +1164,13 @@ void creature::add(skill_s id, int v, bool interactive) {
 		if(interactive)
 			act("%герой повысил%а навык [%+1] до [+%2i%%].", getstr(id), get(id));
 	} else if(v < 0) {
+	}
+}
+
+void creature::add(condition_s id, int v, bool interactive) {
+	switch(id) {
+	case Wounded: wounds += v; if(wounds < 0) wounds = 0; break;
+	default: break;
 	}
 }
 
@@ -1305,8 +1329,7 @@ void creature::restoration() {
 	if(is(RoomOfMana))
 		restore_mana += get(ManaRate) * 3;
 	if(is(Wounded)) {
-		// Wounded creature loose 1 hit point each turn
-		if(roll(Constitution, -10))
+		if(roll(Constitution, -5))
 			add(Wounded, -1, true);
 		else {
 			act("%герой истекает кровью.");
@@ -1577,7 +1600,7 @@ void creature::moveaway(indext index) {
 bool creature::isallow(item_s v) const {
 	auto& ci = bsdata<classi>::elements[kind];
 	auto& ei = bsdata<itemi>::elements[v];
-	if(ei.skill.type == Skill && skills[ei.skill.value] > 0)
+	if(ei.skill && skills[ei.skill] > 0)
 		return true;
 	if(ci.restricted.is(v))
 		return false;
@@ -1802,14 +1825,16 @@ bool creature::ismatch(const creature& opponent, skill_s id, int value) const {
 }
 
 void creature::fail(skill_s id) {
-	const int chance_fail = 30;
-	auto& ei = bsdata<skilli>::elements[id];
-	auto isbad = d100() < chance_fail;
+	auto isbad = d100() < 30;
 	if(!isbad)
 		return;
 	switch(id) {
 	case Athletics:
 	case Acrobatics:
+	case MoveSilently:
+	case PickPockets:
+	case HideInShadow:
+	case Dancing:
 		act("%герой растянул%а мышцу.");
 		damage(1, Bludgeon, 100, false);
 		break;
@@ -1818,13 +1843,6 @@ void creature::fail(skill_s id) {
 	case Bluff:
 		act("Это занятие жутко скучно и утомительно.");
 		paymana(1, false);
-		break;
-	case MoveSilently:
-	case PickPockets:
-	case HideInShadow:
-	case Dancing:
-		act("%герой испытал%а мышечный спазм.");
-		damage(1, Bludgeon, 100, false);
 		break;
 	default:
 		info("Вы убили кучу времени, но все было тщетно.");
@@ -2136,24 +2154,6 @@ void creature::setfriendlyto(const creature& player) {
 
 void creature::wait(duration_s v) {
 	consume(bsdata<durationi>::elements[v].roll());
-}
-
-bool creature::is(condition_s v) const {
-	switch(v) {
-	case Anger: return mood < 30;
-	case Berserking: return mood < 60;
-	case Busy: return restore_energy <= -(StandartEnergyCost * 4) && is(Unaware);
-	case Guardian: return guard != Blocked;
-	case Happy: return mood > 40;
-	case MissHits: return gethits() < get(LifePoints);
-	case MissHalfHits: return gethits() < get(LifePoints) / 2;
-	case MissAlmostAllHits: return gethits() < get(LifePoints) / 5;
-	case MissMana: return getmana() < get(ManaPoints);
-	case MissHalfMana: return getmana() < get(ManaPoints) / 2;
-	case MissAlmostAllMana: return getmana() < get(ManaPoints) / 5;
-	case Owner: return getsite() && getsite()->getowner() == this;
-	default: return false;
-	}
 }
 
 bool creature::resist(damage_s v, int bonus, bool interactive) const {

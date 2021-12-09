@@ -79,7 +79,7 @@ static int render_control(const char** result, int x, int y, int width) {
 	}
 	if(*p == ')')
 		p++;
-	p = szskipcr(p);
+	p = skipcr(p);
 	*result = p;
 	auto pm = draw::textplugin::find(type);
 	if(pm)
@@ -250,7 +250,7 @@ static int textfln(int x0, int y0, int width, const char** string, color c1, int
 		// Отметим перевод строки и окончание строки
 		if(p[0] == 0 || p[0] == 10 || p[0] == 13) {
 			y += draw::texth();
-			p = szskipcr(p);
+			p = skipcr(p);
 			break;
 		}
 	}
@@ -295,7 +295,7 @@ int draw::textf(int x, int y, int width, const char* string, int* max_width,
 			y += textfln(x, y, width, &p, colors::h1, &mw2, tab_width);
 		} else if(match(&p, "...")) // Без форматирования
 		{
-			p = szskipcr(p);
+			p = skipcr(p);
 			font = metrics::font;
 			color c1 = colors::window.mix(colors::edit, 256 - 32);
 			y += texth() / 2;
@@ -308,7 +308,7 @@ int draw::textf(int x, int y, int width, const char* string, int* max_width,
 				y += texth();
 				p += c;
 				if(match(&p, "...")) {
-					p = szskipcr(p);
+					p = skipcr(p);
 					y += texth() / 2;
 					break;
 				}

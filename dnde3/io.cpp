@@ -1,5 +1,26 @@
 #include "crt.h"
 #include "io.h"
+#include "stringbuilder.h"
+
+io::stream& io::stream::operator<<(const int n) {
+	char temp[32]; stringbuilder sb(temp);
+	sb.add("%1i", n);
+	return *this << temp;
+}
+
+io::stream&	io::stream::operator<<(const char* t) {
+	if(!t)
+		return *this;
+	// ѕриведем формат строки из стандартной кодировки
+	while(*t) {
+		char temp[8];
+		char* s1 = temp;
+		unsigned u = szget(&t);
+		szput(&s1, u, CPUTF8);
+		write(temp, s1 - temp);
+	}
+	return *this;
+}
 
 void io::stream::writescan(void* p, int width, int height, int scan_line, int element_size) {
 	char* pc = (char*)p;
