@@ -106,12 +106,13 @@ static void weapon_skill_ability(stringbuilder& sb, manual& mn, answeri& an) {
 	if(mn.value.type == Skill) {
 		auto id = (skill_s)mn.value.value;
 		auto& ei = bsdata<skilli>::elements[id];
-		if(ei.weapon.attack)
-			sb.addn("* ƒает +1%% к шансу попасть за каждые [%1i%%] навыка.", ei.weapon.attack);
-		if(ei.weapon.damage)
-			sb.addn("* ƒает +1 к повреждени€м за каждые [%1i%%] навыка.", ei.weapon.damage);
-		if(ei.weapon.speed)
-			sb.addn("* ƒает +1 к скорости атаки за каждые [%1i%%] навыка.", ei.weapon.speed);
+		sb.adds("ќтражает шанс нанести врагу критический удар.");
+		//if(ei.weapon.attack)
+		//	sb.addn("* ƒает +1%% к шансу попасть за каждые [%1i%%] навыка.", ei.weapon.attack);
+		//if(ei.weapon.damage)
+		//	sb.addn("* ƒает +1 к повреждени€м за каждые [%1i%%] навыка.", ei.weapon.damage);
+		//if(ei.weapon.speed)
+		//	sb.addn("* ƒает +1 к скорости атаки за каждые [%1i%%] навыка.", ei.weapon.speed);
 	}
 }
 
@@ -212,8 +213,12 @@ BSDATA(manual) = {
 	{Skill, Religion, 0, "ќтображает знание религие и принадлежность своей вере. ќт религии зависит количество очков веры персонажа.", skill_proc},
 	{Skill, Riding, 0, "ѕозвол€ет передвигатьс€ быстрее на глобальной карте.", skill_proc},
 	{Skill, ProficiencyAxes, 0, "ѕозвол€ет примен€ть сложные приемы с таким оружием как топор.", weapon_skill},
-	{Skill, ProficiencySwords, 0, "ѕозвол€ет более эффективно сражатьс€ на мечах.", weapon_skill},
 	{Skill, ProficiencyBows, 0, "ѕозвол€ет более эффективно стрел€ть из лука.", weapon_skill},
+	{Skill, ProficiencyDaggers, 0, "ѕозвол€ет виртуозно атаковать кинжалом.", weapon_skill},
+	{Skill, ProficiencyMaces, 0, "ѕозвол€ет наносить более опасные удары тупым оружием.", weapon_skill},
+	{Skill, ProficiencyPolearms, 0, "ѕозвол€ет наносить более опасные колющие удары древковым оружием.", weapon_skill},
+	{Skill, ProficiencyStaff, 0, "ѕозвол€ет крутить посох вокруг себ€ как насто€щий виртуоз.", weapon_skill},
+	{Skill, ProficiencySwords, 0, "ѕозвол€ет более эффективно сражатьс€ на мечах.", weapon_skill},
 	{State, Poisoned, 0, "ќтравленный персонаж тер€ет по одному очку жизни каждые 5 минут если не выполнит сопротивление €ду. ѕри удачном сопротивлении уменьшаетс€ уровень €да."},
 	{State, Sick, 0, "Ѕольной персонаж не восстанавливает очки жизни природным путем. ѕри лечение количество восстанавливаемых хитов делитс€ на три."},
 	{Variant, Race, "–асы", "ќт выбранной расы завис€т стартовые атрибуты к которым добав€етс€ случайный модификатор от [--2] до [++2].", general_list},

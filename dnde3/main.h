@@ -114,8 +114,8 @@ enum skill_s : unsigned char {
 	FirstSkill = Bargaining, LastSkill = ProficiencySwords,
 };
 enum state_s : unsigned char {
-	Darkvision, Dazzled, Drunken, Fear, Friendly, Hostile,
-	Invisible, Poisoned, Sick, Summoned,
+	Darkvision, Dazzled, Drunken, Fear,
+	Friendly, Hostile, Invisible, Poisoned, Sick, Summoned,
 	Unaware,
 	LastState = Unaware,
 };

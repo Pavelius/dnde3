@@ -522,21 +522,42 @@ attacki creature::getattack(slot_s id, const item& weapon) const {
 		result = weapon.getattack();
 	if(!result.dice.max)
 		return result;
-	result.attack += get(Attack);
-	result.dice.min += get(Damage);
-	result.dice.max += get(Damage);
 	switch(id) {
 	case Melee:
+		result.attack += get(AttackMelee);
+		result.dice.min += get(DamageMelee);
+		result.dice.max += get(DamageMelee);
 		if(weapon.is(Versatile) && !wears[OffHand]) {
 			result.dice.min += 1;
 			result.dice.max += 1;
 		}
 		break;
 	case OffHand:
-		if(weapon.is(Light) && wears[Melee])
-			result.attack -= 30;
+		result.attack += get(AttackMelee);
+		result.dice.min += get(DamageMelee);
+		result.dice.max += get(DamageMelee);
+		break;
+	case Ranged:
+		result.attack += get(AttackRanged);
+		result.dice.min += get(DamageRanged);
+		result.dice.max += get(DamageRanged);
 		break;
 	}
+	//if(weapon) {
+	//	auto skill = weapon.getskill();
+	//	if(skill) {
+	//		auto& wi = bsdata<skilli>::elements[skill].weapon;
+	//		auto v = get(skill);
+	//		if(wi.attack)
+	//			result.attack += v / wi.attack;
+	//		if(wi.damage) {
+	//			result.dice.max += v / wi.damage;
+	//			result.dice.min += v / wi.damage;
+	//		}
+	//		if(wi.speed)
+	//			result.speed += v / wi.speed;
+	//	}
+	//}
 	result.dice.normalize();
 	return result;
 }
@@ -1349,7 +1370,7 @@ void creature::makemove() {
 	update();
 	// Dazzled creature don't make turn
 	if(is(Dazzled)) {
-		if(roll(Constitution, 0))
+		if(roll(Constitution))
 			add(Dazzled, -1, true);
 		else {
 			wait();

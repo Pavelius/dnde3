@@ -14,8 +14,8 @@ int	dicei::roll() const {
 }
 
 void dicei::normalize() {
-	if(min < 1)
-		min = 1;
+	if(min < 0)
+		min = 0;
 	if(max < 1)
 		max = 1;
 }
