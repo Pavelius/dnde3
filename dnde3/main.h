@@ -268,8 +268,8 @@ enum variant_s : unsigned char {
 enum fraction_s : unsigned char {
 	NoFraction,
 	AdventurerGuild, MiddleKindom, NorthKindom, MountainKindom, ForestKindom,
-	SeaKings, DemonLords,
-	SavageHorde, MightyDragon, RavenousUndead, SecretOrder, TheivesGuild,
+	SeaKings, DemonLords, SavageHorde, MightyDragon, RavenousUndead, SecretOrder,
+	TheivesGuild,
 };
 enum dice_s : unsigned char {
 	NoDice,

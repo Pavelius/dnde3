@@ -36,7 +36,7 @@ BSDATA(rolei) = {
 	{"Огр", "огра", "23", Ogre, Male, Chaotic, Monster, 5, {Slam}},
 	{"Огриха", "огрихи", "23_f", Ogre, Female, Chaotic, Monster, 5, {Slam}},
 	{"Медвежук", "медвежука", "24", Goblin, Male, Chaotic, Monster, 3, {Fur}, {Hard, Strenght, Constitution}},
-	{"Медвежучиха", "медвежучихи", "24_f", Goblin, Male, Chaotic, Monster, 3, {Fur}, {Hard, Strenght, Constitution}},
+	{"Медвежучиха", "медвежучихи", "24_f", Goblin, Female, Chaotic, Monster, 3, {Fur}, {Hard, Strenght, Constitution}},
 	{"Персонаж", "персонажа", 0, Human, Male, Neutral, Commoner},
 };
 assert_enum(rolei, Character)
